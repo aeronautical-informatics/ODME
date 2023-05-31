@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<start>
+<Scenario>
+<node1Dec>
+<Drone/>
+<Car/>
+</node1Dec>
+</Scenario>
+</start>

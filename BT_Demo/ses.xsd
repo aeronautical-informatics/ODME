@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified"
+    xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning" vc:minVersion="1.1">
+    
+        <xs:complexType name="aspectType">
+        <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="unbounded" ref="entity"/>
+        </xs:sequence>
+        <xs:attribute name="name" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="multiAspectType">
+        <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="unbounded" ref="entity"/>
+        </xs:sequence>
+        <xs:attribute name="name" use="required"/>
+        <xs:attribute name="constraint" use="optional"/>
+    </xs:complexType>
+
+    <xs:complexType name="specializationType">
+        <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="unbounded" ref="entity"/>
+        </xs:sequence>
+        <xs:attribute name="name" use="required"/>
+    </xs:complexType>
+
+
+    <xs:complexType name="varType"> 
+        <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="unbounded" ref="entity"/>
+        </xs:sequence>
+        <xs:attribute name="name" use="required"/>
+        <xs:attribute name="type" use="optional"/>
+        <xs:attribute name="default" use="optional"/>
+        <xs:attribute name="lower" use="optional"/>
+        <xs:attribute name="upper" use="optional"/>
+        
+    </xs:complexType>
+
+
+    <xs:element name="entity">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:choice minOccurs="0" maxOccurs="unbounded">
+                    <xs:element ref="aspect"/>
+                    <xs:element ref="specialization"/>
+                    <xs:element ref="multiAspect"/>
+                    <xs:element ref="var"/>
+                    
+                </xs:choice>            
+                
+            </xs:sequence>
+
+            <xs:attribute name="name" use="required"/>
+            <xs:attribute name="ref" use="optional"/>
+          
+            <xs:assert test="every $x in .//entity satisfies empty($x//*[@name = $x/@name])"/> 
+            <xs:assert test="every $x in .//entity satisfies count(*[$x/@name = $x/following-sibling::*/@name]) = 0"/>                
+            <xs:assert test="every $x in .//var satisfies count(*[@name = following-sibling::*/@name]) = 0"/>                                     
+            
+        </xs:complexType>      
+        
+      
+    </xs:element>
+
+    <xs:element name="aspect" type="aspectType"/>
+    <xs:element name="multiAspect" type="multiAspectType"/>
+    <xs:element name="specialization" type="specializationType"/>
+    <xs:element name="var" type="varType"/>   
+
+     
+</xs:schema>
+

@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+ xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning" 
+ elementFormDefault="qualified" vc:minVersion="1.1" >
+
+<xs:element name="Scenario">
+<xs:complexType>
+<xs:sequence id="scenarioDec">
+<xs:element name="Environment">
+<xs:complexType>
+<xs:sequence id="environmentDec">
+<xs:element name="Summer_Season">
+<xs:complexType>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+<xs:element name="Rain_Weather">
+<xs:complexType>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+<xs:element name="Misc">
+<xs:complexType>
+<xs:attribute name="luminosity" default="50">
+<xs:simpleType>
+<xs:restriction base="xs:int">
+<xs:minInclusive  value="0"/>
+<xs:maxInclusive value="100"/>
+</xs:restriction>
+</xs:simpleType>
+</xs:attribute>
+<xs:attribute name="Flat_Terrain" default="true">
+</xs:attribute>
+<xs:attribute name="Airport_Location" default="Braunschweig">
+</xs:attribute>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+</xs:sequence>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+<xs:element name="Entities">
+<xs:complexType>
+<xs:sequence id="entitiesDec">
+<xs:element name="Intruder_Aircraft">
+<xs:complexType>
+<xs:attribute name="Type" default="Airbus_A320">
+</xs:attribute>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+<xs:element name="Main_Aircraft">
+<xs:complexType>
+<xs:attribute name="Type" default="Cessna">
+</xs:attribute>
+<xs:attribute name="speed" default="90">
+<xs:simpleType>
+<xs:restriction base="xs:int">
+<xs:minInclusive  value="80"/>
+<xs:maxInclusive value="100"/>
+</xs:restriction>
+</xs:simpleType>
+</xs:attribute>
+<xs:sequence id="cameraDec">
+<xs:element name="Camera_1">
+<xs:complexType>
+<xs:attribute name="pos_x" default="1">
+<xs:simpleType>
+<xs:restriction base="xs:int">
+<xs:minInclusive  value="-2147483648"/>
+<xs:maxInclusive value="2147483647"/>
+</xs:restriction>
+</xs:simpleType>
+</xs:attribute>
+<xs:attribute name="pos_y" default="2">
+<xs:simpleType>
+<xs:restriction base="xs:int">
+<xs:minInclusive  value="-2147483648"/>
+<xs:maxInclusive value="2147483647"/>
+</xs:restriction>
+</xs:simpleType>
+</xs:attribute>
+<xs:attribute name="pos_z" default="3">
+<xs:simpleType>
+<xs:restriction base="xs:int">
+<xs:minInclusive  value="-2147483648"/>
+<xs:maxInclusive value="2147483647"/>
+</xs:restriction>
+</xs:simpleType>
+</xs:attribute>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+<xs:element name="Camera_2">
+<xs:complexType>
+<xs:attribute name="pos_x" default="4">
+<xs:simpleType>
+<xs:restriction base="xs:int">
+<xs:minInclusive  value="-2147483648"/>
+<xs:maxInclusive value="2147483647"/>
+</xs:restriction>
+</xs:simpleType>
+</xs:attribute>
+<xs:attribute name="pos_y" default="5">
+<xs:simpleType>
+<xs:restriction base="xs:int">
+<xs:minInclusive  value="-2147483648"/>
+<xs:maxInclusive value="2147483647"/>
+</xs:restriction>
+</xs:simpleType>
+</xs:attribute>
+<xs:attribute name="pos_z" default="6">
+<xs:simpleType>
+<xs:restriction base="xs:int">
+<xs:minInclusive  value="-2147483648"/>
+<xs:maxInclusive value="2147483647"/>
+</xs:restriction>
+</xs:simpleType>
+</xs:attribute>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+</xs:sequence>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+</xs:sequence>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+<xs:element name="Events">
+<xs:complexType>
+<xs:sequence id="eventsDec">
+<xs:element name="Intruder_Path">
+<xs:complexType>
+<xs:sequence id="waypointDec">
+<xs:element name="waypoint_1">
+<xs:complexType>
+<xs:attribute name="altitude" default="50">
+<xs:simpleType>
+<xs:restriction base="xs:int">
+<xs:minInclusive  value="-2147483648"/>
+<xs:maxInclusive value="2147483647"/>
+</xs:restriction>
+</xs:simpleType>
+</xs:attribute>
+<xs:attribute name="speed" default="90">
+<xs:simpleType>
+<xs:restriction base="xs:int">
+<xs:minInclusive  value="-2147483648"/>
+<xs:maxInclusive value="2147483647"/>
+</xs:restriction>
+</xs:simpleType>
+</xs:attribute>
+<xs:attribute name="latitude" default="15">
+<xs:simpleType>
+<xs:restriction base="xs:int">
+<xs:minInclusive  value="-2147483648"/>
+<xs:maxInclusive value="2147483647"/>
+</xs:restriction>
+</xs:simpleType>
+</xs:attribute>
+<xs:attribute name="longitude" default="55">
+<xs:simpleType>
+<xs:restriction base="xs:int">
+<xs:minInclusive  value="-2147483648"/>
+<xs:maxInclusive value="2147483647"/>
+</xs:restriction>
+</xs:simpleType>
+</xs:attribute>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+<xs:element name="waypoint_2">
+<xs:complexType>
+<xs:attribute name="latitude" default="17">
+<xs:simpleType>
+<xs:restriction base="xs:int">
+<xs:minInclusive  value="-2147483648"/>
+<xs:maxInclusive value="2147483647"/>
+</xs:restriction>
+</xs:simpleType>
+</xs:attribute>
+<xs:attribute name="longitude" default="55">
+<xs:simpleType>
+<xs:restriction base="xs:int">
+<xs:minInclusive  value="-2147483648"/>
+<xs:maxInclusive value="2147483647"/>
+</xs:restriction>
+</xs:simpleType>
+</xs:attribute>
+<xs:attribute name="altitude" default="51">
+<xs:simpleType>
+<xs:restriction base="xs:int">
+<xs:minInclusive  value="-2147483648"/>
+<xs:maxInclusive value="2147483647"/>
+</xs:restriction>
+</xs:simpleType>
+</xs:attribute>
+<xs:attribute name="speed" default="90">
+<xs:simpleType>
+<xs:restriction base="xs:int">
+<xs:minInclusive  value="-2147483648"/>
+<xs:maxInclusive value="2147483647"/>
+</xs:restriction>
+</xs:simpleType>
+</xs:attribute>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+</xs:sequence>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+<xs:element name="Aircraft_Path">
+<xs:complexType>
+<xs:attribute name="Flight_Tape" default="Tape_1_53_54_2023">
+</xs:attribute>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+</xs:sequence>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+</xs:sequence>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+</xs:schema>

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<entity xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ses.xsd" name="Scenario">
+<aspect name="scenarioDec">
+<entity name="Environment">
+<aspect name="environmentDec">
+<entity name="Season">
+<specialization name="seasonSpec">
+<entity name="Summer">
+</entity>
+<entity name="Winter">
+</entity>
+</specialization>
+</entity>
+<entity name="Weather">
+<specialization name="weatherSpec">
+<entity name="Rain">
+</entity>
+<entity name="Fog">
+</entity>
+<entity name="Snow">
+</entity>
+<entity name="Clear">
+</entity>
+</specialization>
+</entity>
+<entity name="Misc">
+<var name="luminosity" default="none" lower="0" upper="100" ></var>
+<var name="Airport_Location" default="none"></var>
+<var name="Flat_Terrain" default="False"></var>
+</entity>
+</aspect>
+</entity>
+<entity name="Entities">
+<aspect name="entitiesDec">
+<entity name="Intruder_Aircraft">
+<var name="Type" default="none"></var>
+</entity>
+<entity name="Main_Aircraft">
+<var name="Type" default="none"></var>
+<var name="speed" default="none" lower="80" upper="100" ></var>
+<multiAspect name="cameraMAsp">
+<entity name="Camera">
+<var name="pos_x" default="none" lower="-2147483648" upper="2147483647" ></var>
+<var name="pos_y" default="none" lower="-2147483648" upper="2147483647" ></var>
+<var name="pos_z" default="none" lower="-2147483648" upper="2147483647" ></var>
+</entity>
+</multiAspect>
+</entity>
+</aspect>
+</entity>
+<entity name="Events">
+<aspect name="eventsDec">
+<entity name="Intruder_Path">
+<multiAspect name="waypointMAsp">
+<entity name="waypoint">
+<var name="latitude" default="none" lower="-2147483648" upper="2147483647" ></var>
+<var name="longitude" default="none" lower="-2147483648" upper="2147483647" ></var>
+<var name="altitude" default="none" lower="-2147483648" upper="2147483647" ></var>
+<var name="speed" default="none" lower="-2147483648" upper="2147483647" ></var>
+</entity>
+</multiAspect>
+</entity>
+<entity name="Aircraft_Path">
+<var name="Flight_Tape" default="none"></var>
+</entity>
+</aspect>
+</entity>
+</aspect>
+</entity>
