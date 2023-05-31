@@ -1,2 +1,1 @@
-# odme
-Operational Domain Modelling Environment
+# Operational Domain Modelling Environment
