@@ -5,4 +5,3 @@
 
 **Scenario Modelling Editor** has been developed as an interactive pruning tool. It also has a variable table for displaying variables or editing values of variables. Also, constraint table and console window work exactly the same way. Here also left side tree is synchronized with the white drawing panel. Nodes are also movable here. But here a new project can’t be created. Also, new elements can’t be added to the model in Scenario Modelling. Then, the main functionality of Scenario Modelling is pruning Domain Models to create pruned entity structure. After completing pruning of the created domain metamodel, executable scenario can be exported for target simulation environment by using a project specific XSLT file.
 
-thank's
