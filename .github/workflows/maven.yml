@@ -39,6 +39,27 @@ jobs:
         name: Package
         path: staging
 
+  automate-release:
+    name: Automate GitHub Release
+    needs: publish-job  # Specify the jobs that need to be completed before this job starts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+        with:
+          tag_name: v${{ github.run_number }}  # Specify the desired tag for the release
+          release_name: Release ${{ github.run_number }} # Specify the release name
+          body: This is a release of the project.
+          artifacts: |
+            staging/
+          draft: false
+          prerelease: false
+
   build-docker-image:
     name: Build and Push Docker Image
     runs-on: ubuntu-latest
