@@ -2,12 +2,12 @@
 
 ### Table of Contents
 
-* [Overview]
-* [Workflow]
-* [Getting Started]
-* [Usage]
-* [Contributing]
-* [License]
+* [Overview](#Overview)
+* [Workflow](#workflow)
+* [Getting Started](#getting-started)
+* [Usage](#usage)
+* [Contributing](#contributing)
+* [License](#license)
 
 ## [Overview](#Overview)
 
