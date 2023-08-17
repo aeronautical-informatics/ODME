@@ -1,4 +1,4 @@
-name: Java Maven Build & Publish Artifact
+name: Github Actions CI/CD Workflow for ODME
 
 on:
   push:
