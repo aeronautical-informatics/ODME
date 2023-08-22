@@ -37,15 +37,16 @@ To get started with ODME, follow these steps:
 1. Clone this repository to your local machine.
 2. Install the required dependencies, including Java and Maven.
 3. Use the provided editors to create and refine domain models.
-4. Leverage the workflow for automated build, testing, packaging, and release.
+4. Leverage the workflow for automated build, testing, packaging, and release (The provided GitHub Actions workflow automates the development process. It builds the project, packages artifacts, and releases new versions based on changes to the main branch.)
 
 ## [Usage](#usage)
 
-1. **Domain Modeling Editor** : Use the Domain Modeling Editor to visually create and manipulate domain models. Add elements, define relationships, and attach variables to nodes.
-
-2. **Scenario Modelling Editor** : The Scenario Modelling Editor is designed for interactive pruning of domain models. It helps you create pruned entity structures and generate executable scenarios.
-
-3. **GitHub Workflow** : The provided GitHub Actions workflow automates the development process. It builds the project, packages artifacts, and releases new versions based on changes to the main branch.
+1. Download the package and extract the contents
+2. Open the terminal or powershell at the root of the folder containing the extracted content 
+3. Run the following script : **java -jar SESEditor-1.0-SNAPSHOT-jar-with-dependencies.jar** and the ODME application will open and you will be able to work on its various parts.
+4. **Domain Modeling Editor** : Use the Domain Modeling Editor to visually create and manipulate domain models. Add elements, define relationships, and attach variables to nodes.
+5. **Scenario Modelling Editor** : The Scenario Modelling Editor is designed for interactive pruning of domain models. It helps you create pruned entity structures and generate executable scenarios.
+6. **GitHub Workflow** : The provided GitHub Actions workflow automates the development process. It builds the project, packages artifacts, and releases new versions based on changes to the main branch.
 
 ## [Contributing](#contributing)
 
