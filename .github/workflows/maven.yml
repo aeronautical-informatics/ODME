@@ -105,8 +105,8 @@ jobs:
           tag_name: v${{ github.run_number }}
           release_name: Release ${{ github.run_number }}
           body: This is a release of the project.
-#          artifacts: |
- #           staging/
+          artifacts: |
+            staging/
           draft: false
           prerelease: false
 
@@ -115,8 +115,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.TOKEN }}
         with:
-          asset_path: staging/Package.jar
-          asset_name: Package.jar
+          asset_path: staging/Package.zip
+          asset_name: Package.zip
           asset_content_type: application/java-archive
           upload_url: ${{ steps.get_upload_url.outputs.upload_url }}
 
