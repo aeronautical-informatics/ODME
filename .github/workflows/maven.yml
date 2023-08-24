@@ -34,6 +34,13 @@ jobs:
         distribution: 'temurin'
     - run: mvn --batch-mode --update-snapshots verify
     - run: mkdir staging && cp target/*.jar staging
+    - name: Check if staging/Package.jar exists
+      id: check_file
+      run: |
+        if [ ! -f staging/Package.jar ]; then
+          echo "File staging/Package.jar does not exist"
+          exit 1
+        fi
     - uses: actions/upload-artifact@v3
       with:
         name: Package
@@ -98,8 +105,8 @@ jobs:
           tag_name: v${{ github.run_number }}
           release_name: Release ${{ github.run_number }}
           body: This is a release of the project.
-          artifacts: |
-            staging/
+#          artifacts: |
+ #           staging/
           draft: false
           prerelease: false
 
