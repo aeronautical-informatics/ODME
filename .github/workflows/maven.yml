@@ -84,6 +84,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.TOKEN }}
         with:
-          asset_path: ${{ github.workspace }}/staging/Package.zip
-          asset_name: Package.zip
+          asset_path: ./staging/Package
+          asset_name: Package
           asset_content_type: application/zip
