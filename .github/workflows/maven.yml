@@ -37,9 +37,9 @@ jobs:
     - name: Check if staging/Package.jar exists
       id: check_file
       run: |
-        if [ ! -d staging ]; then
-          echo "File staging does not exist"
-          exit 1
+        if [ ! -f staging/Package.jar ]; then
+            echo "File staging/Package.jar does not exist"
+            mkdir staging && cp target/*.jar staging
         fi
     - uses: actions/upload-artifact@v3
       with:
@@ -105,8 +105,8 @@ jobs:
           tag_name: v${{ github.run_number }}
           release_name: Release ${{ github.run_number }}
           body: This is a release of the project.
-          artifacts: |
-            staging/
+#          artifacts: |
+#            staging/
           draft: false
           prerelease: false
 
