@@ -71,3 +71,19 @@ jobs:
           docker build -f Dockerfile -t adeutou/odme-image:latest .
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
           docker push adeutou/odme-image:latest
+
+  update-release-asset:
+    name: Update Release Asset
+    needs: automate-release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Update Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+        with:
+          asset_path: ./staging/Package.zip
+          asset_name: Package.zip
+          asset_content_type: application/zip
