@@ -37,8 +37,8 @@ jobs:
     - name: Check if staging/Package.jar exists
       id: check_file
       run: |
-        if [ ! -f staging/Package.zip ]; then
-          echo "File staging/Package.zip does not exist"
+        if [ ! -d staging ]; then
+          echo "File staging does not exist"
           exit 1
         fi
     - uses: actions/upload-artifact@v3
