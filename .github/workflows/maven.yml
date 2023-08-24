@@ -60,6 +60,15 @@ jobs:
           draft: false
           prerelease: false
 
+      - name: Upload Artifact
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+        with:
+          asset_path: staging/Package.jar
+          asset_name: Package.jar
+          asset_content_type: application/java-archive
+
   build-docker-image:
     name: Build and Push Docker Image
     runs-on: ubuntu-latest
@@ -71,24 +80,3 @@ jobs:
           docker build -f Dockerfile -t adeutou/odme-image:latest .
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
           docker push adeutou/odme-image:latest
-
-  update-release-asset:
-    name: Update Release Asset
-    needs: automate-release
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Get Release Upload URL
-        id: get_upload_url
-        run:
-          echo "::set-output name=upload_url::$(curl -sS -H \"Authorization: Bearer ${{ secrets.TOKEN }}\" -X GET https://api.github.com/repos/${{ github.repository }}/releases/${{ github.run_number }} | jq -r '.upload_url' | sed 's/{?name,label}//')"
-      - name: Upload Release Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN }}
-        with:
-          upload_url: ${{ steps.get_upload_url.outputs.upload_url }}
-          asset_path: ./staging/Package
-          asset_name: Package
-          asset_content_type: application/zip
