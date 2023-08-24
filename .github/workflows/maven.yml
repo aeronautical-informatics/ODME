@@ -60,6 +60,18 @@ jobs:
           draft: false
           prerelease: false
 
+      - name: Get upload URL
+        id: get_upload_url
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+        with:
+          tag_name: v${{ github.run_number }}
+          release_name: Release ${{ github.run_number }}
+          body: This is a release of the project.
+          draft: false
+          prerelease: false
+
       - name: Upload Artifact
         uses: actions/upload-release-asset@v1
         env:
@@ -68,6 +80,7 @@ jobs:
           asset_path: staging/Package.jar
           asset_name: Package.jar
           asset_content_type: application/java-archive
+          upload_url: ${{ steps.get_upload_url.outputs.upload_url }}
 
   build-docker-image:
     name: Build and Push Docker Image
