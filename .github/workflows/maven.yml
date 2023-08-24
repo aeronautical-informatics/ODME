@@ -98,6 +98,8 @@ jobs:
           tag_name: v${{ github.run_number }}
           release_name: Release ${{ github.run_number }}
           body: This is a release of the project.
+          artifacts: |
+            staging/
           draft: false
           prerelease: false
 
