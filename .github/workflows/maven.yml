@@ -81,8 +81,7 @@ jobs:
         uses: actions/checkout@v2
       - name: Get Release Upload URL
         id: get_upload_url
-        run:
-          echo "::set-output name=upload_url::$(curl -sS -H \"Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}\" -X GET https://api.github.com/repos/${{ github.repository }}/releases/${{ github.run_number }} | jq -r '.upload_url' | sed 's/{?name,label}//')"
+        run: ./get_upload_url.sh
       - name: Upload Release Asset
         uses: actions/upload-release-asset@v1
         env:
