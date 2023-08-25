@@ -71,4 +71,3 @@ jobs:
           docker build -f Dockerfile -t adeutou/odme-image:latest .
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
           docker push adeutou/odme-image:latest
-
