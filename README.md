@@ -26,8 +26,6 @@ This repository uses GitHub Actions to automate the build, testing, packaging, a
 
 3. **Automate Release** : The automate-release job creates a GitHub release based on the uploaded artifact, providing a versioned snapshot of the project.
 
-4. **Build and Push Docker Image** : The build-docker-image job builds a Docker image of the ODME project and pushes it to Docker Hub.
-
 This workflow streamlines the development process, ensuring code quality, artifact packaging, and release management.
 
 ## [Getting Started](#getting-started)
