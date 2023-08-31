@@ -120,7 +120,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>dlr.ses.seseditor.SESEditor</mainClass>
+                            <mainClass>odme.odmeeditor.Main</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
