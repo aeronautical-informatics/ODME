@@ -110,20 +110,21 @@ public class TreePopup extends JPopupMenu {
     }
     
     private void popUpActionAddVariable() { // have to change this function so that it will like add variable of
-        String variableName, variableType, variableValue, variableLowerBound, variableUpperBound;
+        String variableName, variableType, variableValue, variableLowerBound, variableUpperBound, variableComment="";
 
         // multiple input for variable---------------------------------
-        JTextField variableField, variableTypeField, valueField, lowerBoundField, upperBoundField;
+        JTextField variableField, variableTypeField, valueField, lowerBoundField, upperBoundField, commentField;
         
         variableField = new JTextField();
         variableTypeField = new JTextField();
         valueField = new JTextField();
         lowerBoundField = new JTextField();
         upperBoundField = new JTextField();
+        commentField=new JTextField();
 
         Object[] message =
                 {"Variable Name:", variableField, "Variable Type:", variableTypeField, "Value:", valueField,
-                        "Lower Bound:", lowerBoundField, "Upper Bound:", upperBoundField};
+                        "Lower Bound:", lowerBoundField, "Upper Bound:", upperBoundField,"Comment:",commentField};
 
         int option = JOptionPane
                 .showConfirmDialog(Main.frame, message, "Please Enter", JOptionPane.OK_CANCEL_OPTION,
@@ -134,12 +135,13 @@ public class TreePopup extends JPopupMenu {
             variableValue = valueField.getText();
             variableLowerBound = lowerBoundField.getText();
             variableUpperBound = upperBoundField.getText();
+            variableComment=commentField.getText();
 
             // added inside IF block so that if variable window closed without adding then
             // nothing will happen.
             variableName =
                     variableName + "," + variableType + "," + variableValue + "," + variableLowerBound + ","
-                    + variableUpperBound;
+                    + variableUpperBound+","+variableComment;
 
             TreePath currentSelection = ODMEEditor.treePanel.tree.getSelectionPath();
 
@@ -149,7 +151,8 @@ public class TreePopup extends JPopupMenu {
                             .isEmpty()) && (valueField.getText() != null) && (!valueField.getText().trim()
                             .isEmpty()) && (lowerBoundField.getText() != null) && (!lowerBoundField.getText()
                             .trim().isEmpty()) && (upperBoundField.getText() != null) && (!upperBoundField
-                            .getText().trim().isEmpty());
+                            .getText().trim().isEmpty() && (commentField.getText()!=null) &&
+                            (!commentField.getText().trim().isEmpty()) );
 
             if (!validInput) {
                 JOptionPane.showMessageDialog(Main.frame, "Please input all values correctly.");

@@ -10,6 +10,7 @@ import javax.swing.JTextField;
 import javax.swing.border.EtchedBorder;
 import javax.swing.tree.DefaultMutableTreeNode;
 
+import odeme.behaviour.Behaviour;
 import odme.jtreetograph.JtreeToGraphAdd;
 import odme.jtreetograph.JtreeToGraphDelete;
 import odme.jtreetograph.JtreeToGraphVariables;
@@ -60,8 +61,8 @@ public class NewProject extends JPanel {
      * Also check the duplicate project name for the default location.
      */
     public void createNewProjectWindow() {
-    	
-    	projectNameLabel = new JLabel("Project Name:");
+
+        projectNameLabel = new JLabel("Project Name:");
         projectNameLabel.setBounds(20, 30, 120, 30);
         
         newProjectNameField = new JTextField(30);
@@ -145,14 +146,14 @@ public class NewProject extends JPanel {
         frame.setVisible(true);
         frame.add(panelTop, BorderLayout.NORTH);
         frame.add(panelCenter, BorderLayout.CENTER);
-        frame.add(panelBottom, BorderLayout.SOUTH);	
+        frame.add(panelBottom, BorderLayout.SOUTH);
     }
 
 
     private void addFunctions() {
-    	
+
         newProjectNameField.addKeyListener(new KeyListener() {
-        	
+
             @Override
             public void keyTyped(KeyEvent e) {}
 
@@ -161,7 +162,7 @@ public class NewProject extends JPanel {
                 String name = newProjectNameField.getText().trim();
                 File fileName = new File(name);
                 if (fileName.exists() && fileName.isDirectory()) {
-                	errorLabelField.setText("There is a file with the same name. It will be overwritten.");
+                    errorLabelField.setText("There is a file with the same name. It will be overwritten.");
                     errorLabelField.setVisible(true);
                 } else {
                     errorLabelField.setVisible(false);
@@ -196,7 +197,7 @@ public class NewProject extends JPanel {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-            	selectLocation();
+                selectLocation();
             }
         });
 //      -------------------------------------
@@ -211,7 +212,7 @@ public class NewProject extends JPanel {
 
                 if (newRootNameField.getText().trim().equals(newProjectNameField.getText().trim())) {
                     errorLabelField.setVisible(true);
-                    errorLabelField.setText("Root name shold be different from project name.");
+                    errorLabelField.setText("Root name should be different from project name.");
                 } else {
                     errorLabelField.setText("");
                     errorLabelField.setVisible(false);
@@ -226,7 +227,7 @@ public class NewProject extends JPanel {
         create.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-            	createFunc();
+                createFunc();
                 frame.dispose();
             }
         });
@@ -241,8 +242,8 @@ public class NewProject extends JPanel {
     }
     
     private void selectLocation() {
-    	
-    	JFileChooser fileChooser = new JFileChooser();
+
+        JFileChooser fileChooser = new JFileChooser();
         fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         fileChooser.setAcceptAllFileFilterUsed(false);
         fileChooser.setCurrentDirectory(new File(ODMEEditor.repFslas));
@@ -255,8 +256,8 @@ public class NewProject extends JPanel {
     }
     
     private void createFunc() {
-    	
-    	String newProjectName = newProjectNameField.getText();
+        System.out.println("Create project ");
+        String newProjectName = newProjectNameField.getText();
         String newRootName = newRootNameField.getText();
         String oldProjectTreeProjectName = ODMEEditor.projName;
 
@@ -266,15 +267,17 @@ public class NewProject extends JPanel {
         JtreeToGraphVariables.nodeNumber = 1;
 
         JtreeToGraphVariables.ssdFileGraph = new File(String.format("%s/%s/%sGraph.xml",
-        		ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
+                ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
         ODMEEditor.treePanel.ssdFile = new File(String.format("%s/%s/%s.xml",
-        		ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
+                ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
         ODMEEditor.treePanel.ssdFileVar = new File(String.format("%s/%s/%s.ssdvar",
-        		ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
+                ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
         ODMEEditor.treePanel.ssdFileCon = new File(String.format("%s/%s/%s.ssdcon",
-        		ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
+                ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
+        ODMEEditor.treePanel.ssdFileBeh = new File(String.format("%s/%s/%s.ssdbeh",
+                ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
         ODMEEditor.treePanel.ssdFileFlag = new File(String.format("%s/%s/%s.ssdflag",
-        		ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
+                ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
         
         ProjectTree.projectName = newProjectName;
 
@@ -282,8 +285,10 @@ public class NewProject extends JPanel {
         JtreeToGraphAdd.addPageLengthNodes();
 
         DefaultMutableTreeNode rootNodeNew = new DefaultMutableTreeNode(newRootName);
+
         DynamicTree.treeModel.setRoot(rootNodeNew);
         DynamicTree.treeModel.reload();
+
         ODMEEditor.treePanel.tree.setModel(DynamicTree.treeModel);
 
         ODMEEditor.projectPanel
@@ -291,6 +296,7 @@ public class NewProject extends JPanel {
 
         Variable.setNullToAllRows();
         Constraint.setNullToAllRows();
+        Behaviour.setNullToAllRows();
         
         ODMEEditor.newProjectFolderCreation();
         Main.createScenariosJson();

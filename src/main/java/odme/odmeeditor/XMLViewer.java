@@ -29,7 +29,6 @@ public class XMLViewer extends JInternalFrame {
 
     public XMLViewer() {
         cp = new JPanel(new BorderLayout());
-
         textArea = new RSyntaxTextArea(20, 60);
         textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_XML);
         textArea.setCodeFoldingEnabled(true);

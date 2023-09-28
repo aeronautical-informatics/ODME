@@ -59,6 +59,9 @@ public class GraphCellPopUp extends JPopupMenu {
     					case "Add Variable":
     						JtreeToGraphAdd.addVariableFromGraphPopup(pos);
     						break;
+    					case "Add Behaviour":
+    						JtreeToGraphAdd.addBehaviourFromGraphPopup(pos);
+    						break;
     					case "Delete Variable":
     						JtreeToGraphDelete.deleteVariableFromGraphPopup(pos);
     						break;
@@ -106,6 +109,7 @@ public class GraphCellPopUp extends JPopupMenu {
     				if (cellName.endsWith("Dec")) {
     				} 
     				else if (cellName.endsWith("MAsp")) {
+
     					JtreeToGraphPrune.pruneMAspNodeFromGraphPopup(pos);
     				} 
     				else if (cellName.endsWith("Spec")) {
@@ -141,10 +145,11 @@ public class GraphCellPopUp extends JPopupMenu {
     			items[4] = "Delete Branch";
     			items[5] = "Add Module";
     			items[6] = "Save Module";
+    			items[7] = "Add Behaviour";
 
     			if (cellName.endsWith("Dec")) {
-        			items[7] = "Add Constraint";
-        			items[8] = "Delete All Constraint";
+        			items[8] = "Add Constraint";
+        			items[9] = "Delete All Constraint";
     			}
     		}
     	}

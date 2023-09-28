@@ -94,6 +94,9 @@ public class Constraint extends JPanel {
         }
         setNullRowsToVariableTable();
     }
+    
+  
+    
 
     private void updateTableData(String constraints) {
         // multiple input for variable---------------------------------

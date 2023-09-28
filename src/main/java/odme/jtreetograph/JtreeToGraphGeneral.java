@@ -10,6 +10,7 @@ import odme.odmeeditor.DynamicTree;
 import odme.odmeeditor.Main;
 import odme.odmeeditor.ODMEEditor;
 
+import static behaviourtreetograph.JTreeToGraphBehaviour.benhaviourGraph;
 import static odme.jtreetograph.JtreeToGraphVariables.*;
 
 import java.io.File;
@@ -31,7 +32,7 @@ import org.w3c.dom.Element;
 
 public class JtreeToGraphGeneral {
 
-	public static String rootNodeName() {
+    public static String rootNodeName() {
         Object[] cells = graph.getChildVertices(graph.getDefaultParent());
         mxCell rootcell = null;
 
@@ -57,7 +58,11 @@ public class JtreeToGraphGeneral {
 
     public static void redo() {
         if (undoManager.canRedo())
+        {
             undoManager.redo();
+        }else {
+            System.out.println("Cannot redo ");
+        }
     }
     
     public static void undo() {
@@ -83,7 +88,28 @@ public class JtreeToGraphGeneral {
         }
         return thisElement;
     }
-    
+
+    public static Element behaviourChildNodes(Document thisDoc, mxCell cell) {
+        Element thisElement = null;
+
+        String nodeName = benhaviourGraph.getModel().getValue(cell).toString();
+        thisElement = thisDoc.createElement(nodeName);
+
+        Object[] outgoing = benhaviourGraph.getOutgoingEdges(cell);
+
+        if (outgoing.length > 0) {
+            for (int i = 0; i < outgoing.length; i++) {
+                Object targetCell = benhaviourGraph.getModel().getTerminal(outgoing[i], false);
+                // for next call
+                mxCell targetCell2 = (mxCell) targetCell;
+                thisElement.appendChild(behaviourChildNodes(thisDoc, targetCell2));
+            }
+        }
+        return thisElement;
+    }
+
+
+
     public static Element childNodesWithUniformity(Document thisDoc, mxCell cell) {
         Element thisElement = null;
 
@@ -117,12 +143,12 @@ public class JtreeToGraphGeneral {
     public static void xmlOutputForXSD() {
         PrintWriter f0 = null;
         try {
-        	String path = new String();
-        	if (ODMEEditor.toolMode == "ses")
-        		path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/xmlforxsd.xml";
-        	else
-        		path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/xmlforxsd.xml";
-        	
+            String path = new String();
+            if (ODMEEditor.toolMode == "ses")
+                path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/xmlforxsd.xml";
+            else
+                path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/xmlforxsd.xml";
+
             f0 = new PrintWriter(
                     new FileWriter(path));
         } 
@@ -132,12 +158,12 @@ public class JtreeToGraphGeneral {
 
         Scanner in = null;
         try {
-        	String path = new String();
-        	if (ODMEEditor.toolMode == "ses")
-        		path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/outputgraphxmlforxsd.xml";
-        	else
-        		path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/outputgraphxmlforxsd.xml";
-        	
+            String path = new String();
+            if (ODMEEditor.toolMode == "ses")
+                path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/outputgraphxmlforxsd.xml";
+            else
+                path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/outputgraphxmlforxsd.xml";
+
             in = new Scanner(new File(path));
 
         } 
@@ -314,14 +340,14 @@ public class JtreeToGraphGeneral {
                         JOptionPane.PLAIN_MESSAGE);
                 
                 if (newName == null)
-                	return;
+                    return;
                 
                 else if (Character.isDigit(newName.trim().charAt(0))) {
-                		JOptionPane.showMessageDialog(Main.frame,
-                				"Node's name should not start with a number!", "Name Error", JOptionPane.ERROR_MESSAGE);
-                		return;
+                    JOptionPane.showMessageDialog(Main.frame,
+                            "Node's name should not start with a number!", "Name Error", JOptionPane.ERROR_MESSAGE);
+                    return;
                 }
-                		
+
                 newName = newName.replaceAll("\\s+", "");
 
                 if ((newName != null) && (!newName.trim().isEmpty())) {
@@ -354,12 +380,12 @@ public class JtreeToGraphGeneral {
                     .showInputDialog(Main.frame, "New Name", "Rename Node", JOptionPane.PLAIN_MESSAGE);
             
             if (newName == null)
-            	return;
+                return;
             
             else if (Character.isDigit(newName.trim().charAt(0))) {
-            		JOptionPane.showMessageDialog(Main.frame,
+                JOptionPane.showMessageDialog(Main.frame,
                             "Node's name should not start with a number!", "Name Error", JOptionPane.ERROR_MESSAGE);
-            		return;
+                return;
             }
 
             if (newName != null) {
@@ -437,12 +463,12 @@ public class JtreeToGraphGeneral {
      */
     public static void openExistingProject(String filename, String oldProjectTreeProjectName) {
         parent = graph.getDefaultParent();
-        
-    	String path = new String();
-    	if (ODMEEditor.toolMode == "ses")
-    		path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/"  + filename + "Graph.xml";
-    	else
-    		path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/"  + filename + "Graph.xml";
+
+        String path = new String();
+        if (ODMEEditor.toolMode == "ses")
+            path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/"  + filename + "Graph.xml";
+        else
+            path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/"  + filename + "Graph.xml";
         
         ssdFileGraph =
                 new File(path);

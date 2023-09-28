@@ -7,6 +7,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.ConcurrentModificationException;
@@ -30,16 +31,18 @@ import odme.odmeeditor.ODMEEditor;
 import odme.odmeeditor.Variable;
 
 public class JtreeToGraphPrune {
-	
-	public static String selectedNodeToPrune = null;
-	public static Multimap<TreePath, String> varMapTransfer = ArrayListMultimap.create();
-	public static String selecteVarName;
-	
-	private static int cellCount = 0;
-	private static TreePath[] cellListForIconChange = new TreePath[100];
-	
-	public static void pruneNodeFromGraphPopup(Object pos) {
-		
+
+    public static String selectedNodeToPrune = null;
+    public static Multimap<TreePath, String> varMapTransfer = ArrayListMultimap.create();
+
+    public static Multimap<TreePath, String> behMapTransfer = ArrayListMultimap.create();
+    public static String selecteVarName;
+
+    private static int cellCount = 0;
+    private static TreePath[] cellListForIconChange = new TreePath[100];
+
+    public static void pruneNodeFromGraphPopup(Object pos) {
+
         mxCell selectedCell = (mxCell) pos;
         Object[] outgoing = graph.getOutgoingEdges(selectedCell);
 
@@ -88,12 +91,12 @@ public class JtreeToGraphPrune {
                     if (targetCell2.getValue().equals(selectedNodeToPrune)) {
                         Object[] outgoingSelected = graph.getOutgoingEdges(targetCell2);
                         if (outgoingSelected.length > 0) {
-                        	JtreeToGraphSave.saveModuleFromCurrentModel(targetCell2);
-                        	JtreeToGraphDelete.deleteNodeFromGraphPopup(pos);
+                            JtreeToGraphSave.saveModuleFromCurrentModel(targetCell2);
+                            JtreeToGraphDelete.deleteNodeFromGraphPopup(pos);
                             String newEntityName =
                                     selectedNodeToPrune + "_" + targetCellIncoming2.getValue().toString();
+                            System.out.println("inside if block");
                             renameCellPES(targetCellIncoming2, newEntityName);
-
                             JtreeToGraphAdd.addModuleFromSubgraphUniformity(targetCellIncoming2);
                         } 
                         else {
@@ -103,24 +106,48 @@ public class JtreeToGraphPrune {
                              */
 
                             String[] nodesToSelectedNode = new String[100];
+                            String[] nodesBehaviour = new String[100];
+
                             nodesToSelectedNode = returnAllVariablesFromPrunedNode(targetCell2);
+
+                            nodesBehaviour = returnAllBehaviorVariablesFromPrunedNode(targetCell2);
+
+
+                            nodesBehaviour = Arrays.stream(nodesBehaviour)
+                                    .filter(s -> (s !=null && s.length() >0)).toArray(String[]::new);
+
                             nodesToSelectedNode = Arrays.stream(nodesToSelectedNode)
                                     .filter(s -> (s != null && s.length() > 0)).toArray(String[]::new);
 
                             String[] nodesToSelectedNodeHost = new String[100];
+                            String[] nodesToSelectedBehaviorHost = new String[100];
                             nodesToSelectedNodeHost = returnAllVariablesFromPrunedNode(targetCellIncoming2);
+                            nodesToSelectedBehaviorHost = returnAllBehaviorVariablesFromPrunedNode(targetCellIncoming2);
+
                             nodesToSelectedNodeHost = Arrays.stream(nodesToSelectedNodeHost)
                                     .filter(s -> (s != null && s.length() > 0)).toArray(String[]::new);
-                            
+                            nodesToSelectedBehaviorHost = Arrays.stream(nodesToSelectedBehaviorHost)
+                                    .filter(s -> (s != null && s.length() > 0)).toArray(String[]::new);
+
                             // end of variable collection-------------------
 
                             JtreeToGraphDelete.deleteNodeFromGraphPopup(pos);
                             String newEntityName =
                                     selectedNodeToPrune + "_" + targetCellIncoming2.getValue().toString();
                             renameCellPES(targetCellIncoming2, newEntityName);
-                           
+
+
+                            //if the node donot have variable but have behavior then for loop will not run.
+                            //therefore i am writing different code to transfer behaviors from child node to parent node
+
+                            for(String behavior: nodesBehaviour){
+                                addBehaviorFromOneNodeToAnother(targetCellIncoming2 , behavior);
+                            }
+                            for(String behavior: nodesToSelectedBehaviorHost){
+                                addBehaviorFromOneNodeToAnother(targetCellIncoming2 , behavior);
+                            }
                             for (String value : nodesToSelectedNode) {
-                            	addVariablesFromOneNodeToAnother(targetCellIncoming2, value);
+                                 addVariablesFromOneNodeToAnother(targetCellIncoming2, value);
                             }
                         }
                     }
@@ -132,36 +159,35 @@ public class JtreeToGraphPrune {
         ODMEEditor.changePruneColor();
     }
 
-	public static void pruneMAspNodeFromGraphPopup(Object pos) {
-		
+    public static void pruneMAspNodeFromGraphPopup(Object pos) {
+        // Also read the  behaviour List  and update that according to the selection of node.
+//        read behaviour file
         mxCell maspcell = (mxCell) pos;
         String maspcellName = maspcell.getValue().toString().replaceAll("MAsp", "");
         
         JTextField nodeListTf = new JTextField("1");
         nodeListTf.addKeyListener(new KeyListener() {
-			@Override
-			public void keyTyped(KeyEvent e) {}
-			
-			@Override
-			public void keyReleased(KeyEvent e) {
-				int n = 1;
-				try {  
-					n = Integer.parseInt(nodeListTf.getText());
-				}
-				
-				catch(NumberFormatException ex){	
-					nodeListTf.setText("");
-				}
+            @Override
+            public void keyTyped(KeyEvent e) {}
 
-				if (n>1000 || n<1) {
-	            	JOptionPane.showMessageDialog(null, "Number of Entities should be between 1 and 1000");
-	            	nodeListTf.setText("");
-				}
-			}
-			
-			@Override
-			public void keyPressed(KeyEvent e) {}
-		});
+            @Override
+            public void keyReleased(KeyEvent e) {
+                int n = 1;
+                try {
+                    n = Integer.parseInt(nodeListTf.getText());
+                } catch(NumberFormatException ex){
+                    nodeListTf.setText("");
+                }
+
+                if (n>1000 || n<1) {
+                    JOptionPane.showMessageDialog(null, "Number of Entities should be between 1 and 1000");
+                    nodeListTf.setText("");
+                }
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {}
+        });
 
         Object[] pruneOptions = {"Number of Entities:", nodeListTf};
 
@@ -170,9 +196,9 @@ public class JtreeToGraphPrune {
                         JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
         if (option == JOptionPane.OK_OPTION) {
-        	if (nodeListTf.getText().equals("")) {
-        		return;
-        	}
+            if (nodeListTf.getText().equals("")) {
+                return;
+            }
             int number = Integer.parseInt(nodeListTf.getText());
 
             JtreeToGraphSave.saveModuleFromCurrentModel(maspcell);
@@ -227,19 +253,31 @@ public class JtreeToGraphPrune {
 
             /*
              * Copying variables from old node and transfer to new nodes.
-             */	
+             */
             try {
-            	
-            	for (TreePath key : DynamicTree.varMap.keySet()) {
-            		for (String value : DynamicTree.varMap.get(key)) {
-            			String lastNodeName = key.getLastPathComponent().toString();
-            			variableTransferAfterMultiAspectPruning(lastNodeName, value);
-            		}
-            	}
+
+                for (TreePath key : DynamicTree.varMap.keySet()) {
+                    for (String value : DynamicTree.varMap.get(key)) {
+                        String lastNodeName = key.getLastPathComponent().toString();
+                        variableTransferAfterMultiAspectPruning(lastNodeName, value);
+                    }
+                }
+
+                //copy behaviour of the node to transfer other node
+                for (TreePath key : DynamicTree.behavioursList.keySet()) {
+
+                    for (String value : DynamicTree.behavioursList.get(key)) {
+
+//                        System.out.println(" TreePath value = "+value);
+                        String lastNodeName = key.getLastPathComponent().toString();
+                        behaviourTransferAfterMultiAspectPruning(lastNodeName, value);
+//                        DynamicTree.behavioursList.remove(key,value);
+                    }
+                }
             }
         
             catch (ConcurrentModificationException e) {
-            	System.out.println(e.getMessage());
+                System.out.println(e.getMessage());
             }
 
             // have to make used array null and count 0 here
@@ -247,19 +285,63 @@ public class JtreeToGraphPrune {
             treeSyncNodeCount = 0;
             currentSelectedCell = null;
 
+            DynamicTree.behavioursList = behMapTransfer;
             DynamicTree.varMap = varMapTransfer;
         }
         ODMEEditor.changePruneColor();
     }
-	
-	/**
+
+    /**
      * This function is used to transfer variables which are added during modeling
      * to the final pruned structure after multi-aspect pruned is done.
      *
      * @param lastNodeName
      * @param value
      */
+
+
+    public static void behaviourTransferAfterMultiAspectPruning(String lastNodeName, String value) {
+
+        Object[] cells = graph.getChildVertices(graph.getDefaultParent());
+
+        for (Object c : cells) {
+            mxCell cell2 = (mxCell) c;
+            if (cell2.isVertex()) {
+                String val = (String) cell2.getValue();
+                if (val.equals(lastNodeName) || val.startsWith(lastNodeName + "_")) {
+
+                    pathToRoot.add(val);
+                    JtreeToGraphConvert.nodeToRootPathVar(cell2);
+                    String[] stringArray = pathToRoot.toArray(new String[0]);
+                    ArrayList<String> pathRev = new ArrayList<String>();
+
+                    for (int i = stringArray.length - 1; i >= 0; i--) {
+                        pathRev.add(stringArray[i]);
+                    }
+
+                    String[] stringArrayRev = pathRev.toArray(new String[0]);
+                    TreePath treePathForVariableTransfer = JtreeToGraphGeneral.getTreeNodePath(stringArrayRev);
+
+                    int a = 1;
+                    for (String v : behMapTransfer.get(treePathForVariableTransfer)) {
+                        if (v.equals(value)) {
+                            a = 0;
+                            break;
+                        }
+                    }
+
+                    if (a == 1)
+                        behMapTransfer.put(treePathForVariableTransfer, value);
+
+                    pathToRoot.clear();
+                }
+            }
+        }
+    }
+
+
     public static void variableTransferAfterMultiAspectPruning(String lastNodeName, String value) {
+
         Object[] cells = graph.getChildVertices(graph.getDefaultParent());
 
         for (Object c : cells) {
@@ -283,76 +365,75 @@ public class JtreeToGraphPrune {
                     int a = 1;
                     for (String v : varMapTransfer.get(treePathForVariableTransfer)) {
                         if (v.equals(value)) {
-                        	a = 0;
-                        	break;
+                            a = 0;
+                            break;
                         }
-                        	
+
                     }
 
                     if (a == 1)
-                    	varMapTransfer.put(treePathForVariableTransfer, value);
-
+                        varMapTransfer.put(treePathForVariableTransfer, value);
                     pathToRoot.clear();
                 }
             }
         }
     }
-	
-	public static void pruneSiblingsFromGraphPopup(Object pos) {
+
+    public static void pruneSiblingsFromGraphPopup(Object pos) {
         mxCell selectedCell = (mxCell) pos;
 
         if (variableList.length == 0) {
-        	JOptionPane.showMessageDialog(Main.frame, "No variables to prune!", "Error",
+            JOptionPane.showMessageDialog(Main.frame, "No variables to prune!", "Error",
                     JOptionPane.WARNING_MESSAGE);
-        	return;
+            return;
         }
         else {
-        	selecteVarName = variableList[0].split(",")[0];
-        	
-        	JComboBox<String> nodeListCombo = new JComboBox<String>();
-        	for (int i=0; i<variableList.length; i++) {
-        		if (variableList[i] != null) {
-        			nodeListCombo.addItem(variableList[i].split(",")[0]);
-        		}
-        	}
+            selecteVarName = variableList[0].split(",")[0];
 
-        	nodeListCombo.addItemListener(new ItemListener() {
-        		public void itemStateChanged(ItemEvent event) {
-        			if (event.getStateChange() == ItemEvent.SELECTED) {
-        				selecteVarName = nodeListCombo.getSelectedItem().toString();
-        			}
-        		}
-        	});
+            JComboBox<String> nodeListCombo = new JComboBox<String>();
+            for (int i=0; i<variableList.length; i++) {
+                if (variableList[i] != null) {
+                    nodeListCombo.addItem(variableList[i].split(",")[0]);
+                }
+            }
 
-        	Object[] pruneOptions = {"Available Options:", nodeListCombo};
+            nodeListCombo.addItemListener(new ItemListener() {
+                public void itemStateChanged(ItemEvent event) {
+                    if (event.getStateChange() == ItemEvent.SELECTED) {
+                        selecteVarName = nodeListCombo.getSelectedItem().toString();
+                    }
+                }
+            });
 
-        	int option = JOptionPane
-        			.showConfirmDialog(Main.frame, pruneOptions, "Please Choose from Options",
+            Object[] pruneOptions = {"Available Options:", nodeListCombo};
+
+            int option = JOptionPane
+                    .showConfirmDialog(Main.frame, pruneOptions, "Please Choose from Options",
                         JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
-        	if (option == JOptionPane.OK_OPTION) {
-        		
-        		String selecteVar = nodeListCombo.getSelectedItem().toString();
-        		for (String var : variableList) {
-        			
-        			if (var.split(",")[0].equals(selecteVarName)) {
-        				selecteVar = var;
-        				break;
-        			}
-        		}
-        		
-        		if (selecteVar.split(",").length >3)
-        			Variable.updateTableData(selectedCell.getValue().toString(), selecteVar.split(",")[0], selecteVar.split(",")[1],
-        					selecteVar.split(",")[2], selecteVar.split(",")[3], selecteVar.split(",")[4]);
-        		else
-        			Variable.updateTableData(selectedCell.getValue().toString(), selecteVar.split(",")[0], selecteVar.split(",")[1],
-        					selecteVar.split(",")[2], null, null);
-        	}
+            if (option == JOptionPane.OK_OPTION) {
+
+                String selecteVar = nodeListCombo.getSelectedItem().toString();
+                for (String var : variableList) {
+
+                    if (var.split(",")[0].equals(selecteVarName)) {
+                        selecteVar = var;
+                        break;
+                    }
+                }
+
+                if (selecteVar.split(",").length >3)
+                    Variable.updateTableData(selectedCell.getValue().toString(), selecteVar.split(",")[0], selecteVar.split(",")[1],
+                            selecteVar.split(",")[2], selecteVar.split(",")[3], selecteVar.split(",")[4]);
+                else
+                    Variable.updateTableData(selectedCell.getValue().toString(), selecteVar.split(",")[0], selecteVar.split(",")[1],
+                            selecteVar.split(",")[2], null, null);
+            }
         }
     }
-	
-	
-	/**
+
+
+    /**
      * Rename node name of both graph node and jtree node after pruning of
      * specialization node.
      *
@@ -446,17 +527,17 @@ public class JtreeToGraphPrune {
             }
         }
     }
-    
-    public static String[] returnAllVariablesFromPrunedNode(mxCell targetCell2) {
+    public static String[] returnAllBehaviorVariablesFromPrunedNode(mxCell targetCell2){
+
         String[] nodesToSelectedNode = new String[100];
 
         pathToRoot.add((String) targetCell2.getValue());
         JtreeToGraphConvert.nodeToRootPathVar(targetCell2);
-
         String[] stringArray = pathToRoot.toArray(new String[0]);
+//        System.out.println("behavior pathToRoot = "+pathToRoot.toString());
         ArrayList<String> pathToRootRev = new ArrayList<String>();
-
         for (int i = stringArray.length - 1; i >= 0; i--) {
+//            System.out.println("stringArray = "+stringArray[i]);
             pathToRootRev.add(stringArray[i]);
         }
 
@@ -472,19 +553,19 @@ public class JtreeToGraphPrune {
 
             int b = 0;
 
-            for (TreePath key : DynamicTree.varMap.keySet()) {
+            for (TreePath key : DynamicTree.behavioursList.keySet()) {
                 int a = 0;
 
-                for (String value : DynamicTree.varMap.get(key)) {
-                	
+                for (String value : DynamicTree.behavioursList.get(key)) {
+
                     DefaultMutableTreeNode currentNode2 =
                             (DefaultMutableTreeNode) (key.getLastPathComponent());
 
                     TreeNode[] nodes2 = currentNode2.getPath();
 
                     if (nodes.length == nodes2.length) {
-                    	
-                    	int aa = 1;
+
+                        int aa = 1;
                         for (int i = 0; i < nodes.length; i++) {
 
                             if (!nodes[i].toString().equals(nodes2[i].toString())) {
@@ -492,7 +573,7 @@ public class JtreeToGraphPrune {
                                 break;
                             }
                         }
-                        
+
                         a = aa;
                     }
                     if (a == 1) {
@@ -503,9 +584,102 @@ public class JtreeToGraphPrune {
             }
         }
         pathToRoot.clear();
+        for (String s : nodesToSelectedNode) {
+//            System.out.println("Prune behaviours ="+ s);
+        }
+
         return nodesToSelectedNode;
     }
-	
+
+    private static void addBehaviorFromOneNodeToAnother(mxCell cellForAddingVariable, String behaviorName) {
+
+        pathToRoot.add((String) cellForAddingVariable.getValue());
+        JtreeToGraphConvert.nodeToRootPathVar(cellForAddingVariable);
+
+        String[] stringArray = pathToRoot.toArray(new String[0]);
+        ArrayList<String> pathToRootRev = new ArrayList<String>();
+
+        for (int i = stringArray.length - 1; i >= 0; i--) {
+            pathToRootRev.add(stringArray[i]);
+        }
+
+        String[] stringArrayRev = pathToRootRev.toArray(new String[0]);
+
+        TreePath treePathForBehavior = JtreeToGraphGeneral.getTreeNodePath(stringArrayRev);
+
+        DynamicTree.behavioursList.put(treePathForBehavior , behaviorName);
+
+        System.out.println("contains this key = "+DynamicTree.behavioursList.containsKey(treePathForBehavior));
+
+        pathToRoot.clear();
+
+        // have to call a function to refresh the table view
+        ODMEEditor.treePanel.showBehavioursInTable(treePathForBehavior);
+
+    }
+
+    public static String[] returnAllVariablesFromPrunedNode(mxCell targetCell2) {
+        String[] nodesToSelectedNode = new String[100];
+
+        pathToRoot.add((String) targetCell2.getValue());
+        JtreeToGraphConvert.nodeToRootPathVar(targetCell2);
+
+        String[] stringArray = pathToRoot.toArray(new String[0]);
+
+        ArrayList<String> pathToRootRev = new ArrayList<String>();
+
+        for (int i = stringArray.length - 1; i >= 0; i--) {
+            pathToRootRev.add(stringArray[i]);
+        }
+
+        String[] stringArrayRev = pathToRootRev.toArray(new String[0]);
+
+        TreePath treePathForVariable = JtreeToGraphGeneral.getTreeNodePath(stringArrayRev);
+
+
+        if (!(treePathForVariable == null)) {
+            DefaultMutableTreeNode currentNode =
+                    (DefaultMutableTreeNode) (treePathForVariable.getLastPathComponent());
+
+            TreeNode[] nodes = currentNode.getPath();
+
+            int b = 0;
+
+
+            for (TreePath key : DynamicTree.varMap.keySet()) {
+                int a = 0;
+
+                for (String value : DynamicTree.varMap.get(key)) {
+
+                    DefaultMutableTreeNode currentNode2 =
+                            (DefaultMutableTreeNode) (key.getLastPathComponent());
+
+                    TreeNode[] nodes2 = currentNode2.getPath();
+
+                    if (nodes.length == nodes2.length) {
+
+                        int aa = 1;
+                        for (int i = 0; i < nodes.length; i++) {
+
+                            if (!nodes[i].toString().equals(nodes2[i].toString())) {
+                                aa = 0;
+                                break;
+                            }
+                        }
+//                        System.out.println("variable to prune = " + value);
+                        a = aa;
+                    }
+                    if (a == 1) {
+                        nodesToSelectedNode[b] = value;
+//                        System.out.println("variable to prune = " + value);
+                        b++;
+                    }
+                }
+            }
+        }
+        pathToRoot.clear();
+        return nodesToSelectedNode;
+    }
     private static void addVariablesFromOneNodeToAnother(mxCell cellForAddingVariable, String variableName) {
 
         pathToRoot.add((String) cellForAddingVariable.getValue());
@@ -521,7 +695,7 @@ public class JtreeToGraphPrune {
         String[] stringArrayRev = pathToRootRev.toArray(new String[0]);
 
         TreePath treePathForVariable = JtreeToGraphGeneral.getTreeNodePath(stringArrayRev);
-
+//        System.out.println("treePathForVariable = "+treePathForVariable);
         DynamicTree.varMap.put(treePathForVariable, variableName);
 
         pathToRoot.clear();
@@ -529,7 +703,7 @@ public class JtreeToGraphPrune {
         // have to call a function to refresh the table view
         ODMEEditor.treePanel.refreshVariableTable(treePathForVariable);
     }
-    
+
     public static void addNodeFromConsolePES(String nodeName) {
         if (currentSelectedCell != null) {
             mxCell selectedCell = currentSelectedCell;
@@ -736,7 +910,7 @@ public class JtreeToGraphPrune {
             addedCell = (mxCell) targetCell;
 
             if (addedCell != null) {
-            	JtreeToGraphConvert.nodeToRootPath(addedCell);
+                JtreeToGraphConvert.nodeToRootPath(addedCell);
                 lastAddedCell = null;
 
                 // update jtree

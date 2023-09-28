@@ -25,7 +25,6 @@ import odme.jtreetograph.JtreeToGraphModify;
 import xml.schema.TypeInfoWriter;
 
 
-
 public class ToolBar {
 	
 	private JToolBar toolbar;

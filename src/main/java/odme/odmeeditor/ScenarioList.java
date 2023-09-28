@@ -31,6 +31,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.border.EtchedBorder;
 import javax.swing.table.DefaultTableModel;
 
+import odeme.behaviour.Behaviour;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -72,6 +73,7 @@ public class ScenarioList extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
             	try {
+
             		DynamicTree.varMap = ArrayListMultimap.create();
 
             		int row = table.getSelectedRow();
@@ -89,6 +91,7 @@ public class ScenarioList extends JPanel {
             		Console.consoleText.setText(">>");
             		Variable.setNullToAllRows();
             		Constraint.setNullToAllRows();
+            		Behaviour.setNullToAllRows();
 
             		ODMEEditor.graphWindow.setTitle(fileName);
             		ODMEEditor.changePruneColor();
@@ -232,8 +235,9 @@ public class ScenarioList extends JPanel {
     private List<String[]> getJsonData() {
     	JSONParser jsonParser = new JSONParser();
     	List<String[]> dataList = new ArrayList<String[]>();
-        
+    	
         try (FileReader reader = new FileReader(ODMEEditor.fileLocation + "/scenarios.json")){
+
             Object obj = null;
 			try {
 				obj = jsonParser.parse(reader);

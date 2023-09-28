@@ -403,8 +403,10 @@ public class JtreeToGraphCreate {
                 } // button 1 end
 
                 // right click events using pop up menu
-                if (e.getButton() == MouseEvent.BUTTON3) {
-                	
+                // #ROY - added BUtton2 check to support laptops too
+                else if (   (e.getButton() == MouseEvent.BUTTON2)
+                	|| (e.getButton() == MouseEvent.BUTTON3) ) {
+                	System.out.println("JTREETOGRAPH - RIGHT CLICK ");
                 	Object showvar = graphComponent.getCellAt(e.getX(), e.getY());
                     mxCell varCell = (mxCell) showvar;
                     selectedNodeCellForVariableUpdate = varCell;
@@ -521,19 +523,16 @@ public class JtreeToGraphCreate {
                     	if (!((mxCell) position).isVertex() && ODMEEditor.toolMode == "pes") {}
                     	else {
                     		GraphCellPopUp graphCellPopup = new GraphCellPopUp(position);
-                    		if (e.isPopupTrigger()) {
-                    			graphCellPopup.show(graphComponent, x, y - 104);
-                    		}
+                    		// #ROY - removed "isPoppupTrigger" to solve contextMenu bug
+                			graphCellPopup.show(graphComponent, x, y - 104);
                     	}
                         
                     }
                     else {
                     	if (ODMEEditor.toolMode == "ses") {	
                     		GraphPopup graphPopup = new GraphPopup(e.getX(), e.getY());
-
-                    		if (e.isPopupTrigger()) {
-                    			graphPopup.show(graphComponent, x, y - 104);
-                    		}
+                    		// #ROY - removed "isPoppupTrigger" to solve contextMenu bug
+                			graphPopup.show(graphComponent, x, y - 104);
                     	}
                     }
                 }

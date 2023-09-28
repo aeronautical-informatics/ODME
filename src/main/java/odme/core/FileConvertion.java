@@ -296,8 +296,8 @@ public class FileConvertion {
     public void constraintAdditionToNode(String selectedNode, String variableName) {
         Scanner in = null;
         try {
-            in = new Scanner(new File(
-                    ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/outputgraphxmlforxsd.xml"));
+            in = new Scanner(new File(ODMEEditor.fileLocation + "/" + "/outputgraphxmlforxsd.xml"));
+//                    ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/outputgraphxmlforxsd.xml"));
         } 
         catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -305,8 +305,8 @@ public class FileConvertion {
 
         PrintWriter f0 = null;
         try {
-            f0 = new PrintWriter(new FileWriter(
-                    ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/outputgraphxmlforxsdvar.xml"));
+            f0 = new PrintWriter(new FileWriter( ODMEEditor.fileLocation + "/" + "/outputgraphxmlforxsdvar.xml"));
+//                    ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/outputgraphxmlforxsdvar.xml"));
         } 
         catch (IOException e1) {
             e1.printStackTrace();
@@ -349,12 +349,11 @@ public class FileConvertion {
     public void addConstraintToSESStructure(String[] sesNodesInPath, String constraint) {
         int len = sesNodesInPath.length;
         int count = 0;
-
+        System.out.println("file path  = "+ODMEEditor.fileLocation + "/");
         PrintWriter f0 = null;
         try {
-            f0 = new PrintWriter(new FileWriter(ODMEEditor.fileLocation + "/" + ODMEEditor.projName
-                                                + "/testcon.xml")); // outputgraphxmlforxsdvar
-
+            f0 = new PrintWriter(new FileWriter(                    ODMEEditor.fileLocation + "/testcon.xml"));
+//                    ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/testcon.xml")); // outputgraphxmlforxsdvar
         } 
         catch (IOException e1) {
             e1.printStackTrace();
@@ -362,7 +361,8 @@ public class FileConvertion {
 
         Scanner in = null;
         try {
-            in = new Scanner(new File(ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/xmlforxsd.xml"));
+            in = new Scanner(new File(ODMEEditor.fileLocation  + "/xmlforxsd.xml"));
+//                    ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/xmlforxsd.xml"));
 
         } 
         catch (FileNotFoundException e) {
@@ -409,6 +409,7 @@ public class FileConvertion {
 
     public void placeAssertInRightPosition() {
         PrintWriter f0 = null;
+
         try {
             f0 = new PrintWriter(new FileWriter(
                     ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/outputgraphxmlforxsdvar.xml"));

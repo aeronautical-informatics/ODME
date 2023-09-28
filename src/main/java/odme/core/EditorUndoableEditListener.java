@@ -3,6 +3,7 @@ package odme.core;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
 
+import odeme.behaviour.ODMEBehaviourEditor;
 import odme.odmeeditor.ODMEEditor;
 
 /**
@@ -18,5 +19,10 @@ public class EditorUndoableEditListener implements UndoableEditListener {
     public void undoableEditHappened(UndoableEditEvent e) {
         // Remember the edit and update the menus
         ODMEEditor.undoJtree.addEdit(e.getEdit());
+    }
+
+    public void undoableEditHappenedBehavior(UndoableEditEvent e) {
+        // Remember the edit and update the menus
+        ODMEBehaviourEditor.undoJtree.addEdit(e.getEdit());
     }
 }

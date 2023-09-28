@@ -1,18 +1,18 @@
 package odme.odmeeditor;
-
-import java.awt.BorderLayout;
+import javax.swing.*;
+import javax.swing.UIManager.LookAndFeelInfo;
+import java.awt.*;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import javax.swing.ImageIcon;
-import javax.swing.JFrame;
-import javax.swing.UIManager;
-import javax.swing.UIManager.LookAndFeelInfo;
-
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
+/*
+ * run configuration for eclipse:
+ * mainclass=> odme.odmeeditor.Main
+ * */
 
 
 public class Main {
@@ -63,16 +63,15 @@ public class Main {
      	frame.add(ODMEEditor.splitPane, BorderLayout.CENTER);
       
 //      -------------------------------------
-      frame.pack();
-      ImageIcon windowIcon =
+       frame.pack();
+       ImageIcon windowIcon =
               new ImageIcon(ODMEEditor.class.getClassLoader().getResource("images/tu_clausthal_icon.jpg"));
-      frame.setIconImage(windowIcon.getImage());
-      frame.setExtendedState(java.awt.Frame.MAXIMIZED_BOTH);
-      frame.setVisible(true);
-      
+       frame.setIconImage(windowIcon.getImage());
+       frame.setExtendedState(java.awt.Frame.MAXIMIZED_BOTH);
+       frame.setVisible(true);
 //      -------------------------------------
       //printMemeoryUsage();
-}
+    }
     
     private static void setLookAndFeel() {
         try {

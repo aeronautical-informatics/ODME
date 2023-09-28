@@ -88,8 +88,91 @@ public class JtreeToGraphAdd {
             }
         }
     }
-	
-	public static void addVariableFromGraphPopup(Object pos) {
+
+    public static void addBehaviourFromGraphPopup(Object pos) {
+        mxCell varCell = (mxCell) pos;
+        selectedNodeCellForVariableUpdate = varCell;
+        String variableName = null;
+
+        JTextField variableField = new JTextField();
+//	     JTextField valueField = new JTextField();
+
+        String variableFieldRegEx = "[a-zA-Z_][a-zA-Z0-9_]*"; // alphanumeric but not start with number
+
+        // for validation of input
+        JLabel errorLabelField = new JLabel();
+        errorLabelField.setForeground(Color.RED);
+        errorLabelField.setVisible(true);
+
+        variableField.addKeyListener(new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) {}
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+                if (selectedType.equals("string")) {
+                    errorLabelField.setVisible(
+                            !variableField.getText().trim().matches(variableFieldRegEx));
+                }
+                else {
+                    errorLabelField.setVisible(
+                            !variableField.getText().trim().matches(variableFieldRegEx));
+                }
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {}
+        });
+
+        Object[] message = {"Behaviour:", variableField};
+        int option = JOptionPane
+                .showConfirmDialog(Main.frame, message, "Please Enter", JOptionPane.OK_CANCEL_OPTION,
+                        JOptionPane.PLAIN_MESSAGE);
+
+
+        if (option == JOptionPane.OK_OPTION) {
+
+
+            variableName = variableField.getText();
+
+            boolean valid = (variableField.getText() != null) && (!variableField.getText().trim().isEmpty());
+
+            if(!valid) {
+
+                JOptionPane.showMessageDialog(Main.frame, "Please input all values correctly.");
+            }
+            if(valid) {
+                mxCell cellForAddingBehaviour = (mxCell) pos;
+                pathToRoot.add((String) cellForAddingBehaviour.getValue());
+                JtreeToGraphConvert.nodeToRootPathVar(cellForAddingBehaviour);
+
+                String[] stringArray = pathToRoot.toArray(new String[0]);
+                ArrayList<String> pathToRootRev = new ArrayList<String>();
+
+                for (int i = stringArray.length - 1; i >= 0; i--) {
+                    pathToRootRev.add(stringArray[i]);
+                    System.out.println(" " + stringArray[i]);
+                }
+
+                String[] stringArrayRev = pathToRootRev.toArray(new String[0]);
+
+                TreePath treePathForVariable = JtreeToGraphGeneral.getTreeNodePath(stringArrayRev);
+
+                System.out.println("Tree path " + treePathForVariable );
+
+
+                DynamicTree.behavioursList.put(treePathForVariable, variableName);
+
+                pathToRoot.clear();
+
+                // have to call a function to refresh the table view
+                ODMEEditor.treePanel.showBehavioursInTable(treePathForVariable);
+            }
+        }
+
+    }
+
+    public static void addVariableFromGraphPopup(Object pos) {
         mxCell varCell = (mxCell) pos;
         selectedNodeCellForVariableUpdate = varCell;
 
@@ -98,12 +181,15 @@ public class JtreeToGraphAdd {
         String variableValue = null;
         String variableLowerBound = null;
         String variableUpperBound = null;
+        String variableComment=null;
 
         // multiple input for variable---------------------------------
         JTextField variableField = new JTextField();
         JTextField valueField = new JTextField();
         JTextField lowerBoundField = new JTextField();
         JTextField upperBoundField = new JTextField();
+        JTextField commentField = new JTextField();
+        
         // for validation of input
         JLabel errorLabelField = new JLabel();
         errorLabelField.setForeground(Color.RED);
@@ -111,6 +197,7 @@ public class JtreeToGraphAdd {
 
         lowerBoundField.setEnabled(false);
         upperBoundField.setEnabled(false);
+        commentField.setEnabled(true);
 
         String[] typeList = {"Select Type:", "boolean", "int", "float", "double", "string"};
 
@@ -160,6 +247,21 @@ public class JtreeToGraphAdd {
                     }
                 }
             }
+        });
+        
+        commentField.addKeyListener(new KeyListener() {
+        	@Override
+            public void keyTyped(KeyEvent e) {}
+        	
+        	@Override
+            public void keyReleased(KeyEvent e) {
+        		errorLabelField.setVisible(
+                        !commentField.getText().trim().matches(variableFieldRegEx) || !commentField
+                                .getText().trim().matches(variableFieldRegEx));
+        	}
+        	
+        	@Override
+            public void keyPressed(KeyEvent e) {}
         });
 
         variableField.addKeyListener(new KeyListener() {
@@ -321,7 +423,7 @@ public class JtreeToGraphAdd {
         Object[] message =
                 {"Variable Name:", variableField, "Variable Type:", variableTypeField, "Default Value:",
                         valueField, "Lower Bound:", lowerBoundField, "Upper Bound:", upperBoundField, " ",
-                        errorLabelField};
+                        errorLabelField,"Comment: ",commentField};
 
         int option = JOptionPane
                 .showConfirmDialog(Main.frame, message, "Please Enter", JOptionPane.OK_CANCEL_OPTION,
@@ -333,6 +435,7 @@ public class JtreeToGraphAdd {
             variableValue = valueField.getText();
             variableLowerBound = lowerBoundField.getText();
             variableUpperBound = upperBoundField.getText();
+            variableComment = commentField.getText();
 
             if (variableType.equals("")) {
                 variableType = "none";

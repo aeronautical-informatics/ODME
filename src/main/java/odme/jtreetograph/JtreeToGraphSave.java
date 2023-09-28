@@ -1,6 +1,7 @@
 package odme.jtreetograph;
 
 import static odme.jtreetograph.JtreeToGraphVariables.*;
+import static odeme.behaviour.BehaviourToTree.selectedScenario;
 
 import java.io.File;
 import java.util.Enumeration;
@@ -15,6 +16,7 @@ import javax.xml.transform.OutputKeys;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 
+import behaviourtreetograph.JTreeToGraphBehaviour;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
@@ -52,7 +54,23 @@ public class JtreeToGraphSave {
             return false;
         }
     }
-	
+
+    public static void saveBehaviourGraph() {
+        try {
+            // saving into xml
+            mxCodec codec = new mxCodec();
+            String xml = mxXmlUtils.getXml(codec.encode(JTreeToGraphBehaviour.benhaviourGraph.getModel()));
+
+            File ssdBehaviourGraph = new File (String.format("%s/%s/%s/%sbehaviourGraph.xml",
+                    ODMEEditor.fileLocation, ODMEEditor.projName,  selectedScenario, projectFileNameGraph));
+            java.io.FileWriter fw = new java.io.FileWriter(ssdBehaviourGraph);
+            fw.write(xml);
+            fw.close();
+        }
+        catch (Exception e) {
+            System.out.println("Error:" + e);
+        }
+    }
 	public static void saveGraph() {
         try {
             // saving into xml

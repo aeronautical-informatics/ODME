@@ -50,7 +50,8 @@ public class ProjectTree extends JPanel implements MouseListener {
     private DefaultTreeModel projectTreeModel;
     public JTree projectTree;
     private Toolkit toolkit;
-    private int clickControl;
+    @SuppressWarnings("unused")
+	private int clickControl;
     private File ssdFileProject;
 
     public ProjectTree() {
@@ -244,13 +245,12 @@ public class ProjectTree extends JPanel implements MouseListener {
     		return;
     	
         final ProjectTreePopup treePopup = new ProjectTreePopup(projectTree);
-
-        if (e.getButton() == MouseEvent.BUTTON3) {
-            if (clickControl == 1) {
-                if (e.isPopupTrigger()) {
-                    treePopup.show(e.getComponent(), e.getX(), e.getY());
-                }
-            }
+        
+        // #ROY - fixing contextMenu not popping up
+        if ( (e.getButton() == MouseEvent.BUTTON3) 
+        	|| (e.getButton() == MouseEvent.BUTTON2)  ) { // on laptop there's no button3, catch 2 instead	
+        	System.out.println("\ttriggered!"); // debug!
+            treePopup.show(e.getComponent(), e.getX(), e.getY());
        }
     }
 

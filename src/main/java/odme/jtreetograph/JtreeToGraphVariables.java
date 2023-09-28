@@ -12,6 +12,8 @@ import odme.odmeeditor.ODMEEditor;
 public class JtreeToGraphVariables {
 
 	public static int nodeNumber = 1;
+	
+	public static int behaviourNodeNumber = 1;
     public static mxGraph graph;
     // ProjectPane Related
     public static String newFileName = ODMEEditor.projName;
@@ -32,7 +34,6 @@ public class JtreeToGraphVariables {
     public static int firstAddedCellForSubTree = 0;
     public static String subtreeCheckLabel = null;
 
-
     public static mxCell subtreeCheckCell = null;
     public static mxCell subtreeSyncCell = null;
     public static String addedCellNameSync = null;
@@ -40,11 +41,13 @@ public class JtreeToGraphVariables {
     		ODMEEditor.fileLocation, ODMEEditor.projName, projectFileNameGraph));
 
     public static mxGraphComponent graphComponent = null;
- 
+
+    public static mxGraphComponent behaviourGraphComponent = null;
     public static mxUndoManager undoManager;
 
     public static mxCell lastAddedCell = null;
     public static ArrayList<String> path = new ArrayList<String>();
+    public static ArrayList<String> behaviourPath = new ArrayList<>();
     // used in next function
     public static String[] nodesToSelectedNode;
     public static int totalNodes;

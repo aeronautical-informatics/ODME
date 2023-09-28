@@ -11,6 +11,7 @@ import javax.swing.JTextField;
 import javax.swing.border.EtchedBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import odeme.behaviour.Behaviour;
 import odme.jtreetograph.JtreeToGraphImport;
 import odme.jtreetograph.JtreeToGraphVariables;
 
@@ -263,12 +264,16 @@ public class ImportProject extends JPanel {
         
         JtreeToGraphVariables.ssdFileGraph = new File(String.format("%s/%s/%sGraph.xml",
         		ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
+        
         ODMEEditor.treePanel.ssdFile = new File(String.format("%s/%s/%s.xml",
         		ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
         ODMEEditor.treePanel.ssdFileVar = new File(String.format("%s/%s/%s.ssdvar",
         		ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
         ODMEEditor.treePanel.ssdFileCon = new File(String.format("%s/%s/%s.ssdcon",
         		ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
+        ODMEEditor.treePanel.ssdFileBeh = new File(String.format("%s/%s/%s.ssdbeh",
+        		ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
+        
         ODMEEditor.treePanel.ssdFileFlag = new File(String.format("%s/%s/%s.ssdflag",
         		ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
 
@@ -281,7 +286,8 @@ public class ImportProject extends JPanel {
 
         Variable.setNullToAllRows();
         Constraint.setNullToAllRows();
-
+        Behaviour.setNullToAllRows();
+        
         System.out.println(newProjectName);
 
         ODMEEditor.newProjectFolderCreation();

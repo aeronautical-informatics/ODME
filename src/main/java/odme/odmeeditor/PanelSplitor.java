@@ -1,5 +1,7 @@
 package odme.odmeeditor;
 
+import odeme.behaviour.Behaviour;
+
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
@@ -13,10 +15,10 @@ import java.beans.PropertyChangeListener;
 public class PanelSplitor {
 	
     public static int dividerLocation = 0;
-    private JSplitPane projectPane, grapConsole, graphtree, variableAndCOnstraint, xml, graphVariable;
+    private JSplitPane projectPane, grapConsole, graphtree, variableAndCOnstraint,variableAndBehaviour, xml, graphVariable;
     
     
-    private JSplitPane createSpliPane(int orientation, Component leftComponent, Component rightComponent, int dividerLocation) {
+    private JSplitPane createSpliPane(int orientation, Component leftComponent,Component rightComponent, int dividerLocation) {
     	
     	JSplitPane pane = new JSplitPane(orientation, leftComponent, rightComponent);
     	pane.setOneTouchExpandable(true);
@@ -28,14 +30,17 @@ public class PanelSplitor {
     }
     
     public JSplitPane addSplitor(ProjectTree projectPanel, DynamicTree treePanel,
-                                        GraphWindow graphWindow, Console console, Variable scenarioVariable,
-                                        Constraint scenarioConstraint, JTabbedPane tabbedPane) {
+                                 GraphWindow graphWindow, Console console,
+                                 Variable scenarioVariable, Behaviour scenarioBehaviour,
+                                 Constraint scenarioConstraint, JTabbedPane tabbedPane) {
     	
     	projectPane = createSpliPane(JSplitPane.VERTICAL_SPLIT, projectPanel, treePanel, 250);
     	grapConsole = createSpliPane(JSplitPane.VERTICAL_SPLIT, graphWindow, console, 750);
     	graphtree = createSpliPane(JSplitPane.HORIZONTAL_SPLIT, projectPane, grapConsole, 200);
     	graphtreeFunc();
-    	variableAndCOnstraint = createSpliPane(JSplitPane.VERTICAL_SPLIT, scenarioVariable, scenarioConstraint, 150);
+    	variableAndBehaviour =  createSpliPane(JSplitPane.VERTICAL_SPLIT, scenarioVariable, scenarioBehaviour, 150);
+//    	variableAndCOnstraint = createSpliPane(JSplitPane.VERTICAL_SPLIT, scenarioVariable, behaviourVariable,scenarioConstraint, 150);
+    	variableAndCOnstraint = createSpliPane(JSplitPane.VERTICAL_SPLIT, variableAndBehaviour,scenarioConstraint, 150);
     	xml = createSpliPane(JSplitPane.VERTICAL_SPLIT, variableAndCOnstraint, tabbedPane, 300);
     	graphVariable = createSpliPane(JSplitPane.HORIZONTAL_SPLIT, graphtree, xml, 1400);
 

@@ -48,8 +48,6 @@ import odme.jtreetograph.JtreeToGraphVariables;
 
 import static odme.odmeeditor.XmlUtils.sesview;
 
-
-
 public class MenuBar {
 	
 	private JMenuBar menuBar;
@@ -84,12 +82,23 @@ public class MenuBar {
 		final String[] images_scenario_modelling = {"save_scenario"};
 						
 		addMenu("Scenario Modelling", 0, items_scenario_modelling, keyevents_scenario_modelling, keys_scenario_modelling, images_scenario_modelling);
-		
+
+		//Behavior Modelling
+		String[] items_behaviour_modelling = {"Sync Behaviour"};
+		final int[] keyevents_behaviour_modelling = {KeyEvent.VK_B};
+		final String[] keys_behaviour_modelling =   {"control B"};
+		final String[] images_behaviour_modelling = {"sync"};
+
+		addMenu("Behavior Modelling " , 0 ,items_behaviour_modelling,
+				keyevents_behaviour_modelling,
+				keys_behaviour_modelling,images_behaviour_modelling);
+
+		// #ROY - adding a new ICON
 		// Operation Design Domain Menu
-		final String[] items_operation_design_domain =  {};
-		final int[] keyevents_operation_design_domain = {};
-		final String[] keys_operation_design_domain =   {};
-		final String[] images_operation_design_domain = {};
+		final String[] items_operation_design_domain =  {"Generate OD","ODD Manager"};
+		final int[] keyevents_operation_design_domain = {0,0};
+		final String[] keys_operation_design_domain =   {null,null};
+		final String[] images_operation_design_domain = {"export_icon","list"};
 								
 		addMenu("Operation Design Domain", 0, items_operation_design_domain, keyevents_operation_design_domain, keys_operation_design_domain, images_operation_design_domain);
 		
@@ -108,6 +117,8 @@ public class MenuBar {
 		final String[] images_help = {"manual_icon", "about_icon"  };
 						
 		addMenu("Help", KeyEvent.VK_H, items_help, keyevents_help, keys_help, images_help);
+
+
 	}
 
     private void addMenu(String name, int key_event, String[] items, int[] keyevents, String[] keys, String[] images) {
@@ -140,7 +151,8 @@ public class MenuBar {
 		    
 		    if (items[i]=="New Project" || items[i]=="Import Template" || items[i]=="Save Scenario" ||
 		    		items[i]=="Open" || items[i]=="Save as Template" || items[i]=="Scenarios List" ||
-		    		items[i]=="Excution" || items[i]=="Feedback Loop") {
+		    		items[i]=="Excution" || items[i]=="Feedback Loop" || items[i]=="Export XML" ||
+		    		items[i]=="Export Yaml") {
 		    	fileMenuItems.add(menuItem);
 		    }
 		    
@@ -155,15 +167,11 @@ public class MenuBar {
 		            		ScenarioList scenarioList = new ScenarioList();
 		                	scenarioList.createScenarioListWindow();
 		            	  	break;
-	            	  
 		            	case "New Project":
 		            	  	newFunc();
 		            	  	break;
 		            	case "Open":
 		            	  	openFunc();
-		            	  	break;
-		            	case "Save":
-		            	  	saveFunc();
 		            	  	break;
 		            	case "Save As":
 		            	  	saveAsFunc();
@@ -174,7 +182,10 @@ public class MenuBar {
 		            	case "Import Template":
 		            	  	importFunc();
 			                break;
-		            	case "Save as Template":
+						case "Sync Behaviour":
+							BehaviourList b = new BehaviourList();
+							b.createScenarioListWindow();
+						case "Save as Template":
 		            	  	exportFunc();
 			                break;
 		            	case "Exit":
@@ -186,7 +197,13 @@ public class MenuBar {
 		            	case "About":
 		            	  	About about = new About();
 		            	  	about.aboutGUI();
-		            	  	break;    
+		            	  	break;
+		            	case "Generate OD":
+		            		openODDManager("Generate OD");
+		            		break;
+		            	case "ODD Manager":
+		            		openODDManager("ODD Manager");
+		            		break;
 		        	}
 		        }
 		    });
@@ -194,6 +211,26 @@ public class MenuBar {
 		}
     	menuBar.add(menu);
     }
+    
+    /**
+     * @author Roy
+     * #ROY - adding new Functionality to see all the nodes 
+     * */
+    private void openODDManager(String mode) {
+    	ODMEEditor.saveFunc(false); // save the results
+    	ODMEEditor.updateState();
+    	ODDManager nt=new ODDManager(mode);
+    	JFrame jd = new JFrame();
+    	jd.getContentPane().add(nt);
+    	jd.pack();
+    	jd.setVisible(true);
+    	// jd.setLocation(128, 128);
+    	jd.setLocationRelativeTo(null);
+    	// jd.setAlwaysOnTop(true);
+    }
+
+   
+	
     
     @SuppressWarnings("unchecked")
 	private void saveScenario() {
@@ -271,25 +308,14 @@ public class MenuBar {
     	 ODMEEditor.treePanel.ssdFileFlag = new File(String.format("%s/%s/%s.ssdflag",
     			 ODMEEditor.fileLocation,  ScenarioName, ODMEEditor.projName));
 
+		ODMEEditor.treePanel.ssdFileBeh = new File(String.format("%s/%s/%s.ssdbeh",
+				ODMEEditor.fileLocation,  ScenarioName, ODMEEditor.projName));
+
         File f = new File(ODMEEditor.fileLocation + "/" +  ScenarioName);
         f.mkdirs();
         
-        ODMEEditor.treePanel.saveTreeModel();
-        JtreeToGraphConvert.convertTreeToXML();
-        JtreeToGraphConvert.graphToXML();
-        JtreeToGraphConvert.graphToXMLWithUniformity();
+        ODMEEditor.updateState();
         ODMEEditor.changePruneColor();
-        ODMEEditor.graphWindow.setTitle( ODMEEditor.currentScenario);
-        
-        
-        ODMEEditor.saveChanges();
-        ODMEEditor.fileConversion.modifyXmlOutputForXSD();
-        JtreeToGraphConvert.rootToEndNodeSequenceSolve();
-        JtreeToGraphConvert.rootToEndNodeVariable();
-        
-        JtreeToGraphModify.modifyXmlOutputFixForSameNameNode();
-        JtreeToGraphGeneral.xmlOutputForXSD();
-        ODMEEditor.fileConversion.xmlToXSDConversion();
     }
     
     private void newFunc() {
@@ -334,18 +360,6 @@ public class MenuBar {
             if (ODMEEditor.toolMode == "pes")
             	ODMEEditor.applyGuiSES();
         }
-    }
-    
-    private void saveFunc() {
-    	// this code is also present in convert to xml button click action.
-    	ODMEEditor.treePanel.saveTreeModel();
-    	JtreeToGraphSave.saveGraph();
-
-    	JtreeToGraphConvert.convertTreeToXML(); // this function is using for converting project tree into xml file
-    	JtreeToGraphConvert.graphToXML();
-    	JtreeToGraphConvert.graphToXMLWithUniformity();
-        JOptionPane.showMessageDialog(Main.frame, "Saved Successfully.", "Save",
-                JOptionPane.INFORMATION_MESSAGE);
     }
     
     private void saveAsFunc() {
@@ -443,9 +457,7 @@ public class MenuBar {
         int result = fileChooser.showSaveDialog(Main.frame);
         if (result == JFileChooser.APPROVE_OPTION) {
             File selectedFile = fileChooser.getSelectedFile();
-
             System.out.println("Exported file path: " + selectedFile.getAbsolutePath());
-
             PrintWriter f0 = null;
             try {
                 f0 = new PrintWriter(new FileWriter(
@@ -454,7 +466,6 @@ public class MenuBar {
             catch (IOException e1) {
                 e1.printStackTrace();
             }
-
             Scanner in = null;
             try {
                 in = new Scanner(new File(
@@ -462,12 +473,10 @@ public class MenuBar {
             } catch (FileNotFoundException e2) {
                 e2.printStackTrace();
             }
-
             while (in.hasNext()) { // Iterates each line in the file
                 String line = in.nextLine();
                 f0.println(line);
             }
-
             in.close();
             f0.close();
         }

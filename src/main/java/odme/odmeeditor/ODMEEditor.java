@@ -1,17 +1,6 @@
 package odme.odmeeditor;
 
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JInternalFrame;
-import javax.swing.JLabel;
-import javax.swing.JMenuItem;
-import javax.swing.JPanel;
-import javax.swing.JSplitPane;
-import javax.swing.JTabbedPane;
-import javax.swing.SwingConstants;
+import javax.swing.*;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
@@ -30,15 +19,10 @@ import com.google.common.collect.ArrayListMultimap;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.util.mxUndoManager;
 
+import odeme.behaviour.Behaviour;
 import odme.core.EditorUndoableEditListener;
 import odme.core.FileConvertion;
-import odme.jtreetograph.JtreeToGraphAdd;
-import odme.jtreetograph.JtreeToGraphConvert;
-import odme.jtreetograph.JtreeToGraphCreate;
-import odme.jtreetograph.JtreeToGraphGeneral;
-import odme.jtreetograph.JtreeToGraphModify;
-import odme.jtreetograph.JtreeToGraphPrune;
-import odme.jtreetograph.JtreeToGraphVariables;
+import odme.jtreetograph.*;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -48,11 +32,14 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import java.util.Map;
 
+import static odme.odmeeditor.ODDManager.getOpenedFile;
 import static odme.odmeeditor.XmlUtils.sesview;
 
 
@@ -82,10 +69,13 @@ public class ODMEEditor extends JPanel {
     public static DynamicTree treePanel;
     
     public static Constraint scenarioConstraint;
+    public static Behaviour scenarioBehaviour;
+    
     public static ProjectTree projectPanel;
     public static GraphWindow graphWindow;
     public static Console console;
     public static Variable scenarioVariable;
+
     public static JTabbedPane tabbedPane = null;
     public static JSplitPane splitPane;
     
@@ -105,6 +95,7 @@ public class ODMEEditor extends JPanel {
 //      -------------------------------------
         DynamicTree.projectFileName = JtreeToGraphVariables.newFileName;
         
+        //
         tabbedPane =  new JTabbedPane();
         
         treePanel = new DynamicTree();
@@ -116,18 +107,23 @@ public class ODMEEditor extends JPanel {
         
 //      -------------------------------------
         scenarioVariable = new Variable();
-        scenarioVariable.setPreferredSize(new Dimension(100, 200));
+        scenarioVariable.setPreferredSize(new Dimension(100, 100));
         scenarioVariable.setBorder(new EtchedBorder());
-      
+    
+        
 //      -------------------------------------
         scenarioConstraint = new Constraint();
-        scenarioConstraint.setPreferredSize(new Dimension(100, 200));
+        scenarioConstraint.setPreferredSize(new Dimension(100, 100));
         scenarioConstraint.setBorder(new EtchedBorder());
 
+        scenarioBehaviour = new Behaviour();
+        scenarioBehaviour.setPreferredSize(new Dimension(100 , 100));
+        scenarioBehaviour.setBorder(new EtchedBorder());
+      
 //        -------------------------------------
         // Adding jgraph window in the center
         graphWindow = new GraphWindow();
-        graphWindow.setPreferredSize(new Dimension(800, 600));
+        graphWindow.setPreferredSize(new Dimension(800, 400));
         removeTopLeftIcon(graphWindow);
         graphWindow.pack();
         graphWindow.setVisible(true);
@@ -136,7 +132,7 @@ public class ODMEEditor extends JPanel {
 //        -------------------------------------
         // Console
         console = new Console();
-        console.setPreferredSize(new Dimension(200, 200));
+        console.setPreferredSize(new Dimension(250, 100));
         removeTopLeftIcon(console);
         console.pack();
         console.setVisible(true);
@@ -145,26 +141,23 @@ public class ODMEEditor extends JPanel {
         XmlUtils.ontologyview = XmlUtils.initView("Ontology");
         XmlUtils.sesview = XmlUtils.initView("XML");
         XmlUtils.schemaview = XmlUtils.initView("Schema");
-        
 
         // creating tab window
         tabbedPaneChange();
         tabbedPane.addTab("Ontology", XmlUtils.ontologyview);
         tabbedPane.addTab("Schema", XmlUtils.schemaview);
         
-        
-        
 //    -------------------------------------
         // add panelSpliter with main window's parts 
         PanelSplitor panelSplitor = new PanelSplitor();
         splitPane = panelSplitor.addSplitor(projectPanel, treePanel, graphWindow,
-        			console, scenarioVariable, scenarioConstraint, tabbedPane);  
+        			console, scenarioVariable, scenarioBehaviour,scenarioConstraint, tabbedPane);  
        
     }
     
     public static void addStatuBar(JFrame frame) {
     	
-    	// create the status bar panel and shove it down the bottom of the frame
+    	// create the status bar panel and show it down the bottom of the frame
     	JPanel statusPanel = new JPanel();
     	statusPanel.setBorder(new BevelBorder(BevelBorder.LOWERED));
     	frame.add(statusPanel, BorderLayout.SOUTH);
@@ -212,13 +205,14 @@ public class ODMEEditor extends JPanel {
                     projName = fileName;
                     fileLocation = selectedFile.getParentFile().getAbsolutePath();
                     JtreeToGraphGeneral.openExistingProject(projName, oldProjectTreeProjectName);
-                    JtreeToGraphVariables.undoManager = new mxUndoManager();
+                    JtreeToGraphVariables.
+                            undoManager = new mxUndoManager();
 
                     sesview.textArea.setText("");
                     Console.consoleText.setText(">>");
                     Variable.setNullToAllRows();
                     Constraint.setNullToAllRows();
-                    
+                    Behaviour.setNullToAllRows();
                     applyGuiSES();
             	}
             }
@@ -243,7 +237,6 @@ public class ODMEEditor extends JPanel {
 		}
 		
 		statusLabel.setText("Current Mode: Domain Modelling");
-		
 		tabbedPane.removeAll();
 		tabbedPane.addTab("Ontology", XmlUtils.ontologyview);
         tabbedPane.addTab("Schema", XmlUtils.schemaview);
@@ -296,6 +289,10 @@ public class ODMEEditor extends JPanel {
         		fileLocation, currentScenario, projName));
         treePanel.ssdFileCon = new File(String.format("%s/%s/%s.ssdcon",
         		fileLocation, currentScenario, projName));
+
+        treePanel.ssdFileBeh = new File(String.format("%s/%s/%s.ssdbeh",
+        		fileLocation, currentScenario, projName));
+        
         treePanel.ssdFileFlag = new File(String.format("%s/%s/%s.ssdflag",
         		fileLocation, currentScenario, projName));
 
@@ -321,11 +318,12 @@ public class ODMEEditor extends JPanel {
         tc.setHeaderValue( "Value" );
         th.repaint();
 
+        JtreeToGraphPrune.behMapTransfer = ArrayListMultimap.create();
         JtreeToGraphPrune.varMapTransfer = ArrayListMultimap.create();
     }
     
     public static void changePruneColor() {
-    	JtreeToGraphVariables.graph.clearSelection(); 
+    	JtreeToGraphVariables.graph.clearSelection();  
     	JtreeToGraphVariables.graph.selectAll();
         Object[] cells = JtreeToGraphVariables.graph.getSelectionCells(); //here you have all cells
         for (Object c : cells) {
@@ -372,7 +370,76 @@ public class ODMEEditor extends JPanel {
         File f = new File(fileLocation + "/" + projName);
         f.mkdirs();
     }
-    
+
+    /**
+     * editted by Roy: for compatibility issues, added a function that calls
+     * the saveFunc but with parameter (used polymorphism). this is to enable
+     * the user functions to use saveFunc without feeling any changes
+     * */
+    public static void saveFunc() {
+        saveFunc(true);
+    }
+
+    /**
+     * editted by Roy: added this boolean that enables showing a message
+     * */
+    public static void saveFunc(boolean showMessage) {
+        // this code is also present in convert to xml button click action.
+        ODMEEditor.treePanel.saveTreeModel();
+        JtreeToGraphSave.saveGraph();
+
+        JtreeToGraphConvert.convertTreeToXML(); // this function is using for converting project tree into xml file
+        JtreeToGraphConvert.graphToXML();
+        JtreeToGraphConvert.graphToXMLWithUniformity();
+
+        if(showMessage)
+            JOptionPane.showMessageDialog(Main.frame, "Saved Successfully.", "Save",
+                    JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    /**
+     * @author Roy
+     * this function is being used at multiple places
+     * to update the state of the program and make sure
+     * the latest version of the projet is being read
+     * */
+    public static void updateState() {
+        ODMEEditor.treePanel.saveTreeModel();
+        JtreeToGraphConvert.convertTreeToXML();
+        JtreeToGraphConvert.graphToXML();
+        JtreeToGraphConvert.graphToXMLWithUniformity();
+        ODMEEditor.graphWindow.setTitle( ODMEEditor.currentScenario);
+
+        ODMEEditor.saveChanges();
+        ODMEEditor.fileConversion.modifyXmlOutputForXSD();
+        JtreeToGraphConvert.rootToEndNodeSequenceSolve();
+        JtreeToGraphConvert.rootToEndNodeVariable();
+
+        JtreeToGraphModify.modifyXmlOutputFixForSameNameNode();
+        JtreeToGraphGeneral.xmlOutputForXSD();
+        ODMEEditor.fileConversion.xmlToXSDConversion();
+    }
+
+    public static void chooseAndSaveFile(String content, String suggestedPath, Object o) {
+        chooseAndSaveFile(content, suggestedPath,null);
+    }
+    /**
+     * @author Roy
+     * #ROY - add new Functionality (set the path to human readable content)
+     * */
+    public static void chooseAndSaveFile(String content,String suggestedPath,String ext) {
+        FileWriter fw=null;
+        try{
+            fw=new FileWriter(getOpenedFile(suggestedPath));
+            fw.write(content);
+            javax.swing.JOptionPane.showMessageDialog(null,"File Saved Successfully.");
+        }catch(IOException ioe) {ioe.printStackTrace();}
+
+        // handle leakage and canceling
+        try { if(fw!=null) fw.close(); }
+        catch(IOException ioe1) { ioe1.printStackTrace(); }
+    }
+
     private void tabbedPaneChange() {
     	
         tabbedPane.addChangeListener(new ChangeListener() {

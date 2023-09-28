@@ -80,10 +80,11 @@ public class Variable extends JPanel {
                     String variableValue = (String) target.getModel().getValueAt(row, 3);
                     String lowerBound = (String) target.getModel().getValueAt(row, 4);
                     String uperBound = (String) target.getModel().getValueAt(row, 5);
+                    String comment = (String) target.getModel().getValueAt(row, 6);
                     
                     if (variableName != "")
                     	updateTableData(nodeName, variableName, variableType, variableValue, lowerBound,
-                    			uperBound);
+                    			uperBound,comment);
                 }
             }
         });
@@ -116,7 +117,7 @@ public class Variable extends JPanel {
         DefaultTableModel dtm = (DefaultTableModel) table.getModel();
         dtm.setRowCount(0); // for deleting previous table content
         String[] properties = null;
-        int a = 0;
+        int a = 0; // what is this??
 
         for (String value : nodeVariables) {
             if (a == 0) {
@@ -145,10 +146,7 @@ public class Variable extends JPanel {
                 continue;
             }
 
-            if (value == null) {
-                // do nothing
-            } 
-            else {
+            if (value != null) {
                 properties = value.split(",");
 
                 if (properties[1].equals("string") || properties[1].equals("boolean")) {
@@ -163,9 +161,15 @@ public class Variable extends JPanel {
         
         setNullRowsToVariableTable();
     }
+    
+    // added by amir - for compatibility with other parts of program (whoever called the old version, is gonna get it still)
+    public static void updateTableData(String nodeName, String variableName, String variableType,
+            String variableValue, String variableLowerBound, String variableUpperBound) {
+    	updateTableData(nodeName,variableName,variableType,variableValue,variableLowerBound,variableUpperBound,null);
+    }
 
     public static void updateTableData(String nodeName, String variableName, String variableType,
-                                String variableValue, String variableLowerBound, String variableUpperBound) {
+                                String variableValue, String variableLowerBound, String variableUpperBound,String variableComment) {
 
         // multiple input for variable---------------------------------
     	JLabel errorLabelField = new JLabel();
@@ -174,16 +178,19 @@ public class Variable extends JPanel {
         JTextField valueField = new JTextField();
         JTextField lowerBoundField = new JTextField();
         JTextField upperBoundField = new JTextField();
+        JTextField commentField = new JTextField(); // added by amir
         
         lowerBoundField.setEnabled(false);
         upperBoundField.setEnabled(false);
-        
         nodeNameleField.setEnabled(false);
+        
+        if(variableComment!=null)
+        	commentField.setEnabled(false); // added by amir
         
         // for validation of input
         errorLabelField.setText("Value is not Valid");
         errorLabelField.setForeground(Color.RED);
-        errorLabelField.setVisible(false);
+        errorLabelField.setVisible(true);
 
         String[] typeList = {"boolean", "int", "float", "double", "string"};
 
@@ -203,6 +210,7 @@ public class Variable extends JPanel {
         valueField.setText(variableValue);
         lowerBoundField.setText(variableLowerBound);
         upperBoundField.setText(variableUpperBound);
+        commentField.setText(variableComment); // added by amir
 
         String variableNameOld = null;
         selectedType = variableType;
@@ -212,6 +220,7 @@ public class Variable extends JPanel {
             upperBoundField.setText(null);
             lowerBoundField.setEnabled(false);
             upperBoundField.setEnabled(false);
+            commentField.setEnabled(false);
 
             errorLabelField.setVisible(false);
             // have to check why without this gives error during opening this form even
@@ -238,7 +247,9 @@ public class Variable extends JPanel {
         	lowerBoundField.setEnabled(false);
         	upperBoundField.setEnabled(false);
         	variableTypeField.setEnabled(false);
+        	commentField.setEnabled(false);
         }
+        
         
         variableTypeFieldChange(variableField, valueField, errorLabelField,
         		lowerBoundField, upperBoundField, variableTypeField);
@@ -259,6 +270,7 @@ public class Variable extends JPanel {
         		variableField, valueField, errorLabelField,
         		lowerBoundField, upperBoundField);
         
+        variableCommentValidator(variableField,errorLabelField); // added by amir
 
         variableField.addKeyListener(new KeyListener() {
             @Override
@@ -314,7 +326,7 @@ public class Variable extends JPanel {
 
         Object[] message = {"Node Name:", nodeNameleField, "Variable Name:", variableField, "Variable Type:",
                 variableTypeField, "Value:", valueField, "Lower Bound:", lowerBoundField, "Upper Bound:",
-                upperBoundField, " ", errorLabelField};
+                upperBoundField, " ", errorLabelField,"Comment:",commentField};
 
         int option = JOptionPane
                 .showConfirmDialog(Main.frame, message, "Please Update", JOptionPane.OK_CANCEL_OPTION,
@@ -326,6 +338,7 @@ public class Variable extends JPanel {
             variableValue = valueField.getText();
             variableLowerBound = lowerBoundField.getText();
             variableUpperBound = upperBoundField.getText();
+            variableComment=commentField.getText();
 
             if (variableType.equals("")) {
                 variableType = "none";
@@ -396,6 +409,18 @@ public class Variable extends JPanel {
                             .matches("^[0-9]+") || !upperBoundField.getText().trim()
                             .matches("^[0-9]+"));
         }
+    }
+    
+    // added by amir
+    public static void variableCommentValidator(JTextField commentFiled,JLabel errorLabelField) {
+    	try {
+    		errorLabelField.setVisible(
+				!commentFiled.getText().trim().matches("^[a-zA-Z_][a-Z0-9A-Z ]*")
+    		);
+    	}
+    	catch (Exception e) {
+    		errorLabelField.setVisible(true);
+		}
     }
     
     public static void valueFieldvalidator(
