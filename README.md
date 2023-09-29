@@ -48,9 +48,7 @@ To get started with ODME, follow these steps:
 ## [Usage](#usage)
 
 1. Download the package from Release and extract the contents
-2. Download the **"launcher"** folder containing the application launcher depending on your operating system. Copy the appropriate launcher into the package folder extracted in the previous step and run the launcher. Make sure to make the launcher for Unix systems (Linux and MacOS) executable using ```chmod +x "launcher-name".sh```. The ODME application will open and you will be able to work on its various parts.
-3. **Domain Modeling Editor** : Use the Domain Modeling Editor to visually create and manipulate domain models. Add elements, define relationships, and attach variables to nodes.
-4. **Scenario Modelling Editor** : The Scenario Modelling Editor is designed for interactive pruning of domain models. It helps you create pruned entity structures and generate executable scenarios.
+
 
 ## [Contributing](#contributing)
 
