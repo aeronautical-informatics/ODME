@@ -16,6 +16,7 @@ import java.io.PrintWriter;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 import javax.imageio.ImageIO;
@@ -45,6 +46,8 @@ import odme.jtreetograph.JtreeToGraphGeneral;
 import odme.jtreetograph.JtreeToGraphModify;
 import odme.jtreetograph.JtreeToGraphSave;
 import odme.jtreetograph.JtreeToGraphVariables;
+import structuretest.BehaviourCoverageTest;
+import structuretest.SpecialisationNodeTest;
 
 import static odme.odmeeditor.XmlUtils.sesview;
 
@@ -103,10 +106,10 @@ public class MenuBar {
 		addMenu("Operation Design Domain", 0, items_operation_design_domain, keyevents_operation_design_domain, keys_operation_design_domain, images_operation_design_domain);
 		
 		// Scenario Manager Menu
-		final String[] items_scenario_manager =  {"Scenarios List", "Excution", "Feedback Loop"};
-		final int[] keyevents_scenario_manager = {0               , 0         ,  0             };
-		final String[] keys_scenario_manager =   {null            , null      ,  null          };
-		final String[] images_scenario_manager = {"list"          , null      ,  null          };
+		final String[] items_scenario_manager =  {"Scenarios List", "Excution", "Feedback Loop" , "Structural Testing"};
+		final int[] keyevents_scenario_manager = {0               , 0         ,  0           ,0  };
+		final String[] keys_scenario_manager =   {null            , null      ,  null          ,null};
+		final String[] images_scenario_manager = {"list"          , null      ,  null          ,null};
 										
 		addMenu("Scenario Manager", 0, items_scenario_manager, keyevents_scenario_manager, keys_scenario_manager, images_scenario_manager);
 		
@@ -146,11 +149,13 @@ public class MenuBar {
 		    	menuItem.setIcon(newIcon);
 		    }
 		    
-		    if (items[i]=="Save Scenario" || items[i]=="Scenarios List" || items[i]=="Excution" || items[i]=="Feedback Loop")
+		    if (items[i]=="Save Scenario" || items[i]=="Scenarios List" || items[i]=="Excution" || items[i]=="Feedback Loop"
+					|| items[i]=="Structural Testing")
 		    	menuItem.setEnabled(false);
 		    
 		    if (items[i]=="New Project" || items[i]=="Import Template" || items[i]=="Save Scenario" ||
 		    		items[i]=="Open" || items[i]=="Save as Template" || items[i]=="Scenarios List" ||
+					items[i]=="Structural Testing" ||
 		    		items[i]=="Excution" || items[i]=="Feedback Loop" || items[i]=="Export XML" ||
 		    		items[i]=="Export Yaml") {
 		    	fileMenuItems.add(menuItem);
@@ -163,7 +168,37 @@ public class MenuBar {
 		            	case "Save Scenario":
 		            		saveScenario();
 		            		break;
-		            	case "Scenarios List":
+
+						case "Structural Testing":
+							List<String[]> dataList = getScenarioJsonData();
+//							List<String[]> scenariosList = new ArrayList<>();
+//							for(int i = 0; i<dataList.size(); i++) {
+//								String t = scenaiorsName(dataList.get(i));
+//								if(t!= null) {
+//									String[] temp = new String[] {t};
+//									scenariosList.add(temp);
+//								}
+//							}
+
+							//reading main graph of project
+							String path = ODMEEditor.fileLocation  + "/graphxml.xml";
+							System.out.println("File Path of graphxml = " + path);
+							System.out.println("Scenarios List = " + dataList.toString());
+							System.out.println("Scenarios List = " + dataList.toString());
+
+							SpecialisationNodeTest specialisationNodeTest = new SpecialisationNodeTest(path);
+							Map c = specialisationNodeTest.getSpecialisationNodes();
+
+							specialisationNodeTest.checkMatchedNodes(dataList);
+
+							//Noe behaviour test
+							BehaviourCoverageTest behaviourCoverageTest = new BehaviourCoverageTest();
+							behaviourCoverageTest.checkCodeCoverageForBehaviours(dataList);
+
+
+							break;
+
+						case "Scenarios List":
 		            		ScenarioList scenarioList = new ScenarioList();
 		                	scenarioList.createScenarioListWindow();
 		            	  	break;
@@ -229,10 +264,51 @@ public class MenuBar {
     	// jd.setAlwaysOnTop(true);
     }
 
-   
-	
-    
-    @SuppressWarnings("unchecked")
+
+	static public List<String[]> getScenarioJsonData() {
+		JSONParser jsonParser = new JSONParser();
+		List<String[]> dataList = new ArrayList<String[]>();
+		System.out.println("ODMEEditor.fileLocation  = " + ODMEEditor.fileLocation );
+//		System.out.println(" ODMEEditor.projName  = " +  ODMEEditor.projName );
+		try (FileReader reader = new FileReader(ODMEEditor.fileLocation +  "/scenarios.json")){
+			Object obj = null;
+			try {
+				obj = jsonParser.parse(reader);
+			} catch (org.json.simple.parser.ParseException e) {
+				e.printStackTrace();
+			}
+
+			JSONArray data = (JSONArray) obj;
+
+			for (Object dtObj:data) {
+				dataList.add(parseObject((JSONObject)dtObj));
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+
+		return dataList;
+	}
+
+	static public String[] parseObject(JSONObject obj) {
+		JSONObject dataObject = (JSONObject) obj.get("scenario");
+
+		String name = (String) dataObject.get("name");
+		String risk = (String) dataObject.get("risk");
+		String remarks = (String) dataObject.get("remarks");
+
+		String[] arr = {name, risk, remarks};
+
+		return arr;
+	}
+
+
+
+	@SuppressWarnings("unchecked")
 	private void saveScenario() {
     	JSONParser jsonParser = new JSONParser();
         
