@@ -10,4 +10,12 @@
 </node3Spec>
 </AirFrame>
 </node1Dec>
+<node7Dec>
+<MainMultipAspect>
+<node8MAsp>
+<childMultiAspect>
+</childMultiAspect>
+</node8MAsp>
+</MainMultipAspect>
+</node7Dec>
 </Thing>

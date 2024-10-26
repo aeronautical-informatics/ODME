@@ -47,6 +47,7 @@ import odme.jtreetograph.JtreeToGraphModify;
 import odme.jtreetograph.JtreeToGraphSave;
 import odme.jtreetograph.JtreeToGraphVariables;
 import structuretest.BehaviourCoverageTest;
+import structuretest.MultiAspectNodeTest;
 import structuretest.SpecialisationNodeTest;
 
 import static odme.odmeeditor.XmlUtils.sesview;
@@ -171,14 +172,6 @@ public class MenuBar {
 
 						case "Structural Testing":
 							List<String[]> dataList = getScenarioJsonData();
-//							List<String[]> scenariosList = new ArrayList<>();
-//							for(int i = 0; i<dataList.size(); i++) {
-//								String t = scenaiorsName(dataList.get(i));
-//								if(t!= null) {
-//									String[] temp = new String[] {t};
-//									scenariosList.add(temp);
-//								}
-//							}
 
 							//reading main graph of project
 							String path = ODMEEditor.fileLocation  + "/graphxml.xml";
@@ -191,10 +184,23 @@ public class MenuBar {
 
 							specialisationNodeTest.checkMatchedNodes(dataList);
 
-							//Noe behaviour test
+							//Now behaviour test
 							BehaviourCoverageTest behaviourCoverageTest = new BehaviourCoverageTest();
 							behaviourCoverageTest.checkCodeCoverageForBehaviours(dataList);
 
+							//Now MultiAspect nodes
+							MultiAspectNodeTest multiAspectNodeTest  = new MultiAspectNodeTest();
+							multiAspectNodeTest.parseNodes(path);
+
+							// Show the parsed nodes and MultiAspect count in a JOptionPane dialog
+							JOptionPane.showMessageDialog(
+									null,
+									"Total number of MultiAspect nodes: " + multiAspectNodeTest.getMultiAspectNodeCount() +
+											"\nParsed MAsp Nodes and their child-parent relationships:\n" + multiAspectNodeTest.getParsedNodes(),
+									"MultiAspect Node Count",
+									JOptionPane.INFORMATION_MESSAGE
+							);
+//							multiAspectNodeTest.getParsedNodes();
 
 							break;
 
