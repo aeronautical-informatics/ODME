@@ -1,3 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <Thing>
+<node1Dec>
+<AirFrame>
+<node3Spec>
+<Bird>
+</Bird>
+<Strike>
+</Strike>
+</node3Spec>
+</AirFrame>
+</node1Dec>
 </Thing>
