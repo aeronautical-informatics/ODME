@@ -44,17 +44,17 @@ import odme.odmeeditor.PanelSplitor;
 
 
 public class JtreeToGraphCreate {
-	
-	public static mxStylesheet stylesheet;
 
-	/**
+    public static mxStylesheet stylesheet;
+
+    /**
      * Under the MVC model, the JGraph class is a controller, GraphModel is a model,
      * and GraphUI is a view.
      *
      * @param frame
      */
     public static void createGraph(JInternalFrame frame) {
-    	
+
         graph = new mxGraph();
         undoManager = new mxUndoManager();
 
@@ -205,12 +205,12 @@ public class JtreeToGraphCreate {
 
         graphComponent.getGraphControl().addMouseListener(new MouseAdapter() {
             @SuppressWarnings("finally")
-			public void mouseReleased(MouseEvent e) {
+            public void mouseReleased(MouseEvent e) {
                 Object cell = graphComponent.getCellAt(e.getX(), e.getY());
                 currentSelectedCell = (mxCell) cell; // this for console use
 
                 if (e.getButton() == MouseEvent.BUTTON1) {
-                	
+
                     if (cell == null) {
                         String ob = Integer.toString(nodeNumber);
                         String nodeName = "node" + ob;
@@ -250,21 +250,21 @@ public class JtreeToGraphCreate {
                         // this section is for showing variables of the selected node to the variable
                         // table
                         if (!ODMEEditor.nodeAddDetector.equals("delete")) {
-                        	
+
                             Object showvar = graphComponent.getCellAt(e.getX(), e.getY());
                             mxCell varCell = (mxCell) showvar;
                             selectedNodeCellForVariableUpdate = varCell;
                             
                             if (varCell.isVertex()) {
-                            	
-                            	// double click handling
+
+                                // double click handling
                                 if (e.getClickCount() == 2) {
                                     mxCell clikedCell = (mxCell) cell;
                                     if (clikedCell.isVertex()) {
-                                    	if (ODMEEditor.toolMode == "ses") {
-                                    		Object position = graphComponent.getCellAt(e.getX(), e.getY());
-                                    		JtreeToGraphGeneral.renameCell(position);
-                                    	}
+                                        if (ODMEEditor.toolMode == "ses") {
+                                            Object position = graphComponent.getCellAt(e.getX(), e.getY());
+                                            JtreeToGraphGeneral.renameCell(position);
+                                        }
                                     }
                                 }
                                 
@@ -302,11 +302,11 @@ public class JtreeToGraphCreate {
                                             TreeNode[] nodes2 = currentNode2.getPath();
                                             
                                             if (nodes.length == nodes2.length) {
-                                            	int aa = 1;
+                                                int aa = 1;
                                                 for (int i = 0; i < nodes.length; i++) {
                                                     if (!nodes[i].toString().equals(nodes2[i].toString())) {
-                                                    	aa = 0;
-                                                    	break;
+                                                        aa = 0;
+                                                        break;
                                                     } 
                                                 }
                                                 a = aa;
@@ -382,10 +382,10 @@ public class JtreeToGraphCreate {
                                 mxCell deleteCell = (mxCell) delcell;
 
                                 if (deleteCell.isEdge()) {
-                                	JtreeToGraphDelete.deleteEdgeFromGraphPopup(delcell);
+                                    JtreeToGraphDelete.deleteEdgeFromGraphPopup(delcell);
                                 } 
                                 else {
-                                	JtreeToGraphDelete.deleteNodeFromGraphPopup(delcell);
+                                    JtreeToGraphDelete.deleteNodeFromGraphPopup(delcell);
                                 }
                             }
                             // De-Selecting mouse selection from menu items
@@ -405,24 +405,24 @@ public class JtreeToGraphCreate {
                 // right click events using pop up menu
                 // #ROY - added BUtton2 check to support laptops too
                 else if (   (e.getButton() == MouseEvent.BUTTON2)
-                	|| (e.getButton() == MouseEvent.BUTTON3) ) {
-                	System.out.println("JTREETOGRAPH - RIGHT CLICK ");
-                	Object showvar = graphComponent.getCellAt(e.getX(), e.getY());
+                        || (e.getButton() == MouseEvent.BUTTON3) ) {
+                    System.out.println("JTREETOGRAPH - RIGHT CLICK ");
+                    Object showvar = graphComponent.getCellAt(e.getX(), e.getY());
                     mxCell varCell = (mxCell) showvar;
                     selectedNodeCellForVariableUpdate = varCell;
                     
                     //------------------------------
                     if (cell != null) {
                     if (varCell.isVertex()) {
-                    	
-                    	// double click handling
+
+                        // double click handling
                         if (e.getClickCount() == 2) {
                             mxCell clikedCell = (mxCell) cell;
                             if (clikedCell.isVertex()) {
-                            	if (ODMEEditor.toolMode == "ses") {
-                            		Object position = graphComponent.getCellAt(e.getX(), e.getY());
-                            		JtreeToGraphGeneral.renameCell(position);
-                            	}
+                                if (ODMEEditor.toolMode == "ses") {
+                                    Object position = graphComponent.getCellAt(e.getX(), e.getY());
+                                    JtreeToGraphGeneral.renameCell(position);
+                                }
                             }
                         }
                         
@@ -461,11 +461,11 @@ public class JtreeToGraphCreate {
                                     if (nodes.length == nodes2.length) {
                                            int aa = 1;
                                            for (int i = 0; i < nodes.length; i++) {
-                                        	   if (!nodes[i].toString().equals(nodes2[i].toString())) {
-                                        		   aa = 0;
+                                               if (!nodes[i].toString().equals(nodes2[i].toString())) {
+                                                   aa = 0;
                                                    break;
-                                        	   } 
-                                           	}
+                                               }
+                                           }
                                             
                                            a = aa;
                                     }
@@ -500,7 +500,7 @@ public class JtreeToGraphCreate {
                     }
                     }
                   //------------------------------
-       	
+
                     // for fixing popup window while page is more thant monitor height
                     Point p = MouseInfo.getPointerInfo().getLocation();
                     int y = p.y;
@@ -520,20 +520,32 @@ public class JtreeToGraphCreate {
 
                     // checking if there is any vertex or edge
                     if (position != null) {
-                    	if (!((mxCell) position).isVertex() && ODMEEditor.toolMode == "pes") {}
-                    	else {
-                    		GraphCellPopUp graphCellPopup = new GraphCellPopUp(position);
-                    		// #ROY - removed "isPoppupTrigger" to solve contextMenu bug
-                			graphCellPopup.show(graphComponent, x, y - 104);
-                    	}
+                        boolean MAspec = false;
+                        if (!((mxCell) position).isVertex() && ODMEEditor.toolMode == "pes") {} else {
+                            // Add the MAsp check here
+                            if (varCell.getValue().toString().endsWith("MAsp")) {
+                                // Additional logic for MAsp node can be added here
+                                MAspec = true;
+                            }
+
+                            GraphCellPopUp graphCellPopup = new GraphCellPopUp(position , MAspec);
+                            // #ROY - removed "isPoppupTrigger" to solve contextMenu bug
+                            graphCellPopup.show(graphComponent, x, y - 104);
+                        }
                         
                     }
                     else {
-                    	if (ODMEEditor.toolMode == "ses") {	
-                    		GraphPopup graphPopup = new GraphPopup(e.getX(), e.getY());
-                    		// #ROY - removed "isPoppupTrigger" to solve contextMenu bug
-                			graphPopup.show(graphComponent, x, y - 104);
-                    	}
+                        if (ODMEEditor.toolMode == "ses") {
+                            // Add the MAsp check here
+//                            if (varCell.getId().endsWith("MAsp")) {
+//                                System.out.println("MAsp node clicked");
+//                                // Additional logic for MAsp node can be added here
+//                            }
+                            System.out.println("ses");
+                            GraphPopup graphPopup = new GraphPopup(e.getX(), e.getY());
+                            // #ROY - removed "isPoppupTrigger" to solve contextMenu bug
+                            graphPopup.show(graphComponent, x, y - 104);
+                        }
                     }
                 }
                 
@@ -582,7 +594,7 @@ public class JtreeToGraphCreate {
             else {
                 if (addedCell != null) {
 
-                	JtreeToGraphConvert.nodeToRootPath(addedCell);
+                    JtreeToGraphConvert.nodeToRootPath(addedCell);
 
                     mxCell cellParentCheck = lastAddedCell;
                     lastAddedCell = null;
@@ -611,7 +623,7 @@ public class JtreeToGraphCreate {
                             if (graph.getOutgoingEdges(addedCell).length > 0) {
                                 // for cell who has child elements and added to some other parent as- a child
                                 // node. subtree addition
-                            	JtreeToGraphSave.saveModuleFromCurrentModel(cellParentCheck);
+                                JtreeToGraphSave.saveModuleFromCurrentModel(cellParentCheck);
                                 ODMEEditor.undoControlForSubTree = true;
                                 JtreeToGraphAdd.addModuleFromSubgraph(cellParentCheck);
                                 JtreeToGraphDelete.deleteNodeFromGraphPopupForSubTree(firstAddedCellForSubTreeDeletion);
@@ -620,13 +632,13 @@ public class JtreeToGraphCreate {
                                 firstAddedCellForSubTree = 0;
 
                             } else {
-                            	JtreeToGraphAdd.addNodeWIthGraphAddition(addedCell.getValue().toString(),
+                                JtreeToGraphAdd.addNodeWIthGraphAddition(addedCell.getValue().toString(),
                                         stringArrayRev);
                                 // have to check subtree here
                             }
                         }
                         else {// if not root node
-                        	JtreeToGraphCheck.checkRootConnectivity(cellParentCheck);
+                            JtreeToGraphCheck.checkRootConnectivity(cellParentCheck);
 
                             if (connectedToRoot) {
                                 Object[] forParentCheck = graph.getIncomingEdges(cellParentCheck);
@@ -634,7 +646,7 @@ public class JtreeToGraphCreate {
                                     if (graph.getOutgoingEdges(addedCell).length > 0) {
                                         // for cell who has child elements and added to some other parent as a child
                                         // node. subtree creation
-                                    	JtreeToGraphSave.saveModuleFromCurrentModel(cellParentCheck);
+                                        JtreeToGraphSave.saveModuleFromCurrentModel(cellParentCheck);
                                         ODMEEditor.undoControlForSubTree = true;
                                         JtreeToGraphAdd.addModuleFromSubgraph(cellParentCheck);
                                         JtreeToGraphDelete.deleteNodeFromGraphPopupForSubTree(firstAddedCellForSubTreeDeletion);
@@ -643,7 +655,7 @@ public class JtreeToGraphCreate {
                                         firstAddedCellForSubTree = 0;
                                     }
                                     else {
-                                    	JtreeToGraphAdd.addNodeWIthGraphAddition(addedCell.getValue().toString(),
+                                        JtreeToGraphAdd.addNodeWIthGraphAddition(addedCell.getValue().toString(),
                                                 stringArrayRev);
 
                                         System.out.println("Tested syn now");

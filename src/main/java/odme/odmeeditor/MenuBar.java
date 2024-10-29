@@ -200,8 +200,6 @@ public class MenuBar {
 									"MultiAspect Node Count",
 									JOptionPane.INFORMATION_MESSAGE
 							);
-//							multiAspectNodeTest.getParsedNodes();
-
 							break;
 
 						case "Scenarios List":

@@ -44,6 +44,9 @@ import java.io.ObjectOutputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import static odme.jtreetograph.JtreeToGraphAdd.readLimitFile;
+import static odme.jtreetograph.JtreeToGraphVariables.path;
+
 /**
  * <h1>DynamicTree</h1>
  * <p>
@@ -58,10 +61,14 @@ import java.nio.file.Paths;
  */
 public class DynamicTree extends JPanel implements MouseListener {
 
-	private static final long serialVersionUID = 1L;
-	public static Multimap<TreePath, String> varMap = ArrayListMultimap.create();
+    private static final long serialVersionUID = 1L;
+    public static Multimap<TreePath, String> varMap = ArrayListMultimap.create();
     public static Multimap<TreePath, String> constraintsList = ArrayListMultimap.create();
     public static Multimap<TreePath, String> behavioursList = ArrayListMultimap.create();
+
+    // Store limits for each TreePath associated with an MAsp node
+    public static Multimap<TreePath, String> limitsMAspec = ArrayListMultimap.create();
+
     public static Variable scenarioVariable = new Variable();
     public static String projectFileName;
     
@@ -74,6 +81,8 @@ public class DynamicTree extends JPanel implements MouseListener {
     public File ssdFileVar;
     public File ssdFileCon;
     public File ssdFileBeh;
+
+    public File ssdFileLimit;
     public File ssdFileFlag;
     @SuppressWarnings("unchecked")
     public DynamicTree() {
@@ -108,7 +117,7 @@ public class DynamicTree extends JPanel implements MouseListener {
                         constraintsList = (Multimap<TreePath, String>) oiscon.readObject();
                         oiscon.close();
 
-                        //it is read behaviours from the file
+                        //it  read behaviours from the file
                         ObjectInputStream oisbeh = new ObjectInputStream(new FileInputStream(ssdFileBeh));
                         behavioursList = (Multimap<TreePath , String>) oisbeh.readObject();
                         oisbeh.close();
@@ -139,7 +148,7 @@ public class DynamicTree extends JPanel implements MouseListener {
             }
         } 
         else {
-        	
+
             rootNode = new DefaultMutableTreeNode("Thing");
             treeModel = new UndoableTreeModel(rootNode);
             treeModel.addTreeModelListener(new MyTreeModelListener());
@@ -188,15 +197,15 @@ public class DynamicTree extends JPanel implements MouseListener {
     }
 
     @SuppressWarnings("unchecked")
-	public void openExistingProject(String filename, String oldProjectTreeProjectName) {
+    public void openExistingProject(String filename, String oldProjectTreeProjectName) {
         // restoring jtree from xml
-    	
-    	String path = new String();
-    	if (ODMEEditor.toolMode == "ses")
-    		path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + filename + ".xml";
-    	else
-    		path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/" + filename + ".xml";
-    	
+
+        String path = new String();
+        if (ODMEEditor.toolMode == "ses")
+            path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + filename + ".xml";
+        else
+            path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/" + filename + ".xml";
+
         XmlJTree myTree =
                 new XmlJTree(path);
         treeModel = myTree.dtModel;
@@ -218,20 +227,20 @@ public class DynamicTree extends JPanel implements MouseListener {
         JtreeToGraphVariables.projectFileNameGraph = newProjectName;
         
         if (ODMEEditor.toolMode == "ses")
-    		path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + newProjectName + "Graph.xml";
-    	else
-    		path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/" + newProjectName + "Graph.xml";
+            path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + newProjectName + "Graph.xml";
+        else
+            path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/" + newProjectName + "Graph.xml";
 
         JtreeToGraphVariables.ssdFileGraph = new File(path);
         ODMEEditor.treePanel.ssdFile =
                 new File(ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + newProjectName + ".xml");
         try {
-        	
-        	if (ODMEEditor.toolMode == "ses")
-        		path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + newProjectName + ".ssdvar";
-        	else
-        		path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/" + newProjectName + ".ssdvar";
-        	
+
+            if (ODMEEditor.toolMode == "ses")
+                path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + newProjectName + ".ssdvar";
+            else
+                path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/" + newProjectName + ".ssdvar";
+
             ObjectInputStream oisvar;
             oisvar = new ObjectInputStream(new FileInputStream(path));
             varMap = (Multimap<TreePath, String>) oisvar.readObject();
@@ -239,21 +248,21 @@ public class DynamicTree extends JPanel implements MouseListener {
             
             
             if (ODMEEditor.toolMode == "ses")
-        		path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + newProjectName + ".ssdcon";
-        	else
-        		path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/" + newProjectName + ".ssdcon";
+                path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + newProjectName + ".ssdcon";
+            else
+                path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/" + newProjectName + ".ssdcon";
 
             ObjectInputStream oiscon = new ObjectInputStream(new FileInputStream(path));
             constraintsList = (Multimap<TreePath, String>) oiscon.readObject();
             oiscon.close();
 
             if (ssdFileFlag.exists()) {
-            	
-            	if (ODMEEditor.toolMode == "ses")
-            		path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName +  "/" + newProjectName + ".ssdflag";
-            	else
-            		path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario +  "/" + newProjectName + ".ssdflag";
-            	
+
+                if (ODMEEditor.toolMode == "ses")
+                    path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName +  "/" + newProjectName + ".ssdflag";
+                else
+                    path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario +  "/" + newProjectName + ".ssdflag";
+
                 ObjectInputStream oisflag = new ObjectInputStream(new FileInputStream(path));
                 FlagVariables flags = new FlagVariables();
                 flags = (FlagVariables) oisflag.readObject();
@@ -410,16 +419,30 @@ public class DynamicTree extends JPanel implements MouseListener {
     }
 
     public void saveTreeModel() {
+
         try {
+
+            //for limits of MultiAspect in file
+            if(ODMEEditor.toolMode == "ses"){
+
+                ssdFileLimit = new File(String.format("%s/%s/%s.txt", ODMEEditor.fileLocation, ODMEEditor.projName, "limit"));
+
+                ObjectOutputStream ooslimit = new ObjectOutputStream(new FileOutputStream(ssdFileLimit));
+                ooslimit.writeObject(limitsMAspec);
+                ooslimit.close();
+            }
+
             // for variable
-        	
-        	String path = new String();
-        	if (ODMEEditor.toolMode == "ses")
-        		path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + ODMEEditor.projName;
-        	else
-        		path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/" + ODMEEditor.projName;
-        	
-        	ssdFileVar = new File(String.format("%s.ssdvar", path));
+
+            String path;
+            if (ODMEEditor.toolMode == "ses"){
+                path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + ODMEEditor.projName;
+                System.out.println("path ses = " + path);
+            }
+            else
+                path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/" + ODMEEditor.projName;
+
+            ssdFileVar = new File(String.format("%s.ssdvar", path));
             ObjectOutputStream oosvar = new ObjectOutputStream(new FileOutputStream(ssdFileVar));
             oosvar.writeObject(varMap);
             oosvar.close();
@@ -487,14 +510,14 @@ public class DynamicTree extends JPanel implements MouseListener {
     public void mouseReleased(MouseEvent e) {
         // throw new UnsupportedOperationException("Not supported yet."); //To
         // change body of generated methods, choose Tools | Templates.
-    	
-    	if (ODMEEditor.toolMode == "pes")
-    		return;
-    	
+
+        if (ODMEEditor.toolMode == "pes")
+            return;
+
         final TreePopup treePopup = new TreePopup(tree);
 
         if (e.getButton() == MouseEvent.BUTTON1 ) {
-        	System.out.println("BUTTON1");
+            System.out.println("BUTTON1");
             TreePath currentSelection = tree.getSelectionPath();
             if (currentSelection != null) {
                 DefaultMutableTreeNode currentNode =
@@ -514,7 +537,7 @@ public class DynamicTree extends JPanel implements MouseListener {
                         TreeNode[] nodes2 = currentNode2.getPath();
 
                         if (nodes.length == nodes2.length) {
-                        	int aa = 1;
+                            int aa = 1;
                             for (int i = 0; i < nodes.length; i++) {
                                 if (!nodes[i].toString().equals(nodes2[i].toString())) {
                                     aa = 0;
@@ -536,11 +559,11 @@ public class DynamicTree extends JPanel implements MouseListener {
             }
 
         } else if ( (e.getButton() == MouseEvent.BUTTON3)
-        	|| (e.getButton() == MouseEvent.BUTTON2) ) { // there's no button3 on laptop, use 2 instead
-        	
-        	// #ROY- fixing contextMenu not popping up
-        	// NOTE put more constraints (like e.isTriggered or whatever) 
-        	// and it won't work anymore (not on my system at least)
+                || (e.getButton() == MouseEvent.BUTTON2) ) { // there's no button3 on laptop, use 2 instead
+
+            // #ROY- fixing contextMenu not popping up
+            // NOTE put more constraints (like e.isTriggered or whatever)
+            // and it won't work anymore (not on my system at least)
             treePopup.show(e.getComponent(), e.getX(), e.getY());
         }
     }
@@ -563,7 +586,7 @@ public class DynamicTree extends JPanel implements MouseListener {
 
                 
                 if (nodes.length == nodes2.length) {
-                	int aa = 1;
+                    int aa = 1;
                     for (int i = 0; i < nodes.length; i++) {
                         if (!nodes[i].toString().equals(nodes2[i].toString())) {
                             aa = 0;
@@ -603,7 +626,7 @@ public class DynamicTree extends JPanel implements MouseListener {
                 TreeNode[] nodes2 = currentNode2.getPath();
 
                 if (nodes.length == nodes2.length) {
-                	int aa = 1;
+                    int aa = 1;
                     for (int i = 0; i < nodes.length; i++) {
                         if (!nodes[i].toString().equals(nodes2[i].toString())) {
                             aa = 0;
