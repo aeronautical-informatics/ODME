@@ -9,9 +9,7 @@ import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
+import java.util.*;
 
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
@@ -214,43 +212,56 @@ public class JtreeToGraphAdd {
     }
 
 
-    public static  Multimap<TreePath, String>  readLimitFile(){
+    public static  Map<TreePath, String>  readLimitFile(){
 
-        File ssdFileLimit = new File(String.format("%s/%s.txt", ODMEEditor.fileLocation, "limit"));
+//        File ssdFileLimit = new File(String.format("%s/%s.txt", ODMEEditor.fileLocation, "ssdLimit"));
+        File ssdFileLimit = new File(String.format("%s.ssdLimit",
+//                ODMEEditor.fileLocation,ODMEEditor.projName, projectFileName)
+                ODMEEditor.fileLocation + "/" + ODMEEditor.projName)
+        );
+
+        Map<TreePath, String> limitsMAspec = new HashMap<>();
+
         System.out.println("readLimitFile = " + ssdFileLimit);
-        //        File ssdFileLimit = new File("limit.txt",limitPath);
-        Multimap<TreePath, String> limitsMAspec = ArrayListMultimap.create();
 
         // Check if the file exists before attempting to read
         if (!ssdFileLimit.exists()) {
             System.out.println("No limit file found. No limits to load.");
             return null;
-        }
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(ssdFileLimit))) {
-            // Read the Multimap from the file
-            limitsMAspec = (Multimap<TreePath, String>) ois.readObject();
+        }else {
+            try  {
+                // Read the Multimap from the file
 
-            System.out.println("Limits loaded successfully from limit.txt");
-            System.out.println("Keys = "+limitsMAspec.keySet());
-            System.out.println("Values = "+limitsMAspec.values());
+                ObjectInputStream ois = new ObjectInputStream(new FileInputStream(ssdFileLimit));
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.out.println("Error loading limits from file.");
+                limitsMAspec = (Map<TreePath, String>) ois.readObject();
+
+                System.out.println("Limits loaded successfully from limit");
+                System.out.println("Keys = "+limitsMAspec.keySet());
+                System.out.println("Values = "+limitsMAspec.values());
+
+                ois.close();
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.out.println("Error loading limits from file.");
+            }
         }
+
         return limitsMAspec;
     }
 
     public static int checkLimitForNodeName(String nodeName) {
-        Multimap<TreePath, String> limits = readLimitFile();
+
+
+        Map<TreePath, String> limits = readLimitFile();
 
         // Check if any TreePath in limits contains the nodeName
         for (TreePath path : limits.keySet()) {
             if (path.toString().contains(nodeName)) {
-                Collection<String> nodeLimits = limits.get(path);
+                // Directly get the limit string for the TreePath
+                String limitStr = limits.get(path);
 
-                // Assuming there's only one limit per node, get the first limit
-                String limitStr = nodeLimits.iterator().next();
                 try {
                     int limit = Integer.parseInt(limitStr);
                     System.out.println("Limit for " + nodeName + ": " + limit);
@@ -261,6 +272,25 @@ public class JtreeToGraphAdd {
                 }
             }
         }
+
+        // Check if any TreePath in limits contains the nodeName
+
+//        for (TreePath path : limits.keySet()) {
+//            if (path.toString().contains(nodeName)) {
+//                Collection<String> nodeLimits = limits.get(path);
+//
+//                // Assuming there's only one limit per node, get the first limit
+//                String limitStr = nodeLimits.iterator().next();
+//                try {
+//                    int limit = Integer.parseInt(limitStr);
+//                    System.out.println("Limit for " + nodeName + ": " + limit);
+//                    return limit;
+//                } catch (NumberFormatException e) {
+//                    System.err.println("Invalid limit format for node " + nodeName + ": " + limitStr);
+//                    return 0;
+//                }
+//            }
+//        }
 
         System.out.println("No limit found for node: " + nodeName);
         return 0; // Default value if no limit is found

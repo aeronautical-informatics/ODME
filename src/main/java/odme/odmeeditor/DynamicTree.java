@@ -43,6 +43,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static odme.jtreetograph.JtreeToGraphAdd.readLimitFile;
 import static odme.jtreetograph.JtreeToGraphVariables.path;
@@ -67,7 +70,9 @@ public class DynamicTree extends JPanel implements MouseListener {
     public static Multimap<TreePath, String> behavioursList = ArrayListMultimap.create();
 
     // Store limits for each TreePath associated with an MAsp node
-    public static Multimap<TreePath, String> limitsMAspec = ArrayListMultimap.create();
+//    public static Multimap<TreePath, String> limitsMAspec = ArrayListMultimap.create();
+
+    public static Map<TreePath, String> limitsMAspec = new HashMap<>();
 
     public static Variable scenarioVariable = new Variable();
     public static String projectFileName;
@@ -425,7 +430,10 @@ public class DynamicTree extends JPanel implements MouseListener {
             //for limits of MultiAspect in file
             if(ODMEEditor.toolMode == "ses"){
 
-                ssdFileLimit = new File(String.format("%s/%s/%s.txt", ODMEEditor.fileLocation, ODMEEditor.projName, "limit"));
+//                ssdFileLimit = new File(String.format("%s/%s/%s.txt", ODMEEditor.fileLocation, ODMEEditor.projName, "limit"));
+
+                ssdFileLimit = new File(String.format("%s.ssdLimit",
+                        ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + ODMEEditor.projName ));
 
                 ObjectOutputStream ooslimit = new ObjectOutputStream(new FileOutputStream(ssdFileLimit));
                 ooslimit.writeObject(limitsMAspec);

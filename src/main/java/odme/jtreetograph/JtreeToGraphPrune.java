@@ -179,7 +179,8 @@ public class JtreeToGraphPrune {
                     nodeListTf.setText("");
                 }
                 if(n> limit){
-                    JOptionPane.showMessageDialog(null, "Number of Entities should be between 1 and " + limit);
+                    JOptionPane.showMessageDialog(null,
+                            "Number of Entities should be between 1 and " + limit);
                     nodeListTf.setText("");
                 }
                 if (n>1000 || n<1) {
