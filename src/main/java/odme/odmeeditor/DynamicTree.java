@@ -430,14 +430,71 @@ public class DynamicTree extends JPanel implements MouseListener {
             //for limits of MultiAspect in file
             if(ODMEEditor.toolMode == "ses"){
 
+                // Define the file location
+                File ssdFileLimit = new File(String.format("%s.ssdLimit",
+                        ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + ODMEEditor.projName));
+
+                // Map to hold the data (existing + new)
+                Map<TreePath, String> limits;
+
+                // Check if the file exists
+                if (ssdFileLimit.exists()) {
+                    // File exists, read existing data
+                    try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(ssdFileLimit))) {
+                        limits = (Map<TreePath, String>) ois.readObject();
+                        System.out.println("Existing data loaded from file.");
+                    } catch (Exception e) {
+                        System.err.println("Failed to read existing file: " + e.getMessage());
+                        limits = new HashMap<>();  // Initialize an empty map in case of failure
+                    }
+                } else {
+                    // File does not exist, initialize a new map
+                    limits = new HashMap<>();
+                    System.out.println("File does not exist; starting with an empty map.");
+                }
+
+                // Verify the type and content of limitsMAspec before adding
+                if (limitsMAspec != null && !limitsMAspec.isEmpty()) {
+                    System.out.println("Adding new data to the map...");
+                    // Iterate over each entry in limitsMAspec
+                    for (Map.Entry<TreePath, String> entry : limitsMAspec.entrySet()) {
+                        TreePath key = entry.getKey();
+                        String newValue = entry.getValue();
+
+                        // Check if the key already exists in limits
+                        if (limits.containsKey(key)) {
+                            System.out.println("Duplicate key found: " + key + " - Replacing old value: " + limits.get(key) + " with new value: " + newValue);
+                        }
+
+                        // Add or replace the value in limits
+                        limits.put(key, newValue);
+                    }
+
+                    // Log the contents of the map after adding new entries
+                    System.out.println("Map after adding new entries: " + limits);
+                }
+                else {
+                    System.out.println("No new data found in limitsMAspec to add.");
+                }
+
+                // Write the updated map back to the file
+                try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(ssdFileLimit))) {
+                    oos.writeObject(limits);
+                    System.out.println("Updated data written to file.");
+                } catch (Exception e) {
+                    System.err.println("Failed to write updated data to file: " + e.getMessage());
+                }
+
+
+
 //                ssdFileLimit = new File(String.format("%s/%s/%s.txt", ODMEEditor.fileLocation, ODMEEditor.projName, "limit"));
 
-                ssdFileLimit = new File(String.format("%s.ssdLimit",
-                        ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + ODMEEditor.projName ));
-
-                ObjectOutputStream ooslimit = new ObjectOutputStream(new FileOutputStream(ssdFileLimit));
-                ooslimit.writeObject(limitsMAspec);
-                ooslimit.close();
+//                ssdFileLimit = new File(String.format("%s.ssdLimit",
+//                        ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + ODMEEditor.projName ));
+//
+//                ObjectOutputStream ooslimit = new ObjectOutputStream(new FileOutputStream(ssdFileLimit));
+//                ooslimit.writeObject(limitsMAspec);
+//                ooslimit.close();
             }
 
             // for variable
