@@ -151,8 +151,16 @@ public class SpecialisationNodeTest {
             }
         });
 
-        // Show dialog with the total and matched nodes
-        String message = "Total Specialization Nodes: " + totalValues + "\nMatched Specialization Nodes: " + matchedSpecialNodes;
+        // Calculate the percentage of matched nodes
+        double percentageMatched = (totalValues > 0) ? ((double) matchedSpecialNodes.get() / totalValues) * 100 : 0;
+
+//        String message = "Total Specialization Nodes: " + totalValues + "\nMatched Specialization Nodes: " + matchedSpecialNodes;
+        // Show dialog with the total, matched nodes, and percentage
+        String message =
+//                "Total Specialization Nodes: " + totalValues +
+//                "\nMatched Specialization Nodes: " + matchedSpecialNodes +
+                "Match Percentage: " + String.format("%.2f", percentageMatched) + "%";
+
         JOptionPane.showMessageDialog(null, message, "Specialization Node Matching Results", JOptionPane.INFORMATION_MESSAGE);
     }
 

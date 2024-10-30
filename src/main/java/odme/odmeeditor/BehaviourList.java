@@ -45,8 +45,6 @@ public class BehaviourList extends JPanel{
 				dataList1.add(temp);
 			}
 		}
-
-
 		model = new DefaultTableModel(new String[]{"Name"}, 0);
 		for (String[] arr: dataList1) {
 

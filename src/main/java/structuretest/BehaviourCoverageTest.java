@@ -75,7 +75,15 @@ public class BehaviourCoverageTest {
         }
 
         // Display result in a dialog
-        String message = "Total Behaviours : " + totalValues + "\nMatched Specialization Nodes: " + matchedSpecialNodes;
+//        String message = "Total Behaviours : " + totalValues + "\nMatched Specialization Nodes: " + matchedSpecialNodes;
+        // Calculate the percentage of matched behaviors
+        double percentageMatched = (totalValues > 0) ? ((double) matchedSpecialNodes / totalValues) * 100 : 0;
+
+        // Display result in a dialog
+        String message =
+//                "Total Behaviours : " + totalValues +
+//                "\nMatched Behaviours: " + matchedSpecialNodes +
+                "Match Percentage: " + String.format("%.2f", percentageMatched) + "%";
         JOptionPane.showMessageDialog(null, message, "Matched Behaviours Results", JOptionPane.INFORMATION_MESSAGE);
     }
 }
