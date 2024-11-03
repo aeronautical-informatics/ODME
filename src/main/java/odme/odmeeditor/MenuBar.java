@@ -107,10 +107,10 @@ public class MenuBar {
 		addMenu("Operation Design Domain", 0, items_operation_design_domain, keyevents_operation_design_domain, keys_operation_design_domain, images_operation_design_domain);
 		
 		// Scenario Manager Menu
-		final String[] items_scenario_manager =  {"Scenarios List", "Excution", "Feedback Loop" , "Structural Testing"};
-		final int[] keyevents_scenario_manager = {0               , 0         ,  0           ,0  };
-		final String[] keys_scenario_manager =   {null            , null      ,  null          ,null};
-		final String[] images_scenario_manager = {"list"          , null      ,  null          ,null};
+		final String[] items_scenario_manager =  {"Scenarios List", "Excution", "Feedback Loop"};
+		final int[] keyevents_scenario_manager = {0               , 0         ,  0             };
+		final String[] keys_scenario_manager =   {null            , null      ,  null          };
+		final String[] images_scenario_manager = {"list"          , null      ,  null          };
 										
 		addMenu("Scenario Manager", 0, items_scenario_manager, keyevents_scenario_manager, keys_scenario_manager, images_scenario_manager);
 		

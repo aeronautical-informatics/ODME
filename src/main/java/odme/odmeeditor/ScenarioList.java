@@ -2,6 +2,7 @@ package odme.odmeeditor;
 
 import static odme.jtreetograph.JtreeToGraphVariables.nodeNumber;
 import static odme.jtreetograph.JtreeToGraphVariables.undoManager;
+import static odme.odmeeditor.MenuBar.getScenarioJsonData;
 import static odme.odmeeditor.XmlUtils.sesview;
 
 import java.awt.BorderLayout;
@@ -18,6 +19,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.JFrame;
 import javax.swing.JMenuItem;
@@ -41,7 +43,9 @@ import com.mxgraph.util.mxUndoManager;
 import com.mxgraph.util.svg.ParseException;
 
 import odme.jtreetograph.JtreeToGraphGeneral;
-
+import structuretest.BehaviourCoverageTest;
+import structuretest.MultiAspectNodeTest;
+import structuretest.SpecialisationNodeTest;
 
 
 public class ScenarioList extends JPanel {
@@ -129,15 +133,23 @@ public class ScenarioList extends JPanel {
         
         table.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
-                if (e.getClickCount() == 2) {
+
+				if (e.getClickCount() == 2) {
                     JTable target = (JTable) e.getSource();
                     int row = table.getSelectedRow();
-                    
+
                     String name = (String) target.getModel().getValueAt(row, 0);
-                    String risk = (String) target.getModel().getValueAt(row, 1);
-                    String remarks = (String) target.getModel().getValueAt(row, 2);
- 
-                    updateTableData(name, risk, remarks);
+
+					// Check if the "Structural Coverage" row is clicked with a double-click
+					if (name.equals("Structural Coverage")) {
+						// Open Structural Coverage Options
+						performStructuralCoverage();
+					} else {
+						String risk = (String) target.getModel().getValueAt(row, 1);
+						String remarks = (String) target.getModel().getValueAt(row, 2);
+
+						updateTableData(name, risk, remarks);
+					}
                 }
             }
         });
@@ -177,7 +189,37 @@ public class ScenarioList extends JPanel {
         frame.setResizable(false);
         frame.setVisible(true);
     }
-    
+
+	private void performStructuralCoverage(){
+		List<String[]> dataList = getScenarioJsonData();
+
+		String path = ODMEEditor.fileLocation  + "/graphxml.xml";
+
+		SpecialisationNodeTest specialisationNodeTest = new SpecialisationNodeTest(path);
+		Map c = specialisationNodeTest.getSpecialisationNodes();
+
+		specialisationNodeTest.checkMatchedNodes(dataList);
+
+		//Now behaviour test
+		BehaviourCoverageTest behaviourCoverageTest = new BehaviourCoverageTest();
+		behaviourCoverageTest.checkCodeCoverageForBehaviours(dataList);
+
+		//Now MultiAspect nodes
+		MultiAspectNodeTest multiAspectNodeTest  = new MultiAspectNodeTest();
+		multiAspectNodeTest.parseNodes(path);
+
+
+		// Show the parsed nodes and MultiAspect count in a JOptionPane dialog
+		JOptionPane.showMessageDialog(
+				null,
+				"Total number of MultiAspect nodes: " + multiAspectNodeTest.getMultiAspectNodeCount() +
+						"\nParsed MAsp Nodes and their child-parent relationships:\n" + multiAspectNodeTest.getParsedNodes(),
+				"MultiAspect Node Count",
+				JOptionPane.INFORMATION_MESSAGE
+		);
+
+	}
+
     private void deleteFolder(File folder) {
         File[] files = folder.listFiles();
         if(files!=null) {
@@ -261,7 +303,9 @@ public class ScenarioList extends JPanel {
         catch (ParseException e) {
             e.printStackTrace();
         }
-    	
+		// Add the Structural Coverage row at the end
+		dataList.add(new String[] { "Structural Coverage", "", "" });
+
     	return dataList;
     }
     
