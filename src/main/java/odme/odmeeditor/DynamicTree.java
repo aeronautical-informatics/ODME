@@ -2,7 +2,6 @@ package odme.odmeeditor;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
-
 import odme.contextmenus.TreePopup;
 import odme.core.CustomIconRenderer;
 import odme.core.EditorUndoableEditListener;
@@ -13,7 +12,6 @@ import odme.core.XmlJTree;
 import odme.jtreetograph.JtreeToGraphDelete;
 import odme.jtreetograph.JtreeToGraphSave;
 import odme.jtreetograph.JtreeToGraphVariables;
-
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
@@ -27,7 +25,6 @@ import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
-
 import java.awt.Cursor;
 import java.awt.GridLayout;
 import java.awt.Toolkit;
@@ -484,8 +481,6 @@ public class DynamicTree extends JPanel implements MouseListener {
                 } catch (Exception e) {
                     System.err.println("Failed to write updated data to file: " + e.getMessage());
                 }
-
-
 
 //                ssdFileLimit = new File(String.format("%s/%s/%s.txt", ODMEEditor.fileLocation, ODMEEditor.projName, "limit"));
 
