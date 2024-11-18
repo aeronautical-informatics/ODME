@@ -441,55 +441,67 @@ public class DynamicTree extends JPanel implements MouseListener {
                         limits = (Map<TreePath, String>) ois.readObject();
                         System.out.println("Existing data loaded from file.");
                     } catch (Exception e) {
-                        System.err.println("Failed to read existing file: " + e.getMessage());
+                        System.err.println("Failed to read existing file " + e.getMessage());
                         limits = new HashMap<>();  // Initialize an empty map in case of failure
                     }
                 } else {
                     // File does not exist, initialize a new map
                     limits = new HashMap<>();
-                    System.out.println("File does not exist; starting with an empty map.");
+                    System.out.println("File does not exist starting with an empty map.");
                 }
 
-                // Verify the type and content of limitsMAspec before adding
-                if (limitsMAspec != null && !limitsMAspec.isEmpty()) {
-                    System.out.println("Adding new data to the map...");
-                    // Iterate over each entry in limitsMAspec
-                    for (Map.Entry<TreePath, String> entry : limitsMAspec.entrySet()) {
-                        TreePath key = entry.getKey();
-                        String newValue = entry.getValue();
+                if (limits.isEmpty()  && !DynamicTree.limitsMAspec.isEmpty()){
 
-                        // Check if the key already exists in limits
-                        if (limits.containsKey(key)) {
-                            System.out.println("Duplicate key found: " + key + " - Replacing old value: " + limits.get(key) + " with new value: " + newValue);
-                        }
-
-                        // Add or replace the value in limits
-                        limits.put(key, newValue);
+                    // Write the updated map back to the file
+                    try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(ssdFileLimit))) {
+                        oos.writeObject(DynamicTree.limitsMAspec);
+                        System.out.println("Updated data written to file.");
+                    } catch (Exception e) {
+                        System.err.println("Failed to write updated data to file: " + e.getMessage());
                     }
+                }
+                else if (!limits.isEmpty() && !DynamicTree.limitsMAspec.isEmpty()
+                ){
+                    //now compare the values in the Map
+                    // Step 2: Compare and update `limits` with `DynamicTree.limitsMAspec`
+                    for (Map.Entry<TreePath, String> entry : DynamicTree.limitsMAspec.entrySet()) {
+                        TreePath key = entry.getKey();
+                        String value = entry.getValue();
+//                        System.out.println("Key = " + key);
+//                        System.out.println("Value = " + value);
 
-                    // Log the contents of the map after adding new entries
-                    System.out.println("Map after adding new entries: " + limits);
+                        boolean keyMatched = false;
+                        for (Map.Entry<TreePath, String> limitEntry : limits.entrySet()) {
+                            if (limitEntry.getKey().toString().equals(key.toString())
+                            ) {
+                                keyMatched = true;
+//                                System.out.println("Key matched: " + key);
+                                limits.put(limitEntry.getKey(), value);
+                                break;
+                            }
+                        }
+                        if (!keyMatched) {
+//                            System.out.println("Key not matched: " + key);
+                            limits.put(key, value);
+                        }
+                    }
+                    // Write the updated map back to the file
+                    try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(ssdFileLimit))) {
+                        oos.writeObject(limits);
+//                        System.out.println("Updated data written to file.");
+                    } catch (Exception e) {
+                        System.err.println("Failed to write updated data to file: " + e.getMessage());
+                    }
                 }
                 else {
-                    System.out.println("No new data found in limitsMAspec to add.");
+                    System.out.println("Both Maps are empty ");
                 }
 
-                // Write the updated map back to the file
-                try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(ssdFileLimit))) {
-                    oos.writeObject(limits);
-                    System.out.println("Updated data written to file.");
-                } catch (Exception e) {
-                    System.err.println("Failed to write updated data to file: " + e.getMessage());
+
+                for (Map.Entry<TreePath, String> entry : limits.entrySet()) {
+                    System.out.println("After update Key: " + entry.getKey() + ", Value: " + entry.getValue());
                 }
 
-//                ssdFileLimit = new File(String.format("%s/%s/%s.txt", ODMEEditor.fileLocation, ODMEEditor.projName, "limit"));
-
-//                ssdFileLimit = new File(String.format("%s.ssdLimit",
-//                        ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + ODMEEditor.projName ));
-//
-//                ObjectOutputStream ooslimit = new ObjectOutputStream(new FileOutputStream(ssdFileLimit));
-//                ooslimit.writeObject(limitsMAspec);
-//                ooslimit.close();
             }
 
             // for variable

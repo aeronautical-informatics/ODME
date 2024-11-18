@@ -20,15 +20,7 @@ import java.util.Map;
 import java.util.Scanner;
 
 import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JTextField;
-import javax.swing.KeyStroke;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
@@ -171,35 +163,34 @@ public class MenuBar {
 		            		break;
 
 						case "Structural Testing":
-							List<String[]> dataList = getScenarioJsonData();
-
-							//reading main graph of project
-							String path = ODMEEditor.fileLocation  + "/graphxml.xml";
-							System.out.println("File Path of graphxml = " + path);
-							System.out.println("Scenarios List = " + dataList.toString());
-							System.out.println("Scenarios List = " + dataList.toString());
-
-							SpecialisationNodeTest specialisationNodeTest = new SpecialisationNodeTest(path);
-							Map c = specialisationNodeTest.getSpecialisationNodes();
-
-							specialisationNodeTest.checkMatchedNodes(dataList);
-
-							//Now behaviour test
-							BehaviourCoverageTest behaviourCoverageTest = new BehaviourCoverageTest();
-							behaviourCoverageTest.checkCodeCoverageForBehaviours(dataList);
-
-							//Now MultiAspect nodes
-							MultiAspectNodeTest multiAspectNodeTest  = new MultiAspectNodeTest();
-							multiAspectNodeTest.parseNodes(path);
-
-							// Show the parsed nodes and MultiAspect count in a JOptionPane dialog
-							JOptionPane.showMessageDialog(
-									null,
-									"Total number of MultiAspect nodes: " + multiAspectNodeTest.getMultiAspectNodeCount() +
-											"\nParsed MAsp Nodes and their child-parent relationships:\n" + multiAspectNodeTest.getParsedNodes(),
-									"MultiAspect Node Count",
-									JOptionPane.INFORMATION_MESSAGE
-							);
+//							List<String[]> dataList = getScenarioJsonData();
+//
+//							//reading main graph of project
+//							String path = ODMEEditor.fileLocation  + "/graphxml.xml";
+//
+//
+//							SpecialisationNodeTest specialisationNodeTest = new SpecialisationNodeTest(path);
+//							Map c = specialisationNodeTest.getSpecialisationNodes();
+//
+//							specialisationNodeTest.checkMatchedNodes(dataList);
+//
+//							//Now behaviour test
+//							BehaviourCoverageTest behaviourCoverageTest = new BehaviourCoverageTest();
+//							behaviourCoverageTest.checkCodeCoverageForBehaviours(dataList);
+//
+//							//Now MultiAspect nodes
+//							MultiAspectNodeTest multiAspectNodeTest  = new MultiAspectNodeTest();
+//							multiAspectNodeTest.parseNodes(path);
+//
+//							// Show the parsed nodes and MultiAspect count in a JOptionPane dialog
+//							JOptionPane.showMessageDialog(
+//									null,
+//									"Total number of MultiAspect nodes: " + multiAspectNodeTest.getMultiAspectNodeCount() +
+//											"\nParsed MAsp Nodes and their child-parent relationships:\n" + multiAspectNodeTest.getParsedNodes(),
+//									"MultiAspect Node Count",
+//									JOptionPane.INFORMATION_MESSAGE
+//							);
+//
 							break;
 
 						case "Scenarios List":

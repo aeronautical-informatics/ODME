@@ -81,7 +81,7 @@ public class Main {
                     break;
                 }
             }
-        } 
+        }
         catch (Exception e) {
             // If Nimbus is not available, then have to set another look and feel.
         }

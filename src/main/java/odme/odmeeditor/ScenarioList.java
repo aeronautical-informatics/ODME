@@ -55,12 +55,12 @@ public class ScenarioList extends JPanel {
 	private DefaultTableModel model;
 
     public void createScenarioListWindow() {
-    	
-    	List<String[]> dataList = getJsonData();
-    	
-    	model = new DefaultTableModel(new String[]{"Name", "Risk", "Remarks"}, 0);
-    	for (String[] arr: dataList)
-    		model.addRow(arr);
+
+		List<String[]> dataList = getJsonData();
+
+		model = new DefaultTableModel(new String[]{"Name", "Risk", "Remarks"}, 0);
+		for (String[] arr: dataList)
+			model.addRow(arr);
 
         table = new JTable(model);
         table.setShowVerticalLines(true);
@@ -76,32 +76,31 @@ public class ScenarioList extends JPanel {
         openItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-            	try {
+				try {
 
-            		DynamicTree.varMap = ArrayListMultimap.create();
+					DynamicTree.varMap = ArrayListMultimap.create();
 
-            		int row = table.getSelectedRow();
-            		String fileName = (String) table.getModel().getValueAt(row, 0);
+					int row = table.getSelectedRow();
+					String fileName = (String) table.getModel().getValueAt(row, 0);
 
-            		System.out.println("Selected file: " + fileName);
-            		ODMEEditor.currentScenario = fileName;
+					System.out.println("Selected file: " + fileName);
+					ODMEEditor.currentScenario = fileName;
 
-            		nodeNumber = 1;
-            		JtreeToGraphGeneral.openExistingProject(ODMEEditor.projName, ODMEEditor.projName);
+					nodeNumber = 1;
+					JtreeToGraphGeneral.openExistingProject(ODMEEditor.projName, ODMEEditor.projName);
 
-            		undoManager = new mxUndoManager();
+					undoManager = new mxUndoManager();
 
-            		sesview.textArea.setText("");
-            		Console.consoleText.setText(">>");
-            		Variable.setNullToAllRows();
-            		Constraint.setNullToAllRows();
-            		Behaviour.setNullToAllRows();
+					sesview.textArea.setText("");
+					Console.consoleText.setText(">>");
+					Variable.setNullToAllRows();
+					Constraint.setNullToAllRows();
+					Behaviour.setNullToAllRows();
 
-            		ODMEEditor.graphWindow.setTitle(fileName);
-            		ODMEEditor.changePruneColor();
-            	}
-            	catch (Exception ex){
-            	}
+					ODMEEditor.graphWindow.setTitle(fileName);
+					ODMEEditor.changePruneColor();
+				} catch (Exception ex){
+				}
             }
         });
         
@@ -111,21 +110,21 @@ public class ScenarioList extends JPanel {
         deleteItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-            	int row = table.getSelectedRow();
-            	String fileName = (String) table.getModel().getValueAt(row, 0);
-            	if (fileName.equals(ODMEEditor.currentScenario)) {
-            		JOptionPane.showMessageDialog(Main.frame, "The Scenario is currently opened!", "Error",
+				int row = table.getSelectedRow();
+				String fileName = (String) table.getModel().getValueAt(row, 0);
+				if (fileName.equals(ODMEEditor.currentScenario)) {
+					JOptionPane.showMessageDialog(Main.frame, "The Scenario is currently opened!", "Error",
                             JOptionPane.ERROR_MESSAGE);
-            		return;
-            	}
-            	
-            	int dialogResult = -1;
-            	dialogResult = JOptionPane.showConfirmDialog (null,
-        				"Do you want to delete "+fileName+"?","Delete Scenario",JOptionPane.YES_NO_OPTION);
-        		if(dialogResult == JOptionPane.YES_OPTION){
-        			deleteFolder(new File(ODMEEditor.fileLocation + "/" +  fileName));  
-        			deleteFromJson(fileName);
-        		}
+					return;
+				}
+
+				int dialogResult = -1;
+				dialogResult = JOptionPane.showConfirmDialog (null,
+						"Do you want to delete "+fileName+"?","Delete Scenario",JOptionPane.YES_NO_OPTION);
+				if(dialogResult == JOptionPane.YES_OPTION){
+					deleteFolder(new File(ODMEEditor.fileLocation + "/" +  fileName));
+					deleteFromJson(fileName);
+				}
             }
         });
          
@@ -144,6 +143,9 @@ public class ScenarioList extends JPanel {
 					if (name.equals("Structural Coverage")) {
 						// Open Structural Coverage Options
 						performStructuralCoverage();
+
+//						System.out.println("CodeCoverageLayout main method invoked");
+
 					} else {
 						String risk = (String) target.getModel().getValueAt(row, 1);
 						String remarks = (String) target.getModel().getValueAt(row, 2);
@@ -153,16 +155,7 @@ public class ScenarioList extends JPanel {
                 }
             }
         });
-        
-        
-//        TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(table.getModel());
-//        table.setRowSorter(sorter);
-//
-//        List<RowSorter.SortKey> sortKeys = new ArrayList<>(25);
-//        sortKeys.add(new RowSorter.SortKey(3, SortOrder.ASCENDING));
-//        sortKeys.add(new RowSorter.SortKey(0, SortOrder.ASCENDING));
-//        sorter.setSortKeys(sortKeys);
-                
+
         JFrame frame = new JFrame("Senario List");
         JPanel panelCenter = new JPanel();
                 
@@ -208,6 +201,35 @@ public class ScenarioList extends JPanel {
 		MultiAspectNodeTest multiAspectNodeTest  = new MultiAspectNodeTest();
 		multiAspectNodeTest.parseNodes(path);
 
+//		System.out.println("Total special nodes" +specialisationNodeTest.getTotalSpecialisationNode() );
+//		System.out.println("Matched special nodes" +specialisationNodeTest.getMatchedSpecialisationNode());
+//		System.out.println("Total Behaviours  nodes" +behaviourCoverageTest.getTotalBehaviours());
+//		System.out.println("Matched Behaviours  nodes" +behaviourCoverageTest.getMatchedBehaviours());
+
+		// Calculating percentages
+		double specialisationPercentage = (specialisationNodeTest.getTotalSpecialisationNode() > 0)
+				? (specialisationNodeTest.getMatchedSpecialisationNode() * 100.0 / specialisationNodeTest.getTotalSpecialisationNode())
+				: 0.0;
+
+		double behaviourPercentage = (behaviourCoverageTest.getTotalBehaviours() > 0)
+				? (behaviourCoverageTest.getMatchedBehaviours() * 100.0 / behaviourCoverageTest.getTotalBehaviours())
+				: 0.0;
+
+
+		// Creating the 2D array
+		Object[][] data = {
+				{"Specialisation Node", specialisationNodeTest.getTotalSpecialisationNode() ,
+						specialisationNodeTest.getMatchedSpecialisationNode() ,
+						specialisationNodeTest.getTotalSpecialisationNode()+specialisationNodeTest.getMatchedSpecialisationNode(),
+						specialisationPercentage},
+				{"Behaviour Node", behaviourCoverageTest.getTotalBehaviours(),
+						behaviourCoverageTest.getMatchedBehaviours(),
+						behaviourCoverageTest.getTotalBehaviours()+						behaviourCoverageTest.getMatchedBehaviours(),
+						behaviourPercentage}
+		};
+
+		CodeCoverageLayout layout = new CodeCoverageLayout(Main.frame , data);
+		layout.setVisible(true);
 
 		// Show the parsed nodes and MultiAspect count in a JOptionPane dialog
 		JOptionPane.showMessageDialog(
@@ -217,6 +239,7 @@ public class ScenarioList extends JPanel {
 				"MultiAspect Node Count",
 				JOptionPane.INFORMATION_MESSAGE
 		);
+
 
 	}
 
@@ -236,62 +259,60 @@ public class ScenarioList extends JPanel {
     
     @SuppressWarnings("unchecked")
 	private void deleteFromJson(String scenario) {
-    	List<String[]> dataList = getJsonData();
-		
+		List<String[]> dataList = getJsonData();
+
 		JSONArray ja = new JSONArray();
 		for (String[] arr: dataList) {
 			JSONObject jo = new JSONObject();
 			if (arr[0].equals(scenario)) {
 				continue;
-			}
-			else {
+			} else {
 				jo.put("name", arr[0]);
 				jo.put("risk", arr[1]);
 				jo.put("remarks", arr[2]);
-				
+
 				JSONObject jom = new JSONObject();
 				jom.put("scenario", jo);
 				ja.add(jom);
 			}
 		}
-		
+
 		try {
-	         FileWriter file = new FileWriter(ODMEEditor.fileLocation  + "/scenarios.json");
-	         file.write(ja.toJSONString());
-	         file.close();
-	      } catch (IOException e) {
-	         e.printStackTrace();
-	      }
-		
+			FileWriter file = new FileWriter(ODMEEditor.fileLocation  + "/scenarios.json");
+			file.write(ja.toJSONString());
+			file.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
 		DefaultTableModel dm = (DefaultTableModel)table.getModel();
 		while(dm.getRowCount() > 0) {
-		    dm.removeRow(0);
+			dm.removeRow(0);
 		}
-		
+
 		List<String[]> newDataList = getJsonData();
-		
+
 		for (String[] arr: newDataList)
-    		model.addRow(arr);
+			model.addRow(arr);
     }
     
     private List<String[]> getJsonData() {
-    	JSONParser jsonParser = new JSONParser();
-    	List<String[]> dataList = new ArrayList<String[]>();
-    	
-        try (FileReader reader = new FileReader(ODMEEditor.fileLocation + "/scenarios.json")){
+		JSONParser jsonParser = new JSONParser();
+		List<String[]> dataList = new ArrayList<String[]>();
+
+		try (FileReader reader = new FileReader(ODMEEditor.fileLocation + "/scenarios.json")){
 
             Object obj = null;
 			try {
 				obj = jsonParser.parse(reader);
-			} 
-			catch (org.json.simple.parser.ParseException e) {
+			} catch (org.json.simple.parser.ParseException e) {
 				e.printStackTrace();
 			}
-			
-            JSONArray data = (JSONArray) obj;
+
+			JSONArray data = (JSONArray) obj;
 
             for (Object dtObj:data) {
-            	dataList.add(parseObject((JSONObject)dtObj));
+				dataList.add(parseObject((JSONObject)dtObj));
             }
         } 
         catch (FileNotFoundException e) {
@@ -306,7 +327,7 @@ public class ScenarioList extends JPanel {
 		// Add the Structural Coverage row at the end
 		dataList.add(new String[] { "Structural Coverage", "", "" });
 
-    	return dataList;
+		return dataList;
     }
     
     private String[] parseObject(JSONObject obj) {
@@ -323,70 +344,69 @@ public class ScenarioList extends JPanel {
     
     @SuppressWarnings("unchecked")
 	public void updateTableData(String name, String risk, String remarks) {
-    	JTextField nameField = new JTextField();
-    	JTextField riskField = new JTextField();
-    	JTextField remarksField = new JTextField();
+		JTextField nameField = new JTextField();
+		JTextField riskField = new JTextField();
+		JTextField remarksField = new JTextField();
 
-    	nameField.setEnabled(false);
-    	
-    	nameField.setText(name);
-    	riskField.setText(risk);
-    	remarksField.setText(remarks);
+		nameField.setEnabled(false);
+
+		nameField.setText(name);
+		riskField.setText(risk);
+		remarksField.setText(remarks);
 
 
-    	Object[] message = {"Scenario Name:", nameField, "Risk:", riskField, "Remarks:", remarksField};
+		Object[] message = {"Scenario Name:", nameField, "Risk:", riskField, "Remarks:", remarksField};
 
-    	int option = JOptionPane
-    			.showConfirmDialog(Main.frame, message, "Update Scenario", JOptionPane.OK_CANCEL_OPTION,
-    			JOptionPane.PLAIN_MESSAGE);
+		int option = JOptionPane
+				.showConfirmDialog(Main.frame, message, "Update Scenario", JOptionPane.OK_CANCEL_OPTION,
+						JOptionPane.PLAIN_MESSAGE);
 
-    	if (option == JOptionPane.OK_OPTION) {
-    			name = nameField.getText();
-    			risk = riskField.getText();
-    			remarks = remarksField.getText();
-    			
-    			List<String[]> dataList = getJsonData();
-    			
-    			JSONArray ja = new JSONArray();
-    			for (String[] arr: dataList) {
-    				JSONObject jo = new JSONObject();
-    				if (arr[0].equals(name)) {
-    					jo.put("name", name);
-    					jo.put("risk", risk);
-    					jo.put("remarks", remarks);
-    					
-    					JSONObject jom = new JSONObject();
-    					jom.put("scenario", jo);
-    					ja.add(jom);
-    				}
-    				else {
-    					jo.put("name", arr[0]);
-    					jo.put("risk", arr[1]);
-    					jo.put("remarks", arr[2]);
-    					
-    					JSONObject jom = new JSONObject();
-    					jom.put("scenario", jo);
-    					ja.add(jom);
-    				}
-    			}
-    			
-    			try {
-    		         FileWriter file = new FileWriter(ODMEEditor.fileLocation  + "/scenarios.json");
-    		         file.write(ja.toJSONString());
-    		         file.close();
-    		      } catch (IOException e) {
-    		         e.printStackTrace();
-    		      }
-    			
-    			DefaultTableModel dm = (DefaultTableModel)table.getModel();
-    			while(dm.getRowCount() > 0) {
-    			    dm.removeRow(0);
-    			}
-    			
-    			List<String[]> newDataList = getJsonData();
-    			
-    			for (String[] arr: newDataList)
-    	    		model.addRow(arr);
-    	}	
-    }
+		if (option == JOptionPane.OK_OPTION) {
+			name = nameField.getText();
+			risk = riskField.getText();
+			remarks = remarksField.getText();
+
+			List<String[]> dataList = getJsonData();
+
+			JSONArray ja = new JSONArray();
+			for (String[] arr: dataList) {
+				JSONObject jo = new JSONObject();
+				if (arr[0].equals(name)) {
+					jo.put("name", name);
+					jo.put("risk", risk);
+					jo.put("remarks", remarks);
+
+					JSONObject jom = new JSONObject();
+					jom.put("scenario", jo);
+					ja.add(jom);
+				} else {
+					jo.put("name", arr[0]);
+					jo.put("risk", arr[1]);
+					jo.put("remarks", arr[2]);
+
+					JSONObject jom = new JSONObject();
+					jom.put("scenario", jo);
+					ja.add(jom);
+				}
+			}
+
+			try {
+				FileWriter file = new FileWriter(ODMEEditor.fileLocation  + "/scenarios.json");
+				file.write(ja.toJSONString());
+				file.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
+			DefaultTableModel dm = (DefaultTableModel)table.getModel();
+			while(dm.getRowCount() > 0) {
+				dm.removeRow(0);
+			}
+
+			List<String[]> newDataList = getJsonData();
+
+			for (String[] arr: newDataList)
+				model.addRow(arr);
+		}
+	}
 }

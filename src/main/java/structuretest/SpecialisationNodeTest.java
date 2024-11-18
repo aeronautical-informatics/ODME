@@ -15,6 +15,8 @@ import static odme.odmeeditor.ODMEEditor.fileLocation;
 
 public class SpecialisationNodeTest {
 
+    private int totalSpecialisationNode;
+    private int matchedSpecialisationNode;
     private Map<String, List<String>> specialisationNodes = new HashMap<>();
 
     // Constructor to load XML file and extract specialization relationships
@@ -104,14 +106,12 @@ public class SpecialisationNodeTest {
         AtomicInteger matchedSpecialNodes = new AtomicInteger();
 
         int totalValues = countTotalValues(specialisationNodes);
-//        System.out.println("Total number of values: " + totalValues);
         scenariosList.forEach(scenario -> {
 
             Scanner in = null;
             try
             {
                 String path = fileLocation +"/" + scenario[0] + "/graphxml.xml";
-//                System.out.println("Path of scenario = " + path);
 
                 File file = new File(path);
                 if (file.exists()) {
@@ -154,14 +154,13 @@ public class SpecialisationNodeTest {
         // Calculate the percentage of matched nodes
         double percentageMatched = (totalValues > 0) ? ((double) matchedSpecialNodes.get() / totalValues) * 100 : 0;
 
-//        String message = "Total Specialization Nodes: " + totalValues + "\nMatched Specialization Nodes: " + matchedSpecialNodes;
-        // Show dialog with the total, matched nodes, and percentage
+        totalSpecialisationNode = totalValues;
+        matchedSpecialisationNode = matchedSpecialNodes.get();
+
         String message =
-//                "Total Specialization Nodes: " + totalValues +
-//                "\nMatched Specialization Nodes: " + matchedSpecialNodes +
                 "Match Percentage: " + String.format("%.2f", percentageMatched) + "%";
 
-        JOptionPane.showMessageDialog(null, message, "Specialization Node Matching Results", JOptionPane.INFORMATION_MESSAGE);
+//        JOptionPane.showMessageDialog(null, message, "Specialization Node Matching Results", JOptionPane.INFORMATION_MESSAGE);
     }
 
     // Function to check if a given tag name matches any value in the specialisationNodes map
@@ -182,11 +181,19 @@ public class SpecialisationNodeTest {
 
         // Iterate through each entry in the map
         for (Map.Entry<String, List<String>> entry : specialisationNodes.entrySet()) {
-            List<String> values = entry.getValue(); // Get the list of values for this key
-            totalCount += values.size(); // Add the size of the list to the total count
+            List<String> values = entry.getValue();
+            totalCount += values.size();
         }
 
         return totalCount;
+    }
+
+    public int getTotalSpecialisationNode() {
+        return totalSpecialisationNode;
+    }
+
+    public int getMatchedSpecialisationNode() {
+        return matchedSpecialisationNode;
     }
 }
 

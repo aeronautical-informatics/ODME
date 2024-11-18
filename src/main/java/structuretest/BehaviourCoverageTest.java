@@ -12,6 +12,10 @@ import java.util.Scanner;
 
 public class BehaviourCoverageTest {
 
+
+    private int totalBehaviours;
+    private int matchedBehaviours;
+
     private Multimap<TreePath, String> behavioursList;
     private List<String> behaviourValuesList;
 
@@ -20,6 +24,7 @@ public class BehaviourCoverageTest {
     }
 
     public void checkCodeCoverageForBehaviours(List<String[]> scenariosList) {
+
         // Now get list of all behaviours saved in project.ssdbeh file.
         File ssdFileBeh = new File(ODMEEditor.fileLocation + "/" +ODMEEditor.projName + ".ssdbeh");
         System.out.println("Behaviour file path = " + ssdFileBeh);
@@ -42,7 +47,7 @@ public class BehaviourCoverageTest {
 
         // Now check each scenario's behaviour XML file to verify if behaviours are used or not
         int totalValues = behaviourValuesList.size();
-        int matchedSpecialNodes = 0; // To keep track of matched behaviours
+        int matchedSpecialNodes = 0;
 
         // Checking each scenario's behaviourxml file to check if behaviours are used or not
         for (String[] scenario : scenariosList) {
@@ -74,16 +79,21 @@ public class BehaviourCoverageTest {
             }
         }
 
-        // Display result in a dialog
-//        String message = "Total Behaviours : " + totalValues + "\nMatched Specialization Nodes: " + matchedSpecialNodes;
-        // Calculate the percentage of matched behaviors
         double percentageMatched = (totalValues > 0) ? ((double) matchedSpecialNodes / totalValues) * 100 : 0;
 
+        totalBehaviours = totalValues;
+        matchedBehaviours = matchedSpecialNodes;
+
         // Display result in a dialog
-        String message =
-//                "Total Behaviours : " + totalValues +
-//                "\nMatched Behaviours: " + matchedSpecialNodes +
-                "Match Percentage: " + String.format("%.2f", percentageMatched) + "%";
-        JOptionPane.showMessageDialog(null, message, "Matched Behaviours Results", JOptionPane.INFORMATION_MESSAGE);
+        String message = "Match Percentage: " + String.format("%.2f", percentageMatched) + "%";
+//        JOptionPane.showMessageDialog(null, message, "Matched Behaviours Results", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    public int getTotalBehaviours() {
+        return totalBehaviours;
+    }
+
+    public int getMatchedBehaviours() {
+        return matchedBehaviours;
     }
 }

@@ -12,6 +12,8 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static odme.odmeeditor.ODMEEditor.fileLocation;
+
 public class MultiAspectNodeTest {
 
 
@@ -45,7 +47,7 @@ public class MultiAspectNodeTest {
 
 
             // Get all elements in the document
-            NodeList allNodes = doc.getElementsByTagName("*");  // The "*" gets all elements in the XML
+            NodeList allNodes = doc.getElementsByTagName("*");
 
             for (int i = 0; i < allNodes.getLength(); i++) {
                 Element element = (Element) allNodes.item(i);
@@ -94,19 +96,39 @@ public class MultiAspectNodeTest {
 
 
 
-    private void checkCodeCoverageMultiAspect(){
+    private void checkCodeCoverageMultiAspect(List<String[]> scenariosList){
 
-        try{
+        scenariosList.forEach(scenario -> {
+            Scanner in = null;
+            try{
 
-            String path = new String();
-            Scanner MAScanner  = null;
-            path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/graphxml.xml";
+                String path = fileLocation +"/" + scenario[0] + "/graphxml.xml";
 
-//			System.out.println("Path  = "+ path);
-            File file = new File (path);
-            List<String> MAspecNodes = new ArrayList<>();
-            boolean insideMAspecNode = false;
+                File file = new File(path);
+                if (file.exists()) {
+                    in = new Scanner(file);
 
+
+                    // Parse the XML file
+                    DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+                    DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+                    Document doc = dBuilder.parse(file);
+                    doc.getDocumentElement().normalize();
+
+                    // Get all elements in the document
+                    NodeList allNodes = doc.getElementsByTagName("*");  // "*" gets all elements in the XML
+
+
+                }
+
+            }catch (Exception e){
+                    e.printStackTrace();
+                }
+
+            });
+
+
+            /*
             if (file.exists()) {
                 //first read all node that contains Specialization keyword
                 MAScanner = new Scanner(file);
@@ -128,11 +150,8 @@ public class MultiAspectNodeTest {
             } else {
                 System.out.println("File not found ");
             }
-            MAScanner.close();
 
-        }catch (Exception e ){
-            Logger.getLogger(ODMEEditor.class.getName()).log(Level.SEVERE, null, e);
-        }
+             */
     }
 
 }
