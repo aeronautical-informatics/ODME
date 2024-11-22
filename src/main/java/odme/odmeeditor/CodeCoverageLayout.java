@@ -24,12 +24,12 @@ public class CodeCoverageLayout extends JDialog {
         mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         // Title
-        JLabel titleLabel = new JLabel("OpenCover: Code Coverage Metrics with CI build", JLabel.CENTER);
+        JLabel titleLabel = new JLabel(" Code Coverage", JLabel.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
 
         // Subtitle
-        JLabel subtitleLabel = new JLabel("May 15, 2016 · 5 min read · Code", JLabel.CENTER);
-        subtitleLabel.setFont(new Font("Arial", Font.ITALIC, 12));
+//        JLabel subtitleLabel = new JLabel("May 15, 2016 · 5 min read · Code", JLabel.CENTER);
+//        subtitleLabel.setFont(new Font("Arial", Font.ITALIC, 12));
 
         // Coverage table
         String[] columns = {"Name", "Covered", "Uncovered", "Total", "Line Coverage"};
@@ -64,7 +64,7 @@ public class CodeCoverageLayout extends JDialog {
 
         // Add components to main panel
         mainPanel.add(titleLabel, BorderLayout.NORTH);
-        mainPanel.add(subtitleLabel, BorderLayout.CENTER);
+//        mainPanel.add(subtitleLabel, BorderLayout.CENTER);
         mainPanel.add(tableScrollPane, BorderLayout.SOUTH);
 
         add(mainPanel);

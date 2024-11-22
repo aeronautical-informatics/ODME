@@ -157,10 +157,6 @@ public class SpecialisationNodeTest {
         totalSpecialisationNode = totalValues;
         matchedSpecialisationNode = matchedSpecialNodes.get();
 
-        String message =
-                "Match Percentage: " + String.format("%.2f", percentageMatched) + "%";
-
-//        JOptionPane.showMessageDialog(null, message, "Specialization Node Matching Results", JOptionPane.INFORMATION_MESSAGE);
     }
 
     // Function to check if a given tag name matches any value in the specialisationNodes map

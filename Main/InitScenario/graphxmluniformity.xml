@@ -5,7 +5,11 @@
 <AirFrame>
 <node3Spec>
 <Bird/>
-<Strike/>
+<Strike>
+<node16MAsp>
+<strikeMultiAspect/>
+</node16MAsp>
+</Strike>
 </node3Spec>
 </AirFrame>
 </node1Dec>

@@ -144,8 +144,6 @@ public class ScenarioList extends JPanel {
 						// Open Structural Coverage Options
 						performStructuralCoverage();
 
-//						System.out.println("CodeCoverageLayout main method invoked");
-
 					} else {
 						String risk = (String) target.getModel().getValueAt(row, 1);
 						String remarks = (String) target.getModel().getValueAt(row, 2);
@@ -201,10 +199,12 @@ public class ScenarioList extends JPanel {
 		MultiAspectNodeTest multiAspectNodeTest  = new MultiAspectNodeTest();
 		multiAspectNodeTest.parseNodes(path);
 
-//		System.out.println("Total special nodes" +specialisationNodeTest.getTotalSpecialisationNode() );
-//		System.out.println("Matched special nodes" +specialisationNodeTest.getMatchedSpecialisationNode());
-//		System.out.println("Total Behaviours  nodes" +behaviourCoverageTest.getTotalBehaviours());
-//		System.out.println("Matched Behaviours  nodes" +behaviourCoverageTest.getMatchedBehaviours());
+		multiAspectNodeTest.checkCodeCoverageMultiAspect(dataList);
+
+//		System.out.println("total covered nodes  = " + multiAspectNodeTest.getTotalCoveredChildren());
+//		System.out.println("total uncovered nodes  = " + multiAspectNodeTest.getTotalUncoveredChildren());
+//		System.out.println("total percentage   = " + multiAspectNodeTest.getTotalPercentage());
+
 
 		// Calculating percentages
 		double specialisationPercentage = (specialisationNodeTest.getTotalSpecialisationNode() > 0)
@@ -222,25 +222,27 @@ public class ScenarioList extends JPanel {
 						specialisationNodeTest.getMatchedSpecialisationNode() ,
 						specialisationNodeTest.getTotalSpecialisationNode()+specialisationNodeTest.getMatchedSpecialisationNode(),
 						specialisationPercentage},
-				{"Behaviour Node", behaviourCoverageTest.getTotalBehaviours(),
+				{"MultiAspect Node" , multiAspectNodeTest.getTotalCoveredChildren(), multiAspectNodeTest.getTotalUncoveredChildren(),
+						multiAspectNodeTest.getTotalUncoveredChildren()+ multiAspectNodeTest.getTotalCoveredChildren(),
+						multiAspectNodeTest.getTotalPercentage()
+				},
+				{"Behaviours", behaviourCoverageTest.getTotalBehaviours(),
 						behaviourCoverageTest.getMatchedBehaviours(),
-						behaviourCoverageTest.getTotalBehaviours()+						behaviourCoverageTest.getMatchedBehaviours(),
-						behaviourPercentage}
+						behaviourCoverageTest.getTotalBehaviours()+behaviourCoverageTest.getMatchedBehaviours(),
+						behaviourPercentage},
 		};
 
 		CodeCoverageLayout layout = new CodeCoverageLayout(Main.frame , data);
 		layout.setVisible(true);
 
 		// Show the parsed nodes and MultiAspect count in a JOptionPane dialog
-		JOptionPane.showMessageDialog(
-				null,
-				"Total number of MultiAspect nodes: " + multiAspectNodeTest.getMultiAspectNodeCount() +
-						"\nParsed MAsp Nodes and their child-parent relationships:\n" + multiAspectNodeTest.getParsedNodes(),
-				"MultiAspect Node Count",
-				JOptionPane.INFORMATION_MESSAGE
-		);
-
-
+//		JOptionPane.showMessageDialog(
+//				null,
+//				"Total number of MultiAspect nodes: " + multiAspectNodeTest.getMultiAspectNodeCount() +
+//						"\nParsed MAsp Nodes and their child-parent relationships:\n" + multiAspectNodeTest.getParsedNodes(),
+//				"MultiAspect Node Count",
+//				JOptionPane.INFORMATION_MESSAGE
+//		);
 	}
 
     private void deleteFolder(File folder) {
