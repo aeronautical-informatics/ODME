@@ -46,6 +46,7 @@ import odme.jtreetograph.JtreeToGraphGeneral;
 import structuretest.BehaviourCoverageTest;
 import structuretest.MultiAspectNodeTest;
 import structuretest.SpecialisationNodeTest;
+import structuretest.VariableCoverageTest;
 
 
 public class ScenarioList extends JPanel {
@@ -201,9 +202,11 @@ public class ScenarioList extends JPanel {
 
 		multiAspectNodeTest.checkCodeCoverageMultiAspect(dataList);
 
-//		System.out.println("total covered nodes  = " + multiAspectNodeTest.getTotalCoveredChildren());
-//		System.out.println("total uncovered nodes  = " + multiAspectNodeTest.getTotalUncoveredChildren());
-//		System.out.println("total percentage   = " + multiAspectNodeTest.getTotalPercentage());
+		try{
+//			VariableCoverageTest variableCoverageTest = new VariableCoverageTest(dataList);
+		}catch (Exception e){
+			System.out.println("Exception = " + e.getMessage());
+		}
 
 
 		// Calculating percentages
