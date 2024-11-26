@@ -43,10 +43,7 @@ import com.mxgraph.util.mxUndoManager;
 import com.mxgraph.util.svg.ParseException;
 
 import odme.jtreetograph.JtreeToGraphGeneral;
-import structuretest.BehaviourCoverageTest;
-import structuretest.MultiAspectNodeTest;
-import structuretest.SpecialisationNodeTest;
-import structuretest.VariableCoverageTest;
+import structuretest.*;
 
 
 public class ScenarioList extends JPanel {
@@ -183,6 +180,7 @@ public class ScenarioList extends JPanel {
     }
 
 	private void performStructuralCoverage(){
+
 		List<String[]> dataList = getScenarioJsonData();
 
 		String path = ODMEEditor.fileLocation  + "/graphxml.xml";
@@ -201,7 +199,7 @@ public class ScenarioList extends JPanel {
 		multiAspectNodeTest.parseNodes(path);
 
 		multiAspectNodeTest.checkCodeCoverageMultiAspect(dataList);
-
+		Test t = new Test(dataList);
 		try{
 //			VariableCoverageTest variableCoverageTest = new VariableCoverageTest(dataList);
 		}catch (Exception e){

@@ -163,33 +163,6 @@ public class MenuBar {
 		            		break;
 
 						case "Structural Testing":
-//							List<String[]> dataList = getScenarioJsonData();
-//
-//							//reading main graph of project
-//							String path = ODMEEditor.fileLocation  + "/graphxml.xml";
-//
-//
-//							SpecialisationNodeTest specialisationNodeTest = new SpecialisationNodeTest(path);
-//							Map c = specialisationNodeTest.getSpecialisationNodes();
-//
-//							specialisationNodeTest.checkMatchedNodes(dataList);
-//
-//							//Now behaviour test
-//							BehaviourCoverageTest behaviourCoverageTest = new BehaviourCoverageTest();
-//							behaviourCoverageTest.checkCodeCoverageForBehaviours(dataList);
-//
-//							//Now MultiAspect nodes
-//							MultiAspectNodeTest multiAspectNodeTest  = new MultiAspectNodeTest();
-//							multiAspectNodeTest.parseNodes(path);
-//
-//							// Show the parsed nodes and MultiAspect count in a JOptionPane dialog
-//							JOptionPane.showMessageDialog(
-//									null,
-//									"Total number of MultiAspect nodes: " + multiAspectNodeTest.getMultiAspectNodeCount() +
-//											"\nParsed MAsp Nodes and their child-parent relationships:\n" + multiAspectNodeTest.getParsedNodes(),
-//									"MultiAspect Node Count",
-//									JOptionPane.INFORMATION_MESSAGE
-//							);
 //
 							break;
 
@@ -453,8 +426,10 @@ public class MenuBar {
             		ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
             ODMEEditor.treePanel.ssdFile = new File(String.format("%s/%s/%s.xml",
             		ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
+
             ODMEEditor.treePanel.ssdFileVar = new File(String.format("%s/%s/%s.ssdvar",
             		ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
+
             ODMEEditor.treePanel.ssdFileCon = new File(String.format("%s/%s/%s.ssdcon",
             		ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
             ODMEEditor.treePanel.ssdFileFlag = new File(String.format("%s/%s/%s.ssdflag",

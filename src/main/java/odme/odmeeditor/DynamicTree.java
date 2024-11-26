@@ -41,11 +41,7 @@ import java.io.ObjectOutputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-
-import static odme.jtreetograph.JtreeToGraphAdd.readLimitFile;
-import static odme.jtreetograph.JtreeToGraphVariables.path;
 
 /**
  * <h1>DynamicTree</h1>
@@ -62,6 +58,7 @@ import static odme.jtreetograph.JtreeToGraphVariables.path;
 public class DynamicTree extends JPanel implements MouseListener {
 
     private static final long serialVersionUID = 1L;
+
     public static Multimap<TreePath, String> varMap = ArrayListMultimap.create();
     public static Multimap<TreePath, String> constraintsList = ArrayListMultimap.create();
     public static Multimap<TreePath, String> behavioursList = ArrayListMultimap.create();

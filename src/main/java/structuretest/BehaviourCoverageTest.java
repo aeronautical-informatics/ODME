@@ -85,7 +85,7 @@ public class BehaviourCoverageTest {
         matchedBehaviours = matchedSpecialNodes;
 
         // Display result in a dialog
-        String message = "Match Percentage: " + String.format("%.2f", percentageMatched) + "%";
+//        String message = "Match Percentage: " + String.format("%.2f", percentageMatched) + "%";
 //        JOptionPane.showMessageDialog(null, message, "Matched Behaviours Results", JOptionPane.INFORMATION_MESSAGE);
     }
 

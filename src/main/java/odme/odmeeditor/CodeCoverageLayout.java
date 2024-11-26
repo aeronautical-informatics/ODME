@@ -27,19 +27,10 @@ public class CodeCoverageLayout extends JDialog {
         JLabel titleLabel = new JLabel(" Code Coverage", JLabel.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
 
-        // Subtitle
-//        JLabel subtitleLabel = new JLabel("May 15, 2016 · 5 min read · Code", JLabel.CENTER);
-//        subtitleLabel.setFont(new Font("Arial", Font.ITALIC, 12));
 
         // Coverage table
         String[] columns = {"Name", "Covered", "Uncovered", "Total", "Line Coverage"};
-//        Object[][] data = {
-//                {"TW.Restful.Core", "123", "56", "179", 93.8},
-//                {"TW.Restful.Core.Resource", "16", "0", "16", 100.0},
-//                {"TW.Restful.Framework.Testing", "10", "5", "15", 66.7},
-//                {"TW.Restful.Fixture.Builders", "22", "6", "28", 78.6},
-//                {"TW.Restful.Fixture.FileSys", "13", "0", "13", 100.0},
-//        };
+
 
         DefaultTableModel model = new DefaultTableModel(data, columns) {
             @Override
