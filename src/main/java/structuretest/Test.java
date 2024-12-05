@@ -4,13 +4,14 @@ import com.google.common.collect.Multimap;
 import odme.odmeeditor.DynamicTree;
 import odme.odmeeditor.ODMEEditor;
 
+import javax.swing.*;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.ObjectInputStream;
 import java.util.*;
-import java.util.regex.Pattern;
-
 
 
 
@@ -18,15 +19,33 @@ public class Test {
 
     public static Multimap<TreePath, String> varMap = DynamicTree.varMap;
     private final Map<String, Set<Integer>> keyBucketCoverage = new HashMap<>(); // Track covered buckets for each key
+    private final Set<String> processedScenarioKeyPairs = new HashSet<>(); // Track processed scenario-key pairs
+
+     int totalCoveredBuckets = 0;
+     int totalUnCoveredBuckets = 0;
+     int totalBuckets = 0;
+
+    // Class-level variable to store the coverage summary
+    private final Map<String, Map<String, Object>> coverageSummary = new HashMap<>();
 
     public Test(List<String[]> scenariosList) {
-        // Prompt user for bucket size
-        Scanner scanner = new Scanner(System.in);
-        System.out.print("Enter bucket size: ");
-        int bucketSize = scanner.nextInt();
+
+        String input = JOptionPane.showInputDialog(null, "Enter bucket size (positive integer):",
+                "Bucket Size Input", JOptionPane.QUESTION_MESSAGE);
+        try{
+            if (input == null) {
+                JOptionPane.showMessageDialog(null, "Bucket size input cancelled. Exiting.", "Input Cancelled", JOptionPane.WARNING_MESSAGE);
+                throw new IllegalArgumentException("User cancelled the input.");
+            }
+        }catch (Exception e){
+            System.out.println(""+e.getMessage());
+        }
+        // Parse the input to an integer
+        int bucketSize = Integer.parseInt(input.trim());
+
         for (String[] scenario : scenariosList) {
             try {
-                String path = ODMEEditor.fileLocation + "/" + scenario[0] + "/Main.ssdvar";
+                String path = ODMEEditor.fileLocation + "/" + scenario[0] + "/" + ODMEEditor.projName + ".ssdvar";
                 File file = new File(path);
 
                 if (!file.exists()) {
@@ -42,260 +61,245 @@ public class Test {
                 System.out.println("exception " + e.getMessage());
             }
         }
-        scanner.close();
 
         // Calculate overall coverage for each key
         calculateOverallCoverage(bucketSize);
     }
 
-    private void matchKeys(Multimap<TreePath, String> dynamicMap, Multimap<TreePath, String> scenarioMap, String scenarioName, int bucketSize) {
+
+    private void matchKeys(Multimap<TreePath, String> dynamicMap, Multimap<TreePath, String> scenarioMap,
+                           String scenarioName, int bucketSize) {
+
         if (scenarioName.equals("InitScenario")) return;
 
-        // Convert keys to Lists of Strings
-        List<String> dynamicKeyList = new ArrayList<>();
-        List<String> scenarioKeyList = new ArrayList<>();
+        //This for loop is on scenario varMap
+        for (TreePath scenarioKey : scenarioMap.keySet()) {
 
-        for (TreePath key : dynamicMap.keySet()) {
-            dynamicKeyList.add(key.toString());
-        }
+            boolean keyMatched = false;
 
-        for (TreePath key : scenarioMap.keySet()) {
-            scenarioKeyList.add(key.toString());
-        }
 
-        // Find matching keys
-        List<String> matchingKeys = new ArrayList<>(dynamicKeyList);
-        matchingKeys.retainAll(scenarioKeyList); // Keep only keys that exist in both lists
+            for (TreePath dynamicKey : dynamicMap.keySet()) {
 
-        if (!matchingKeys.isEmpty()) {
-            for (String matchingKey : matchingKeys) {
-                for (TreePath key : scenarioMap.keySet()) {
-                    if (key.toString().equals(matchingKey)) {
-                        Collection<String> values = scenarioMap.get(key);
+                // Compare the structure of the TreePath objects
+                if (isMatchingTreePath(dynamicKey, scenarioKey)) {
 
-                        for (String value : values) {
-                            try {
-                                if (value.contains("float") || value.contains("double")) {
-                                    Collection<String> dynamicValues = null;
-                                    for (TreePath dynamicKey : dynamicMap.keySet()) {
-                                        if (dynamicKey.toString().equals(matchingKey)) {
-                                            dynamicValues = dynamicMap.get(dynamicKey);
-                                            break;
-                                        }
-                                    }
+                    keyMatched = true;
 
-                                    System.out.println("Matched Key: " + matchingKey +
-                                            ", Numeric Value in ScenarioMap: " + value +
-                                            ", Values in DynamicMap: " + dynamicValues +
-                                            ", Scenario: " + scenarioName);
+                    Collection<String> scenarioValues = scenarioMap.get(scenarioKey);
 
-                                    // Call defineBuckets for the matched key
-                                    defineBuckets(matchingKey, values, bucketSize, scenarioName);
+                    Collection<String> dynamicValues = dynamicMap.get(dynamicKey);
+
+
+                    // Fetch values for the matched key
+                    String[] matchedNodeValuesDynamic = fetchNodeValues(dynamicKey, dynamicMap);
+
+                    String[] matchedNodeValues = fetchNodeValues(scenarioKey, scenarioMap);
+
+//                    boolean areSame = Arrays.equals(matchedNodeValuesDynamic, matchedNodeValues);
+//                    if (areSame){
+//                        System.out.println("Values are exact same so skip");
+//                    }else {
+
+                        for (String value : matchedNodeValues){
+                            if (value != null){
+
+                                if (value.contains("float") || value.contains("double")){
+//                                    System.out.println("value = "+value + "   scenario  = "+ scenarioKey);
+                                    // Process matched values
+//                                defineBuckets(scenarioKey.toString(), scenarioValues, bucketSize, scenarioName);
+                                defineBuckets(scenarioKey.toString(), matchedNodeValues, bucketSize, scenarioName);
                                 }
-                            } catch (Exception e) {
-                                System.out.println(e.getMessage());
                             }
                         }
-                    }
+//                    }
                 }
             }
-        } else {
-            System.out.println("No matching keys found.");
+
+            if (!keyMatched) {
+                System.out.println("No match found for Key: " + scenarioKey);
+            }
+
+
         }
     }
 
-    private void defineBuckets(String key, Collection<String> values, int bucketSize, String scenarioName) {
-        try {
-            for (String value : values) {
-                if (value.contains("float") || value.contains("double")) {
-                    // Extract the relevant numeric value and upper limit from the value string
-                    String[] parts = value.split(",");
-                    double targetValue = Double.parseDouble(parts[2].trim()); // Assuming the third value is the target value
-                    double upperLimit = Double.parseDouble(parts[parts.length - 1].trim()); // Assuming the last part is the upper limit
+    private boolean isNumericType(String value) {
+        // Split the value string by commas to extract the type
+        String[] parts = value.split(",");
+        if (parts.length < 2) {
+            return false; // Invalid value format
+        }
 
-                    // Calculate bucket size
-                    double bucketRange = upperLimit / bucketSize;
+        String type = parts[1].trim().toLowerCase(); // Extract type (e.g., "float" or "double")
 
-                    System.out.println("Key: " + key + ", Upper Limit: " + upperLimit + ", Bucket Size: " + bucketSize);
-                    System.out.println("Buckets:");
+        // Check if the type is float or double
+        return type.equals("float") || type.equals("double");
+    }
+    private boolean isMatchingTreePath(TreePath dynamicKey, TreePath scenarioKey) {
+        DefaultMutableTreeNode dynamicNode = (DefaultMutableTreeNode) dynamicKey.getLastPathComponent();
+        DefaultMutableTreeNode scenarioNode = (DefaultMutableTreeNode) scenarioKey.getLastPathComponent();
 
-                    // Define buckets and determine the bucket for the target value
-                    double start, end;
-                    int bucketNumber = 0;
-                    for (int i = 0; i < bucketSize; i++) {
-                        start = i * bucketRange;
-                        end = (i + 1) * bucketRange;
+        TreeNode[] dynamicNodes = dynamicNode.getPath();
+        TreeNode[] scenarioNodes = scenarioNode.getPath();
 
-                        System.out.println("Bucket " + (i + 1) + ": [" + start + " - " + end + "]");
+        // Compare the length of the paths
+        if (dynamicNodes.length != scenarioNodes.length) {
+            return false;
+        }
 
-                        if (targetValue >= start && targetValue < end) {
-                            bucketNumber = i + 1; // Buckets are 1-based
+        // Compare each node in the paths
+        for (int i = 0; i < dynamicNodes.length; i++) {
+            if (!dynamicNodes[i].toString().equals(scenarioNodes[i].toString())) {
+                return false;
+            }
+        }
 
-                            // Track covered bucket for this key
-                            keyBucketCoverage
-                                    .computeIfAbsent(key, k -> new HashSet<>())
-                                    .add(bucketNumber);
+        return true;
+    }
+    private String[] fetchNodeValues(TreePath matchingKey, Multimap<TreePath, String> varMap) {
 
-                            System.out.println("Scenario: " + scenarioName + ", Target Value: " + targetValue +
-                                    " lies in Bucket " + bucketNumber);
+        TreeNode[] nodes = ((DefaultMutableTreeNode) matchingKey.getLastPathComponent()).getPath();
+        String[] nodesToSelectedNode = new String[100]; // Array to store matched values
+        int b = 0;
+
+        for (TreePath key : varMap.keySet()) {
+            int a = 0;
+
+            for (String value : varMap.get(key)) {
+                DefaultMutableTreeNode currentNode2 = (DefaultMutableTreeNode) key.getLastPathComponent();
+                TreeNode[] nodes2 = currentNode2.getPath();
+
+                if (nodes.length == nodes2.length) {
+                    int aa = 1;
+                    for (int i = 0; i < nodes.length; i++) {
+                        if (!nodes[i].toString().equals(nodes2[i].toString())) {
+                            aa = 0;
+                            break;
                         }
                     }
+                    a = aa;
+                }
+
+                if (a == 1) {
+                    nodesToSelectedNode[b] = value;
+                    b++;
                 }
             }
-        } catch (Exception e) {
-            System.out.println("Error defining buckets for key: " + key + " - " + e.getMessage());
         }
+
+        return nodesToSelectedNode;
     }
 
+   private void defineBuckets(String key, String[] values, int bucketCount, String scenarioName) {
+
+       try {
+           for (String value : values) {
+               String scenarioKeyPair = scenarioName + "-" + key + "-" + value;
+
+               // Skip if this pair is already processed
+               if (processedScenarioKeyPairs.contains(scenarioKeyPair)) {
+                   continue;
+               }
+
+               processedScenarioKeyPairs.add(scenarioKeyPair);
+
+               if (value.contains("float") || value.contains("double")) {
+                   // Extract the relevant numeric values
+                   String[] parts = value.split(",");
+                   double targetValue = Double.parseDouble(parts[2].trim()); // Target value
+                   double lowerBound = Double.parseDouble(parts[3].trim()); // Lower bound
+                   double upperBound = Double.parseDouble(parts[4].trim()); // Upper bound
+
+
+                   // Calculate the step size
+                   double stepSize = (upperBound - lowerBound) / bucketCount;
+
+                   System.out.println("Key: " + key + ", Lower Bound: " + lowerBound + ", Upper Bound: " + upperBound +
+                           ", Step Size: " + stepSize);
+                   System.out.println("Buckets:");
+
+                   // Define buckets and determine the bucket for the target value
+                   double start, end;
+                   int bucketNumber = 0;
+                   for (int i = 0; i <= bucketCount; i++) {
+                       start = lowerBound + (i * stepSize);
+                       end = lowerBound + ((i + 1) * stepSize);
+
+                       System.out.println("Bucket " + (i + 1) + ": [" + start + " - " + end + "]");
+
+                       if (targetValue >= start && targetValue < end) {
+                           bucketNumber = i + 1; // Buckets are 1-based
+
+                           // Track covered bucket for this key
+                           keyBucketCoverage
+                                   .computeIfAbsent(key, k -> new HashSet<>())
+                                   .add(bucketNumber);
+
+                           System.out.println("Scenario: " + scenarioName + ", Target Value: " + targetValue +
+                                   " lies in Bucket " + bucketNumber);
+                       }
+                   }
+                   if (bucketNumber == 0) {
+                       totalUnCoveredBuckets ++;
+                       System.out.println("Target Value: " + targetValue +
+                               " does not lie in any defined bucket for Key: " + key);
+                   }
+               }
+           }
+       } catch (Exception e) {
+           System.out.println("Error defining buckets for key: " + key + " - " + e.getMessage());
+       }
+   }
+
     private void calculateOverallCoverage(int bucketSize) {
-        System.out.println("\nOverall Coverage:");
         for (Map.Entry<String, Set<Integer>> entry : keyBucketCoverage.entrySet()) {
+
             String key = entry.getKey();
             Set<Integer> coveredBuckets = entry.getValue();
 
-            double coverage = (coveredBuckets.size() / (double) bucketSize) * 100;
-            System.out.println("Key: " + key + ", Covered Buckets: " + coveredBuckets +
-                    ", Overall Code Coverage: " + coverage + "%");
+            Set<Integer> uncoveredBuckets = new HashSet<>();
+            for (int i = 1; i <= bucketSize; i++) {
+                if (!coveredBuckets.contains(i)) {
+                    uncoveredBuckets.add(i);
+                }
+            }
+
+            Map<String, Object> details = new HashMap<>();
+            details.put("TotalBuckets", bucketSize);
+            details.put("CoveredBuckets", coveredBuckets.size());
+            details.put("UncoveredBuckets", uncoveredBuckets);
+
+            coverageSummary.put(key, details);
+
+            // Update overall totals
+            totalBuckets += bucketSize;                  // Add the total buckets for this key
+            totalCoveredBuckets += coveredBuckets.size();       // Add the covered buckets for this key
+            totalUnCoveredBuckets += uncoveredBuckets.size();   // Add the uncovered buckets for this key
+
         }
+    }
+
+    public void print(){
+        System.out.println(totalBuckets);
+        System.out.println(totalCoveredBuckets);
+        System.out.println(totalUnCoveredBuckets);
+    }
+
+     public int getTotalBuckets(){
+        return totalBuckets;
+     }
+
+    public int getTotalCoveredBuckets(){
+        return totalCoveredBuckets;
+    }
+    public int getTotalUnCoveredBuckets(){
+        return totalUnCoveredBuckets;
+    }
+    public Map<String, Map<String, Object>> getCoverageSummary() {
+        return coverageSummary;
+    }
+    public Map<String, Set<Integer>> getCoveredBuckets(){
+        return keyBucketCoverage;
     }
 }
 
-
-
-
-
-
-/*
-public class Test {
-
-    public static Multimap<TreePath, String> varMap = DynamicTree.varMap;
-
-    public Test(List<String[]> scenariosList){
-
-        // Prompt user for bucket size
-        Scanner scanner = new Scanner(System.in);
-        System.out.print("Enter bucket size: ");
-        int bucketSize = scanner.nextInt();
-        for (String[] scenario : scenariosList) {
-
-            try{
-
-                String path = ODMEEditor.fileLocation + "/" + scenario[0] + "/Main.ssdvar";
-                File file = new File(path);
-
-                if (!file.exists()) {
-
-                    System.out.println("File does not exist");
-
-                }
-                else {
-                    ObjectInputStream oisvar = new ObjectInputStream(new FileInputStream(file));
-                    Multimap<TreePath, String> scenarioMap = (Multimap<TreePath, String>) oisvar.readObject();
-                    oisvar.close();
-
-                    matchKeys(varMap,scenarioMap , scenario[0] , bucketSize);
-                }
-
-            }catch (Exception  e){
-                System.out.println("exception " + e.getMessage());
-            }
-        }
-    }
-
-    private void matchKeys(Multimap<TreePath, String> dynamicMap, Multimap<TreePath, String> scenarioMap, String scenarioName, int bucketSize) {
-        if (scenarioName.equals("InitScenario")) return;
-
-        // Convert keys to Lists of Strings
-        List<String> dynamicKeyList = new ArrayList<>();
-        List<String> scenarioKeyList = new ArrayList<>();
-
-        for (TreePath key : dynamicMap.keySet()) {
-            dynamicKeyList.add(key.toString());
-        }
-
-        for (TreePath key : scenarioMap.keySet()) {
-            scenarioKeyList.add(key.toString());
-        }
-
-        // Find matching keys
-        List<String> matchingKeys = new ArrayList<>(dynamicKeyList);
-        matchingKeys.retainAll(scenarioKeyList); // Keep only keys that exist in both lists
-
-        if (!matchingKeys.isEmpty()) {
-            for (String matchingKey : matchingKeys) {
-                for (TreePath key : scenarioMap.keySet()) {
-                    if (key.toString().equals(matchingKey)) {
-                        Collection<String> values = scenarioMap.get(key);
-
-                        for (String value : values) {
-                            try {
-                                if (value.contains("float") || value.contains("double")) {
-                                    Collection<String> dynamicValues = null;
-                                    for (TreePath dynamicKey : dynamicMap.keySet()) {
-                                        if (dynamicKey.toString().equals(matchingKey)) {
-                                            dynamicValues = dynamicMap.get(dynamicKey);
-                                            break;
-                                        }
-                                    }
-
-                                    System.out.println("Matched Key: " + matchingKey +
-                                            ", Numeric Value in ScenarioMap: " + value +
-                                            ", Values in DynamicMap: " + dynamicValues +
-                                            ", Scenario: " + scenarioName);
-
-                                    // Call defineBuckets for the matched key
-                                    defineBuckets(matchingKey, values, bucketSize);
-                                }
-                            } catch (Exception e) {
-                                System.out.println(e.getMessage());
-                            }
-                        }
-                    }
-                }
-            }
-        } else {
-            System.out.println("No matching keys found.");
-        }
-    }
-    private void defineBuckets(String key, Collection<String> values, int bucketSize) {
-        try {
-            for (String value : values) {
-                if (value.contains("float") || value.contains("double")) {
-                    // Extract the relevant numeric value and upper limit from the value string
-                    String[] parts = value.split(",");
-                    double targetValue = Double.parseDouble(parts[2].trim()); // Assuming the third value is the target value
-                    double upperLimit = Double.parseDouble(parts[parts.length - 1].trim()); // Assuming the last part is the upper limit
-
-                    // Calculate bucket size
-                    double bucketRange = upperLimit / bucketSize;
-
-                    System.out.println("Key: " + key + ", Upper Limit: " + upperLimit + ", Bucket Size: " + bucketSize);
-                    System.out.println("Buckets:");
-
-                    // Define buckets and determine the bucket for the target value
-                    double start, end;
-                    int bucketNumber = 0;
-                    for (int i = 0; i < bucketSize; i++) {
-                        start = i * bucketRange;
-                        end = (i + 1) * bucketRange;
-
-                        System.out.println("Bucket " + (i + 1) + ": [" + start + " - " + end + "]");
-
-                        if (targetValue >= start && targetValue < end) {
-                            bucketNumber = i + 1; // Buckets are 1-based
-                        }
-                    }
-
-                    // Calculate coverage percentage
-                    double coverage = 100.0 / bucketSize;
-                    System.out.println("Target Value: " + targetValue + " lies in Bucket " + bucketNumber +
-                            " with Code Coverage: " + coverage + "%");
-                }
-            }
-        } catch (Exception e) {
-            System.out.println("Error defining buckets for key: " + key + " - " + e.getMessage());
-        }
-    }
-}
-#
- */

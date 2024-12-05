@@ -199,12 +199,10 @@ public class ScenarioList extends JPanel {
 		multiAspectNodeTest.parseNodes(path);
 
 		multiAspectNodeTest.checkCodeCoverageMultiAspect(dataList);
+
 		Test t = new Test(dataList);
-		try{
-//			VariableCoverageTest variableCoverageTest = new VariableCoverageTest(dataList);
-		}catch (Exception e){
-			System.out.println("Exception = " + e.getMessage());
-		}
+		System.out.println("Total buckets = " + t.getCoverageSummary());
+		t.print();
 
 
 		// Calculating percentages
@@ -214,6 +212,10 @@ public class ScenarioList extends JPanel {
 
 		double behaviourPercentage = (behaviourCoverageTest.getTotalBehaviours() > 0)
 				? (behaviourCoverageTest.getMatchedBehaviours() * 100.0 / behaviourCoverageTest.getTotalBehaviours())
+				: 0.0;
+
+		double variablePercentage = (t.getTotalBuckets() > 0)
+				? (t.getTotalCoveredBuckets() * 100.0 / t.getTotalBuckets())
 				: 0.0;
 
 
@@ -231,19 +233,14 @@ public class ScenarioList extends JPanel {
 						behaviourCoverageTest.getMatchedBehaviours(),
 						behaviourCoverageTest.getTotalBehaviours()+behaviourCoverageTest.getMatchedBehaviours(),
 						behaviourPercentage},
+				{
+						"Variables" , t.getTotalCoveredBuckets(),t.getTotalUnCoveredBuckets(), t.getTotalBuckets(),
+						variablePercentage
+				}
 		};
 
 		CodeCoverageLayout layout = new CodeCoverageLayout(Main.frame , data);
 		layout.setVisible(true);
-
-		// Show the parsed nodes and MultiAspect count in a JOptionPane dialog
-//		JOptionPane.showMessageDialog(
-//				null,
-//				"Total number of MultiAspect nodes: " + multiAspectNodeTest.getMultiAspectNodeCount() +
-//						"\nParsed MAsp Nodes and their child-parent relationships:\n" + multiAspectNodeTest.getParsedNodes(),
-//				"MultiAspect Node Count",
-//				JOptionPane.INFORMATION_MESSAGE
-//		);
 	}
 
     private void deleteFolder(File folder) {

@@ -3,7 +3,6 @@ package structuretest;
 import com.google.common.collect.Multimap;
 import odme.odmeeditor.ODMEEditor;
 
-import javax.swing.*;
 import javax.swing.tree.TreePath;
 import java.io.*;
 import java.util.ArrayList;
