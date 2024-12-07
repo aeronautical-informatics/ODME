@@ -29,7 +29,7 @@ public class CodeCoverageLayout extends JDialog {
 
 
         // Coverage table
-        String[] columns = {"Name", "Covered", "Uncovered", "Total", "Line Coverage"};
+        String[] columns = {"Name", "Covered", "Uncovered", "Total", "Coverage"};
 
 
         DefaultTableModel model = new DefaultTableModel(data, columns) {

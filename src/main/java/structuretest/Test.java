@@ -95,10 +95,10 @@ public class Test {
 
                     String[] matchedNodeValues = fetchNodeValues(scenarioKey, scenarioMap);
 
-//                    boolean areSame = Arrays.equals(matchedNodeValuesDynamic, matchedNodeValues);
-//                    if (areSame){
-//                        System.out.println("Values are exact same so skip");
-//                    }else {
+                    boolean areSame = Arrays.equals(matchedNodeValuesDynamic, matchedNodeValues);
+                    if (areSame){
+                        System.out.println("Values are exact same so skip");
+                    }else {
 
                         for (String value : matchedNodeValues){
                             if (value != null){
@@ -107,19 +107,17 @@ public class Test {
 //                                    System.out.println("value = "+value + "   scenario  = "+ scenarioKey);
                                     // Process matched values
 //                                defineBuckets(scenarioKey.toString(), scenarioValues, bucketSize, scenarioName);
-                                defineBuckets(scenarioKey.toString(), matchedNodeValues, bucketSize, scenarioName);
+                                defineBuckets(scenarioKey.toString(), matchedNodeValues, 0.1, scenarioName);
                                 }
                             }
                         }
-//                    }
+                    }
                 }
             }
 
             if (!keyMatched) {
                 System.out.println("No match found for Key: " + scenarioKey);
             }
-
-
         }
     }
 
@@ -190,66 +188,135 @@ public class Test {
         return nodesToSelectedNode;
     }
 
-   private void defineBuckets(String key, String[] values, int bucketCount, String scenarioName) {
 
-       try {
-           for (String value : values) {
-               String scenarioKeyPair = scenarioName + "-" + key + "-" + value;
+    private void defineBuckets(String key, String[] values, double stepSize, String scenarioName) {
+        try {
+            for (String value : values) {
+                String scenarioKeyPair = scenarioName + "-" + key + "-" + value;
 
-               // Skip if this pair is already processed
-               if (processedScenarioKeyPairs.contains(scenarioKeyPair)) {
-                   continue;
-               }
+                // Skip if this pair is already processed
+                if (processedScenarioKeyPairs.contains(scenarioKeyPair)) {
+                    continue;
+                }
 
-               processedScenarioKeyPairs.add(scenarioKeyPair);
+                processedScenarioKeyPairs.add(scenarioKeyPair);
 
-               if (value.contains("float") || value.contains("double")) {
-                   // Extract the relevant numeric values
-                   String[] parts = value.split(",");
-                   double targetValue = Double.parseDouble(parts[2].trim()); // Target value
-                   double lowerBound = Double.parseDouble(parts[3].trim()); // Lower bound
-                   double upperBound = Double.parseDouble(parts[4].trim()); // Upper bound
+                if (value.contains("float") || value.contains("double")) {
+                    // Extract the relevant numeric values
+                    String[] parts = value.split(",");
+                    double targetValue = Double.parseDouble(parts[2].trim()); // Target value
+                    double lowerBound = Double.parseDouble(parts[3].trim()); // Lower bound
+                    double upperBound = Double.parseDouble(parts[4].trim()); // Upper bound
+
+                    // Calculate the number of buckets based on step size
+                    int bucketCount = (int) Math.ceil((upperBound - lowerBound) / stepSize);
+
+                    System.out.println("Key: " + key + ", Lower Bound: " + lowerBound +
+                            ", Upper Bound: " + upperBound + ", Step Size: " + stepSize);
+                    System.out.println("Buckets:");
+
+                    // Define buckets and determine the bucket for the target value
+                    double start, end;
+                    int bucketNumber = 0;
+                    for (int i = 0; i < bucketCount; i++) { // Loop through the calculated bucket count
+                        start = lowerBound + (i * stepSize);
+                        end = Math.min(start + stepSize, upperBound); // Ensure the last bucket does not exceed upper bound
+
+                        System.out.println("Bucket " + (i + 1) + ": [" + start + " - " + end + "]");
+
+                        // Check if the target value falls within the bucket range
+                        if (targetValue >= start && targetValue < end) {
+                            bucketNumber = i + 1; // Buckets are 1-based
+
+                            // Track covered bucket for this key
+                            keyBucketCoverage
+                                    .computeIfAbsent(key, k -> new HashSet<>())
+                                    .add(bucketNumber);
+
+                            System.out.println("Scenario: " + scenarioName + ", Target Value: " + targetValue +
+                                    " lies in Bucket " + bucketNumber);
+                        }
+                    }
+
+                    // Handle the case where the target value does not fall into any bucket
+                    if (bucketNumber == 0) {
+                        totalUnCoveredBuckets++;
+                        System.out.println("Target Value: " + targetValue +
+                                " does not lie in any defined bucket for Key: " + key);
+                    }
+                }
+            }
+        } catch (NumberFormatException nfe) {
+            System.out.println("Error parsing numeric values: " + nfe.getMessage());
+        } catch (Exception e) {
+            System.out.println("Error defining buckets for key: " + key + " - " + e.getMessage());
+        }
+    }
 
 
-                   // Calculate the step size
-                   double stepSize = (upperBound - lowerBound) / bucketCount;
 
-                   System.out.println("Key: " + key + ", Lower Bound: " + lowerBound + ", Upper Bound: " + upperBound +
-                           ", Step Size: " + stepSize);
-                   System.out.println("Buckets:");
+    /*
+    private void defineBuckets(String key, String[] values, double bucketCount, String scenarioName) {
+        try {
+            for (String value : values) {
+                String scenarioKeyPair = scenarioName + "-" + key + "-" + value;
 
-                   // Define buckets and determine the bucket for the target value
-                   double start, end;
-                   int bucketNumber = 0;
-                   for (int i = 0; i <= bucketCount; i++) {
-                       start = lowerBound + (i * stepSize);
-                       end = lowerBound + ((i + 1) * stepSize);
+                // Skip if this pair is already processed
+                if (processedScenarioKeyPairs.contains(scenarioKeyPair)) {
+                    continue;
+                }
 
-                       System.out.println("Bucket " + (i + 1) + ": [" + start + " - " + end + "]");
+                processedScenarioKeyPairs.add(scenarioKeyPair);
 
-                       if (targetValue >= start && targetValue < end) {
-                           bucketNumber = i + 1; // Buckets are 1-based
+                if (value.contains("float") || value.contains("double")) {
+                    // Extract the relevant numeric values
+                    String[] parts = value.split(",");
+                    double targetValue = Double.parseDouble(parts[2].trim()); // Target value
+                    double lowerBound = Double.parseDouble(parts[3].trim()); // Lower bound
+                    double upperBound = Double.parseDouble(parts[4].trim()); // Upper bound
 
-                           // Track covered bucket for this key
-                           keyBucketCoverage
-                                   .computeIfAbsent(key, k -> new HashSet<>())
-                                   .add(bucketNumber);
+                    // Calculate the step size based on bucket count
+                    double stepSize = (upperBound - lowerBound) / bucketCount;
 
-                           System.out.println("Scenario: " + scenarioName + ", Target Value: " + targetValue +
-                                   " lies in Bucket " + bucketNumber);
-                       }
-                   }
-                   if (bucketNumber == 0) {
-                       totalUnCoveredBuckets ++;
-                       System.out.println("Target Value: " + targetValue +
-                               " does not lie in any defined bucket for Key: " + key);
-                   }
-               }
-           }
-       } catch (Exception e) {
-           System.out.println("Error defining buckets for key: " + key + " - " + e.getMessage());
-       }
-   }
+                    System.out.println("Key: " + key + ", Lower Bound: " + lowerBound +
+                            ", Upper Bound: " + upperBound + ", Step Size: " + stepSize);
+                    System.out.println("Buckets:");
+
+                    // Define buckets and determine the bucket for the target value
+                    double start, end;
+                    int bucketNumber = 0;
+                    for (int i = 0; i < bucketCount; i++) { // Loop through bucket count
+                        start = lowerBound + (i * stepSize);
+                        end = start + stepSize;
+
+                        System.out.println("Bucket " + (i + 1) + ": [" + start + " - " + end + "]");
+
+                        // Check if the target value falls within the bucket range
+                        if (targetValue >= start && targetValue < end) {
+                            bucketNumber = i + 1; // Buckets are 1-based
+
+                            // Track covered bucket for this key
+                            keyBucketCoverage
+                                    .computeIfAbsent(key, k -> new HashSet<>())
+                                    .add(bucketNumber);
+
+                            System.out.println("Scenario: " + scenarioName + ", Target Value: " + targetValue +
+                                    " lies in Bucket " + bucketNumber);
+                        }
+                    }
+                    // Handle the case where the target value does not fall into any bucket
+                    if (bucketNumber == 0) {
+                        totalUnCoveredBuckets++;
+                        System.out.println("Target Value: " + targetValue +
+                                " does not lie in any defined bucket for Key: " + key);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Error defining buckets for key: " + key + " - " + e.getMessage());
+        }
+    }
+ */
 
     private void calculateOverallCoverage(int bucketSize) {
         for (Map.Entry<String, Set<Integer>> entry : keyBucketCoverage.entrySet()) {

@@ -200,9 +200,10 @@ public class ScenarioList extends JPanel {
 
 		multiAspectNodeTest.checkCodeCoverageMultiAspect(dataList);
 
-		Test t = new Test(dataList);
-		System.out.println("Total buckets = " + t.getCoverageSummary());
-		t.print();
+//		Test t = new Test(dataList);
+//		System.out.println("Total buckets = " + t.getCoverageSummary());
+//		t.print();
+		VariableCoverageTest variableCoverageTest = new VariableCoverageTest(dataList);
 
 
 		// Calculating percentages
@@ -214,8 +215,8 @@ public class ScenarioList extends JPanel {
 				? (behaviourCoverageTest.getMatchedBehaviours() * 100.0 / behaviourCoverageTest.getTotalBehaviours())
 				: 0.0;
 
-		double variablePercentage = (t.getTotalBuckets() > 0)
-				? (t.getTotalCoveredBuckets() * 100.0 / t.getTotalBuckets())
+		double variablePercentage = (variableCoverageTest.getTotalBuckets() > 0)
+				? (variableCoverageTest.getTotalCoveredBuckets() * 100.0 / variableCoverageTest.getTotalBuckets())
 				: 0.0;
 
 
@@ -229,12 +230,13 @@ public class ScenarioList extends JPanel {
 						multiAspectNodeTest.getTotalUncoveredChildren()+ multiAspectNodeTest.getTotalCoveredChildren(),
 						multiAspectNodeTest.getTotalPercentage()
 				},
-				{"Behaviours", behaviourCoverageTest.getTotalBehaviours(),
-						behaviourCoverageTest.getMatchedBehaviours(),
-						behaviourCoverageTest.getTotalBehaviours()+behaviourCoverageTest.getMatchedBehaviours(),
-						behaviourPercentage},
+//				{"Behaviours", behaviourCoverageTest.getTotalBehaviours(),
+//						behaviourCoverageTest.getMatchedBehaviours(),
+//						behaviourCoverageTest.getTotalBehaviours()+behaviourCoverageTest.getMatchedBehaviours(),
+//						behaviourPercentage},
 				{
-						"Variables" , t.getTotalCoveredBuckets(),t.getTotalUnCoveredBuckets(), t.getTotalBuckets(),
+						"Variables" , variableCoverageTest.getTotalCoveredBuckets(),variableCoverageTest.getTotalUnCoveredBuckets(),
+						variableCoverageTest.getTotalBuckets(),
 						variablePercentage
 				}
 		};

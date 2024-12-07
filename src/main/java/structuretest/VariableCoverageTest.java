@@ -1,156 +1,237 @@
 package structuretest;
 
-import com.google.common.collect.Multimap;
-import java.util.Collection;
-import java.util.List;
-import java.util.*;
 
+import com.google.common.collect.Multimap;
 import odme.odmeeditor.DynamicTree;
+import odme.odmeeditor.ODMEEditor;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
-
+import javax.swing.*;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
-
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
-
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.ObjectInputStream;
 import java.util.*;
 
-/*
 public class VariableCoverageTest {
 
-    public static Multimap<javax.swing.tree.TreePath, String> varMap = DynamicTree.varMap;
+    public static Multimap<TreePath, String> varMap = DynamicTree.varMap;
+    private final Map<String, Set<Integer>> keyBucketCoverage = new HashMap<>(); // Track covered buckets for each key
+    private final Set<String> processedScenarioKeyPairs = new HashSet<>(); // Track processed scenario-key pairs
 
-    public static void main(String[] args) {
-        // Populate the DynamicTree.varMap
-        populateDynamicTreeVarMap();
+    private int totalBuckets = 0;
+    private int totalCoveredBuckets = 0;
+    private int totalUnCoveredBuckets = 0;
 
-        // Simulate scenario Multimaps
-        List<Multimap<TreePath, String>> scenarioMaps = new ArrayList<>();
-        scenarioMaps.add(createScenario1());
-        scenarioMaps.add(createScenario2());
+    // Class-level variable to store the coverage summary
+    private final Map<String, Map<String, Object>> coverageSummary = new HashMap<>();
 
-        // Prompt user for bucket size
-        Scanner scanner = new Scanner(System.in);
-        System.out.print("Enter the bucket size for analysis: ");
-        double bucketSize = scanner.nextDouble();
+    public VariableCoverageTest(List<String[]> scenariosList) {
+        String input = JOptionPane.showInputDialog(null, "Enter step size (positive decimal):",
+                "Step Size Input", JOptionPane.QUESTION_MESSAGE);
+        double stepSize;
+        try {
+            if (input == null) {
+                JOptionPane.showMessageDialog(null, "Step size input cancelled. Exiting.", "Input Cancelled", JOptionPane.WARNING_MESSAGE);
+                throw new IllegalArgumentException("User cancelled the input.");
+            }
+            stepSize = Double.parseDouble(input.trim());
+            if (stepSize <= 0.0) {
+                throw new IllegalArgumentException("Step size must be positive.");
+            }
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+            return;
+        }
 
-        // Compare varMap with scenario maps
-        System.out.println("\nComparing DynamicTree.varMap with scenario maps...");
-//        for (Multimap<javax.swing.tree.TreePath, String> scenarioMap : scenarioMaps) {
-//            compareWithScenario(varMap, scenarioMap, bucketSize);
-//        }
+        for (String[] scenario : scenariosList) {
+            try {
+                String path = ODMEEditor.fileLocation + "/" + scenario[0] + "/" + ODMEEditor.projName + ".ssdvar";
+                File file = new File(path);
+
+                if (!file.exists()) {
+                    System.out.println("File does not exist");
+                } else {
+                    ObjectInputStream oisvar = new ObjectInputStream(new FileInputStream(file));
+                    Multimap<TreePath, String> scenarioMap = (Multimap<TreePath, String>) oisvar.readObject();
+                    oisvar.close();
+
+                    matchKeys(varMap, scenarioMap, scenario[0], stepSize);
+                }
+            } catch (Exception e) {
+                System.out.println("Exception: " + e.getMessage());
+            }
+        }
+
+        System.out.println("Total buckets = " + totalBuckets);
+        System.out.println("Total Covered buckets = " + totalCoveredBuckets);
+        System.out.println("Total UnCovered buckets = " + (totalBuckets - totalCoveredBuckets));
+
+        // Calculate overall coverage for each key
+        calculateOverallCoverage();
     }
 
-    // Compare DynamicTree.varMap with a scenario map
-    private static void compareWithScenario(Multimap<javax.swing.tree.TreePath, String> dynamicMap,
-                                            Multimap<javax.swing.tree.TreePath, String> scenarioMap,
-                                            double bucketSize) {
-        for (javax.swing.tree.TreePath key : dynamicMap.keySet()) {
-            if (scenarioMap.containsKey(key)) {
-                List<String> dynamicValues = new ArrayList<>(dynamicMap.get(key));
-                List<String> scenarioValues = new ArrayList<>(scenarioMap.get(key));
+    private void matchKeys(Multimap<TreePath, String> dynamicMap, Multimap<TreePath, String> scenarioMap,
+                           String scenarioName, double stepSize) {
 
-                // Ensure both have 5 elements
-                if (dynamicValues.size() == 5 && scenarioValues.size() == 5) {
-                    String id = dynamicValues.get(0);
-                    String type = dynamicValues.get(1);
-                    double dynamicDefault = Double.parseDouble(dynamicValues.get(2));
-                    double dynamicLower = Double.parseDouble(dynamicValues.get(3));
-                    double dynamicUpper = Double.parseDouble(dynamicValues.get(4));
+        if (scenarioName.equals("InitScenario")) return;
 
-                    double scenarioDefault = Double.parseDouble(scenarioValues.get(2));
+        for (TreePath scenarioKey : scenarioMap.keySet()) {
+            boolean keyMatched = false;
 
-                    // Calculate total buckets
-                    int totalBuckets = (int) Math.ceil((dynamicUpper - dynamicLower) / bucketSize);
-                    int scenarioBucket = (int) Math.floor((scenarioDefault - dynamicLower) / bucketSize);
+            for (TreePath dynamicKey : dynamicMap.keySet()) {
+                if (isMatchingTreePath(dynamicKey, scenarioKey)) {
+                    keyMatched = true;
 
-                    // Check if the scenarioDefault is within valid range
-                    boolean isInBucket = scenarioDefault >= dynamicLower && scenarioDefault <= dynamicUpper;
+                    String[] matchedNodeValues = fetchNodeValues(scenarioKey, scenarioMap);
 
-                    // Print the comparison
-                    System.out.printf("Key: %s%n", key);
-                    System.out.printf("DynamicTree Default: %.2f, Lower: %.2f, Upper: %.2f%n", dynamicDefault, dynamicLower, dynamicUpper);
-                    System.out.printf("Scenario Default: %.2f%n", scenarioDefault);
-                    System.out.printf("Bucket Size: %.2f, Total Buckets: %d, Scenario Bucket: %d%n", bucketSize, totalBuckets, scenarioBucket);
-                    System.out.printf("Is Scenario Default in Range: %b%n%n", isInBucket);
-                } else {
-                    System.err.printf("Invalid data for key: %s. Dynamic Values: %s, Scenario Values: %s%n",
-                            key, dynamicValues, scenarioValues);
+                    for (String value : matchedNodeValues) {
+                        if (value != null && isNumericType(value)) {
+                            if (value.contains("float") || value.contains("double")){
+                                defineBuckets(scenarioKey.toString(), matchedNodeValues, stepSize, scenarioName);
+                            }
+                        }
+                    }
                 }
-            } else {
-                System.out.printf("Key: %s not found in scenario map.%n", key);
+            }
+
+            if (!keyMatched) {
+                System.out.println("No match found for Key: " + scenarioKey);
             }
         }
     }
 
-    // Populate the DynamicTree.varMap
-    private static void populateDynamicTreeVarMap() {
-        varMap.put(new TreePath("Thing, node7Dec, MainMultipAspect"), "id");
-        varMap.put(new TreePath("Thing, node7Dec, MainMultipAspect"), "float");
-        varMap.put(new TreePath("Thing, node7Dec, MainMultipAspect"), "1");
-        varMap.put(new TreePath("Thing, node7Dec, MainMultipAspect"), "0");
-        varMap.put(new TreePath("Thing, node7Dec, MainMultipAspect"), "10");
-
-        varMap.put(new TreePath("Thing, node5Dec, second"), "secId");
-        varMap.put(new TreePath("Thing, node5Dec, second"), "int");
-        varMap.put(new TreePath("Thing, node5Dec, second"), "0");
-        varMap.put(new TreePath("Thing, node5Dec, second"), "1");
-        varMap.put(new TreePath("Thing, node5Dec, second"), "20");
+    private boolean isNumericType(String value) {
+        String[] parts = value.split(",");
+        return parts.length >= 2 && (parts[1].trim().equalsIgnoreCase("float") || parts[1].trim().equalsIgnoreCase("double"));
     }
 
-    // Create a simulated scenario 1
-    private static Multimap<TreePath, String> createScenario1() {
-        Multimap<TreePath, String> scenarioMap = ArrayListMultimap.create();
-        scenarioMap.put(new TreePath("Thing, node7Dec, MainMultipAspect"), "id");
-        scenarioMap.put(new TreePath("Thing, node7Dec, MainMultipAspect"), "float");
-        scenarioMap.put(new TreePath("Thing, node7Dec, MainMultipAspect"), "2.2");
-        scenarioMap.put(new TreePath("Thing, node7Dec, MainMultipAspect"), "0");
-        scenarioMap.put(new TreePath("Thing, node7Dec, MainMultipAspect"), "10");
-        return scenarioMap;
+    private boolean isMatchingTreePath(TreePath dynamicKey, TreePath scenarioKey) {
+        TreeNode[] dynamicNodes = ((DefaultMutableTreeNode) dynamicKey.getLastPathComponent()).getPath();
+        TreeNode[] scenarioNodes = ((DefaultMutableTreeNode) scenarioKey.getLastPathComponent()).getPath();
+        if (dynamicNodes.length != scenarioNodes.length) return false;
+        for (int i = 0; i < dynamicNodes.length; i++) {
+            if (!dynamicNodes[i].toString().equals(scenarioNodes[i].toString())) return false;
+        }
+        return true;
     }
 
-    // Create a simulated scenario 2
-    private static Multimap<TreePath, String> createScenario2() {
-        Multimap<TreePath, String> scenarioMap = ArrayListMultimap.create();
-        scenarioMap.put(new TreePath("Thing, node5Dec, second"), "secId");
-        scenarioMap.put(new TreePath("Thing, node5Dec, second"), "int");
-        scenarioMap.put(new TreePath("Thing, node5Dec, second"), "5");
-        scenarioMap.put(new TreePath("Thing, node5Dec, second"), "1");
-        scenarioMap.put(new TreePath("Thing, node5Dec, second"), "20");
-        return scenarioMap;
+    private String[] fetchNodeValues(TreePath matchingKey, Multimap<TreePath, String> varMap) {
+        List<String> nodeValues = new ArrayList<>();
+        for (TreePath key : varMap.keySet()) {
+            if (key.equals(matchingKey)) {
+                nodeValues.addAll(varMap.get(key));
+            }
+        }
+        return nodeValues.toArray(new String[0]);
     }
 
-    // Mock TreePath class for this example
-    static class TreePath {
-        private final String path;
+    private void defineBuckets(String key, String[] values, double stepSize, String scenarioName) {
+        try {
+            for (String value : values) {
+                String scenarioKeyPair = scenarioName + "-" + key + "-" + value;
 
-        public TreePath(String path) {
-            this.path = path;
-        }
+                // Skip if this pair is already processed
+                if (processedScenarioKeyPairs.contains(scenarioKeyPair)) {
+                    continue;
+                }
 
-        @Override
-        public String toString() {
-            return path;
-        }
+                processedScenarioKeyPairs.add(scenarioKeyPair);
 
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            TreePath treePath = (TreePath) o;
-            return Objects.equals(path, treePath.path);
-        }
+                if (value.contains("float") || value.contains("double")) {
+                    // Extract the relevant numeric values
+                    String[] parts = value.split(",");
+                    double targetValue = Double.parseDouble(parts[2].trim()); // Target value
+                    double lowerBound = Double.parseDouble(parts[3].trim()); // Lower bound
+                    double upperBound = Double.parseDouble(parts[4].trim()); // Upper bound
 
-        @Override
-        public int hashCode() {
-            return Objects.hash(path);
+                    // Calculate the number of buckets based on step size
+                    int bucketCount = (int) Math.ceil((upperBound - lowerBound) / stepSize);
+
+                    System.out.println("Key: " + key + ", Lower Bound: " + lowerBound +
+                            ", Upper Bound: " + upperBound + ", Step Size: " + stepSize);
+                    System.out.println("Buckets:");
+
+                    // Define buckets and determine the bucket for the target value
+                    double start, end;
+                    int bucketNumber = 0;
+                    for (int i = 0; i < bucketCount; i++) { // Loop through the calculated bucket count
+                        start = lowerBound + (i * stepSize);
+                        end = Math.min(start + stepSize, upperBound); // Ensure the last bucket does not exceed upper bound
+
+                        System.out.println("Bucket " + (i + 1) + ": [" + start + " - " + end + "]");
+
+                        // Check if the target value falls within the bucket range
+                        if (targetValue >= start && targetValue < end) {
+                            bucketNumber = i + 1; // Buckets are 1-based
+
+                            // Track covered bucket for this key
+                            keyBucketCoverage
+                                    .computeIfAbsent(key, k -> new HashSet<>())
+                                    .add(bucketNumber);
+
+                            System.out.println("Scenario: " + scenarioName + ", Target Value: " + targetValue +
+                                    " lies in Bucket " + bucketNumber);
+
+                            totalCoveredBuckets ++ ;
+
+                        }
+                        totalBuckets ++;
+                    }
+
+                    // Handle the case where the target value does not fall into any bucket
+                    if (bucketNumber == 0) {
+//                        totalUnCoveredBuckets++;
+                        System.out.println("Target Value: " + targetValue +
+                                " does not lie in any defined bucket for Key: " + key);
+                    }
+                }
+            }
+        } catch (NumberFormatException nfe) {
+            System.out.println("Error parsing numeric values: " + nfe.getMessage());
+        } catch (Exception e) {
+            System.out.println("Error defining buckets for key: " + key + " - " + e.getMessage());
         }
+    }
+
+    private void calculateOverallCoverage() {
+//        for (Map.Entry<String, Set<Integer>> entry : keyBucketCoverage.entrySet()) {
+//            String key = entry.getKey();
+//            Set<Integer> coveredBuckets = entry.getValue();
+//            int uncovered = totalBuckets - coveredBuckets.size();
+//
+//            Map<String, Object> details = new HashMap<>();
+//            details.put("TotalBuckets", totalBuckets);
+//            details.put("CoveredBuckets", coveredBuckets.size());
+//            details.put("UncoveredBuckets", uncovered);
+//
+//            coverageSummary.put(key, details);
+//            totalUnCoveredBuckets += uncovered;
+//        }
+    }
+
+    public int getTotalBuckets() {
+        return totalBuckets;
+    }
+
+    public int getTotalCoveredBuckets() {
+        return totalCoveredBuckets;
+    }
+
+    public int getTotalUnCoveredBuckets() {
+        totalUnCoveredBuckets = totalBuckets - totalCoveredBuckets;
+
+        return totalUnCoveredBuckets;
+    }
+
+    public Map<String, Map<String, Object>> getCoverageSummary() {
+        return coverageSummary;
+    }
+
+    public Map<String, Set<Integer>> getCoveredBuckets() {
+        return keyBucketCoverage;
     }
 }
-
- */
-
 
 
