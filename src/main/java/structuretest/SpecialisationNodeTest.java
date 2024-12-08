@@ -153,10 +153,9 @@ public class SpecialisationNodeTest {
 
         // Calculate the percentage of matched nodes
         double percentageMatched = (totalValues > 0) ? ((double) matchedSpecialNodes.get() / totalValues) * 100 : 0;
-
+        System.out.println("percentageMatched" + percentageMatched);
         totalSpecialisationNode = totalValues;
         matchedSpecialisationNode = matchedSpecialNodes.get();
-
     }
 
     // Function to check if a given tag name matches any value in the specialisationNodes map

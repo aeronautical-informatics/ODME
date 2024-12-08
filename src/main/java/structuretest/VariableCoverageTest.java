@@ -63,13 +63,6 @@ public class VariableCoverageTest {
                 System.out.println("Exception: " + e.getMessage());
             }
         }
-
-        System.out.println("Total buckets = " + totalBuckets);
-        System.out.println("Total Covered buckets = " + totalCoveredBuckets);
-        System.out.println("Total UnCovered buckets = " + (totalBuckets - totalCoveredBuckets));
-
-        // Calculate overall coverage for each key
-        calculateOverallCoverage();
     }
 
     private void matchKeys(Multimap<TreePath, String> dynamicMap, Multimap<TreePath, String> scenarioMap,
@@ -104,7 +97,8 @@ public class VariableCoverageTest {
 
     private boolean isNumericType(String value) {
         String[] parts = value.split(",");
-        return parts.length >= 2 && (parts[1].trim().equalsIgnoreCase("float") || parts[1].trim().equalsIgnoreCase("double"));
+        return parts.length >= 2 && (parts[1].trim().equalsIgnoreCase("float")
+                || parts[1].trim().equalsIgnoreCase("double"));
     }
 
     private boolean isMatchingTreePath(TreePath dynamicKey, TreePath scenarioKey) {
@@ -195,22 +189,6 @@ public class VariableCoverageTest {
         }
     }
 
-    private void calculateOverallCoverage() {
-//        for (Map.Entry<String, Set<Integer>> entry : keyBucketCoverage.entrySet()) {
-//            String key = entry.getKey();
-//            Set<Integer> coveredBuckets = entry.getValue();
-//            int uncovered = totalBuckets - coveredBuckets.size();
-//
-//            Map<String, Object> details = new HashMap<>();
-//            details.put("TotalBuckets", totalBuckets);
-//            details.put("CoveredBuckets", coveredBuckets.size());
-//            details.put("UncoveredBuckets", uncovered);
-//
-//            coverageSummary.put(key, details);
-//            totalUnCoveredBuckets += uncovered;
-//        }
-    }
-
     public int getTotalBuckets() {
         return totalBuckets;
     }
@@ -223,14 +201,6 @@ public class VariableCoverageTest {
         totalUnCoveredBuckets = totalBuckets - totalCoveredBuckets;
 
         return totalUnCoveredBuckets;
-    }
-
-    public Map<String, Map<String, Object>> getCoverageSummary() {
-        return coverageSummary;
-    }
-
-    public Map<String, Set<Integer>> getCoveredBuckets() {
-        return keyBucketCoverage;
     }
 }
 
