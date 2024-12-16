@@ -211,7 +211,7 @@ public class Test {
                                     int targetValue = Integer.parseInt(valueArray[2].trim());
 
                                     System.out.println("targetValue = "+ targetValue);
-                                    /*
+
                                     String variableName = valueArray[0];
 
                                     boolean bucketFound = false;
@@ -249,13 +249,8 @@ public class Test {
                                         System.out.printf("Target value % does not fall in any bucket for variable %s and key %s%n",
                                                 targetValue, variableName, scenarioKey);
                                     }
-
-                                     */
-
                                 }
-
                             }
-
                         }
                     }
                 }
@@ -307,6 +302,35 @@ public class Test {
         }
 
         return buckets;
+    }
+
+    public void printBucketStatistics() {
+        int totalBuckets = 0;
+        int totalCoveredBuckets = 0;
+
+        System.out.println("Aggregated Bucket Statistics:");
+        for (Map.Entry<TreePath, List<Bucket>> entry : bucketStorage.entrySet()) {
+            System.out.println("Key: " + entry.getKey());
+            for (Bucket bucket : entry.getValue()) {
+                int bucketCount = bucket.getTotalBuckets();
+                int coveredCount = bucket.getCoveredBuckets();
+
+                totalBuckets += bucketCount;
+                totalCoveredBuckets += coveredCount;
+
+                // Print statistics for each bucket
+                System.out.printf("Variable: %s%n", bucket.getVariableName());
+                System.out.printf("  Total Buckets: %d%n", bucketCount);
+                System.out.printf("  Covered Buckets: %d%n", coveredCount);
+                System.out.printf("  Uncovered Buckets: %d%n", bucket.getUncoveredBuckets());
+            }
+        }
+
+        // Print aggregated totals
+        System.out.println("---------------------------------------------------");
+        System.out.printf("Total Buckets Across All Variables: %d%n", totalBuckets);
+        System.out.printf("Total Covered Buckets: %d%n", totalCoveredBuckets);
+        System.out.printf("Total Uncovered Buckets: %d%n", totalBuckets - totalCoveredBuckets);
     }
 
 

@@ -201,7 +201,7 @@ public class ScenarioList extends JPanel {
 		multiAspectNodeTest.checkCodeCoverageMultiAspect(dataList);
 
 		Test t = new Test(dataList);
-
+		t.printBucketStatistics();
 //		VariableCoverageTest variableCoverageTest = new VariableCoverageTest(dataList);
 
 
