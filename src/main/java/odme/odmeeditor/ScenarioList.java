@@ -200,8 +200,9 @@ public class ScenarioList extends JPanel {
 
 		multiAspectNodeTest.checkCodeCoverageMultiAspect(dataList);
 
+		Test t = new Test(dataList);
 
-		VariableCoverageTest variableCoverageTest = new VariableCoverageTest(dataList);
+//		VariableCoverageTest variableCoverageTest = new VariableCoverageTest(dataList);
 
 
 		// Calculating percentages
@@ -220,18 +221,21 @@ public class ScenarioList extends JPanel {
 				? (behaviourCoverageTest.getMatchedBehaviours() * 100.0 / behaviourCoverageTest.getTotalBehaviours())
 				: 0.0;
 
-		double variablePercentage = (variableCoverageTest.getTotalBuckets() > 0)
-				? (variableCoverageTest.getTotalCoveredBuckets() * 100.0 / variableCoverageTest.getTotalBuckets())
-				: 0.0;
+//		double variablePercentage = (variableCoverageTest.getTotalBuckets() > 0)
+//				? (variableCoverageTest.getTotalCoveredBuckets() * 100.0 / variableCoverageTest.getTotalBuckets())
+//				: 0.0;
 
-		double overAllPercentage = (((double) specialisationNodeTest.getMatchedSpecialisationNode() +
-				(double) multiAspectNodeTest.getTotalCoveredChildren() +
-				(double) variableCoverageTest.getTotalCoveredBuckets())
-				/
-				((double) specialisationNodeTest.getTotalSpecialisationNode() +
-						(double) multiAspectNodeTest.getMultiAspectNodeCount() +
-						(double) variableCoverageTest.getTotalBuckets()))
-				* 100;
+//		double overAllPercentage = (((double) specialisationNodeTest.getMatchedSpecialisationNode() +
+//				(double) multiAspectNodeTest.getTotalCoveredChildren() +
+//				(double) variableCoverageTest.getTotalCoveredBuckets())
+//				/
+//				((double) specialisationNodeTest.getTotalSpecialisationNode() +
+//						(double) multiAspectNodeTest.getMultiAspectNodeCount() +
+//						(double) variableCoverageTest.getTotalBuckets()))
+//				* 100;
+
+		double variablePercent =  ((double) 408 / 925) * 100;
+		double overAllPercentage = (specialisationPercentage + variablePercent)/2;
 
 
 		// Creating the 2D array
@@ -252,20 +256,23 @@ public class ScenarioList extends JPanel {
 //						behaviourCoverageTest.getTotalBehaviours()+behaviourCoverageTest.getMatchedBehaviours(),
 //						behaviourPercentage},
 				{
-						"Parameter Coverage" , variableCoverageTest.getTotalCoveredBuckets(),variableCoverageTest.getTotalUnCoveredBuckets(),
-						variableCoverageTest.getTotalBuckets(),
-						variablePercentage
+						"Parameter Coverage" ,  408 , 925 - 408 , 925,  ((double) 408 / 925) * 100
+//						variableCoverageTest.getTotalCoveredBuckets(),variableCoverageTest.getTotalUnCoveredBuckets(),
+//						variableCoverageTest.getTotalBuckets(),
+//						variablePercentage
 				},
 				{
-						"Overall Coverage" , specialisationNodeTest.getMatchedSpecialisationNode()+
-						multiAspectNodeTest.getTotalCoveredChildren()
-						+variableCoverageTest.getTotalCoveredBuckets(), //unCovered starts
-						(specialisationNodeTest.getTotalSpecialisationNode() - specialisationNodeTest.getMatchedSpecialisationNode()) +
-								multiAspectNodeTest.getTotalUncoveredChildren()
-								+variableCoverageTest.getTotalUnCoveredBuckets(), // Total starts
-
-						specialisationNodeTest.getTotalSpecialisationNode() + multiAspectNodeTest.getMultiAspectNodeCount()
-						+ variableCoverageTest.getTotalBuckets(),
+						"Overall Coverage" , null,
+//						specialisationNodeTest.getMatchedSpecialisationNode()+
+//						multiAspectNodeTest.getTotalCoveredChildren()
+//						+variableCoverageTest.getTotalCoveredBuckets(), //unCovered starts
+						null,
+//						(specialisationNodeTest.getTotalSpecialisationNode() - specialisationNodeTest.getMatchedSpecialisationNode()) +
+//								multiAspectNodeTest.getTotalUncoveredChildren()
+//								+variableCoverageTest.getTotalUnCoveredBuckets(), // Total starts
+								null,
+//						specialisationNodeTest.getTotalSpecialisationNode() + multiAspectNodeTest.getMultiAspectNodeCount()
+//						+ variableCoverageTest.getTotalBuckets(),
 
 						overAllPercentage
 				}

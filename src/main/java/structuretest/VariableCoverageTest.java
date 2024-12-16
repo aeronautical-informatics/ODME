@@ -4,6 +4,7 @@ package structuretest;
 import com.google.common.collect.Multimap;
 import odme.odmeeditor.DynamicTree;
 import odme.odmeeditor.ODMEEditor;
+import org.w3c.dom.Node;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -13,6 +14,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.ObjectInputStream;
 import java.util.*;
+
 
 public class VariableCoverageTest {
 
@@ -70,6 +72,8 @@ public class VariableCoverageTest {
 
         if (scenarioName.equals("InitScenario")) return;
 
+        System.out.println("Scenario = " + scenarioName);
+
         for (TreePath scenarioKey : scenarioMap.keySet()) {
             boolean keyMatched = false;
 
@@ -77,27 +81,71 @@ public class VariableCoverageTest {
                 if (isMatchingTreePath(dynamicKey, scenarioKey)) {
                     keyMatched = true;
 
+                    // getting the matched key values from scenarioMap
                     String[] matchedNodeValues = fetchNodeValues(scenarioKey, scenarioMap);
+                    String[] matchedNodesValuesDynamicVar = fetchNodeValues(dynamicKey,dynamicMap);
 
+//                    System.out.println("Scenario Key = " + scenarioKey);
+//                    System.out.println("values = " + Arrays.toString(matchedNodeValues));
+//
+//                    System.out.println("Dynamic Key = " + dynamicKey);
+//                    System.out.println("Dynamic values = " + Arrays.toString(matchedNodesValuesDynamicVar));
+
+                    //No use List<Strings>
+                    List s = NodeValues(scenarioKey,scenarioMap);
+                    List d = NodeValues(dynamicKey,dynamicMap);
+
+                    System.out.println("Scenario Key = " + scenarioKey);
+                    System.out.println("List Scenario values" + s);
+
+                    System.out.println("Dynamic Key = " + dynamicKey);
+                    System.out.println("List Dynamic values" + d);
+
+                    var result = s.equals(d);
+
+                    System.out.println("Matched result = " + result);
+
+                    /*
+                    //Now check these values are exact same or not
                     for (String value : matchedNodeValues) {
-                        if (value != null && isNumericType(value)) {
-                            if (value.contains("float") || value.contains("double")){
-                                defineBuckets(scenarioKey.toString(), matchedNodeValues, stepSize, scenarioName);
+                        // Compare element by element
+                        //skipp if values are same
+                        boolean areEqual = Arrays.equals(matchedNodeValues, matchedNodesValuesDynamicVar);
+                        if (areEqual){
+                            System.out.println("Values are exact same so skipping that key ");
+                        }
+
+                        else {
+                            // checking value is int,float or double type
+                            if (value != null && isNumericType(value)) {
+                                if (value.contains("float") || value.contains("double")){
+                                    // now check exact same value should be skipped because it is not pruned
+//                                defineBuckets(scenarioKey.toString(), matchedNodeValues, stepSize, scenarioName);
+                                    System.out.println("Matched float or double values " + value);
+                                }
+                                if (value.contains("int")){
+                                    System.out.println("Matched int values " + value);
+                                }
                             }
                         }
+
+
                     }
+
+                     */
                 }
             }
 
-            if (!keyMatched) {
-                System.out.println("No match found for Key: " + scenarioKey);
-            }
+//            if (!keyMatched) {
+//                System.out.println("No match found for Key: " + scenarioKey);
+//            }
         }
     }
 
     private boolean isNumericType(String value) {
         String[] parts = value.split(",");
         return parts.length >= 2 && (parts[1].trim().equalsIgnoreCase("float")
+                || parts[1].trim().equalsIgnoreCase("int")
                 || parts[1].trim().equalsIgnoreCase("double"));
     }
 
@@ -111,6 +159,15 @@ public class VariableCoverageTest {
         return true;
     }
 
+    private List<String> NodeValues(TreePath matchingKey, Multimap<TreePath, String> varMap) {
+        List<String> nodeValues = new ArrayList<>();
+        for (TreePath key : varMap.keySet()) {
+            if (key.equals(matchingKey)) {
+                nodeValues.addAll(varMap.get(key));
+            }
+        }
+        return nodeValues;
+    }
     private String[] fetchNodeValues(TreePath matchingKey, Multimap<TreePath, String> varMap) {
         List<String> nodeValues = new ArrayList<>();
         for (TreePath key : varMap.keySet()) {
@@ -133,7 +190,7 @@ public class VariableCoverageTest {
 
                 processedScenarioKeyPairs.add(scenarioKeyPair);
 
-                if (value.contains("float") || value.contains("double")) {
+                if (value.contains("float") || value.contains("double") || value.contains("int")) {
                     // Extract the relevant numeric values
                     String[] parts = value.split(",");
                     double targetValue = Double.parseDouble(parts[2].trim()); // Target value
@@ -203,5 +260,3 @@ public class VariableCoverageTest {
         return totalUnCoveredBuckets;
     }
 }
-
-

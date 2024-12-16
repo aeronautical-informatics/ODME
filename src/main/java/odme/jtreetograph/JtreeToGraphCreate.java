@@ -292,19 +292,24 @@ public class JtreeToGraphCreate {
                                     String[] nodesToSelectedNode = new String[100];
                                     int b = 0;
 
+
                                     for (TreePath key : DynamicTree.varMap.keySet()) {
                                         int a = 0;
+                                        System.out.println("Key  = " +  key);
 
                                         for (String value : DynamicTree.varMap.get(key)) {
                                             DefaultMutableTreeNode currentNode2 =
                                                     (DefaultMutableTreeNode) (key.getLastPathComponent());
 
+//                                            System.out.println("Value = " + value);
                                             TreeNode[] nodes2 = currentNode2.getPath();
                                             
                                             if (nodes.length == nodes2.length) {
                                                 int aa = 1;
                                                 for (int i = 0; i < nodes.length; i++) {
+
                                                     if (!nodes[i].toString().equals(nodes2[i].toString())) {
+                                                        System.out.println("nodes[i].toString()" + nodes[i].toString());
                                                         aa = 0;
                                                         break;
                                                     } 
@@ -312,6 +317,7 @@ public class JtreeToGraphCreate {
                                                 a = aa;
                                             }
                                             if (a == 1) {
+                                                System.out.println("inside  " + value );
                                                 nodesToSelectedNode[b] = value;
                                                 b++;
                                             }
@@ -321,6 +327,10 @@ public class JtreeToGraphCreate {
                                     nodesToSelectedNode = Arrays.stream(nodesToSelectedNode)
                                             .filter(s -> (s != null && s.length() > 0))
                                             .toArray(String[]::new);
+
+                                    for (String v: nodesToSelectedNode){
+                                        System.out.println("nodesToSelectedNode = " + v);
+                                    }
 
                                     Arrays.parallelSort(nodesToSelectedNode);
 
@@ -343,31 +353,6 @@ public class JtreeToGraphCreate {
                                 }
                             }
                             
-                            
-//                            if (ODMEEditor.toolMode == "ses") {
-//                            	new MyKeyboardHandler(graphComponent); 
-//                            	graph.addListener(mxEvent.CELLS_REMOVED, new mxIEventListener() {
-//                            		@Override public void invoke(Object sender, mxEventObject evt) {
-//                            			try {
-//                            				Object delcell = graphComponent.getCellAt(e.getX(), e.getY());
-//
-//                                            if (delcell != null) {
-//                                                mxCell deleteCell = (mxCell) delcell;
-//
-//                                                if (deleteCell.isEdge()) {
-//                                                	JtreeToGraphDelete.deleteEdgeFromGraphPopup(delcell);
-//                                                } 
-//                                                else {
-//                                                	JtreeToGraphDelete.deleteNodeFromGraphPopup(delcell);
-//                                                }
-//                                            }
-//                            				Thread.sleep(10);
-//                            			} catch (InterruptedException e1) {
-//                            				e1.printStackTrace();
-//                            			}
-//                            		} 
-//                            	});
-//                            }   
                         }
                         
                         //if (SESEditor.nodeAddDetector.equals("delete")) {

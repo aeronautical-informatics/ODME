@@ -51,7 +51,7 @@ public class BehaviourCoverageTest {
         // Checking each scenario's behaviourxml file to check if behaviours are used or not
         for (String[] scenario : scenariosList) {
             try {
-                String path = ODMEEditor.fileLocation + "/" + scenario[0] + "/behaviourxml.xml";
+                String path = ODMEEditor.fileLocation + "\\" + scenario[0] + "\\"+"behaviourxml.xml";
                 File file = new File(path);
 
                 if (!file.exists()) {
