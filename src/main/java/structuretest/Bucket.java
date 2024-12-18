@@ -70,12 +70,9 @@ class Bucket {
                 // Parse start and end values from the range
                 int start = Integer.parseInt(parts[0].replace(",", ".").trim());
                 int end = Integer.parseInt(parts[1].replace(",", ".").trim());
-//                System.out.println("Start value = " + start);
-//                System.out.println("End value = " + end);
                 // Check if the value lies within the range
                 if (value >= start && value <= end) {
                     coveredBuckets.add(range); // Mark this bucket as covered
-
                     return true;
                 }
             } catch (NumberFormatException e) {

@@ -155,7 +155,7 @@ public class Test {
                                         double targetValue = Double.parseDouble(valueArray[2].trim());
                                         String variableName = valueArray[0];
 
-                                        System.out.println("target = " + targetValue);
+                                        System.out.println("double / float target = " + targetValue);
 
                                         boolean bucketFound = false;
 
@@ -172,9 +172,9 @@ public class Test {
                                                         //That is function inside BucketClass to check values inside any bucket range
                                                         if (bucket.contains(targetValue)){
 
-                                                            System.out.println("Matched value record ");
-                                                            System.out.println("Variable = " + variableName);
-                                                            System.out.println("Target value = " + targetValue);
+//                                                            System.out.println("Matched value record ");
+//                                                            System.out.println("Variable = " + variableName);
+//                                                            System.out.println("Target value = " + targetValue);
                                                             bucketFound = true;
                                                         }
 
@@ -207,10 +207,14 @@ public class Test {
                                 String[] valueArray = values.split(",");
 
                                 if (isNumericType(values)){
+                                    int targetValue = 0;
+                                    try {
+                                         targetValue = Integer.parseInt(valueArray[2].trim());
+                                    }catch (Exception e){
+                                        System.out.println("Int parsing exception" + e.getMessage());
+                                    }
 
-                                    int targetValue = Integer.parseInt(valueArray[2].trim());
-
-                                    System.out.println("targetValue = "+ targetValue);
+//                                    System.out.println("Int  targetValue = "+ targetValue);
 
                                     String variableName = valueArray[0];
 
@@ -218,6 +222,7 @@ public class Test {
 
                                     // Compare scenarioKey with bucketStorage keys
                                     for (TreePath bucketKey : bucketStorage.keySet()) {
+
                                         if (isMatchingTreePath(bucketKey, scenarioKey)) {
 
                                             List<Bucket> buckets = bucketStorage.get(bucketKey);
@@ -246,7 +251,7 @@ public class Test {
                                     }
 
                                     if (!bucketFound) {
-                                        System.out.printf("Target value % does not fall in any bucket for variable %s and key %s%n",
+                                        System.out.printf("Target value %d does not fall in any bucket for variable %s and key %s%n",
                                                 targetValue, variableName, scenarioKey);
                                     }
                                 }
