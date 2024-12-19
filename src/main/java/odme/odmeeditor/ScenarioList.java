@@ -201,7 +201,14 @@ public class ScenarioList extends JPanel {
 		multiAspectNodeTest.checkCodeCoverageMultiAspect(dataList);
 
 		Test t = new Test(dataList);
-		t.printBucketStatistics();
+		Map<String, Integer> map = t.getBucketStatistics();
+
+		int totalBuckets = map.get("totalBuckets");
+		int totalCoveredBuckets = map.get("totalCoveredBuckets");
+		System.out.println("totalBuckets " + totalBuckets);
+		System.out.println("totalCoveredBuckets " + totalCoveredBuckets);
+
+
 //		VariableCoverageTest variableCoverageTest = new VariableCoverageTest(dataList);
 
 
@@ -256,7 +263,8 @@ public class ScenarioList extends JPanel {
 //						behaviourCoverageTest.getTotalBehaviours()+behaviourCoverageTest.getMatchedBehaviours(),
 //						behaviourPercentage},
 				{
-						"Parameter Coverage" ,  408 , 925 - 408 , 925,  ((double) 408 / 925) * 100
+						"Parameter Coverage" ,  totalCoveredBuckets , totalBuckets - totalCoveredBuckets , totalBuckets,
+						((double) totalCoveredBuckets / totalBuckets) * 100
 //						variableCoverageTest.getTotalCoveredBuckets(),variableCoverageTest.getTotalUnCoveredBuckets(),
 //						variableCoverageTest.getTotalBuckets(),
 //						variablePercentage
@@ -270,7 +278,7 @@ public class ScenarioList extends JPanel {
 //						(specialisationNodeTest.getTotalSpecialisationNode() - specialisationNodeTest.getMatchedSpecialisationNode()) +
 //								multiAspectNodeTest.getTotalUncoveredChildren()
 //								+variableCoverageTest.getTotalUnCoveredBuckets(), // Total starts
-								null,
+						null,
 //						specialisationNodeTest.getTotalSpecialisationNode() + multiAspectNodeTest.getMultiAspectNodeCount()
 //						+ variableCoverageTest.getTotalBuckets(),
 

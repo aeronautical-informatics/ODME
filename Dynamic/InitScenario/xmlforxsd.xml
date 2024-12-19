@@ -28,13 +28,13 @@
 </aspect>
 </entity>
 <entity name="EgoAC">
-<var name="Altitude" default="none" lower="700" upper="1300" ></var>
 <var name="Latitude" default="64" lower="63.7" upper="65" ></var>
 <var name="Longitude" default="-22.60" lower="-22.65" upper="-21.50" ></var>
 <var name="Plane_Distance" default="none" lower="100" upper="600" ></var>
 <var name="Roll" default="none" lower="-30" upper="30" ></var>
 <var name="Pitch" default="none" lower="-30" upper="30" ></var>
 <var name="Yaw" default="none" lower="0" upper="360" ></var>
+<var name="Altitude" default="none" lower="700" upper="1300" ></var>
 </entity>
 <entity name="IntruderAC">
 <var name="Latitude" default="none" lower="63.7" upper="65" ></var>

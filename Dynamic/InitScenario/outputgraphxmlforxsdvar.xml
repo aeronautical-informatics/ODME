@@ -43,13 +43,13 @@ Var
 </envDec>
 </Environment>
 <EgoAC>
-<Altitude,int,none,700,1300Var/>
 <Latitude,double,64,63.7,65Var/>
 <Longitude,double,-22.60,-22.65,-21.50Var/>
 <Plane_Distance,int,none,100,600Var/>
 <Roll,int,none,-30,30Var/>
 <Pitch,int,none,-30,30Var/>
 <Yaw,int,none,0,360Var/>
+<Altitude,int,none,700,1300Var/>
 Var
 </EgoAC>
 <IntruderAC>
