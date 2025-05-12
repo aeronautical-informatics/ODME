@@ -23,6 +23,7 @@ The **Operation Domain Modeling Environment (ODME)** is a powerful modeling tool
 
 **Scenario Manager** has been developed to manage the existing scenario and assign risk factors to them. Future work involves allocating build scripts to each scenario and having a feedback loop from the simulator execution. *This mode is a work in progress*
 
+**Import Operational Design Domain Plugin** has been developed to import Operational scenarios from Cameo and transform them to operational domain model into ODME.
 
 
 ## [Workflow](#workflow)
