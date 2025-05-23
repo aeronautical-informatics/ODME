@@ -2,16 +2,7 @@
 <start>
 <Thing>
 <node1Dec>
-<AirFrame>
-<node3Spec>
-<Bird/>
-<Strike>
-<node16MAsp>
-<strikeMultiAspect/>
-</node16MAsp>
-</Strike>
-</node3Spec>
-</AirFrame>
+<Bird_AirFrame/>
 </node1Dec>
 <node7Dec>
 <MainMultipAspect>

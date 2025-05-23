@@ -35,8 +35,6 @@ public class BehaviourCoverageTest {
                 oisbeh.close();
 
                 behaviourValuesList = new ArrayList<>(behavioursList.values());
-                System.out.println("behaviourList values  = " + behaviourValuesList);
-
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -78,14 +76,12 @@ public class BehaviourCoverageTest {
             }
         }
 
-        double percentageMatched = (totalValues > 0) ? ((double) matchedSpecialNodes / totalValues) * 100 : 0;
+//        double percentageMatched = (totalValues > 0) ? ((double) matchedSpecialNodes / totalValues) * 100 : 0;
 
         totalBehaviours = totalValues;
         matchedBehaviours = matchedSpecialNodes;
 
-        // Display result in a dialog
-//        String message = "Match Percentage: " + String.format("%.2f", percentageMatched) + "%";
-//        JOptionPane.showMessageDialog(null, message, "Matched Behaviours Results", JOptionPane.INFORMATION_MESSAGE);
+
     }
 
     public int getTotalBehaviours() {

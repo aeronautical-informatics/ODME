@@ -85,12 +85,6 @@ public class VariableCoverageTest {
                     String[] matchedNodeValues = fetchNodeValues(scenarioKey, scenarioMap);
                     String[] matchedNodesValuesDynamicVar = fetchNodeValues(dynamicKey,dynamicMap);
 
-//                    System.out.println("Scenario Key = " + scenarioKey);
-//                    System.out.println("values = " + Arrays.toString(matchedNodeValues));
-//
-//                    System.out.println("Dynamic Key = " + dynamicKey);
-//                    System.out.println("Dynamic values = " + Arrays.toString(matchedNodesValuesDynamicVar));
-
                     //No use List<Strings>
                     List s = NodeValues(scenarioKey,scenarioMap);
                     List d = NodeValues(dynamicKey,dynamicMap);

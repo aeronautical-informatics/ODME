@@ -14,8 +14,6 @@ import java.io.FileInputStream;
 import java.io.ObjectInputStream;
 import java.util.*;
 
-import static odme.odmeeditor.ODMEEditor.fileLocation;
-
 public class MultiAspectNodeTest {
 
 
@@ -59,7 +57,7 @@ public class MultiAspectNodeTest {
                 Element element = (Element) allNodes.item(i);
                 String tagName = element.getTagName();
 
-                // Check if the tag matches the specified pattern (e.g., "Spec" or "MAsp")
+                // Check if the tag matches the specified pattern (e.g.,  "MAsp")
                 if (tagName.contains(tagPattern)) {
                     String parentNodeName = element.getParentNode().getNodeName();
                     NodeList childNodes = element.getChildNodes();
@@ -122,12 +120,7 @@ public class MultiAspectNodeTest {
             return;
         }
 
-        // Print the limits for debugging
-        for (Map.Entry<TreePath, String> entry : limits.entrySet()) {
-            System.out.println("Key: " + entry.getKey() + ", Value: " + entry.getValue());
-        }
 
-        // Global map to track child counts for each node across all scenarios
         Map<String, Integer> globalChildCounts = new HashMap<>();
         Set<String> processedNodes = new HashSet<>(); // Track nodes processed as pruned in any scenario
 
@@ -160,9 +153,8 @@ public class MultiAspectNodeTest {
                             System.out.println("Parent node " + parentNode);
 
                             if (parsedNodes.containsKey(parentNode)) {
-                                processedNodes.add(parentNode); // Mark node as pruned
+                                processedNodes.add(parentNode); //
                                 NodeList childNodes = element.getChildNodes();
-                                System.out.println("Matched parent node " + parentNode + ", child = " + childNodes.getLength());
 
                                 // Count child nodes for this MultiAspect node
                                 int count = 0;
@@ -197,7 +189,7 @@ public class MultiAspectNodeTest {
         // Add non-pruned nodes (nodes in parsedNodes but not in processedNodes) with zero child count
         for (String node : parsedNodes.keySet()) {
             if (!processedNodes.contains(node)) {
-                System.out.printf("Non-pruned node detected: %s%n", node);
+//                System.out.printf("Non-pruned node detected: %s%n", node);
                 globalChildCounts.putIfAbsent(node, 0);
             }
         }
@@ -253,7 +245,7 @@ public class MultiAspectNodeTest {
         double overallCoverage = (totalLimit > 0) ? (double) totalCoveredChildren / totalLimit * 100 : 0;
 
         // Calculate parent node coverage percentage
-        double parentNodeCoveragePercentage = (totalNodes > 0) ? (double) coveredNodes / totalNodes * 100 : 0;
+//        double parentNodeCoveragePercentage = (totalNodes > 0) ? (double) coveredNodes / totalNodes * 100 : 0;
 
         totalUncoveredNodes = uncoveredNodes;
 
@@ -267,7 +259,7 @@ public class MultiAspectNodeTest {
         System.out.printf("Total Nodes: %d%n", totalNodes);
         System.out.printf("Covered Nodes: %d%n", coveredNodes);
         System.out.printf("Uncovered Nodes: %d%n", uncoveredNodes);
-        System.out.printf("Parent Node Coverage Percentage: %.2f%%%n", parentNodeCoveragePercentage);
+//        System.out.printf("Parent Node Coverage Percentage: %.2f%%%n", parentNodeCoveragePercentage);
     }
 
     // Getter methods to access global totals

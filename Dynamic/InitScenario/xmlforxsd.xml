@@ -35,6 +35,12 @@
 <var name="Pitch" default="none" lower="-30" upper="30" ></var>
 <var name="Yaw" default="none" lower="0" upper="360" ></var>
 <var name="Altitude" default="none" lower="700" upper="1300" ></var>
+<specialization name="EgoSpec">
+<entity name="Ego1">
+</entity>
+<entity name="Ego2">
+</entity>
+</specialization>
 </entity>
 <entity name="IntruderAC">
 <var name="Latitude" default="none" lower="63.7" upper="65" ></var>

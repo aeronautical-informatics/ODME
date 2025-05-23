@@ -28,6 +28,12 @@
 </envDec>
 </Environment>
 <EgoAC>
+<EgoSpec>
+<Ego1>
+</Ego1>
+<Ego2>
+</Ego2>
+</EgoSpec>
 </EgoAC>
 <IntruderAC>
 <IACSpec>

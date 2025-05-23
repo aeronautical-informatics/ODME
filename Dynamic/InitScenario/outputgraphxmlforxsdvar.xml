@@ -51,6 +51,15 @@ Var
 <Yaw,int,none,0,360Var/>
 <Altitude,int,none,700,1300Var/>
 Var
+<EgoSpec>
+Var
+<Ego1>
+Var
+</Ego1>
+<Ego2>
+Var
+</Ego2>
+</EgoSpec>
 </EgoAC>
 <IntruderAC>
 <Latitude,double,none,63.7,65Var/>

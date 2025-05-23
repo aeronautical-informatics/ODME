@@ -209,41 +209,19 @@ public class ScenarioList extends JPanel {
 		System.out.println("totalCoveredBuckets " + totalCoveredBuckets);
 
 
-//		VariableCoverageTest variableCoverageTest = new VariableCoverageTest(dataList);
-
-
-		// Calculating percentages
-//		double specialisationPercentage = (specialisationNodeTest.getTotalSpecialisationNode() > 0)
-//				? (specialisationNodeTest.getMatchedSpecialisationNode() * 100.0 / specialisationNodeTest.getTotalSpecialisationNode())
-//				: 0.0;
 		double specialisationPercentage = (specialisationNodeTest.getTotalSpecialisationNode() > 0)
 				? (((double) specialisationNodeTest.getMatchedSpecialisationNode()  / specialisationNodeTest.getTotalSpecialisationNode())) * 100
 				: 0.0;
 
-//		System.out.println("specialisationNodeTest.getTotalSpecialisationNode() = "+specialisationNodeTest.getTotalSpecialisationNode());
-//		System.out.println("specialisationNodeTest.getMatchedSpecialisationNode()" + specialisationNodeTest.getMatchedSpecialisationNode());
-//		System.out.println("specialisationPercentage " + specialisationPercentage);
 
 		double behaviourPercentage = (behaviourCoverageTest.getTotalBehaviours() > 0)
 				? (behaviourCoverageTest.getMatchedBehaviours() * 100.0 / behaviourCoverageTest.getTotalBehaviours())
 				: 0.0;
 
-//		double variablePercentage = (variableCoverageTest.getTotalBuckets() > 0)
-//				? (variableCoverageTest.getTotalCoveredBuckets() * 100.0 / variableCoverageTest.getTotalBuckets())
-//				: 0.0;
-
-//		double overAllPercentage = (((double) specialisationNodeTest.getMatchedSpecialisationNode() +
-//				(double) multiAspectNodeTest.getTotalCoveredChildren() +
-//				(double) variableCoverageTest.getTotalCoveredBuckets())
-//				/
-//				((double) specialisationNodeTest.getTotalSpecialisationNode() +
-//						(double) multiAspectNodeTest.getMultiAspectNodeCount() +
-//						(double) variableCoverageTest.getTotalBuckets()))
-//				* 100;
-
+		double parameterPercentage = ((double) totalCoveredBuckets / totalBuckets) * 100;
+		System.out.println("parameterPercentage = " + parameterPercentage);
 		double variablePercent =  ((double) 408 / 925) * 100;
 		double overAllPercentage = (specialisationPercentage + variablePercent)/2;
-
 
 		// Creating the 2D array
 		Object[][] data = {
@@ -258,19 +236,22 @@ public class ScenarioList extends JPanel {
 						multiAspectNodeTest.getTotalUncoveredChildren() + multiAspectNodeTest.getTotalCoveredChildren(),
 						multiAspectNodeTest.getTotalPercentage()
 				},
-//				{"Behaviours", behaviourCoverageTest.getTotalBehaviours(),
-//						behaviourCoverageTest.getMatchedBehaviours(),
-//						behaviourCoverageTest.getTotalBehaviours()+behaviourCoverageTest.getMatchedBehaviours(),
-//						behaviourPercentage},
+				{"Behaviours", behaviourCoverageTest.getMatchedBehaviours(),
+						behaviourCoverageTest.getTotalBehaviours() - behaviourCoverageTest.getMatchedBehaviours(),
+						behaviourCoverageTest.getTotalBehaviours(),
+						behaviourPercentage},
 				{
-						"Parameter Coverage" ,  totalCoveredBuckets , totalBuckets - totalCoveredBuckets , totalBuckets,
-						((double) totalCoveredBuckets / totalBuckets) * 100
+						"Parameter Coverage" ,  totalCoveredBuckets ,
+						totalBuckets - totalCoveredBuckets , totalBuckets,
+						parameterPercentage
+//						((double) totalCoveredBuckets / totalBuckets) * 100
 //						variableCoverageTest.getTotalCoveredBuckets(),variableCoverageTest.getTotalUnCoveredBuckets(),
 //						variableCoverageTest.getTotalBuckets(),
 //						variablePercentage
 				},
 				{
 						"Overall Coverage" , null,
+//						specialisationPercentage
 //						specialisationNodeTest.getMatchedSpecialisationNode()+
 //						multiAspectNodeTest.getTotalCoveredChildren()
 //						+variableCoverageTest.getTotalCoveredBuckets(), //unCovered starts
@@ -281,8 +262,8 @@ public class ScenarioList extends JPanel {
 						null,
 //						specialisationNodeTest.getTotalSpecialisationNode() + multiAspectNodeTest.getMultiAspectNodeCount()
 //						+ variableCoverageTest.getTotalBuckets(),
-
-						overAllPercentage
+						(specialisationPercentage + multiAspectNodeTest.getTotalPercentage() + behaviourPercentage + parameterPercentage)/ 4
+//						overAllPercentage
 				}
 		};
 

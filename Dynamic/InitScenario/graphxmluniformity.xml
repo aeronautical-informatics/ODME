@@ -21,7 +21,12 @@
 </TimeOfDay>
 </envDec>
 </Environment>
-<EgoAC/>
+<EgoAC>
+<EgoSpec>
+<Ego1/>
+<Ego2/>
+</EgoSpec>
+</EgoAC>
 <IntruderAC>
 <IACSpec>
 <B737_300/>
