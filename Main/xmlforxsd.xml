@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<entity xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ses.xsd" name="Thing">
+<aspect name="node1Dec">
+<entity name="AirFrame">
+<var name="testFloat" default="1.0" lower="1.0" upper="5.0" ></var>
+<var name="intType" default="0" lower="0" upper="20" ></var>
+<specialization name="node3Spec">
+<entity name="Bird">
+</entity>
+<entity name="Strike">
+<multiAspect name="node16MAsp">
+<entity name="strikeMultiAspect">
+</entity>
+</multiAspect>
+</entity>
+</specialization>
+</entity>
+</aspect>
+<aspect name="node7Dec">
+<entity name="MainMultipAspect">
+<var name="id" default="1" lower="0" upper="10" ></var>
+<multiAspect name="node8MAsp">
+<entity name="childMultiAspect">
+</entity>
+</multiAspect>
+</entity>
+</aspect>
+<aspect name="node5Dec">
+<entity name="second">
+<multiAspect name="node7MAsp">
+<entity name="childSecond">
+</entity>
+</multiAspect>
+</entity>
+</aspect>
+</entity>

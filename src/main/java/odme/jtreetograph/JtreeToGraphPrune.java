@@ -159,7 +159,7 @@ public class JtreeToGraphPrune {
         ODMEEditor.changePruneColor();
     }
 
-    public static void pruneMAspNodeFromGraphPopup(Object pos) {
+    public static void pruneMAspNodeFromGraphPopup(Object pos , int limit) {
         // Also read the  behaviour List  and update that according to the selection of node.
 //        read behaviour file
         mxCell maspcell = (mxCell) pos;
@@ -178,7 +178,11 @@ public class JtreeToGraphPrune {
                 } catch(NumberFormatException ex){
                     nodeListTf.setText("");
                 }
-
+                if(n> limit){
+                    JOptionPane.showMessageDialog(null,
+                            "Number of Entities should be between 1 and " + limit);
+                    nodeListTf.setText("");
+                }
                 if (n>1000 || n<1) {
                     JOptionPane.showMessageDialog(null, "Number of Entities should be between 1 and 1000");
                     nodeListTf.setText("");

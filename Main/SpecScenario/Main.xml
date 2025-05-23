@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Thing>
+<node1Dec>
+<Bird_AirFrame>
+</Bird_AirFrame>
+</node1Dec>
+<node7Dec>
+<MainMultipAspect>
+<node8MAsp>
+<childMultiAspect>
+</childMultiAspect>
+</node8MAsp>
+</MainMultipAspect>
+</node7Dec>
+</Thing>

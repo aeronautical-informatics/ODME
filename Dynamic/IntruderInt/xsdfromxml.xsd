@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+ xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning" 
+ elementFormDefault="qualified" vc:minVersion="1.1" >
+
+<xs:element name="Scenario">
+<xs:complexType>
+<xs:sequence id="scenarioDec">
+<xs:element name="Environment">
+<xs:complexType>
+<xs:sequence id="envDec">
+<xs:element name="Season">
+<xs:complexType>
+<xs:choice id="seasonSpec">
+<xs:element name="Summer">
+<xs:complexType>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+<xs:element name="Winter">
+<xs:complexType>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+</xs:choice>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+<xs:element name="TimeOfDay">
+<xs:complexType>
+<xs:choice id="ToDSpec">
+<xs:element name="Dawn">
+<xs:complexType>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+<xs:element name="Morning">
+<xs:complexType>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+<xs:element name="Noon">
+<xs:complexType>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+<xs:element name="Afternoon">
+<xs:complexType>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+<xs:element name="Dusk">
+<xs:complexType>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+</xs:choice>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+</xs:sequence>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+<xs:element name="EgoAC">
+<xs:complexType>
+<xs:attribute name="Latitude" default="64">
+<xs:simpleType>
+<xs:restriction base="xs:double">
+<xs:minInclusive  value="63.7"/>
+<xs:maxInclusive value="65"/>
+</xs:restriction>
+</xs:simpleType>
+</xs:attribute>
+<xs:attribute name="Longitude" default="-22.60">
+<xs:simpleType>
+<xs:restriction base="xs:double">
+<xs:minInclusive  value="-22.65"/>
+<xs:maxInclusive value="-21.50"/>
+</xs:restriction>
+</xs:simpleType>
+</xs:attribute>
+<xs:attribute name="Plane_Distance" default="none">
+<xs:simpleType>
+<xs:restriction base="xs:int">
+<xs:minInclusive  value="100"/>
+<xs:maxInclusive value="600"/>
+</xs:restriction>
+</xs:simpleType>
+</xs:attribute>
+<xs:attribute name="Roll" default="none">
+<xs:simpleType>
+<xs:restriction base="xs:int">
+<xs:minInclusive  value="-30"/>
+<xs:maxInclusive value="30"/>
+</xs:restriction>
+</xs:simpleType>
+</xs:attribute>
+<xs:attribute name="Pitch" default="none">
+<xs:simpleType>
+<xs:restriction base="xs:int">
+<xs:minInclusive  value="-30"/>
+<xs:maxInclusive value="30"/>
+</xs:restriction>
+</xs:simpleType>
+</xs:attribute>
+<xs:attribute name="Yaw" default="none">
+<xs:simpleType>
+<xs:restriction base="xs:int">
+<xs:minInclusive  value="0"/>
+<xs:maxInclusive value="360"/>
+</xs:restriction>
+</xs:simpleType>
+</xs:attribute>
+<xs:attribute name="Altitude" default="none">
+<xs:simpleType>
+<xs:restriction base="xs:int">
+<xs:minInclusive  value="700"/>
+<xs:maxInclusive value="1300"/>
+</xs:restriction>
+</xs:simpleType>
+</xs:attribute>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+<xs:element name="IntruderAC">
+<xs:complexType>
+<xs:attribute name="Altitude" default="1000">
+<xs:simpleType>
+<xs:restriction base="xs:int">
+<xs:minInclusive  value="700"/>
+<xs:maxInclusive value="1300"/>
+</xs:restriction>
+</xs:simpleType>
+</xs:attribute>
+<xs:attribute name="Latitude" default="none">
+<xs:simpleType>
+<xs:restriction base="xs:double">
+<xs:minInclusive  value="63.7"/>
+<xs:maxInclusive value="65"/>
+</xs:restriction>
+</xs:simpleType>
+</xs:attribute>
+<xs:attribute name="Longitude" default="none">
+<xs:simpleType>
+<xs:restriction base="xs:double">
+<xs:minInclusive  value="-22.6"/>
+<xs:maxInclusive value="-21.5"/>
+</xs:restriction>
+</xs:simpleType>
+</xs:attribute>
+<xs:choice id="IACSpec">
+<xs:element name="B737_300">
+<xs:complexType>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+<xs:element name="B787_8">
+<xs:complexType>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+<xs:element name="A340_600">
+<xs:complexType>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+</xs:choice>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+</xs:sequence>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+</xs:schema>

@@ -1,18 +1,15 @@
 package odme.jtreetograph;
 
 import static odme.jtreetograph.JtreeToGraphVariables.*;
+import static odme.odmeeditor.DynamicTree.projectFileName;
 
 import java.awt.Color;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.io.*;
+import java.util.*;
 
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
@@ -25,6 +22,8 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import com.mxgraph.model.mxCell;
 
 import odme.core.FileConvertion;
@@ -33,10 +32,10 @@ import odme.odmeeditor.Main;
 import odme.odmeeditor.ODMEEditor;
 
 public class JtreeToGraphAdd {
-	
-	public static String selectedType = "byte";
 
-	public static void addNodeIntoJtreeWithNewModuleAddition(mxCell lastAddedCell) {
+    public static String selectedType = "byte";
+
+    public static void addNodeIntoJtreeWithNewModuleAddition(mxCell lastAddedCell) {
         mxCell addedCell = null;
         if (lastAddedCell != null) {
             Object[] outgoing = graph.getOutgoingEdges(lastAddedCell);
@@ -44,7 +43,7 @@ public class JtreeToGraphAdd {
             addedCell = (mxCell) targetCell;
 
             if (addedCell != null) {
-            	JtreeToGraphConvert.nodeToRootPath(addedCell);
+                JtreeToGraphConvert.nodeToRootPath(addedCell);
                 lastAddedCell = null;
 
                 // update jtree
@@ -61,8 +60,8 @@ public class JtreeToGraphAdd {
             }
         }
     }
-	
-	private static void addNodeIntoJtreeForSubTree(mxCell lastAddedCell) {
+
+    private static void addNodeIntoJtreeForSubTree(mxCell lastAddedCell) {
         path.clear();
         mxCell addedCell = null;
         if (lastAddedCell != null) {
@@ -71,7 +70,7 @@ public class JtreeToGraphAdd {
             addedCell = (mxCell) targetCell;
 
             if (addedCell != null) {
-            	JtreeToGraphConvert.nodeToRootPath(addedCell);
+                JtreeToGraphConvert.nodeToRootPath(addedCell);
                 lastAddedCell = null;
 
                 // update jtree
@@ -160,7 +159,6 @@ public class JtreeToGraphAdd {
 
                 System.out.println("Tree path " + treePathForVariable );
 
-
                 DynamicTree.behavioursList.put(treePathForVariable, variableName);
 
                 pathToRoot.clear();
@@ -172,6 +170,131 @@ public class JtreeToGraphAdd {
 
     }
 
+    public static void addLimitToMAspecNode(Object pos) {
+        mxCell varCell = (mxCell) pos;
+        selectedNodeCellForVariableUpdate = varCell;
+
+        // Get limit input from the user
+        JTextField limitField = new JTextField();
+        Object[] message = {"Enter Limit:", limitField};
+        int option = JOptionPane.showConfirmDialog(
+                Main.frame, message, "Set Limit for MAsp Node", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+        if (option == JOptionPane.OK_OPTION) {
+            String limitValue = limitField.getText();
+
+            // Validate input
+            if (limitValue != null && !limitValue.trim().isEmpty()) {
+                // Build path to the root for the selected MAsp node
+                pathToRoot.add((String) varCell.getValue());
+                JtreeToGraphConvert.nodeToRootPathVar(varCell);
+
+                String[] stringArray = pathToRoot.toArray(new String[0]);
+                ArrayList<String> pathToRootRev = new ArrayList<>();
+
+                for (int i = stringArray.length - 1; i >= 0; i--) {
+                    pathToRootRev.add(stringArray[i]);
+                }
+
+                String[] stringArrayRev = pathToRootRev.toArray(new String[0]);
+                TreePath treePathForLimit = JtreeToGraphGeneral.getTreeNodePath(stringArrayRev);
+                pathToRoot.clear();
+
+                 // Add the limit to the Multimap
+                DynamicTree.limitsMAspec.put(treePathForLimit, limitValue);
+
+                System.out.println("Limit added to Multimap for path: " + treePathForLimit + ", Limit: " + limitValue);
+
+            } else {
+                JOptionPane.showMessageDialog(Main.frame, "Please enter a valid limit value.");
+            }
+        }
+    }
+
+
+    public static  Map<TreePath, String>  readLimitFile(){
+
+//        File ssdFileLimit = new File(String.format("%s/%s.txt", ODMEEditor.fileLocation, "ssdLimit"));
+        File ssdFileLimit = new File(String.format("%s.ssdLimit",
+//                ODMEEditor.fileLocation,ODMEEditor.projName, projectFileName)
+                ODMEEditor.fileLocation + "/" + ODMEEditor.projName)
+        );
+
+        Map<TreePath, String> limitsMAspec = new HashMap<>();
+
+        System.out.println("readLimitFile = " + ssdFileLimit);
+
+        // Check if the file exists before attempting to read
+        if (!ssdFileLimit.exists()) {
+            System.out.println("No limit file found. No limits to load.");
+            return null;
+        }else {
+            try  {
+                // Read the Multimap from the file
+
+                ObjectInputStream ois = new ObjectInputStream(new FileInputStream(ssdFileLimit));
+
+                limitsMAspec = (Map<TreePath, String>) ois.readObject();
+
+                System.out.println("Limits loaded successfully from limit");
+                System.out.println("Keys = "+limitsMAspec.keySet());
+                System.out.println("Values = "+limitsMAspec.values());
+
+                ois.close();
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.out.println("Error loading limits from file.");
+            }
+        }
+
+        return limitsMAspec;
+    }
+
+    public static int checkLimitForNodeName(String nodeName) {
+
+
+        Map<TreePath, String> limits = readLimitFile();
+
+        // Check if any TreePath in limits contains the nodeName
+        for (TreePath path : limits.keySet()) {
+            if (path.toString().contains(nodeName)) {
+                // Directly get the limit string for the TreePath
+                String limitStr = limits.get(path);
+
+                try {
+                    int limit = Integer.parseInt(limitStr);
+                    System.out.println("Limit for " + nodeName + ": " + limit);
+                    return limit;
+                } catch (NumberFormatException e) {
+                    System.err.println("Invalid limit format for node " + nodeName + ": " + limitStr);
+                    return 0;
+                }
+            }
+        }
+
+        // Check if any TreePath in limits contains the nodeName
+
+//        for (TreePath path : limits.keySet()) {
+//            if (path.toString().contains(nodeName)) {
+//                Collection<String> nodeLimits = limits.get(path);
+//
+//                // Assuming there's only one limit per node, get the first limit
+//                String limitStr = nodeLimits.iterator().next();
+//                try {
+//                    int limit = Integer.parseInt(limitStr);
+//                    System.out.println("Limit for " + nodeName + ": " + limit);
+//                    return limit;
+//                } catch (NumberFormatException e) {
+//                    System.err.println("Invalid limit format for node " + nodeName + ": " + limitStr);
+//                    return 0;
+//                }
+//            }
+//        }
+
+        System.out.println("No limit found for node: " + nodeName);
+        return 0; // Default value if no limit is found
+    }
     public static void addVariableFromGraphPopup(Object pos) {
         mxCell varCell = (mxCell) pos;
         selectedNodeCellForVariableUpdate = varCell;
@@ -250,17 +373,17 @@ public class JtreeToGraphAdd {
         });
         
         commentField.addKeyListener(new KeyListener() {
-        	@Override
+            @Override
             public void keyTyped(KeyEvent e) {}
-        	
-        	@Override
+
+            @Override
             public void keyReleased(KeyEvent e) {
-        		errorLabelField.setVisible(
+                errorLabelField.setVisible(
                         !commentField.getText().trim().matches(variableFieldRegEx) || !commentField
                                 .getText().trim().matches(variableFieldRegEx));
-        	}
-        	
-        	@Override
+            }
+
+            @Override
             public void keyPressed(KeyEvent e) {}
         });
 
@@ -446,31 +569,25 @@ public class JtreeToGraphAdd {
             }
 
             if (variableLowerBound.equals("")) {
-            	if (selectedType.equals("int")){
-            		variableLowerBound = Integer.toString(Integer.MIN_VALUE);
-            	}
-            	else if (selectedType.equals("float")){
-            		variableLowerBound = Float.toString(Float.MIN_VALUE);
-            	}
-            	else if (selectedType.equals("double")){
-            		variableLowerBound = Double.toString(Double.MIN_VALUE);
-            	}
-            	else
-            		variableLowerBound = "none";
+                if (selectedType.equals("int")){
+                    variableLowerBound = Integer.toString(Integer.MIN_VALUE);
+                } else if (selectedType.equals("float")){
+                    variableLowerBound = Float.toString(Float.MIN_VALUE);
+                } else if (selectedType.equals("double")){
+                    variableLowerBound = Double.toString(Double.MIN_VALUE);
+                } else
+                    variableLowerBound = "none";
             }
 
             if (variableUpperBound.equals("")) {
-            	if (selectedType.equals("int")){
-            		variableUpperBound = Integer.toString(Integer.MAX_VALUE);
-            	}
-            	else if (selectedType.equals("float")){
-            		variableUpperBound = Float.toString(Float.MAX_VALUE);
-            	}
-            	else if (selectedType.equals("double")){
-            		variableUpperBound = Double.toString(Double.MAX_VALUE);
-            	}
-            	else
-            		variableUpperBound = "none";
+                if (selectedType.equals("int")){
+                    variableUpperBound = Integer.toString(Integer.MAX_VALUE);
+                } else if (selectedType.equals("float")){
+                    variableUpperBound = Float.toString(Float.MAX_VALUE);
+                } else if (selectedType.equals("double")){
+                    variableUpperBound = Double.toString(Double.MAX_VALUE);
+                } else
+                    variableUpperBound = "none";
             }
             //...........................
 
@@ -523,7 +640,7 @@ public class JtreeToGraphAdd {
         }
     }
 
-	public static void addConstraintFromGraphPopup(Object pos) {
+    public static void addConstraintFromGraphPopup(Object pos) {
         JTextArea constraintsField = new JTextArea(10, 30);
         constraintsField.setLineWrap(true);
         constraintsField.setWrapStyleWord(true);
@@ -1192,9 +1309,9 @@ public class JtreeToGraphAdd {
     public static void addPageLengthNodes() {
         graph.getModel().beginUpdate();
         try {
-        	graph.insertVertex(parent, "hideV", "End of Canvas", 0, 50000, 80, 30, "Entity");
+            graph.insertVertex(parent, "hideV", "End of Canvas", 0, 50000, 80, 30, "Entity");
 
-        	graph.insertVertex(parent, "hideH", "End of Canvas", 50000, 0, 80, 30, "Entity");
+            graph.insertVertex(parent, "hideH", "End of Canvas", 50000, 0, 80, 30, "Entity");
         } 
         finally {
             graph.getModel().endUpdate();
@@ -1283,7 +1400,7 @@ public class JtreeToGraphAdd {
     }
     
     public static void addNodeWIthGraphAddition(String childNode, String[] nodePath) {
-    	ODMEEditor.treePanel.addObjectWIthGraphAddition(childNode, nodePath);
+        ODMEEditor.treePanel.addObjectWIthGraphAddition(childNode, nodePath);
     }
     
     public static void addVariableFromScenarioTableForUpdate(mxCell cellForAddingVariable, String variableName) {

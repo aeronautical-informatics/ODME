@@ -16,18 +16,11 @@ import java.io.PrintWriter;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JTextField;
-import javax.swing.KeyStroke;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
@@ -45,6 +38,9 @@ import odme.jtreetograph.JtreeToGraphGeneral;
 import odme.jtreetograph.JtreeToGraphModify;
 import odme.jtreetograph.JtreeToGraphSave;
 import odme.jtreetograph.JtreeToGraphVariables;
+import structuretest.BehaviourCoverageTest;
+import structuretest.MultiAspectNodeTest;
+import structuretest.SpecialisationNodeTest;
 
 import static odme.odmeeditor.XmlUtils.sesview;
 
@@ -146,11 +142,13 @@ public class MenuBar {
 		    	menuItem.setIcon(newIcon);
 		    }
 		    
-		    if (items[i]=="Save Scenario" || items[i]=="Scenarios List" || items[i]=="Excution" || items[i]=="Feedback Loop")
+		    if (items[i]=="Save Scenario" || items[i]=="Scenarios List" || items[i]=="Excution" || items[i]=="Feedback Loop"
+					|| items[i]=="Structural Testing")
 		    	menuItem.setEnabled(false);
 		    
 		    if (items[i]=="New Project" || items[i]=="Import Template" || items[i]=="Save Scenario" ||
 		    		items[i]=="Open" || items[i]=="Save as Template" || items[i]=="Scenarios List" ||
+					items[i]=="Structural Testing" ||
 		    		items[i]=="Excution" || items[i]=="Feedback Loop" || items[i]=="Export XML" ||
 		    		items[i]=="Export Yaml") {
 		    	fileMenuItems.add(menuItem);
@@ -163,7 +161,12 @@ public class MenuBar {
 		            	case "Save Scenario":
 		            		saveScenario();
 		            		break;
-		            	case "Scenarios List":
+
+						case "Structural Testing":
+//
+							break;
+
+						case "Scenarios List":
 		            		ScenarioList scenarioList = new ScenarioList();
 		                	scenarioList.createScenarioListWindow();
 		            	  	break;
@@ -229,10 +232,51 @@ public class MenuBar {
     	// jd.setAlwaysOnTop(true);
     }
 
-   
-	
-    
-    @SuppressWarnings("unchecked")
+
+	static public List<String[]> getScenarioJsonData() {
+		JSONParser jsonParser = new JSONParser();
+		List<String[]> dataList = new ArrayList<String[]>();
+		System.out.println("ODMEEditor.fileLocation  = " + ODMEEditor.fileLocation );
+//		System.out.println(" ODMEEditor.projName  = " +  ODMEEditor.projName );
+		try (FileReader reader = new FileReader(ODMEEditor.fileLocation +  "/scenarios.json")){
+			Object obj = null;
+			try {
+				obj = jsonParser.parse(reader);
+			} catch (org.json.simple.parser.ParseException e) {
+				e.printStackTrace();
+			}
+
+			JSONArray data = (JSONArray) obj;
+
+			for (Object dtObj:data) {
+				dataList.add(parseObject((JSONObject)dtObj));
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+
+		return dataList;
+	}
+
+	static public String[] parseObject(JSONObject obj) {
+		JSONObject dataObject = (JSONObject) obj.get("scenario");
+
+		String name = (String) dataObject.get("name");
+		String risk = (String) dataObject.get("risk");
+		String remarks = (String) dataObject.get("remarks");
+
+		String[] arr = {name, risk, remarks};
+
+		return arr;
+	}
+
+
+
+	@SuppressWarnings("unchecked")
 	private void saveScenario() {
     	JSONParser jsonParser = new JSONParser();
         
@@ -382,8 +426,10 @@ public class MenuBar {
             		ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
             ODMEEditor.treePanel.ssdFile = new File(String.format("%s/%s/%s.xml",
             		ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
+
             ODMEEditor.treePanel.ssdFileVar = new File(String.format("%s/%s/%s.ssdvar",
             		ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
+
             ODMEEditor.treePanel.ssdFileCon = new File(String.format("%s/%s/%s.ssdcon",
             		ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
             ODMEEditor.treePanel.ssdFileFlag = new File(String.format("%s/%s/%s.ssdflag",

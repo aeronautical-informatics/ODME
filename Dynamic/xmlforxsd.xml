@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<entity xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ses.xsd" name="Scenario">
+<aspect name="scenarioDec">
+<entity name="Environment">
+<aspect name="envDec">
+<entity name="Season">
+<specialization name="seasonSpec">
+<entity name="Summer">
+</entity>
+<entity name="Winter">
+</entity>
+</specialization>
+</entity>
+<entity name="TimeOfDay">
+<specialization name="ToDSpec">
+<entity name="Dawn">
+</entity>
+<entity name="Morning">
+</entity>
+<entity name="Noon">
+</entity>
+<entity name="Afternoon">
+</entity>
+<entity name="Dusk">
+</entity>
+</specialization>
+</entity>
+</aspect>
+</entity>
+<entity name="EgoAC">
+<var name="Latitude" default="64" lower="63.7" upper="65" ></var>
+<var name="Longitude" default="-22.60" lower="-22.65" upper="-21.50" ></var>
+<var name="Altitude" default="1500" lower="1400" upper="1600" ></var>
+<var name="Plane_Distance" default="none" lower="100" upper="600" ></var>
+<var name="Roll" default="none" lower="-30" upper="30" ></var>
+<var name="Pitch" default="none" lower="-30" upper="30" ></var>
+<var name="Yaw" default="none" lower="0" upper="360" ></var>
+</entity>
+<entity name="IntruderAC">
+<var name="Latitude" default="none" lower="63.7" upper="65" ></var>
+<var name="Longitude" default="none" lower="-22.6" upper="-21.5" ></var>
+<var name="Altitude" default="none" lower="700" upper="1300" ></var>
+<specialization name="IACSpec">
+<entity name="B737_300">
+</entity>
+<entity name="B787_8">
+</entity>
+<entity name="A340_600">
+</entity>
+</specialization>
+</entity>
+</aspect>
+</entity>

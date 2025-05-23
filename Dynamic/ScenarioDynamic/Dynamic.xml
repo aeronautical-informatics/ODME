@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Scenario>
+<scenarioDec>
+<Environment>
+<envDec>
+<Summer_Season>
+</Summer_Season>
+<Noon_TimeOfDay>
+</Noon_TimeOfDay>
+</envDec>
+</Environment>
+<EgoAC>
+</EgoAC>
+<B737_300_IntruderAC>
+</B737_300_IntruderAC>
+</scenarioDec>
+</Scenario>
