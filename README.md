@@ -48,6 +48,7 @@ To get started with ODME, follow these steps:
 ## [Usage](#usage)
 
 1. Download the package from Release and extract the contents
+2. Execute the *SESEditor-1.0-SNAPSHOT-jar-with-dependencies* 
 
 
 ## [Contributing](#contributing)
