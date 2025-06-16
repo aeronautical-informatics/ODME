@@ -10,10 +10,20 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.EtchedBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.tree.TreePath;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
+import com.mxgraph.model.mxCell;
 import odeme.behaviour.Behaviour;
+import odme.jtreetograph.JtreeToGraphAdd;
+import odme.jtreetograph.JtreeToGraphConvert;
 import odme.jtreetograph.JtreeToGraphImport;
 import odme.jtreetograph.JtreeToGraphVariables;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -30,10 +40,14 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static odme.jtreetograph.JtreeToGraphVariables.pathToRoot;
 
 /**
  * <h1>ImportProject</h1>
@@ -53,6 +67,7 @@ public class ImportProject extends JPanel {
     private JTextField newProjectNameField, newRootNameField, projectLocationField;
     private JButton selectImportProjectLocation, selectProjectLocation, create, cancel;
     private JCheckBox defaultProjectLocationChecker;
+    static String variableParams ="";
 
     public ImportProject() {
         super(new BorderLayout());
@@ -247,6 +262,10 @@ public class ImportProject extends JPanel {
     }
     
     private void createFunc() {
+        DynamicTree.varMap.clear();
+        DynamicTree.behavioursList.clear();
+        DynamicTree.constraintsList.clear();
+
     	String newProjectName = newProjectNameField.getText();
     	if (newProjectName.trim().length() == 0 || errorLabelField.isVisible() == true) {
     		JOptionPane.showMessageDialog(this, "Project name should be not empty and not alrady exist!", "Import Error!",
@@ -264,7 +283,6 @@ public class ImportProject extends JPanel {
         
         JtreeToGraphVariables.ssdFileGraph = new File(String.format("%s/%s/%sGraph.xml",
         		ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
-        
         ODMEEditor.treePanel.ssdFile = new File(String.format("%s/%s/%s.xml",
         		ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
         ODMEEditor.treePanel.ssdFileVar = new File(String.format("%s/%s/%s.ssdvar",
@@ -273,7 +291,6 @@ public class ImportProject extends JPanel {
         		ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
         ODMEEditor.treePanel.ssdFileBeh = new File(String.format("%s/%s/%s.ssdbeh",
         		ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
-        
         ODMEEditor.treePanel.ssdFileFlag = new File(String.format("%s/%s/%s.ssdflag",
         		ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
 
@@ -319,11 +336,13 @@ public class ImportProject extends JPanel {
         	return;
         }
 
-        Stack<String> stackEntity, stackAspect, stackMultiAspect, stackSpecialization;
+        Stack<String> stackEntity, stackAspect, stackMultiAspect, stackSpecialization, stackBehaviour, stackVar;
         stackEntity = new Stack<String>();
         stackAspect = new Stack<String>();
         stackMultiAspect = new Stack<String>();
         stackSpecialization = new Stack<String>();
+        stackBehaviour = new Stack<String>();
+        stackVar = new Stack<String>();
 
         while (in.hasNext()) {
             String line = in.nextLine();
@@ -352,7 +371,7 @@ public class ImportProject extends JPanel {
             else if (line.startsWith("<specialization")) {
                 f0.println("<" + element + ">");
                 stackSpecialization.push("</" + element + ">");
-            } 
+            }
             else if (line.startsWith("</entity")) {
                 String pop = (String) stackEntity.pop();
                 f0.println(pop);
@@ -369,11 +388,209 @@ public class ImportProject extends JPanel {
                 String pop = (String) stackSpecialization.pop();
                 f0.println(pop);
             }
+            else if (line.startsWith("<behaviour") && line.endsWith("/behaviour>")) { // Author: Vadece Kamdem
+                p = Pattern.compile("\"([^\"]*)\"");
+                m = p.matcher(partsOfLine[len - 2]);
+                element = "";
+                while (m.find()) {
+                    element = m.group(1);
+                }
+                f0.println("<" + element + "BevOr>");
+                stackBehaviour.push("</" + element + "BevOr>");
+                String pop = (String) stackBehaviour.pop();
+                f0.println(pop);
+            }
+            else if (line.startsWith("<var") && line.endsWith("/var>")) { // Author: Vadece Kamdem
+                p = Pattern.compile("\"([^\"]*)\"");
+                if (len==5) {
+                    m = p.matcher(partsOfLine[len - 4]);
+                    Matcher mType = p.matcher(partsOfLine[len - 3]);
+                    Matcher mDefault = p.matcher(partsOfLine[len - 2]);
+                    element = "";
+                    String elementDefault = "";
+                    String elementType = "";
+                    while (m.find()) {
+                        element = m.group(1);
+                    }
+                    while (mType.find()) {
+                        elementType = mType.group(1);
+                    }
+                    while (mDefault.find()) {
+                        elementDefault = mDefault.group(1);
+                    }
+//                    System.out.println(element+"-"+elementType+"-"+elementDefault);
+                    f0.println("<" + element + "," + elementType + "," + elementDefault + "VarLe>");
+                    stackVar.push("</" + element + "VarLe>");
+                    String pop = (String) stackVar.pop();
+                    f0.println(pop);
+                }
+                else {
+                    m = p.matcher(partsOfLine[len - 6]);
+                    Matcher mType = p.matcher(partsOfLine[len - 5]);
+                    Matcher mDefault = p.matcher(partsOfLine[len - 4]);
+                    Matcher mLower = p.matcher(partsOfLine[len - 3]);
+                    Matcher mUpper = p.matcher(partsOfLine[len - 2]);
+                    element = "";
+                    String elementDefault = "";
+                    String elementType = "";
+                    String elementLower = "";
+                    String elementUpper = "";
+                    while (m.find()) {
+                        element = m.group(1);
+                    }
+                    while (mType.find()) {
+                        elementType = mType.group(1);
+                    }
+                    while (mDefault.find()) {
+                        elementDefault = mDefault.group(1);
+                    }
+                    while (mLower.find()) {
+                        elementLower = mLower.group(1);
+                    }
+                    while (mUpper.find()) {
+                        elementUpper = mUpper.group(1);
+                    }
+//                    System.out.println(element+"-"+elementType+"-"+elementDefault+"-"+elementLower+"-"+elementUpper);
+                    f0.println("<" + element + "," + elementType + "," + elementDefault + "," + elementLower + "," + elementUpper + "VarLe>");
+                    stackVar.push("</" + element + "VarLe>");
+                    String pop = (String) stackVar.pop();
+                    f0.println(pop);
+                }
+            }
         }
         in.close();
         f0.close();
         // below function is working. Have to make a xml file like projectName.xml for
         // example Main.xml
         JtreeToGraphImport.importExistingProjectIntoGraph();
+
+    }
+
+    // Author:Vadece Kamdem
+    public static void importBehaviour(Object positionBehaviour, String nodeName) {
+            try {
+                String filePath = ODMEEditor.importFileLocation + "/" + ODMEEditor.importFileName;
+                // Parse the XML file
+                DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+                DocumentBuilder builder = factory.newDocumentBuilder();
+                Document document = builder.parse(new File(filePath));
+                document.getDocumentElement().normalize();
+
+                // Find TreePaths to <behaviour> elements
+                List<String> path = new ArrayList<>();
+                List<TreePath> behaviourPaths = new ArrayList<>();
+
+                // List to store TreePaths of behaviour elements
+                findBehaviourPaths(document.getDocumentElement(), path, behaviourPaths, nodeName);
+
+                // Print the TreePaths of behaviour elements
+                for (TreePath treePathForVariable : behaviourPaths) {
+                    Object[] pathComponents = treePathForVariable.getPath();
+                    String behaviourName = (String) pathComponents[pathComponents.length - 1];
+//                    System.out.println(treePathForVariable + " - " + behaviourName);
+
+                    JtreeToGraphAdd.addBehaviourFromImport(behaviourName, positionBehaviour);
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+    }
+
+    // Author:Vadece Kamdem
+    private static void findBehaviourPaths(Node node, List<String> path, List<TreePath> behaviourPaths, String nodeName) {
+        if (node.getNodeType() == Node.ELEMENT_NODE) {
+            Element element = (Element) node;
+            if (element.hasAttribute("name")) {
+                path.add(element.getAttribute("name"));
+            } else {
+                path.add(element.getTagName());
+            }
+            if (element.getTagName().equals("behaviour")) {
+                TreePath treePath = new TreePath(path.toArray());
+                Object[] pathComponents = treePath.getPath();
+                String behaviourName = (String) pathComponents[pathComponents.length - 1]+"BevOr";
+
+                if(behaviourName.equals(nodeName)) {
+                    behaviourPaths.add(treePath);// Add the TreePath to the list
+                }
+            }
+            NodeList nodeList = element.getChildNodes();
+            for (int i = 0; i < nodeList.getLength(); i++) {
+                findBehaviourPaths(nodeList.item(i), new ArrayList<>(path), behaviourPaths,nodeName);
+            }
+        }
+    }
+
+    // Author:Vadece Kamdem
+    public static void importVariable(Object positionVariable, String nodeNameAndParams) {
+        try {
+            String filePath = ODMEEditor.importFileLocation + "/" + ODMEEditor.importFileName;
+            // Parse the XML file
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document document = builder.parse(new File(filePath));
+            document.getDocumentElement().normalize();
+
+            // Find TreePaths to <behaviour> elements
+            List<String> path = new ArrayList<>();
+            List<TreePath> variablePaths = new ArrayList<>();
+
+            System.out.println("PRINT---"+nodeNameAndParams);
+            System.out.println();
+            String[] nodeParams = nodeNameAndParams.split(",");
+
+            for (String value : nodeParams) {
+                if (value.equals(nodeParams[0])) {
+                    variableParams = value;
+                    continue;
+                }
+                variableParams = variableParams + "," + value;
+            }
+
+            String nodeName = nodeParams[0];
+            // List to store TreePaths of variable elements
+            findVariablePaths(document.getDocumentElement(), path, variablePaths, nodeName);
+
+            // Print the TreePaths of variable elements
+            for (TreePath treePathForVariable : variablePaths) {
+                Object[] pathComponents = treePathForVariable.getPath();
+                String variableName = (String) pathComponents[pathComponents.length - 1];
+//                System.out.println(treePathForVariable + " - " + variableName);
+                System.out.println(treePathForVariable + " - " + variableName);
+
+                JtreeToGraphAdd.addVariableFromImport(variableParams, positionVariable);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+//        System.out.println("FINISHED");
+//        System.out.println();
+    }
+
+    // Author:Vadece Kamdem
+    private static void findVariablePaths(Node node, List<String> path, List<TreePath> variablePaths, String nodeName) {
+        if (node.getNodeType() == Node.ELEMENT_NODE) {
+            Element element = (Element) node;
+            if (element.hasAttribute("name")) {
+                path.add(element.getAttribute("name"));
+            } else {
+                path.add(element.getTagName());
+            }
+            if (element.getTagName().equals("var")) {
+                TreePath treePath = new TreePath(path.toArray());
+                Object[] pathComponents = treePath.getPath();
+                String variableName = (String) pathComponents[pathComponents.length - 1];
+
+                if(variableName.equals(nodeName)) {
+                    variablePaths.add(treePath);// Add the TreePath to the list
+                }
+            }
+            NodeList nodeList = element.getChildNodes();
+            for (int i = 0; i < nodeList.getLength(); i++) {
+                findVariablePaths(nodeList.item(i), new ArrayList<>(path), variablePaths,nodeName);
+            }
+        }
     }
 }

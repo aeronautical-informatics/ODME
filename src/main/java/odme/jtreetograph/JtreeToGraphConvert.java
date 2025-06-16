@@ -60,6 +60,26 @@ public class JtreeToGraphConvert {
         }
     }
 
+//    public static void rootToEndNodeBehaviour() { // Author: Vadece Kamdem
+//        Object[] cells = graph.getChildVertices(graph.getDefaultParent());
+//        mxCell rootcell = null;
+//
+//        for (Object c : cells) {
+//            mxCell cell2 = (mxCell) c;
+//            if (cell2.isVertex()) {
+//                String val = cell2.getId();
+//                if (val.equals("rootnode")) {
+//                    rootcell = cell2;
+//                }
+//            }
+//        }
+//
+//        if (rootcell != null) {
+////            JtreeToGraphNext.nextChildNodeForBehaviour(rootcell);
+//            rootToEndBehaviourAddition(rootcell);
+//        }
+//    }
+
     public static void rootToEndVariableAddition(mxCell varCell) {
         if (varCell.isVertex()) {
             pathToRoot.add((String) varCell.getValue());
@@ -125,6 +145,76 @@ public class JtreeToGraphConvert {
             // treePathForVariable
             FileConvertion fileConversion = new FileConvertion();
             fileConversion.variableAdditionToNode(treePathForVariable, variables);
+
+            pathToRoot.clear();
+        }
+    }
+
+    public static void rootToEndBehaviourAddition(mxCell varCell) { // Author: Vadece Kamdem
+        if (varCell.isVertex()) {
+            pathToRoot.add((String) varCell.getValue());
+            nodeToRootPathVar(varCell);
+
+            String[] stringArray = pathToRoot.toArray(new String[0]);
+            ArrayList<String> pathToRootRev = new ArrayList<String>();
+
+            for (int i = stringArray.length - 1; i >= 0; i--) {
+                pathToRootRev.add(stringArray[i]);
+            }
+
+            String[] stringArrayRev = pathToRootRev.toArray(new String[0]);
+            TreePath treePathForVariable = JtreeToGraphGeneral.getTreeNodePath(stringArrayRev);
+
+            DefaultMutableTreeNode currentNode =
+                    (DefaultMutableTreeNode) (treePathForVariable.getLastPathComponent());
+
+            // -------------------------------------------------------
+            TreeNode[] nodes = currentNode.getPath();
+
+            String[] nodesToSelectedNode = new String[100];
+            String variables = "";
+            int b = 0;
+
+            for (TreePath key : DynamicTree.behavioursList.keySet()) {
+                int a = 0;
+
+                for (String value : DynamicTree.behavioursList.get(key)) {
+
+                    DefaultMutableTreeNode currentNode2 =
+                            (DefaultMutableTreeNode) (key.getLastPathComponent());
+
+                    TreeNode[] nodes2 = currentNode2.getPath();
+
+                    if (nodes.length == nodes2.length) {
+                        int aa = 1;
+                        for (int i = 0; i < nodes.length; i++) {
+                            if (!nodes[i].toString().equals(nodes2[i].toString())) {
+                                aa = 0;
+                                break;
+                            }
+                        }
+                        a = aa;
+                    }
+
+                    if (a == 1) {
+                        nodesToSelectedNode[b] = value;
+                        b++;
+                    }
+                }
+            }
+
+            // java 8 way null removal
+            nodesToSelectedNode =
+                    Arrays.stream(nodesToSelectedNode).filter(s -> (s != null && s.length() > 0))
+                            .toArray(String[]::new);
+
+            for (String value : nodesToSelectedNode) {
+                variables = variables + "<" + value + "Behaviour/>" + "\n";
+            }
+
+            // treePathForVariable
+            FileConvertion fileConversion = new FileConvertion();
+            fileConversion.behaviourAdditionToNode(treePathForVariable, variables);
 
             pathToRoot.clear();
         }
