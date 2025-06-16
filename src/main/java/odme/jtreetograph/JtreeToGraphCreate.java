@@ -318,15 +318,61 @@ public class JtreeToGraphCreate {
                                         }
                                     }
 
+
+                                    /*
+                                     * Author: Lionce Vadece
+                                     * This is to enable the behavior table to react
+                                     * when a node is clicked on
+                                     */
+                                    String[] nodesToSelectedNodeBehaviour = new String[100];
+                                    int bb = 0;
+
+                                    for (TreePath key : DynamicTree.behavioursList.keySet()) {
+                                        int a = 0;
+
+                                        for (String value : DynamicTree.behavioursList.get(key)) {
+                                            DefaultMutableTreeNode currentNode2 =
+                                                    (DefaultMutableTreeNode) (key.getLastPathComponent());
+
+                                            TreeNode[] nodes2 = currentNode2.getPath();
+
+                                            if (nodes.length == nodes2.length) {
+                                                int aa = 1;
+                                                for (int i = 0; i < nodes.length; i++) {
+                                                    if (!nodes[i].toString().equals(nodes2[i].toString())) {
+                                                        aa = 0;
+                                                        break;
+                                                    }
+                                                }
+                                                a = aa;
+                                            }
+                                            if (a == 1) {
+                                                nodesToSelectedNodeBehaviour[bb] = value;
+                                                bb++;
+                                            }
+                                        }
+                                    }
+
+
                                     nodesToSelectedNode = Arrays.stream(nodesToSelectedNode)
+                                            .filter(s -> (s != null && s.length() > 0))
+                                            .toArray(String[]::new);
+                                    nodesToSelectedNodeBehaviour = Arrays.stream(nodesToSelectedNodeBehaviour)
                                             .filter(s -> (s != null && s.length() > 0))
                                             .toArray(String[]::new);
 
                                     Arrays.parallelSort(nodesToSelectedNode);
+                                    Arrays.parallelSort(nodesToSelectedNodeBehaviour);
 
+                                    //onclick on a node => shows it's variable properties
                                     ODMEEditor.scenarioVariable
                                             .showNodeValuesInTable(currentNode.toString(),
                                                     nodesToSelectedNode);
+
+                                    //onclick on a node => shows it's behaviors
+                                    ODMEEditor.scenarioBehaviour
+                                            .showBehaviourInTable(currentNode.toString(),
+                                                    nodesToSelectedNodeBehaviour);
                                     
                                     variableList = nodesToSelectedNode;
                                     
