@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>JtreeToGraphNext.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SESEditor</a> &gt; <a href="index.source.html" class="el_package">odme.jtreetograph</a> &gt; <span class="el_source">JtreeToGraphNext.java</span></div><h1>JtreeToGraphNext.java</h1><pre class="source lang-java linenums">package odme.jtreetograph;
+
+import static odme.jtreetograph.JtreeToGraphVariables.*;
+
+import java.util.ArrayList;
+
+import com.mxgraph.model.mxCell;
+
+import odme.core.FileConvertion;
+
+<span class="nc" id="L11">public class JtreeToGraphNext {</span>
+
+	public static void nextChildNodeForVariable(mxCell cell) {
+<span class="nc" id="L14">        Object[] outgoing = graph.getOutgoingEdges(cell);</span>
+
+<span class="nc bnc" id="L16" title="All 2 branches missed.">        if (outgoing.length &gt; 0) {</span>
+<span class="nc bnc" id="L17" title="All 2 branches missed.">            for (int i = 0; i &lt; outgoing.length; i++) {</span>
+<span class="nc" id="L18">                Object targetCell = graph.getModel().getTerminal(outgoing[i], false);</span>
+
+                // for next call
+<span class="nc" id="L21">                mxCell targetCell2 = (mxCell) targetCell;</span>
+
+<span class="nc bnc" id="L23" title="All 2 branches missed.">                if (targetCell2.getId().startsWith(&quot;uniformity&quot;)) {</span>
+<span class="nc bnc" id="L24" title="All 2 branches missed.">                    if (targetCell2.getId().endsWith(&quot;RefNode&quot;)) {</span>
+                        // finding and saving root to this node path
+<span class="nc" id="L26">                    	JtreeToGraphConvert.nodeToRootPath(targetCell2);</span>
+
+<span class="nc" id="L28">                        String[] stringArray = path.toArray(new String[0]);</span>
+<span class="nc" id="L29">                        ArrayList&lt;String&gt; pathRev = new ArrayList&lt;String&gt;();</span>
+
+<span class="nc bnc" id="L31" title="All 2 branches missed.">                        for (int j = stringArray.length - 1; j &gt;= 0; j--) {</span>
+<span class="nc" id="L32">                            pathRev.add(stringArray[j]);</span>
+                        }
+
+<span class="nc" id="L35">                        String[] stringArrayRev = pathRev.toArray(new String[0]);</span>
+
+<span class="nc" id="L37">                        String cellName = targetCell2.getValue().toString();</span>
+<span class="nc" id="L38">                        FileConvertion fileConvertion = new FileConvertion();</span>
+<span class="nc" id="L39">                        fileConvertion.addingUniformityRefNodeToXML(stringArrayRev, cellName);</span>
+<span class="nc" id="L40">                        path.clear();</span>
+<span class="nc" id="L41">                    } </span>
+                    else {
+                        continue;
+                    }
+                } 
+                else {
+<span class="nc" id="L47">                	JtreeToGraphConvert.rootToEndVariableAddition(targetCell2); // variable addition</span>
+<span class="nc" id="L48">                	JtreeToGraphConvert.rootToEndConstraintAddition(targetCell2); // constraint addition</span>
+<span class="nc" id="L49">                    nextChildNodeForVariable(targetCell2);</span>
+                }
+            }
+        }
+<span class="nc" id="L53">    }</span>
+	
+	// if i want to create less xml file i can store data in buffer an write only
+    // one xml
+
+    public static void nextChild(mxCell cell) {
+<span class="nc" id="L59">        int specDecCount = 0;</span>
+<span class="nc" id="L60">        Object[] outgoing = graph.getOutgoingEdges(cell);</span>
+
+<span class="nc bnc" id="L62" title="All 2 branches missed.">        for (int j = 0; j &lt; outgoing.length; j++) {</span>
+<span class="nc" id="L63">            Object targetCellTT = graph.getModel().getTerminal(outgoing[j], false);</span>
+<span class="nc" id="L64">            mxCell targetCell2TT = (mxCell) targetCellTT;</span>
+<span class="nc bnc" id="L65" title="All 2 branches missed.">            if (targetCell2TT.getValue().toString().endsWith(&quot;Spec&quot;) || targetCell2TT.getValue().toString()</span>
+<span class="nc bnc" id="L66" title="All 2 branches missed.">                    .endsWith(&quot;Dec&quot;)) {</span>
+<span class="nc" id="L67">                specDecCount++;</span>
+            }
+        }
+
+<span class="nc bnc" id="L71" title="All 2 branches missed.">        if (specDecCount &gt; 1) {</span>
+<span class="nc" id="L72">            path.add((String) cell.getValue());</span>
+<span class="nc" id="L73">            JtreeToGraphConvert.nodeToRootPath(cell);</span>
+
+            // update jtree
+<span class="nc" id="L76">            String[] stringArray = path.toArray(new String[0]);</span>
+<span class="nc" id="L77">            ArrayList&lt;String&gt; pathRev = new ArrayList&lt;String&gt;();</span>
+
+<span class="nc bnc" id="L79" title="All 2 branches missed.">            for (int k = stringArray.length - 1; k &gt;= 0; k--) {</span>
+<span class="nc" id="L80">                pathRev.add(stringArray[k]);</span>
+            }
+
+<span class="nc" id="L83">            String[] stringArrayRev = pathRev.toArray(new String[0]);</span>
+<span class="nc" id="L84">            path.clear();</span>
+<span class="nc" id="L85">            specDecCount = 0;</span>
+
+<span class="nc" id="L87">            FileConvertion obj = new FileConvertion();</span>
+<span class="nc" id="L88">            obj.fixingSequenceProblem(stringArrayRev);</span>
+        }
+
+<span class="nc bnc" id="L91" title="All 2 branches missed.">        if (outgoing.length &gt; 0) {</span>
+<span class="nc bnc" id="L92" title="All 2 branches missed.">            for (int i = 0; i &lt; outgoing.length; i++) {</span>
+<span class="nc" id="L93">                Object targetCell = graph.getModel().getTerminal(outgoing[i], false);</span>
+<span class="nc" id="L94">                mxCell targetCell2 = (mxCell) targetCell;</span>
+<span class="nc" id="L95">                nextChild(targetCell2);</span>
+            }
+        }
+<span class="nc" id="L98">    }</span>
+    
+    public static void nextChildNodeInPath(mxCell cell) {
+<span class="nc" id="L101">        Object[] outgoing = graph.getOutgoingEdges(cell);</span>
+
+<span class="nc bnc" id="L103" title="All 2 branches missed.">        if (outgoing.length &gt; 0) {</span>
+<span class="nc bnc" id="L104" title="All 4 branches missed.">            for (int i = 0; i &lt; outgoing.length &amp;&amp; nodeReached != totalNodes; i++) {</span>
+<span class="nc" id="L105">                Object targetCell = graph.getModel().getTerminal(outgoing[i], false);</span>
+
+                // for next call
+<span class="nc" id="L108">                mxCell targetCell2 = (mxCell) targetCell;</span>
+<span class="nc bnc" id="L109" title="All 2 branches missed.">                if (targetCell2.getValue().equals(nodesToSelectedNode[nodeReached])) {</span>
+                    // call to find next match child node on the path
+<span class="nc" id="L111">                    nodeReached++;</span>
+<span class="nc" id="L112">                    lastNodeInPath = targetCell2;</span>
+
+<span class="nc bnc" id="L114" title="All 2 branches missed.">                    if (nodeReached &lt; totalNodes) {</span>
+<span class="nc" id="L115">                        nextChildNodeInPath(targetCell2);</span>
+                    }
+                }
+            }
+        }
+<span class="nc" id="L120">    }</span>
+    
+    public static void nextChildNodeForcheckSubtreeNode(mxCell cell) {
+<span class="nc" id="L123">        Object[] outgoing = graph.getOutgoingEdges(cell);</span>
+
+<span class="nc bnc" id="L125" title="All 2 branches missed.">        if (outgoing.length &gt; 0) {</span>
+<span class="nc bnc" id="L126" title="All 2 branches missed.">            for (int i = 0; i &lt; outgoing.length; i++) {</span>
+<span class="nc" id="L127">                Object targetCell = graph.getModel().getTerminal(outgoing[i], false);</span>
+
+                // for next call
+<span class="nc" id="L130">                mxCell targetCell2 = (mxCell) targetCell;</span>
+
+<span class="nc bnc" id="L132" title="All 2 branches missed.">                if (targetCell2.getValue().toString().equals(subtreeCheckLabel)</span>
+<span class="nc bnc" id="L133" title="All 4 branches missed.">                    &amp;&amp; targetCell2.getId() != subtreeCheckCell.getId() &amp;&amp; !(targetCell2.getId().startsWith(</span>
+                        &quot;uniformity&quot;))) {
+
+<span class="nc bnc" id="L136" title="All 2 branches missed.">                    if (graph.getOutgoingEdges(targetCell2).length &gt; 1) {</span>
+
+<span class="nc" id="L138">                        subtreeCheckCell.setId(&quot;uniformity&quot; + uniformityNodeNumber + &quot;RefNode&quot;);</span>
+<span class="nc" id="L139">                        uniformityNodeNumber++;</span>
+
+<span class="nc" id="L141">                        JtreeToGraphSave.saveModuleFromCurrentModelSecondStep(targetCell2);</span>
+<span class="nc" id="L142">                        JtreeToGraphAdd.addModuleFromSubgraphUniformity(subtreeCheckCell);</span>
+                    } 
+                    else {
+
+<span class="nc" id="L146">                        subtreeCheckCell.setId(&quot;uniformity&quot; + uniformityNodeNumber + &quot;RefNode&quot;);</span>
+<span class="nc" id="L147">                        uniformityNodeNumber++;</span>
+
+<span class="nc" id="L149">                        JtreeToGraphSave.saveModuleFromCurrentModel(targetCell2);</span>
+<span class="nc" id="L150">                        JtreeToGraphAdd.addModuleFromSubgraphUniformity(subtreeCheckCell);</span>
+                    }
+<span class="nc" id="L152">                    break;</span>
+                } 
+                else {
+<span class="nc" id="L155">                    nextChildNodeForcheckSubtreeNode(targetCell2);</span>
+                }
+            }
+        }
+<span class="nc" id="L159">    }</span>
+    
+    public static void nextChildNodeForcheckSubtreeNodeSync(mxCell cell) {
+<span class="nc" id="L162">        Object[] outgoing = graph.getOutgoingEdges(cell);</span>
+
+<span class="nc bnc" id="L164" title="All 2 branches missed.">        if (outgoing.length &gt; 0) {</span>
+<span class="nc bnc" id="L165" title="All 2 branches missed.">            for (int i = 0; i &lt; outgoing.length; i++) {</span>
+<span class="nc" id="L166">                Object targetCell = graph.getModel().getTerminal(outgoing[i], false);</span>
+
+                // for next call
+<span class="nc" id="L169">                mxCell targetCell2 = (mxCell) targetCell;</span>
+
+<span class="nc bnc" id="L171" title="All 2 branches missed.">                if (targetCell2.getValue().toString().equals(subtreeSyncCell.getValue())</span>
+<span class="nc bnc" id="L172" title="All 2 branches missed.">                    &amp;&amp; targetCell2.getId() != subtreeSyncCell.getId() &amp;&amp; targetCell2.getId()</span>
+<span class="nc bnc" id="L173" title="All 2 branches missed.">                            .startsWith(&quot;uniformity&quot;)) {</span>
+
+<span class="nc" id="L175">                    currentSelectedCell = targetCell2;</span>
+<span class="nc" id="L176">                    JtreeToGraphAdd.addNodeFromConsole(addedCellNameSync);</span>
+<span class="nc" id="L177">                    currentSelectedCell = null;</span>
+<span class="nc" id="L178">                    break;</span>
+                } 
+                else {
+<span class="nc" id="L181">                    nextChildNodeForcheckSubtreeNodeSync(targetCell2);</span>
+                }
+            }
+        }
+<span class="nc" id="L185">    }</span>
+    
+    /**
+     * Find next node in the path for deleting.
+     *
+     * @param deleteCell
+     */
+    public static void nextChildNodeForcheckSubtreeNodeSyncDelete(mxCell deleteCell) {
+<span class="nc" id="L193">        Object[] outgoing = graph.getOutgoingEdges(deleteCell);</span>
+
+<span class="nc bnc" id="L195" title="All 2 branches missed.">        if (outgoing.length &gt; 0) {</span>
+<span class="nc bnc" id="L196" title="All 2 branches missed.">            for (int i = 0; i &lt; outgoing.length; i++) {</span>
+<span class="nc" id="L197">                Object targetCell = graph.getModel().getTerminal(outgoing[i], false);</span>
+
+                // for next call
+<span class="nc" id="L200">                mxCell targetCell2 = (mxCell) targetCell;</span>
+                //System.out.println(targetCell2.getValue());
+
+<span class="nc bnc" id="L203" title="All 2 branches missed.">                if (targetCell2.getValue().toString().equals(subtreeSyncCell.getValue())</span>
+<span class="nc bnc" id="L204" title="All 2 branches missed.">                    &amp;&amp; targetCell2.getId() != subtreeSyncCell.getId() &amp;&amp; targetCell2.getId()</span>
+<span class="nc bnc" id="L205" title="All 2 branches missed.">                            .startsWith(&quot;uniformity&quot;)) {</span>
+
+                    // for deleting subtree reference
+<span class="nc" id="L208">                	JtreeToGraphDelete.deleteNodeFromGraphPopupReferenceDeleteSync(targetCell2);</span>
+<span class="nc" id="L209">                    break;</span>
+                }
+                else {
+<span class="nc" id="L212">                    nextChildNodeForcheckSubtreeNodeSyncDelete(targetCell2);</span>
+                }
+            }
+        }
+<span class="nc" id="L216">    }</span>
+    
+    /**
+     * Find next node in the path for renaming.
+     *
+     * @param renameCell
+     * @param newName
+     */
+    public static void nextChildNodeForcheckSubtreeNodeSyncRename(mxCell renameCell, String newName) {
+<span class="nc" id="L225">        Object[] outgoing = graph.getOutgoingEdges(renameCell);</span>
+
+<span class="nc bnc" id="L227" title="All 2 branches missed.">        if (outgoing.length &gt; 0) {</span>
+<span class="nc bnc" id="L228" title="All 2 branches missed.">            for (int i = 0; i &lt; outgoing.length; i++) {</span>
+<span class="nc" id="L229">                Object targetCell = graph.getModel().getTerminal(outgoing[i], false);</span>
+
+                // for next call
+<span class="nc" id="L232">                mxCell targetCell2 = (mxCell) targetCell;</span>
+
+<span class="nc bnc" id="L234" title="All 2 branches missed.">                if (targetCell2.getValue().toString().equals(subtreeSyncCell.getValue())</span>
+<span class="nc bnc" id="L235" title="All 2 branches missed.">                    &amp;&amp; targetCell2.getId() != subtreeSyncCell.getId() &amp;&amp; targetCell2.getId()</span>
+<span class="nc bnc" id="L236" title="All 2 branches missed.">                            .startsWith(&quot;uniformity&quot;)) {</span>
+
+                    // for deleting subtree reference
+<span class="nc" id="L239">                    graph.getModel().beginUpdate();</span>
+                    try {
+<span class="nc" id="L241">                        graph.getModel().setValue(targetCell2, newName);</span>
+                    } 
+                    finally {
+<span class="nc" id="L244">                        graph.getModel().endUpdate();</span>
+                    }
+<span class="nc" id="L246">                    break;</span>
+                } 
+                else {
+
+<span class="nc" id="L250">                    nextChildNodeForcheckSubtreeNodeSyncDelete(targetCell2);</span>
+                }
+            }
+        }
+<span class="nc" id="L254">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

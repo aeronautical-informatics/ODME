@@ -1,0 +1,506 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TypeInfoWriter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SESEditor</a> &gt; <a href="index.source.html" class="el_package">xml.schema</a> &gt; <span class="el_source">TypeInfoWriter.java</span></div><h1>TypeInfoWriter.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+//jdk8x2r jaxp.TypeInfoWriter -xsd11 -i xsd11_datatype_test.xml
+package xml.schema;
+
+import org.w3c.dom.TypeInfo;
+import org.xml.sax.Attributes;
+import org.xml.sax.DTDHandler;
+import org.xml.sax.Locator;
+import org.xml.sax.SAXException;
+import org.xml.sax.SAXNotRecognizedException;
+import org.xml.sax.SAXNotSupportedException;
+import org.xml.sax.SAXParseException;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.DefaultHandler;
+import org.xml.sax.helpers.XMLReaderFactory;
+
+import odme.jtreetograph.JtreeToGraphGeneral;
+import odme.odmeeditor.Console;
+import odme.odmeeditor.ODMEEditor;
+
+import javax.xml.XMLConstants;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
+import javax.xml.validation.TypeInfoProvider;
+import javax.xml.validation.ValidatorHandler;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
+import java.util.Vector;
+
+/**
+ * &lt;h1&gt;TypeInfoWriter&lt;/h1&gt;
+ * &lt;p&gt;
+ * Provides a trace of the schema type information for elements and attributes
+ * in an XML document. XML instance of the created SES model is validated
+ * against an SES XML Schema using this class. Validation result is displayed in
+ * the console window of the editor as human readable format.
+ * &lt;/p&gt;
+ *
+ * @author Michael Glavassevich, IBM
+ * @version $Id: TypeInfoWriter.java 903087 2010-01-26 05:41:00Z mrglavas $
+ * @ModifiedBy ---
+ */
+<span class="nc" id="L61">public class TypeInfoWriter extends DefaultHandler {</span>
+    /**
+     * Schema full checking feature id
+     * (http://apache.org/xml/features/validation/schema-full-checking).
+     */
+    protected static final String SCHEMA_FULL_CHECKING_FEATURE_ID =
+            &quot;http://apache.org/xml/features/validation/schema-full-checking&quot;;
+
+    /**
+     * Honour all schema locations feature id
+     * (http://apache.org/xml/features/honour-all-schemaLocations).
+     */
+    protected static final String HONOUR_ALL_SCHEMA_LOCATIONS_ID =
+            &quot;http://apache.org/xml/features/honour-all-schemaLocations&quot;;
+
+    /**
+     * Validate schema annotations feature id
+     * (http://apache.org/xml/features/validate-annotations)
+     */
+    protected static final String VALIDATE_ANNOTATIONS_ID =
+            &quot;http://apache.org/xml/features/validate-annotations&quot;;
+
+    /**
+     * Generate synthetic schema annotations feature id
+     * (http://apache.org/xml/features/generate-synthetic-annotations).
+     */
+    protected static final String GENERATE_SYNTHETIC_ANNOTATIONS_ID =
+            &quot;http://apache.org/xml/features/generate-synthetic-annotations&quot;;
+
+    /**
+     * Default schema language (http://www.w3.org/2001/XMLSchema).
+     */
+    protected static final String DEFAULT_SCHEMA_LANGUAGE = XMLConstants.W3C_XML_SCHEMA_NS_URI;
+
+    /**
+     * XSD 1.1 schema language (http://www.w3.org/XML/XMLSchema/v1.1).
+     */
+    protected static final String XSD11_SCHEMA_LANGUAGE = &quot;http://www.w3.org/XML/XMLSchema/v1.1&quot;;
+
+    /**
+     * Default parser name (org.apache.xerces.parsers.SAXParser).
+     */
+    protected static final String DEFAULT_PARSER_NAME = &quot;org.apache.xerces.parsers.SAXParser&quot;;
+
+    /**
+     * Default schema full checking support (false).
+     */
+    protected static final boolean DEFAULT_SCHEMA_FULL_CHECKING = false;
+
+    /**
+     * Default honour all schema locations (false).
+     */
+    protected static final boolean DEFAULT_HONOUR_ALL_SCHEMA_LOCATIONS = false;
+
+    /**
+     * Default validate schema annotations (false).
+     */
+    protected static final boolean DEFAULT_VALIDATE_ANNOTATIONS = false;
+
+    /**
+     * Default generate synthetic schema annotations (false).
+     */
+    protected static final boolean DEFAULT_GENERATE_SYNTHETIC_ANNOTATIONS = false;
+
+    /**
+     * TypeInfo provider.
+     */
+    protected TypeInfoProvider fTypeInfoProvider;
+
+    /**
+     * Print writer.
+     */
+    protected PrintWriter fOut;
+
+    /**
+     * Indent level.
+     */
+    protected int fIndent;
+
+    public static void validateXML() {
+<span class="nc" id="L141">        XMLReader parser = null;</span>
+<span class="nc" id="L142">        Vector&lt;String&gt; instances = null;</span>
+<span class="nc" id="L143">        boolean schemaFullChecking = DEFAULT_SCHEMA_FULL_CHECKING;</span>
+<span class="nc" id="L144">        boolean honourAllSchemaLocations = DEFAULT_HONOUR_ALL_SCHEMA_LOCATIONS;</span>
+<span class="nc" id="L145">        boolean validateAnnotations = DEFAULT_VALIDATE_ANNOTATIONS;</span>
+<span class="nc" id="L146">        boolean generateSyntheticAnnotations = DEFAULT_GENERATE_SYNTHETIC_ANNOTATIONS;</span>
+
+        // process -i: instance documents
+<span class="nc bnc" id="L149" title="All 2 branches missed.">        if (instances == null) {</span>
+<span class="nc" id="L150">            instances = new Vector&lt;String&gt;();</span>
+        }
+
+<span class="nc bnc" id="L153" title="All 2 branches missed.">        if (ODMEEditor.sesValidationControl == 1) {</span>
+<span class="nc" id="L154">        	String path = new String();</span>
+<span class="nc bnc" id="L155" title="All 2 branches missed.">        	if (ODMEEditor.toolMode == &quot;ses&quot;)</span>
+<span class="nc" id="L156">        		path = ODMEEditor.fileLocation + &quot;/&quot; + ODMEEditor.projName + &quot;/xmlforxsd.xml&quot;;</span>
+        	else
+<span class="nc" id="L158">        		path = ODMEEditor.fileLocation + &quot;/&quot; + ODMEEditor.currentScenario + &quot;/xmlforxsd.xml&quot;;</span>
+        	
+<span class="nc" id="L160">            instances.add(path);</span>
+<span class="nc" id="L161">            ODMEEditor.sesValidationControl = 0;</span>
+<span class="nc" id="L162">        } else {</span>
+<span class="nc" id="L163">            String rootNodeName = JtreeToGraphGeneral.rootNodeName();</span>
+            
+<span class="nc" id="L165">            String path = new String();</span>
+<span class="nc bnc" id="L166" title="All 2 branches missed.">        	if (ODMEEditor.toolMode == &quot;ses&quot;)</span>
+<span class="nc" id="L167">        		path = ODMEEditor.fileLocation + &quot;/&quot; + ODMEEditor.projName + &quot;/&quot; + rootNodeName + &quot;.xml&quot;;</span>
+        	else
+<span class="nc" id="L169">        		path = ODMEEditor.fileLocation + &quot;/&quot; + ODMEEditor.currentScenario + &quot;/&quot; + rootNodeName + &quot;.xml&quot;;</span>
+        	
+<span class="nc" id="L171">            instances.add(path);</span>
+        }
+
+        // use default parser?
+<span class="nc bnc" id="L175" title="All 2 branches missed.">        if (parser == null) {</span>
+            // create parser
+            try {
+<span class="nc" id="L178">                parser = XMLReaderFactory.createXMLReader(DEFAULT_PARSER_NAME);</span>
+            } 
+<span class="nc" id="L180">            catch (Exception e) {</span>
+<span class="nc" id="L181">                Console.addConsoleOutput(&quot;error: Unable to instantiate parser (&quot; + DEFAULT_PARSER_NAME + &quot;)&quot;);</span>
+<span class="nc" id="L182">                e.printStackTrace(System.err);</span>
+<span class="nc" id="L183">                System.exit(1);</span>
+<span class="nc" id="L184">            }</span>
+        }
+
+        try {
+            // Create writer
+<span class="nc" id="L189">            TypeInfoWriter writer = new TypeInfoWriter();</span>
+<span class="nc" id="L190">            writer.setOutput(System.out, &quot;UTF8&quot;);</span>
+
+            // Create SchemaFactory and configure
+<span class="nc" id="L193">            SchemaFactory factory = SchemaFactory.newInstance(DEFAULT_SCHEMA_LANGUAGE);</span>
+<span class="nc" id="L194">            factory.setErrorHandler(writer);</span>
+
+            try {
+<span class="nc" id="L197">                factory.setFeature(SCHEMA_FULL_CHECKING_FEATURE_ID, schemaFullChecking);</span>
+            } 
+<span class="nc" id="L199">            catch (SAXNotRecognizedException e) {</span>
+<span class="nc" id="L200">                Console.addConsoleOutput(&quot;warning: SchemaFactory does not recognize feature (&quot;</span>
+                                         + SCHEMA_FULL_CHECKING_FEATURE_ID + &quot;)&quot;);
+            } 
+<span class="nc" id="L203">            catch (SAXNotSupportedException e) {</span>
+<span class="nc" id="L204">                Console.addConsoleOutput(</span>
+                        &quot;warning: SchemaFactory does not support feature (&quot; + SCHEMA_FULL_CHECKING_FEATURE_ID
+                        + &quot;)&quot;);
+<span class="nc" id="L207">            }</span>
+            try {
+<span class="nc" id="L209">                factory.setFeature(HONOUR_ALL_SCHEMA_LOCATIONS_ID, honourAllSchemaLocations);</span>
+            } 
+<span class="nc" id="L211">            catch (SAXNotRecognizedException e) {</span>
+<span class="nc" id="L212">                Console.addConsoleOutput(</span>
+                        &quot;warning: SchemaFactory does not recognize feature (&quot; + HONOUR_ALL_SCHEMA_LOCATIONS_ID
+                        + &quot;)&quot;);
+            } 
+<span class="nc" id="L216">            catch (SAXNotSupportedException e) {</span>
+<span class="nc" id="L217">                Console.addConsoleOutput(</span>
+                        &quot;warning: SchemaFactory does not support feature (&quot; + HONOUR_ALL_SCHEMA_LOCATIONS_ID
+                        + &quot;)&quot;);
+<span class="nc" id="L220">            }</span>
+            try {
+<span class="nc" id="L222">                factory.setFeature(VALIDATE_ANNOTATIONS_ID, validateAnnotations);</span>
+            } 
+<span class="nc" id="L224">            catch (SAXNotRecognizedException e) {</span>
+<span class="nc" id="L225">                System.err.println(</span>
+                        &quot;warning: SchemaFactory does not recognize feature (&quot; + VALIDATE_ANNOTATIONS_ID
+                        + &quot;)&quot;);
+            } 
+<span class="nc" id="L229">            catch (SAXNotSupportedException e) {</span>
+<span class="nc" id="L230">                Console.addConsoleOutput(</span>
+                        &quot;warning: SchemaFactory does not support feature (&quot; + VALIDATE_ANNOTATIONS_ID + &quot;)&quot;);
+<span class="nc" id="L232">            }</span>
+            try {
+<span class="nc" id="L234">                factory.setFeature(GENERATE_SYNTHETIC_ANNOTATIONS_ID, generateSyntheticAnnotations);</span>
+            } 
+<span class="nc" id="L236">            catch (SAXNotRecognizedException e) {</span>
+<span class="nc" id="L237">                Console.addConsoleOutput(&quot;warning: SchemaFactory does not recognize feature (&quot;</span>
+                                         + GENERATE_SYNTHETIC_ANNOTATIONS_ID + &quot;)&quot;);
+            } 
+<span class="nc" id="L240">            catch (SAXNotSupportedException e) {</span>
+<span class="nc" id="L241">                Console.addConsoleOutput(&quot;warning: SchemaFactory does not support feature (&quot;</span>
+                                         + GENERATE_SYNTHETIC_ANNOTATIONS_ID + &quot;)&quot;);
+<span class="nc" id="L243">            }</span>
+
+            // Build Schema from sources
+            Schema schema;
+<span class="nc" id="L247">            schema = factory.newSchema();</span>
+
+            // Setup validator and parser
+<span class="nc" id="L250">            ValidatorHandler validator = schema.newValidatorHandler();</span>
+<span class="nc" id="L251">            parser.setContentHandler(validator);</span>
+<span class="nc bnc" id="L252" title="All 2 branches missed.">            if (validator instanceof DTDHandler) {</span>
+<span class="nc" id="L253">                parser.setDTDHandler((DTDHandler) validator);</span>
+            }
+<span class="nc" id="L255">            parser.setErrorHandler(writer);</span>
+<span class="nc" id="L256">            validator.setContentHandler(writer);</span>
+<span class="nc" id="L257">            validator.setErrorHandler(writer);</span>
+<span class="nc" id="L258">            writer.setTypeInfoProvider(validator.getTypeInfoProvider());</span>
+
+            try {
+<span class="nc" id="L261">                validator.setFeature(SCHEMA_FULL_CHECKING_FEATURE_ID, schemaFullChecking);</span>
+            } 
+<span class="nc" id="L263">            catch (SAXNotRecognizedException e) {</span>
+<span class="nc" id="L264">                Console.addConsoleOutput(</span>
+                        &quot;warning: Validator does not recognize feature (&quot; + SCHEMA_FULL_CHECKING_FEATURE_ID
+                        + &quot;)&quot;);
+            } 
+<span class="nc" id="L268">            catch (SAXNotSupportedException e) {</span>
+<span class="nc" id="L269">                Console.addConsoleOutput(</span>
+                        &quot;warning: Validator does not support feature (&quot; + SCHEMA_FULL_CHECKING_FEATURE_ID
+                        + &quot;)&quot;);
+<span class="nc" id="L272">            }</span>
+            try {
+<span class="nc" id="L274">                validator.setFeature(HONOUR_ALL_SCHEMA_LOCATIONS_ID, honourAllSchemaLocations);</span>
+            } 
+<span class="nc" id="L276">            catch (SAXNotRecognizedException e) {</span>
+<span class="nc" id="L277">                Console.addConsoleOutput(</span>
+                        &quot;warning: Validator does not recognize feature (&quot; + HONOUR_ALL_SCHEMA_LOCATIONS_ID
+                        + &quot;)&quot;);
+            } 
+<span class="nc" id="L281">            catch (SAXNotSupportedException e) {</span>
+<span class="nc" id="L282">                Console.addConsoleOutput(</span>
+                        &quot;warning: Validator does not support feature (&quot; + HONOUR_ALL_SCHEMA_LOCATIONS_ID
+                        + &quot;)&quot;);
+<span class="nc" id="L285">            }</span>
+            try {
+<span class="nc" id="L287">                validator.setFeature(VALIDATE_ANNOTATIONS_ID, validateAnnotations);</span>
+            } 
+<span class="nc" id="L289">            catch (SAXNotRecognizedException e) {</span>
+<span class="nc" id="L290">                Console.addConsoleOutput(</span>
+                        &quot;warning: Validator does not recognize feature (&quot; + VALIDATE_ANNOTATIONS_ID + &quot;)&quot;);
+            } 
+<span class="nc" id="L293">            catch (SAXNotSupportedException e) {</span>
+<span class="nc" id="L294">                Console.addConsoleOutput(</span>
+                        &quot;warning: Validator does not support feature (&quot; + VALIDATE_ANNOTATIONS_ID + &quot;)&quot;);
+<span class="nc" id="L296">            }</span>
+            try {
+<span class="nc" id="L298">                validator.setFeature(GENERATE_SYNTHETIC_ANNOTATIONS_ID, generateSyntheticAnnotations);</span>
+            } 
+<span class="nc" id="L300">            catch (SAXNotRecognizedException e) {</span>
+<span class="nc" id="L301">                Console.addConsoleOutput(</span>
+                        &quot;warning: Validator does not recognize feature (&quot; + GENERATE_SYNTHETIC_ANNOTATIONS_ID
+                        + &quot;)&quot;);
+            } 
+<span class="nc" id="L305">            catch (SAXNotSupportedException e) {</span>
+<span class="nc" id="L306">                Console.addConsoleOutput(</span>
+                        &quot;warning: Validator does not support feature (&quot; + GENERATE_SYNTHETIC_ANNOTATIONS_ID
+                        + &quot;)&quot;);
+<span class="nc" id="L309">            }</span>
+
+            // Validate instance documents and print type information
+<span class="nc bnc" id="L312" title="All 4 branches missed.">            if (instances != null &amp;&amp; instances.size() &gt; 0) {</span>
+<span class="nc" id="L313">                final int length = instances.size();</span>
+<span class="nc bnc" id="L314" title="All 2 branches missed.">                for (int j = 0; j &lt; length; ++j) {</span>
+<span class="nc" id="L315">                    parser.parse((String) instances.elementAt(j));</span>
+                }
+            }
+        } 
+<span class="nc" id="L319">        catch (SAXParseException e) {</span>
+        } 
+<span class="nc" id="L321">        catch (Exception e) {</span>
+<span class="nc" id="L322">            Console.addConsoleOutput(&quot;error: Parse error occurred - &quot; + e.getMessage());</span>
+<span class="nc bnc" id="L323" title="All 2 branches missed.">            if (e instanceof SAXException) {</span>
+<span class="nc" id="L324">                Exception nested = ((SAXException) e).getException();</span>
+<span class="nc bnc" id="L325" title="All 2 branches missed.">                if (nested != null) {</span>
+<span class="nc" id="L326">                    e = nested;</span>
+                }
+            }
+<span class="nc" id="L329">            StringWriter errors = new StringWriter();</span>
+<span class="nc" id="L330">            e.printStackTrace(new PrintWriter(errors));</span>
+<span class="nc" id="L331">            Console.addConsoleOutput(errors.toString());</span>
+<span class="nc" id="L332">        }</span>
+<span class="nc" id="L333">    }</span>
+
+    public void setDocumentLocator(Locator locator) {
+<span class="nc" id="L336">        fIndent = 0;</span>
+<span class="nc" id="L337">        printIndent();</span>
+<span class="nc" id="L338">        Console.addConsoleOutput(&quot;setDocumentLocator(&quot;);</span>
+<span class="nc" id="L339">        Console.addConsoleOutput(&quot;systemId=&quot;);</span>
+<span class="nc" id="L340">        printQuotedString(locator.getSystemId());</span>
+<span class="nc" id="L341">        Console.addConsoleOutput(&quot;, publicId=&quot;);</span>
+<span class="nc" id="L342">        printQuotedString(locator.getPublicId());</span>
+<span class="nc" id="L343">        Console.addConsoleOutput(&quot;)&quot;);</span>
+<span class="nc" id="L344">        fOut.flush();</span>
+<span class="nc" id="L345">    }</span>
+
+    public void startDocument() throws SAXException {
+<span class="nc" id="L348">        fIndent = 0;</span>
+<span class="nc" id="L349">        printIndent();</span>
+<span class="nc" id="L350">        Console.addConsoleOutput(&quot;startDocument()&quot;);</span>
+<span class="nc" id="L351">        fOut.flush();</span>
+<span class="nc" id="L352">        fIndent++;</span>
+<span class="nc" id="L353">    }</span>
+
+    public void startElement(String uri, String localName, String qname, Attributes attributes)
+            throws SAXException {
+        TypeInfo type;
+<span class="nc" id="L358">        printIndent();</span>
+<span class="nc" id="L359">        Console.addConsoleOutput(&quot;startElement(&quot;);</span>
+<span class="nc" id="L360">        Console.addConsoleOutput(&quot;name=&quot;);</span>
+<span class="nc" id="L361">        printQName(uri, localName);</span>
+<span class="nc" id="L362">        Console.addConsoleOutput(&quot;,&quot;);</span>
+<span class="nc" id="L363">        Console.addConsoleOutput(&quot;type=&quot;);</span>
+<span class="nc bnc" id="L364" title="All 4 branches missed.">        if (fTypeInfoProvider != null &amp;&amp; (type = fTypeInfoProvider.getElementTypeInfo()) != null) {</span>
+<span class="nc" id="L365">            printQName(type.getTypeNamespace(), type.getTypeName());</span>
+        } 
+        else {
+<span class="nc" id="L368">            Console.addConsoleOutput(&quot;null&quot;);</span>
+        }
+<span class="nc" id="L370">        Console.addConsoleOutput(&quot;,&quot;);</span>
+<span class="nc" id="L371">        Console.addConsoleOutput(&quot;attributes=&quot;);</span>
+<span class="nc bnc" id="L372" title="All 2 branches missed.">        if (attributes == null) {</span>
+<span class="nc" id="L373">            Console.addConsoleOutput(&quot;null&quot;);</span>
+        } 
+        else {
+<span class="nc" id="L376">            Console.addConsoleOutput(&quot;{&quot;);</span>
+<span class="nc" id="L377">            int length = attributes.getLength();</span>
+<span class="nc bnc" id="L378" title="All 2 branches missed.">            for (int i = 0; i &lt; length; i++) {</span>
+<span class="nc bnc" id="L379" title="All 2 branches missed.">                if (i &gt; 0) {</span>
+<span class="nc" id="L380">                    Console.addConsoleOutput(&quot;,&quot;);</span>
+                }
+<span class="nc" id="L382">                String attrURI = attributes.getURI(i);</span>
+<span class="nc" id="L383">                String attrLocalName = attributes.getLocalName(i);</span>
+<span class="nc" id="L384">                Console.addConsoleOutput(&quot;{&quot;);</span>
+<span class="nc" id="L385">                Console.addConsoleOutput(&quot;name=&quot;);</span>
+<span class="nc" id="L386">                printQName(attrURI, attrLocalName);</span>
+<span class="nc" id="L387">                Console.addConsoleOutput(&quot;,&quot;);</span>
+<span class="nc" id="L388">                Console.addConsoleOutput(&quot;type=&quot;);</span>
+<span class="nc bnc" id="L389" title="All 4 branches missed.">                if (fTypeInfoProvider != null &amp;&amp; (type = fTypeInfoProvider.getAttributeTypeInfo(i)) != null) {</span>
+<span class="nc" id="L390">                    printQName(type.getTypeNamespace(), type.getTypeName());</span>
+                } 
+                else {
+<span class="nc" id="L393">                    Console.addConsoleOutput(&quot;null&quot;);</span>
+                }
+<span class="nc" id="L395">                Console.addConsoleOutput(&quot;,&quot;);</span>
+<span class="nc" id="L396">                Console.addConsoleOutput(&quot;id=&quot;);</span>
+<span class="nc" id="L397">                Console.addConsoleOutput(</span>
+<span class="nc bnc" id="L398" title="All 4 branches missed.">                        fTypeInfoProvider != null &amp;&amp; fTypeInfoProvider.isIdAttribute(i) ? &quot;\&quot;true\&quot;&quot; :</span>
+<span class="nc" id="L399">                                &quot;\&quot;false\&quot;&quot;);</span>
+<span class="nc" id="L400">                Console.addConsoleOutput(&quot;,&quot;);</span>
+<span class="nc" id="L401">                Console.addConsoleOutput(&quot;specified=&quot;);</span>
+<span class="nc" id="L402">                Console.addConsoleOutput(</span>
+<span class="nc bnc" id="L403" title="All 4 branches missed.">                        fTypeInfoProvider == null || fTypeInfoProvider.isSpecified(i) ? &quot;\&quot;true\&quot;&quot; :</span>
+<span class="nc" id="L404">                                &quot;\&quot;false\&quot;&quot;);</span>
+<span class="nc" id="L405">                Console.addConsoleOutput(&quot;}&quot;);</span>
+            }
+<span class="nc" id="L407">            Console.addConsoleOutput(&quot;}&quot;);</span>
+        }
+<span class="nc" id="L409">        Console.addConsoleOutput(&quot;)&quot;);</span>
+<span class="nc" id="L410">        fOut.flush();</span>
+<span class="nc" id="L411">        fIndent++;</span>
+<span class="nc" id="L412">    }</span>
+
+    public void endElement(String uri, String localName, String qname) throws SAXException {
+<span class="nc" id="L415">        fIndent--;</span>
+<span class="nc" id="L416">        printIndent();</span>
+<span class="nc" id="L417">        Console.addConsoleOutput(&quot;endElement(&quot;);</span>
+<span class="nc" id="L418">        Console.addConsoleOutput(&quot;name=&quot;);</span>
+<span class="nc" id="L419">        printQName(uri, localName);</span>
+<span class="nc" id="L420">        Console.addConsoleOutput(&quot;)&quot;);</span>
+<span class="nc" id="L421">        fOut.flush();</span>
+<span class="nc" id="L422">    }</span>
+
+    public void endDocument() throws SAXException {
+<span class="nc" id="L425">        fIndent--;</span>
+<span class="nc" id="L426">        printIndent();</span>
+<span class="nc" id="L427">        Console.addConsoleOutput(&quot;endDocument()&quot;);</span>
+<span class="nc" id="L428">        fOut.flush();</span>
+<span class="nc" id="L429">    }</span>
+
+    public void warning(SAXParseException ex) throws SAXException {
+<span class="nc" id="L432">        printError(&quot;Warning&quot;, ex);</span>
+<span class="nc" id="L433">    }</span>
+
+    public void error(SAXParseException ex) throws SAXException {
+<span class="nc" id="L436">        printError(&quot;Error&quot;, ex);</span>
+<span class="nc" id="L437">    }</span>
+
+    public void fatalError(SAXParseException ex) throws SAXException {
+<span class="nc" id="L440">        printError(&quot;Fatal Error&quot;, ex);</span>
+<span class="nc" id="L441">        throw ex;</span>
+    }
+
+    public void setOutput(OutputStream stream, String encoding) throws UnsupportedEncodingException {
+<span class="nc bnc" id="L445" title="All 2 branches missed.">        if (encoding == null) {</span>
+<span class="nc" id="L446">            encoding = &quot;UTF8&quot;;</span>
+        }
+<span class="nc" id="L448">        java.io.Writer writer = new OutputStreamWriter(stream, encoding);</span>
+<span class="nc" id="L449">        fOut = new PrintWriter(writer);</span>
+<span class="nc" id="L450">    }</span>
+
+    protected void setTypeInfoProvider(TypeInfoProvider provider) {
+<span class="nc" id="L453">        fTypeInfoProvider = provider;</span>
+<span class="nc" id="L454">    }</span>
+
+    protected void printError(String type, SAXParseException ex) {
+<span class="nc bnc" id="L457" title="All 2 branches missed.">        if (type.equals(&quot;Error&quot;)) {</span>
+<span class="nc" id="L458">            ODMEEditor.errorPresentInSES = 1;</span>
+<span class="nc" id="L459">            ODMEEditor.errorMessageInSES = ex.getMessage();</span>
+        }
+
+<span class="nc" id="L462">        Console.addConsoleOutput(&quot;[&quot;);</span>
+<span class="nc" id="L463">        Console.addConsoleOutput(type);</span>
+<span class="nc" id="L464">        Console.addConsoleOutput(&quot;] &quot;);</span>
+<span class="nc" id="L465">        String systemId = ex.getSystemId();</span>
+<span class="nc bnc" id="L466" title="All 2 branches missed.">        if (systemId != null) {</span>
+<span class="nc" id="L467">            int index = systemId.lastIndexOf('/');</span>
+<span class="nc bnc" id="L468" title="All 2 branches missed.">            if (index != -1) {</span>
+<span class="nc" id="L469">                systemId = systemId.substring(index + 1);</span>
+            }
+<span class="nc" id="L471">            Console.addConsoleOutput(systemId);</span>
+        }
+<span class="nc" id="L473">        Console.addConsoleOutput(&quot;:&quot;);</span>
+<span class="nc" id="L474">        Console.addConsoleOutput(&quot;&quot; + ex.getLineNumber());</span>
+<span class="nc" id="L475">        Console.addConsoleOutput(&quot;&quot; + ':');</span>
+<span class="nc" id="L476">        Console.addConsoleOutput(&quot;&quot; + ex.getColumnNumber());</span>
+<span class="nc" id="L477">        Console.addConsoleOutput(&quot;: &quot;);</span>
+<span class="nc" id="L478">        Console.addConsoleOutput(ex.getMessage());</span>
+<span class="nc" id="L479">        Console.addConsoleOutput(&quot;&quot;);</span>
+<span class="nc" id="L480">    }</span>
+
+    protected void printIndent() {
+<span class="nc bnc" id="L483" title="All 2 branches missed.">        for (int i = 0; i &lt; fIndent; i++) {</span>
+<span class="nc" id="L484">            Console.addConsoleOutput(&quot; &quot;);</span>
+        }
+<span class="nc" id="L486">    }</span>
+
+    protected void printQName(String uri, String localName) {
+<span class="nc bnc" id="L489" title="All 4 branches missed.">        if (uri != null &amp;&amp; uri.length() &gt; 0) {</span>
+<span class="nc" id="L490">            printQuotedString('{' + uri + &quot;}&quot; + localName);</span>
+<span class="nc" id="L491">            return;</span>
+        }
+<span class="nc" id="L493">        printQuotedString(localName);</span>
+<span class="nc" id="L494">    }</span>
+
+    protected void printQuotedString(String s) {
+<span class="nc bnc" id="L497" title="All 2 branches missed.">        if (s == null) {</span>
+<span class="nc" id="L498">            Console.addConsoleOutput(&quot;null&quot;);</span>
+<span class="nc" id="L499">            return;</span>
+        }
+<span class="nc" id="L501">        Console.addConsoleOutput(&quot;\&quot;&quot;);</span>
+<span class="nc" id="L502">        Console.addConsoleOutput(s);</span>
+<span class="nc" id="L503">        Console.addConsoleOutput(&quot;\&quot;&quot;);</span>
+<span class="nc" id="L504">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

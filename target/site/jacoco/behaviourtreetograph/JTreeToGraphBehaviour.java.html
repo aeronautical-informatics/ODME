@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>JTreeToGraphBehaviour.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SESEditor</a> &gt; <a href="index.source.html" class="el_package">behaviourtreetograph</a> &gt; <span class="el_source">JTreeToGraphBehaviour.java</span></div><h1>JTreeToGraphBehaviour.java</h1><pre class="source lang-java linenums">package behaviourtreetograph;
+
+
+import java.awt.*;
+
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+
+import java.util.Hashtable;
+
+import javax.swing.*;
+import javax.swing.event.TreeModelEvent;
+import javax.swing.event.TreeModelListener;
+import javax.swing.tree.DefaultMutableTreeNode;
+
+
+import com.mxgraph.model.mxCell;
+import com.mxgraph.swing.mxGraphComponent;
+import com.mxgraph.util.mxConstants;
+import com.mxgraph.util.mxEvent;
+import com.mxgraph.util.mxEventObject;
+import com.mxgraph.util.mxEventSource;
+import com.mxgraph.util.mxUndoManager;
+import com.mxgraph.util.mxUndoableEdit;
+import com.mxgraph.util.mxUtils;
+import com.mxgraph.util.mxEventSource.mxIEventListener;
+import com.mxgraph.view.mxGraph;
+import com.mxgraph.view.mxStylesheet;
+
+import odeme.behaviour.ODMEBehaviourEditor;
+
+import odme.core.UndoableTreeModel;
+
+import odme.odmeeditor.ODMEEditor;
+
+import static odme.jtreetograph.JtreeToGraphVariables.*;
+
+public class JTreeToGraphBehaviour {
+
+
+	public static mxGraph benhaviourGraph;
+	public static Object behaviourParent;
+	private DefaultMutableTreeNode rootNode;
+	public static UndoableTreeModel treeModel;
+	public JTree tree;
+
+	private Toolkit toolkit;
+
+<span class="nc" id="L49">	JTreeToGraphBehaviour(){</span>
+
+<span class="nc" id="L51">		toolkit = Toolkit.getDefaultToolkit();</span>
+
+//		rootNode = new DefaultMutableTreeNode(&quot;Thing&quot;);
+//		treeModel = new UndoableTreeModel(rootNode);
+//		treeModel.addTreeModelListener(new MyTreeModelListener());
+
+<span class="nc" id="L57">	}</span>
+	public static void createGraph(JInternalFrame frame) {
+
+<span class="nc" id="L60">		benhaviourGraph = new mxGraph();</span>
+<span class="nc" id="L61">		undoManager = new mxUndoManager();</span>
+
+		// setting default edge color
+<span class="nc" id="L64">		benhaviourGraph.getStylesheet().getDefaultEdgeStyle()</span>
+<span class="nc" id="L65">				.put(mxConstants.STYLE_STROKECOLOR, mxUtils.getHexColorString(new Color(17, 138, 178)));</span>
+<span class="nc" id="L66">		benhaviourGraph.setCellsEditable(false);</span>
+
+		// creating new style
+<span class="nc" id="L69">		mxStylesheet stylesheet = benhaviourGraph.getStylesheet();</span>
+
+		//
+<span class="nc" id="L72">		Hashtable&lt;String, Object&gt; entityBehaviour = new Hashtable&lt;String, Object&gt;();</span>
+<span class="nc" id="L73">		entityBehaviour.put(mxConstants.STYLE_SHAPE, mxConstants.SHAPE_RECTANGLE);</span>
+<span class="nc" id="L74">		entityBehaviour.put(mxConstants.STYLE_FONTCOLOR, mxUtils.getHexColorString(Color.BLACK));</span>
+<span class="nc" id="L75">		entityBehaviour.put(mxConstants.STYLE_FILLCOLOR, &quot;#FFFFFF&quot;);</span>
+<span class="nc" id="L76">		entityBehaviour.put(mxConstants.STYLE_ROUNDED, true);</span>
+<span class="nc" id="L77">		entityBehaviour.put(mxConstants.STYLE_LABEL_POSITION, mxConstants.ALIGN_BOTTOM);</span>
+<span class="nc" id="L78">		entityBehaviour.put(mxConstants.STYLE_STROKECOLOR, mxUtils.getHexColorString(new Color(64, 61, 57)));</span>
+<span class="nc" id="L79">		entityBehaviour.put(mxConstants.STYLE_STROKEWIDTH, 2);</span>
+<span class="nc" id="L80">		entityBehaviour.put(mxConstants.STYLE_EDGE, mxUtils.getHexColorString(Color.BLACK));</span>
+<span class="nc" id="L81">		stylesheet.putCellStyle(&quot;Entity&quot;, entityBehaviour);</span>
+
+<span class="nc" id="L83">		Hashtable&lt;String, Object&gt; decorator = new Hashtable&lt;String, Object&gt;();</span>
+<span class="nc" id="L84">		decorator.put(mxConstants.STYLE_SHAPE, mxConstants.SHAPE_IMAGE);</span>
+<span class="nc" id="L85">		decorator.put(mxConstants.STYLE_VERTICAL_LABEL_POSITION, mxConstants.ALIGN_TOP);</span>
+<span class="nc" id="L86">		decorator.put(mxConstants.STYLE_FONTCOLOR, mxUtils.getHexColorString(Color.BLACK));</span>
+
+<span class="nc" id="L88">		decorator.put(mxConstants.STYLE_IMAGE,</span>
+<span class="nc" id="L89">				ODMEEditor.class.getClassLoader().getResource(&quot;images/decorator.png&quot;));</span>
+
+<span class="nc" id="L91">		stylesheet.putCellStyle(&quot;Decorator&quot;, decorator);</span>
+
+<span class="nc" id="L93">		Hashtable&lt;String, Object&gt; selector = new Hashtable&lt;String, Object&gt;();</span>
+<span class="nc" id="L94">		selector.put(mxConstants.STYLE_SHAPE, mxConstants.SHAPE_IMAGE);</span>
+<span class="nc" id="L95">		selector.put(mxConstants.STYLE_VERTICAL_LABEL_POSITION, mxConstants.ALIGN_TOP);</span>
+<span class="nc" id="L96">		selector.put(mxConstants.STYLE_FONTCOLOR, mxUtils.getHexColorString(Color.BLACK));</span>
+<span class="nc" id="L97">		selector.put(mxConstants.STYLE_IMAGE,</span>
+<span class="nc" id="L98">				ODMEEditor.class.getClassLoader().getResource(&quot;images/selector.png&quot;));</span>
+<span class="nc" id="L99">		stylesheet.putCellStyle(&quot;Selector&quot;, selector);</span>
+
+<span class="nc" id="L101">		Hashtable&lt;String, Object&gt; sequence = new Hashtable&lt;String, Object&gt;();</span>
+<span class="nc" id="L102">		sequence.put(mxConstants.STYLE_SHAPE, mxConstants.SHAPE_IMAGE);</span>
+<span class="nc" id="L103">		sequence.put(mxConstants.STYLE_VERTICAL_LABEL_POSITION, mxConstants.ALIGN_TOP);</span>
+<span class="nc" id="L104">		sequence.put(mxConstants.STYLE_FONTCOLOR, mxUtils.getHexColorString(Color.BLACK));</span>
+
+<span class="nc" id="L106">		sequence.put(mxConstants.STYLE_IMAGE,</span>
+<span class="nc" id="L107">				ODMEEditor.class.getClassLoader().getResource(&quot;images/sequence.png&quot;));</span>
+
+<span class="nc" id="L109">		sequence.put(mxConstants.STYLE_EDGE, mxUtils.getHexColorString(Color.BLACK));</span>
+
+<span class="nc" id="L111">		stylesheet.putCellStyle(&quot;Sequence&quot;, sequence);</span>
+
+
+<span class="nc" id="L114">		Hashtable&lt;String, Object&gt; parallel = new Hashtable&lt;String, Object&gt;();</span>
+<span class="nc" id="L115">		parallel.put(mxConstants.STYLE_SHAPE, mxConstants.SHAPE_IMAGE);</span>
+<span class="nc" id="L116">		parallel.put(mxConstants.STYLE_VERTICAL_LABEL_POSITION, mxConstants.ALIGN_TOP);</span>
+<span class="nc" id="L117">		parallel.put(mxConstants.STYLE_FONTCOLOR, mxUtils.getHexColorString(Color.BLACK));</span>
+
+<span class="nc" id="L119">		parallel.put(mxConstants.STYLE_IMAGE,</span>
+<span class="nc" id="L120">				ODMEEditor.class.getClassLoader().getResource(&quot;images/parallel.png&quot;));</span>
+
+<span class="nc" id="L122">		parallel.put(mxConstants.STYLE_EDGE, mxUtils.getHexColorString(Color.BLACK));</span>
+
+<span class="nc" id="L124">		stylesheet.putCellStyle(&quot;Parallel&quot;, parallel);</span>
+
+<span class="nc" id="L126">		behaviourParent = benhaviourGraph.getDefaultParent();</span>
+
+//		behaviourParent.toString();
+<span class="nc" id="L129">		benhaviourGraph.getModel().beginUpdate();</span>
+		try {
+<span class="nc" id="L131">			benhaviourGraph.insertVertex(behaviourParent, &quot;rootnode&quot;, &quot;Events&quot;, 515, 20, 80, 30, &quot;Entity&quot;);</span>
+<span class="nc" id="L132">			benhaviourGraph.insertVertex(behaviourParent, &quot;hideV&quot;, &quot;End of Canvas&quot;, 0, 50000, 80, 30, &quot;Entity&quot;);</span>
+<span class="nc" id="L133">			benhaviourGraph.insertVertex(behaviourParent, &quot;hideH&quot;, &quot;End of Canvas&quot;, 50000, 0, 80, 30, &quot;Entity&quot;);</span>
+		} finally {
+<span class="nc" id="L135">			benhaviourGraph.getModel().endUpdate();</span>
+		}
+
+<span class="nc" id="L138">		behaviourGraphComponent = new mxGraphComponent(benhaviourGraph);</span>
+<span class="nc" id="L139">		behaviourGraphComponent.getViewport().setBackground(Color.WHITE);</span>
+
+		// undo redo settings
+<span class="nc" id="L142">		mxEventSource.mxIEventListener listener = new mxEventSource.mxIEventListener() {</span>
+
+			@Override
+			public void invoke(Object sender, mxEventObject evt) {
+				// this condition is added to control subtree undo addition
+<span class="nc bnc" id="L147" title="All 4 branches missed.">				if (!ODMEBehaviourEditor.undoControlForSubTree == true) {</span>
+<span class="nc" id="L148">					undoManager.undoableEditHappened((mxUndoableEdit) evt.getProperty(&quot;edit&quot;));</span>
+				}
+<span class="nc" id="L150">			}</span>
+		};
+
+		// for undo redo
+<span class="nc" id="L154">		benhaviourGraph.getModel().addListener(mxEvent.UNDO, listener);</span>
+<span class="nc" id="L155">		benhaviourGraph.getView().addListener(mxEvent.UNDO, listener);</span>
+
+<span class="nc" id="L157">		frame.getContentPane().add(behaviourGraphComponent);</span>
+
+
+		// for edge connection event
+<span class="nc" id="L161">		benhaviourGraph.addListener(mxEvent.CELL_CONNECTED, new mxIEventListener() {</span>
+			@Override
+			public void invoke(Object sender, mxEventObject evt) {
+<span class="nc" id="L164">				mxCell connectionCell = (mxCell) evt.getProperty(&quot;edge&quot;);</span>
+//				System.out.println(&quot;connectionCell edge count  = &quot;+connectionCell.getEdgeCount());
+<span class="nc" id="L166">				System.out.println(&quot;connectionCell ID  = &quot;+connectionCell.getId());</span>
+<span class="nc" id="L167">				lastAddedCell = (mxCell) connectionCell</span>
+<span class="nc" id="L168">						.getSource(); // if there is no terminal cell then have to handle</span>
+<span class="nc" id="L169">			}</span>
+		});
+
+<span class="nc" id="L172">		behaviourGraphComponent.getGraphControl().addMouseListener(new MouseAdapter() {</span>
+			@SuppressWarnings(&quot;finally&quot;)
+			public void mouseReleased(MouseEvent e) {
+<span class="nc" id="L175">				Object cell = behaviourGraphComponent.getCellAt(e.getX(), e.getY());</span>
+<span class="nc" id="L176">				currentSelectedCell = (mxCell) cell; // this for console use</span>
+
+<span class="nc bnc" id="L178" title="All 2 branches missed.">				if (e.getButton() == MouseEvent.BUTTON1) {</span>
+<span class="nc bnc" id="L179" title="All 2 branches missed.">					if (cell == null) {</span>
+
+<span class="nc" id="L181">						String ob = Integer.toString(behaviourNodeNumber);</span>
+<span class="nc" id="L182">						String nodeName = &quot;node&quot; + ob;</span>
+
+<span class="nc" id="L184">						benhaviourGraph.getModel().beginUpdate();</span>
+
+						try {
+
+<span class="nc bnc" id="L188" title="All 2 branches missed.">							if (ODMEBehaviourEditor.nodeAddDecorator.equals(&quot;entity&quot;)) {</span>
+<span class="nc" id="L189">								benhaviourGraph.insertVertex(behaviourParent, null, nodeName, e.getX() - 40, e.getY(),</span>
+										80, 30, &quot;Entity&quot;);
+<span class="nc" id="L191">								behaviourNodeNumber++;</span>
+<span class="nc bnc" id="L192" title="All 2 branches missed.">							} else if (ODMEBehaviourEditor.nodeAddDecorator.equals(&quot;Decorator&quot;)) {</span>
+<span class="nc" id="L193">								benhaviourGraph.insertVertex(behaviourParent, &quot;Loop repeat &quot;,  &quot;Loop&quot;, e.getX() - 40,</span>
+<span class="nc" id="L194">										e.getY(), 80, 30, &quot;Decorator&quot;);</span>
+<span class="nc" id="L195">								behaviourNodeNumber++;</span>
+<span class="nc bnc" id="L196" title="All 2 branches missed.">							} else if (ODMEBehaviourEditor.nodeAddDecorator.equals(&quot;Selector&quot;)) {</span>
+<span class="nc" id="L197">								benhaviourGraph.insertVertex(behaviourParent, &quot;Selector&quot;,  &quot;Selector&quot;, e.getX() - 15,</span>
+<span class="nc" id="L198">										e.getY(), 30, 30, &quot;Selector&quot;);</span>
+<span class="nc" id="L199">								behaviourNodeNumber++;</span>
+<span class="nc bnc" id="L200" title="All 2 branches missed.">							} else if (ODMEBehaviourEditor.nodeAddDecorator.equals(&quot;Sequence&quot;)) {</span>
+<span class="nc" id="L201">								benhaviourGraph.insertVertex(behaviourParent, &quot;Sequence&quot;,  &quot;Sequence&quot;, e.getX() - 15,</span>
+<span class="nc" id="L202">										e.getY(), 30, 30, &quot;Sequence&quot;);</span>
+<span class="nc" id="L203">								behaviourNodeNumber++;</span>
+<span class="nc bnc" id="L204" title="All 2 branches missed.">							} else if (ODMEBehaviourEditor.nodeAddDecorator.equals(&quot;Parallel&quot;)) {</span>
+<span class="nc" id="L205">								benhaviourGraph.insertVertex(behaviourParent, &quot;Parallel&quot;,  &quot;Parallel&quot;, e.getX() - 15,</span>
+<span class="nc" id="L206">										e.getY(), 30, 30, &quot;Parallel&quot;);</span>
+<span class="nc" id="L207">								behaviourNodeNumber++;</span>
+<span class="nc bnc" id="L208" title="All 2 branches missed.">							} else if(ODMEBehaviourEditor.nodeBehaviour.length()&gt;0) {</span>
+
+<span class="nc bnc" id="L210" title="All 2 branches missed.">								if(ODMEBehaviourEditor.nodeBehaviour.contains(&quot;Dec&quot;)) {</span>
+<span class="nc bnc" id="L211" title="All 2 branches missed.">								}else if (ODMEBehaviourEditor.nodeBehaviour.contains(&quot;MAsp&quot;)) {}</span>
+								else
+<span class="nc bnc" id="L213" title="All 2 branches missed.">									if (ODMEBehaviourEditor.nodeBehaviour.contains(&quot;Spec&quot;)) {}</span>
+									else {
+<span class="nc" id="L215">									benhaviourGraph.insertVertex(behaviourParent, ODMEBehaviourEditor.nodeBehaviour, ODMEBehaviourEditor.nodeBehaviour, e.getX() - 40, e.getY(),</span>
+											80, 30, &quot;Entity&quot;);
+<span class="nc" id="L217">									behaviourNodeNumber++;</span>
+<span class="nc" id="L218">									ODMEBehaviourEditor.nodeBehaviour = &quot;&quot;;</span>
+								}
+							}
+
+						} finally {
+<span class="nc" id="L223">							benhaviourGraph.getModel().endUpdate();</span>
+							// De-Selecting mouse selection from menu items
+<span class="nc" id="L225">							ODMEBehaviourEditor.nodeAddDecorator = &quot;&quot;;</span>
+<span class="nc" id="L226">							return;</span>
+						}
+					}
+
+					else {
+//						System.out.println(&quot;else block  cell is  null &quot;);
+
+						// this section is for showing variables of the selected node to the variable
+						// table
+<span class="nc bnc" id="L235" title="All 2 branches missed.">						if (!ODMEBehaviourEditor.nodeAddDecorator.equals(&quot;delete&quot;)) {</span>
+
+						} else {
+
+<span class="nc" id="L239">							Object delcell = behaviourGraphComponent.getCellAt(e.getX(), e.getY());</span>
+<span class="nc bnc" id="L240" title="All 2 branches missed.">							if (delcell != null) {</span>
+<span class="nc" id="L241">								mxCell deleteCell = (mxCell) delcell;</span>
+
+<span class="nc bnc" id="L243" title="All 2 branches missed.">								if (deleteCell.isEdge()) {</span>
+<span class="nc" id="L244">									JtreeToGraphDelete.deleteEdgeFromGraphPopup(delcell);</span>
+								} else {
+<span class="nc" id="L246">									JtreeToGraphDelete.deleteNodeFromGraphPopup(delcell);</span>
+								}
+							}
+							// De-Selecting mouse selection from menu items
+<span class="nc" id="L250">							ODMEBehaviourEditor.nodeAddDecorator = &quot;&quot;;</span>
+						}
+					} // end of else from if cell==null
+<span class="nc" id="L253">					callAfterEdgeConnectionComplete();</span>
+				} // button 1 end
+
+				// right click events using pop up menu
+//				if (e.getButton() == MouseEvent.BUTTON3) {
+////                        	// double click handling
+//					if (e.getClickCount() == 2) {
+//						mxCell clikedCell = (mxCell) cell;
+//						if (clikedCell.isVertex()) {
+//
+//							Object position = behaviourGraphComponent.getCellAt(e.getX(), e.getY());
+//							JtreeToGraphGeneral.renameCell(position);
+//
+//						}
+//					}
+//				}
+
+<span class="nc" id="L270">			}</span>
+			// mouse event 2
+		});
+<span class="nc" id="L273">	}</span>
+
+
+	public static void callAfterEdgeConnectionComplete() {
+<span class="nc" id="L277">		mxCell addedCell = null;</span>
+
+<span class="nc bnc" id="L279" title="All 4 branches missed.">		if (lastAddedCell != null &amp;&amp; benhaviourGraph.getOutgoingEdges(lastAddedCell).length &gt; 0) {</span>
+
+<span class="nc" id="L281">			Object[] outgoing = benhaviourGraph.getOutgoingEdges(lastAddedCell);</span>
+<span class="nc" id="L282">			Object targetCell = benhaviourGraph.getModel().getTerminal(outgoing[outgoing.length - 1], false);</span>
+<span class="nc" id="L283">			addedCell = (mxCell) targetCell;</span>
+<span class="nc" id="L284">			Object[] incoming = benhaviourGraph.getIncomingEdges(addedCell);</span>
+
+<span class="nc" id="L286">			Object lastAddedEdge = outgoing[outgoing.length - 1];</span>
+<span class="nc" id="L287">			mxCell lastEdge = (mxCell) lastAddedEdge;</span>
+<span class="nc bnc" id="L288" title="All 2 branches missed.">			if (lastEdge.isEdge()) {</span>
+				try {
+<span class="nc" id="L290">					lastEdge.getTarget().getValue();</span>
+				}
+<span class="nc" id="L292">				catch (Exception e) {</span>
+<span class="nc" id="L293">					benhaviourGraph.removeCells(new Object[] {outgoing[outgoing.length - 1]});</span>
+<span class="nc" id="L294">					addedCell = null;</span>
+<span class="nc" id="L295">					lastAddedCell = null;</span>
+<span class="nc" id="L296">					return;</span>
+<span class="nc" id="L297">				}</span>
+			}
+
+//			if (lastAddedCell.getId().startsWith(&quot;uniformity&quot;)) {
+//				benhaviourGraph.removeCells(new Object[] {outgoing[outgoing.length - 1]});
+//
+//				JOptionPane.showMessageDialog(MainWindow.frame,
+//						&quot;You can not add here. Add to the reference node.&quot;);
+//
+//				addedCell = null;
+//				lastAddedCell = null;
+//			}
+
+<span class="nc bnc" id="L310" title="All 2 branches missed.">			if (incoming.length &gt; 1) {</span>
+<span class="nc" id="L311">				benhaviourGraph.removeCells(new Object[] {outgoing[outgoing.length - 1]});</span>
+<span class="nc" id="L312">				lastAddedCell = null;</span>
+			}
+		}
+<span class="nc" id="L315">	}</span>
+
+<span class="nc" id="L317">	class MyTreeModelListener implements TreeModelListener {</span>
+
+		public void treeNodesChanged(TreeModelEvent e) {
+			DefaultMutableTreeNode node;
+<span class="nc" id="L321">			node = (DefaultMutableTreeNode) (e.getTreePath().getLastPathComponent());</span>
+
+			/*
+			 * If the event lists children, then the changed node is the child of the node
+			 * we've already gotten. Otherwise, the changed node and the specified node are
+			 * the same.
+			 */
+<span class="nc" id="L328">			int index = e.getChildIndices()[0];</span>
+<span class="nc" id="L329">			node = (DefaultMutableTreeNode) (node.getChildAt(index));</span>
+<span class="nc" id="L330">		}</span>
+
+<span class="nc" id="L332">		public void treeNodesInserted(TreeModelEvent e) {}</span>
+
+<span class="nc" id="L334">		public void treeNodesRemoved(TreeModelEvent e) {}</span>
+
+<span class="nc" id="L336">		public void treeStructureChanged(TreeModelEvent e) {}</span>
+	}
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

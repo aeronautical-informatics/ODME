@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>JtreeToGraphSave.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SESEditor</a> &gt; <a href="index.source.html" class="el_package">odme.jtreetograph</a> &gt; <span class="el_source">JtreeToGraphSave.java</span></div><h1>JtreeToGraphSave.java</h1><pre class="source lang-java linenums">package odme.jtreetograph;
+
+import static odme.jtreetograph.JtreeToGraphVariables.*;
+import static odeme.behaviour.BehaviourToTree.selectedScenario;
+
+import java.io.File;
+import java.util.Enumeration;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreeNode;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactoryConfigurationError;
+
+import behaviourtreetograph.JTreeToGraphBehaviour;
+import org.w3c.dom.DOMException;
+import org.w3c.dom.DOMImplementation;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
+import com.mxgraph.io.mxCodec;
+import com.mxgraph.model.mxCell;
+import com.mxgraph.util.mxXmlUtils;
+
+import odme.odmeeditor.ODMEEditor;
+
+<span class="nc" id="L31">public class JtreeToGraphSave {</span>
+
+	public static boolean saveToXMLFile(Document doc, String filePath) 
+			throws TransformerException {
+<span class="nc bnc" id="L35" title="All 2 branches missed.">        if (doc != null) {</span>
+            try {
+                javax.xml.transform.TransformerFactory tFactory =
+<span class="nc" id="L38">                        javax.xml.transform.TransformerFactory.newInstance();</span>
+<span class="nc" id="L39">                javax.xml.transform.Transformer transformer = tFactory.newTransformer();</span>
+<span class="nc" id="L40">                javax.xml.transform.dom.DOMSource source = new javax.xml.transform.dom.DOMSource(doc);</span>
+<span class="nc" id="L41">                javax.xml.transform.stream.StreamResult result =</span>
+                        new javax.xml.transform.stream.StreamResult(new File(filePath));
+<span class="nc" id="L43">                transformer.setOutputProperty(OutputKeys.INDENT, &quot;yes&quot;);</span>
+<span class="nc" id="L44">                transformer.setOutputProperty(&quot;{http://xml.apache.org/xslt}indent-amount&quot;, &quot;0&quot;);</span>
+
+<span class="nc" id="L46">                transformer.transform(source, result);</span>
+<span class="nc" id="L47">                return true;</span>
+            } 
+<span class="nc" id="L49">            catch (TransformerFactoryConfigurationError ex) {</span>
+<span class="nc" id="L50">                return false;</span>
+            }
+        } 
+        else {
+<span class="nc" id="L54">            return false;</span>
+        }
+    }
+
+    public static void saveBehaviourGraph() {
+        try {
+            // saving into xml
+<span class="nc" id="L61">            mxCodec codec = new mxCodec();</span>
+<span class="nc" id="L62">            String xml = mxXmlUtils.getXml(codec.encode(JTreeToGraphBehaviour.benhaviourGraph.getModel()));</span>
+
+<span class="nc" id="L64">            File ssdBehaviourGraph = new File (String.format(&quot;%s/%s/%s/%sbehaviourGraph.xml&quot;,</span>
+                    ODMEEditor.fileLocation, ODMEEditor.projName,  selectedScenario, projectFileNameGraph));
+<span class="nc" id="L66">            java.io.FileWriter fw = new java.io.FileWriter(ssdBehaviourGraph);</span>
+<span class="nc" id="L67">            fw.write(xml);</span>
+<span class="nc" id="L68">            fw.close();</span>
+        }
+<span class="nc" id="L70">        catch (Exception e) {</span>
+<span class="nc" id="L71">            System.out.println(&quot;Error:&quot; + e);</span>
+<span class="nc" id="L72">        }</span>
+<span class="nc" id="L73">    }</span>
+	public static void saveGraph() {
+        try {
+            // saving into xml
+<span class="nc" id="L77">            mxCodec codec = new mxCodec();</span>
+<span class="nc" id="L78">            String xml = mxXmlUtils.getXml(codec.encode(graph.getModel()));</span>
+<span class="nc" id="L79">            java.io.FileWriter fw = new java.io.FileWriter(ssdFileGraph);</span>
+<span class="nc" id="L80">            fw.write(xml);</span>
+<span class="nc" id="L81">            fw.close();</span>
+        } 
+<span class="nc" id="L83">        catch (Exception e) {</span>
+<span class="nc" id="L84">            System.out.println(&quot;Error:&quot; + e);</span>
+<span class="nc" id="L85">        }</span>
+
+<span class="nc" id="L87">    }</span>
+	
+	public static void saveModuleFromCurrentModel(Object obj) {
+<span class="nc" id="L90">        mxCell cell = (mxCell) obj;</span>
+<span class="nc" id="L91">        Object[] outgoing = graph.getOutgoingEdges(cell);</span>
+        
+<span class="nc bnc" id="L93" title="All 2 branches missed.">        if (outgoing.length &gt; 0) {</span>
+<span class="nc" id="L94">            Object targetCell = graph.getModel().getTerminal(outgoing[outgoing.length - 1], false);</span>
+<span class="nc" id="L95">            mxCell targetCell2 = (mxCell) targetCell;</span>
+
+<span class="nc" id="L97">            nodeNamesForGraphSync[treeSyncNodeCount] = (String) targetCell2.getValue();</span>
+<span class="nc" id="L98">            treeSyncNodeCount++;</span>
+
+<span class="nc" id="L100">            saveModuleFromCurrentModelSecondStep(targetCell);</span>
+        }
+<span class="nc" id="L102">    }</span>
+
+    public static void saveModuleFromCurrentModelSecondStep(Object obj) {
+<span class="nc" id="L105">        mxCell cell = (mxCell) obj;</span>
+<span class="nc" id="L106">        Object[] outgoing = graph.getOutgoingEdges(cell);</span>
+
+<span class="nc bnc" id="L108" title="All 2 branches missed.">        if (outgoing.length &gt; 0) {</span>
+<span class="nc bnc" id="L109" title="All 2 branches missed.">            for (int i = 0; i &lt; outgoing.length; i++) {</span>
+<span class="nc" id="L110">                Object targetCell = graph.getModel().getTerminal(outgoing[i], false);</span>
+<span class="nc" id="L111">                mxCell targetCell2 = (mxCell) targetCell;</span>
+
+<span class="nc" id="L113">                Object sourceCell = graph.getModel().getTerminal(outgoing[i], true);</span>
+<span class="nc" id="L114">                mxCell sourceCell2 = (mxCell) sourceCell;</span>
+
+<span class="nc" id="L116">                nodeNamesForGraphSync[treeSyncNodeCount] =</span>
+<span class="nc" id="L117">                        targetCell2.getValue() + &quot;-&quot; + sourceCell2.getValue() + &quot;-&quot; + &quot;hasparent&quot;;</span>
+<span class="nc" id="L118">                treeSyncNodeCount++;</span>
+
+<span class="nc" id="L120">                saveModuleFromCurrentModelSecondStep(targetCell);</span>
+            }
+        }
+<span class="nc" id="L123">    }</span>
+    
+    public static void saveModuleFromCurrentModelAsXML(Object obj, String fileName) {
+<span class="nc" id="L126">        mxCell cell = (mxCell) obj;</span>
+<span class="nc" id="L127">        Document calendarDOMDoc = null;</span>
+        try {
+            DOMImplementation domImpl =
+<span class="nc" id="L130">                    DocumentBuilderFactory.newInstance().newDocumentBuilder().getDOMImplementation();</span>
+
+<span class="nc" id="L132">            calendarDOMDoc = domImpl.createDocument(null, &quot;start&quot;, null);</span>
+
+        } 
+<span class="nc" id="L135">        catch (ParserConfigurationException e1) {</span>
+<span class="nc" id="L136">            e1.printStackTrace(System.err);</span>
+        } 
+<span class="nc" id="L138">        catch (DOMException e2) {</span>
+<span class="nc" id="L139">            e2.printStackTrace(System.err);</span>
+<span class="nc" id="L140">        }</span>
+
+<span class="nc" id="L142">        calendarDOMDoc.getDocumentElement().appendChild(JtreeToGraphGeneral.childNodes(calendarDOMDoc, cell));</span>
+
+        try {
+<span class="nc" id="L145">        	saveToXMLFile(calendarDOMDoc, fileName + &quot;.xml&quot;);</span>
+
+        } 
+<span class="nc" id="L148">        catch (TransformerException ex) {</span>
+<span class="nc" id="L149">            Logger.getLogger(ODMEEditor.class.getName()).log(Level.SEVERE, null, ex);</span>
+<span class="nc" id="L150">        }</span>
+<span class="nc" id="L151">    }</span>
+    
+    public static Element saveAllTreeNodes(Document thisDoc, TreeNode thisTreeNode) {
+<span class="nc" id="L154">        Element thisElement = null;</span>
+<span class="nc" id="L155">        String nodeName = ((DefaultMutableTreeNode) thisTreeNode).getUserObject().toString();</span>
+<span class="nc" id="L156">        thisElement = thisDoc.createElement(nodeName);</span>
+
+<span class="nc bnc" id="L158" title="All 2 branches missed.">        if (thisTreeNode.getChildCount() &gt;= 0) {</span>
+<span class="nc bnc" id="L159" title="All 2 branches missed.">            for (Enumeration&lt;?&gt; e = thisTreeNode.children(); e.hasMoreElements(); ) {</span>
+<span class="nc" id="L160">                TreeNode n = (TreeNode) e.nextElement();</span>
+<span class="nc" id="L161">                thisElement.appendChild(saveAllTreeNodes(thisDoc, n));</span>
+<span class="nc" id="L162">            }</span>
+        }
+<span class="nc" id="L164">        return thisElement;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

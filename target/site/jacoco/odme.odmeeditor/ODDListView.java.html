@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ODDListView.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SESEditor</a> &gt; <a href="index.source.html" class="el_package">odme.odmeeditor</a> &gt; <span class="el_source">ODDListView.java</span></div><h1>ODDListView.java</h1><pre class="source lang-java linenums">package odme.odmeeditor;
+
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.io.File;
+
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.DefaultListModel;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+
+/*
+ * ODDListView lists all the ODD files and shows them in a selectable manner.
+ * upon being clicked on, the filenames are reported to it's parent, so the parent
+ * (which is ODDManager) can show the newly selected ODD file in it's table
+ * 
+ * also there's an &quot;updateNames&quot; method here, which the parent uses to tell ODDListView 
+ * to try and list the odds again; this is useful when a new file is saved/deleted
+ * and you want to show the user what are the new changes
+ * */
+public class ODDListView extends JPanel {
+	
+	private static final long serialVersionUID = 1L;
+	
+	private ODDManager parent;
+	private JLabel oddsListLabel;
+	private JList&lt;String&gt; odds;
+	
+<span class="nc" id="L35">	public ODDListView(ODDManager parent) {</span>
+<span class="nc" id="L36">		this.parent=parent;</span>
+<span class="nc" id="L37">		this.setPreferredSize(new Dimension(200,600));</span>
+<span class="nc" id="L38">		this.setMinimumSize(new Dimension(100,600));</span>
+<span class="nc" id="L39">		init();</span>
+<span class="nc" id="L40">	}</span>
+	
+	private void init() { // initialize Graphical part 
+		
+<span class="nc" id="L44">		odds=new JList&lt;String&gt;();</span>
+<span class="nc" id="L45">		odds.addListSelectionListener(new ListSelectionListener() {</span>
+            @Override public void valueChanged(ListSelectionEvent e) {
+<span class="nc bnc" id="L47" title="All 2 branches missed.">                if (!e.getValueIsAdjusting()</span>
+<span class="nc bnc" id="L48" title="All 2 branches missed.">            		&amp;&amp; odds.getSelectedValuesList().size()&gt;0)</span>
+<span class="nc" id="L49">                		parent.readODD(odds.getSelectedValuesList().get(0));</span>
+<span class="nc" id="L50">            }</span>
+        });
+<span class="nc" id="L52">		oddsListLabel=new JLabel(&quot;ODD(s) List&quot;);</span>
+<span class="nc" id="L53">		updateNames();</span>
+		
+		// pure graphical
+<span class="nc" id="L56">		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));</span>
+<span class="nc" id="L57">		this.add(oddsListLabel);</span>
+<span class="nc" id="L58">		this.oddsListLabel.setBorder(BorderFactory.createEtchedBorder(1));</span>
+<span class="nc" id="L59">		odds.setFont(new Font(&quot;Serif&quot;, Font.BOLD, 14));</span>
+<span class="nc" id="L60">		this.add(odds);</span>
+<span class="nc" id="L61">		this.setBorder(BorderFactory.createLineBorder(Color.BLACK));</span>
+<span class="nc" id="L62">		this.setBackground(Color.WHITE);</span>
+<span class="nc" id="L63">	}</span>
+	
+	public void updateNames() { // called by the parent, when a new file is saved or deleted
+<span class="nc" id="L66">		DefaultListModel&lt;String&gt; dlm=getFileNamesListModel();</span>
+<span class="nc" id="L67">		odds.setModel(dlm);</span>
+<span class="nc" id="L68">	}</span>
+	
+	/**
+	 * @author Roy
+	 * Get the list of all ODD .ser files and return them in a format which can be consumed
+	 * by JList
+	 * */
+	private DefaultListModel&lt;String&gt; getFileNamesListModel(){
+<span class="nc" id="L76">		DefaultListModel&lt;String&gt; listModel = new DefaultListModel&lt;String&gt;();</span>
+<span class="nc" id="L77">		File dir=new File(ODDManager.getODDsPath());</span>
+<span class="nc" id="L78">		File[] serFiles=dir.listFiles();</span>
+		
+		// no ODD's added yet
+<span class="nc bnc" id="L81" title="All 4 branches missed.">		if(serFiles==null || serFiles.length==0) { </span>
+<span class="nc" id="L82">			listModel.clear();</span>
+<span class="nc" id="L83">			return listModel;</span>
+		}
+		
+		// read the filenames and add them to listModel
+<span class="nc bnc" id="L87" title="All 2 branches missed.">		for (File ser:serFiles) // foreach loop in java</span>
+<span class="nc bnc" id="L88" title="All 2 branches missed.">			if(ser.getAbsolutePath().endsWith(&quot;.ser&quot;))</span>
+<span class="nc" id="L89">				listModel.addElement(ser.getName().replace(&quot;.ser&quot;, &quot;&quot;));</span>
+<span class="nc" id="L90">		return listModel;</span>
+	}	
+	
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

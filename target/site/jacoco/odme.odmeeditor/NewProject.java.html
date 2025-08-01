@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>NewProject.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SESEditor</a> &gt; <a href="index.source.html" class="el_package">odme.odmeeditor</a> &gt; <span class="el_source">NewProject.java</span></div><h1>NewProject.java</h1><pre class="source lang-java linenums">package odme.odmeeditor;
+
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.border.EtchedBorder;
+import javax.swing.tree.DefaultMutableTreeNode;
+
+import odeme.behaviour.Behaviour;
+import odme.jtreetograph.JtreeToGraphAdd;
+import odme.jtreetograph.JtreeToGraphDelete;
+import odme.jtreetograph.JtreeToGraphVariables;
+
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.io.File;
+
+/**
+ * &lt;h1&gt;New Project&lt;/h1&gt;
+ * &lt;p&gt;
+ * This class implements New Project Window for creating new SES project with
+ * configuration like project name, root name and project location.
+ * &lt;/p&gt;
+ *
+ * @author ---
+ * @version ---
+ */
+
+public class NewProject extends JPanel {
+
+    private static final long serialVersionUID = 1L;
+    private JFrame frame;
+    
+    private JLabel projectNameLabel, RootLabel, projectLocationLabel, errorLabelField;
+    private JTextField newProjectNameField, newRootNameField, projectLocationField;
+    private JCheckBox defaultProjectLocationChecker;
+    private JButton selectProjectLocation, create, cancel;
+
+    public NewProject() {
+<span class="nc" id="L52">        super(new BorderLayout());</span>
+<span class="nc" id="L53">        frame = new JFrame();</span>
+<span class="nc" id="L54">    }</span>
+    
+    /**
+     * Create new SES project taking input from user. Here, user inputs are project
+     * name, root name and project location. &lt;b&gt;Thing&lt;/b&gt; is default root name and
+     * default location is jar file location. Check the project name and root name
+     * and make sure that they are not same showing error while user type root name.
+     * Also check the duplicate project name for the default location.
+     */
+    public void createNewProjectWindow() {
+
+<span class="nc" id="L65">        projectNameLabel = new JLabel(&quot;Project Name:&quot;);</span>
+<span class="nc" id="L66">        projectNameLabel.setBounds(20, 30, 120, 30);</span>
+        
+<span class="nc" id="L68">        newProjectNameField = new JTextField(30);</span>
+<span class="nc" id="L69">        newProjectNameField.setBounds(150, 30, 410, 30);</span>
+
+<span class="nc" id="L71">        RootLabel = new JLabel(&quot;Root:&quot;);</span>
+<span class="nc" id="L72">        RootLabel.setBounds(20, 70, 120, 30);</span>
+        
+<span class="nc" id="L74">        newRootNameField = new JTextField();</span>
+<span class="nc" id="L75">        newRootNameField.setBounds(150, 70, 410, 30);</span>
+<span class="nc" id="L76">        newRootNameField.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);</span>
+<span class="nc" id="L77">        newRootNameField.setText(&quot;Thing&quot;);</span>
+
+<span class="nc" id="L79">        defaultProjectLocationChecker = new JCheckBox(&quot;Use Default Location:&quot;);</span>
+<span class="nc" id="L80">        defaultProjectLocationChecker.setBounds(20, 110, 140, 30);</span>
+<span class="nc" id="L81">        defaultProjectLocationChecker.setSelected(true);</span>
+
+<span class="nc" id="L83">        projectLocationLabel = new JLabel(&quot;Location:&quot;);</span>
+<span class="nc" id="L84">        projectLocationLabel.setBounds(20, 250, 120, 30);</span>
+<span class="nc" id="L85">        projectLocationLabel.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);</span>
+<span class="nc" id="L86">        projectLocationLabel.setEnabled(false);</span>
+        
+<span class="nc" id="L88">        projectLocationField = new JTextField();</span>
+<span class="nc" id="L89">        projectLocationField.setBounds(20, 150, 430, 30);</span>
+<span class="nc" id="L90">        projectLocationField.setEnabled(false);</span>
+<span class="nc" id="L91">        projectLocationField.setText(ODMEEditor.fileLocation);</span>
+        
+<span class="nc" id="L93">        selectProjectLocation = new JButton(&quot;Browse...&quot;);</span>
+<span class="nc" id="L94">        selectProjectLocation.setBounds(460, 150, 100, 30);</span>
+<span class="nc" id="L95">        selectProjectLocation.setEnabled(false);</span>
+
+<span class="nc" id="L97">        errorLabelField = new JLabel();</span>
+<span class="nc" id="L98">        errorLabelField.setForeground(Color.RED);</span>
+<span class="nc" id="L99">        errorLabelField.setBounds(20, 210, 320, 30);</span>
+<span class="nc" id="L100">        errorLabelField.setVisible(false);</span>
+
+<span class="nc" id="L102">        create = new JButton(&quot;Create&quot;);</span>
+<span class="nc" id="L103">        create.setBounds(350, 250, 100, 30);</span>
+        
+<span class="nc" id="L105">        cancel = new JButton(&quot;Cancel&quot;);</span>
+<span class="nc" id="L106">        cancel.setBounds(460, 250, 100, 30);</span>
+<span class="nc" id="L107">        cancel.setToolTipText(&quot;Cancel&quot;);</span>
+        
+<span class="nc" id="L109">        JPanel panelTop = new JPanel();</span>
+<span class="nc" id="L110">        JPanel panelCenter = new JPanel();</span>
+<span class="nc" id="L111">        panelCenter.setLayout(null);</span>
+<span class="nc" id="L112">        JPanel panelBottom = new JPanel();</span>
+
+<span class="nc" id="L114">        panelCenter.add(projectNameLabel);</span>
+<span class="nc" id="L115">        panelCenter.add(newProjectNameField);</span>
+        
+<span class="nc" id="L117">        panelCenter.add(RootLabel);</span>
+<span class="nc" id="L118">        panelCenter.add(newRootNameField);</span>
+
+<span class="nc" id="L120">        panelCenter.add(defaultProjectLocationChecker);</span>
+<span class="nc" id="L121">        panelCenter.add(projectLocationField);</span>
+<span class="nc" id="L122">        panelCenter.add(selectProjectLocation);</span>
+
+<span class="nc" id="L124">        panelCenter.add(errorLabelField);</span>
+<span class="nc" id="L125">        panelCenter.add(create);</span>
+<span class="nc" id="L126">        panelCenter.add(cancel);</span>
+
+<span class="nc" id="L128">        panelTop.setBorder(new EtchedBorder());</span>
+<span class="nc" id="L129">        panelCenter.setBorder(new EtchedBorder());</span>
+<span class="nc" id="L130">        panelBottom.setBorder(new EtchedBorder());</span>
+
+<span class="nc" id="L132">        create.setToolTipText(&quot;Create Project&quot;);</span>
+        
+<span class="nc" id="L134">        addFunctions();</span>
+        
+<span class="nc" id="L136">        int width = 600;</span>
+<span class="nc" id="L137">        int height = 360;</span>
+<span class="nc" id="L138">        Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();</span>
+<span class="nc" id="L139">        int x = (screen.width - width) / 2;</span>
+<span class="nc" id="L140">        int y = (screen.height - height) / 2;</span>
+
+<span class="nc" id="L142">        frame.setBounds(x, y, width, height);</span>
+<span class="nc" id="L143">        frame.setTitle(&quot;New Project&quot;);</span>
+<span class="nc" id="L144">        frame.pack();</span>
+<span class="nc" id="L145">        frame.setSize(width, height);</span>
+<span class="nc" id="L146">        frame.setVisible(true);</span>
+<span class="nc" id="L147">        frame.add(panelTop, BorderLayout.NORTH);</span>
+<span class="nc" id="L148">        frame.add(panelCenter, BorderLayout.CENTER);</span>
+<span class="nc" id="L149">        frame.add(panelBottom, BorderLayout.SOUTH);</span>
+<span class="nc" id="L150">    }</span>
+
+
+    private void addFunctions() {
+
+<span class="nc" id="L155">        newProjectNameField.addKeyListener(new KeyListener() {</span>
+
+            @Override
+<span class="nc" id="L158">            public void keyTyped(KeyEvent e) {}</span>
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+<span class="nc" id="L162">                String name = newProjectNameField.getText().trim();</span>
+<span class="nc" id="L163">                File fileName = new File(name);</span>
+<span class="nc bnc" id="L164" title="All 4 branches missed.">                if (fileName.exists() &amp;&amp; fileName.isDirectory()) {</span>
+<span class="nc" id="L165">                    errorLabelField.setText(&quot;There is a file with the same name. It will be overwritten.&quot;);</span>
+<span class="nc" id="L166">                    errorLabelField.setVisible(true);</span>
+                } else {
+<span class="nc" id="L168">                    errorLabelField.setVisible(false);</span>
+                }
+<span class="nc" id="L170">            }</span>
+
+            @Override
+<span class="nc" id="L173">            public void keyPressed(KeyEvent e) {}</span>
+        });
+//      -------------------------------------
+        
+<span class="nc" id="L177">        defaultProjectLocationChecker.addItemListener(new ItemListener() {</span>
+
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+<span class="nc bnc" id="L181" title="All 2 branches missed.">                if (e.getStateChange() == ItemEvent.SELECTED) {</span>
+<span class="nc" id="L182">                    projectLocationField.setText(ODMEEditor.fileLocation);</span>
+<span class="nc" id="L183">                    projectLocationField.setEnabled(false);</span>
+<span class="nc" id="L184">                    projectLocationLabel.setEnabled(false);</span>
+<span class="nc" id="L185">                    selectProjectLocation.setEnabled(false);</span>
+                } else {
+<span class="nc" id="L187">                    projectLocationField.setEnabled(true);</span>
+<span class="nc" id="L188">                    projectLocationLabel.setEnabled(true);</span>
+<span class="nc" id="L189">                    selectProjectLocation.setEnabled(true);</span>
+<span class="nc" id="L190">                    projectLocationField.setText(&quot;&quot;);</span>
+                }
+<span class="nc" id="L192">            }</span>
+        });
+//      -------------------------------------
+        
+<span class="nc" id="L196">        selectProjectLocation.addActionListener(new ActionListener() {</span>
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L200">                selectLocation();</span>
+<span class="nc" id="L201">            }</span>
+        });
+//      -------------------------------------
+        
+<span class="nc" id="L205">        newRootNameField.addKeyListener(new KeyListener() {</span>
+
+            @Override
+<span class="nc" id="L208">            public void keyPressed(KeyEvent arg0) {}</span>
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+
+<span class="nc bnc" id="L213" title="All 2 branches missed.">                if (newRootNameField.getText().trim().equals(newProjectNameField.getText().trim())) {</span>
+<span class="nc" id="L214">                    errorLabelField.setVisible(true);</span>
+<span class="nc" id="L215">                    errorLabelField.setText(&quot;Root name should be different from project name.&quot;);</span>
+                } else {
+<span class="nc" id="L217">                    errorLabelField.setText(&quot;&quot;);</span>
+<span class="nc" id="L218">                    errorLabelField.setVisible(false);</span>
+                }
+<span class="nc" id="L220">            }</span>
+
+            @Override
+<span class="nc" id="L223">            public void keyTyped(KeyEvent e) {}</span>
+        });
+//      -------------------------------------
+        
+<span class="nc" id="L227">        create.addActionListener(new ActionListener() {</span>
+            @Override
+            public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L230">                createFunc();</span>
+<span class="nc" id="L231">                frame.dispose();</span>
+<span class="nc" id="L232">            }</span>
+        });
+//      -------------------------------------
+        
+<span class="nc" id="L236">        cancel.addActionListener(new ActionListener() {</span>
+            @Override
+            public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L239">                frame.dispose();</span>
+<span class="nc" id="L240">            }</span>
+        });
+<span class="nc" id="L242">    }</span>
+    
+    private void selectLocation() {
+
+<span class="nc" id="L246">        JFileChooser fileChooser = new JFileChooser();</span>
+<span class="nc" id="L247">        fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);</span>
+<span class="nc" id="L248">        fileChooser.setAcceptAllFileFilterUsed(false);</span>
+<span class="nc" id="L249">        fileChooser.setCurrentDirectory(new File(ODMEEditor.repFslas));</span>
+<span class="nc" id="L250">        int result = fileChooser.showOpenDialog(Main.frame);</span>
+<span class="nc bnc" id="L251" title="All 2 branches missed.">        if (result == JFileChooser.APPROVE_OPTION) {</span>
+<span class="nc" id="L252">            File selectedFile = fileChooser.getSelectedFile();</span>
+<span class="nc" id="L253">            ODMEEditor.fileLocation = selectedFile.getAbsolutePath();</span>
+<span class="nc" id="L254">            projectLocationField.setText(ODMEEditor.fileLocation);</span>
+        }
+<span class="nc" id="L256">    }</span>
+    
+    private void createFunc() {
+<span class="nc" id="L259">        System.out.println(&quot;Create project &quot;);</span>
+<span class="nc" id="L260">        String newProjectName = newProjectNameField.getText();</span>
+<span class="nc" id="L261">        String newRootName = newRootNameField.getText();</span>
+<span class="nc" id="L262">        String oldProjectTreeProjectName = ODMEEditor.projName;</span>
+
+<span class="nc" id="L264">        ODMEEditor.projName = newProjectName;</span>
+<span class="nc" id="L265">        JtreeToGraphVariables.newFileName = newProjectName;</span>
+<span class="nc" id="L266">        JtreeToGraphVariables.projectFileNameGraph = newProjectName;</span>
+<span class="nc" id="L267">        JtreeToGraphVariables.nodeNumber = 1;</span>
+
+<span class="nc" id="L269">        JtreeToGraphVariables.ssdFileGraph = new File(String.format(&quot;%s/%s/%sGraph.xml&quot;,</span>
+                ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
+<span class="nc" id="L271">        ODMEEditor.treePanel.ssdFile = new File(String.format(&quot;%s/%s/%s.xml&quot;,</span>
+                ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
+<span class="nc" id="L273">        ODMEEditor.treePanel.ssdFileVar = new File(String.format(&quot;%s/%s/%s.ssdvar&quot;,</span>
+                ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
+<span class="nc" id="L275">        ODMEEditor.treePanel.ssdFileCon = new File(String.format(&quot;%s/%s/%s.ssdcon&quot;,</span>
+                ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
+<span class="nc" id="L277">        ODMEEditor.treePanel.ssdFileBeh = new File(String.format(&quot;%s/%s/%s.ssdbeh&quot;,</span>
+                ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
+<span class="nc" id="L279">        ODMEEditor.treePanel.ssdFileFlag = new File(String.format(&quot;%s/%s/%s.ssdflag&quot;,</span>
+                ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
+        
+<span class="nc" id="L282">        ProjectTree.projectName = newProjectName;</span>
+
+<span class="nc" id="L284">        JtreeToGraphDelete.deleteAllNodesFromGraphWindow(newRootName);</span>
+<span class="nc" id="L285">        JtreeToGraphAdd.addPageLengthNodes();</span>
+
+<span class="nc" id="L287">        DefaultMutableTreeNode rootNodeNew = new DefaultMutableTreeNode(newRootName);</span>
+
+<span class="nc" id="L289">        DynamicTree.treeModel.setRoot(rootNodeNew);</span>
+<span class="nc" id="L290">        DynamicTree.treeModel.reload();</span>
+
+<span class="nc" id="L292">        ODMEEditor.treePanel.tree.setModel(DynamicTree.treeModel);</span>
+
+<span class="nc" id="L294">        ODMEEditor.projectPanel</span>
+<span class="nc" id="L295">                .changeCurrentProjectFileName(newProjectName, oldProjectTreeProjectName);</span>
+
+<span class="nc" id="L297">        Variable.setNullToAllRows();</span>
+<span class="nc" id="L298">        Constraint.setNullToAllRows();</span>
+<span class="nc" id="L299">        Behaviour.setNullToAllRows();</span>
+        
+<span class="nc" id="L301">        ODMEEditor.newProjectFolderCreation();</span>
+<span class="nc" id="L302">        Main.createScenariosJson();</span>
+<span class="nc" id="L303">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

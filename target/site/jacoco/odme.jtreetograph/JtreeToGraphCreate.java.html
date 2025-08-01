@@ -1,0 +1,669 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>JtreeToGraphCreate.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SESEditor</a> &gt; <a href="index.source.html" class="el_package">odme.jtreetograph</a> &gt; <span class="el_source">JtreeToGraphCreate.java</span></div><h1>JtreeToGraphCreate.java</h1><pre class="source lang-java linenums">package odme.jtreetograph;
+
+import static odme.jtreetograph.JtreeToGraphVariables.*;
+
+import java.awt.Color;
+import java.awt.MouseInfo;
+import java.awt.Point;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Hashtable;
+
+import javax.swing.JInternalFrame;
+import javax.swing.JOptionPane;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreeNode;
+import javax.swing.tree.TreePath;
+
+import org.w3c.dom.Document;
+
+import com.mxgraph.io.mxCodec;
+import com.mxgraph.model.mxCell;
+import com.mxgraph.swing.mxGraphComponent;
+import com.mxgraph.util.mxConstants;
+import com.mxgraph.util.mxEvent;
+import com.mxgraph.util.mxEventObject;
+import com.mxgraph.util.mxEventSource;
+import com.mxgraph.util.mxUndoManager;
+import com.mxgraph.util.mxUndoableEdit;
+import com.mxgraph.util.mxUtils;
+import com.mxgraph.util.mxXmlUtils;
+import com.mxgraph.util.mxEventSource.mxIEventListener;
+import com.mxgraph.view.mxGraph;
+import com.mxgraph.view.mxStylesheet;
+
+import odme.contextmenus.GraphCellPopUp;
+import odme.contextmenus.GraphPopup;
+import odme.odmeeditor.DynamicTree;
+import odme.odmeeditor.Main;
+import odme.odmeeditor.ODMEEditor;
+import odme.odmeeditor.PanelSplitor;
+
+
+
+<span class="nc" id="L46">public class JtreeToGraphCreate {</span>
+	
+	public static mxStylesheet stylesheet;
+
+	/**
+     * Under the MVC model, the JGraph class is a controller, GraphModel is a model,
+     * and GraphUI is a view.
+     *
+     * @param frame
+     */
+    public static void createGraph(JInternalFrame frame) {
+    	
+<span class="nc" id="L58">        graph = new mxGraph();</span>
+<span class="nc" id="L59">        undoManager = new mxUndoManager();</span>
+
+        // setting default edge color
+<span class="nc" id="L62">        graph.getStylesheet().getDefaultEdgeStyle()</span>
+<span class="nc" id="L63">                .put(mxConstants.STYLE_STROKECOLOR, mxUtils.getHexColorString(new Color(17, 138, 178)));</span>
+<span class="nc" id="L64">        graph.setCellsEditable(false);</span>
+
+        // creating new style
+<span class="nc" id="L67">        mxStylesheet stylesheet = graph.getStylesheet();</span>
+        
+<span class="nc" id="L69">        Hashtable&lt;String, Object&gt; entity = new Hashtable&lt;String, Object&gt;();</span>
+<span class="nc" id="L70">        entity.put(mxConstants.STYLE_SHAPE, mxConstants.SHAPE_RECTANGLE);</span>
+<span class="nc" id="L71">        entity.put(mxConstants.STYLE_FONTCOLOR, mxUtils.getHexColorString(Color.BLACK));</span>
+<span class="nc" id="L72">        entity.put(mxConstants.STYLE_FILLCOLOR, &quot;#FFFFFF&quot;);</span>
+<span class="nc" id="L73">        entity.put(mxConstants.STYLE_ROUNDED, true);</span>
+<span class="nc" id="L74">        entity.put(mxConstants.STYLE_LABEL_POSITION, mxConstants.ALIGN_BOTTOM);</span>
+<span class="nc" id="L75">        entity.put(mxConstants.STYLE_STROKECOLOR, mxUtils.getHexColorString(new Color(64, 61, 57)));</span>
+<span class="nc" id="L76">        entity.put(mxConstants.STYLE_STROKEWIDTH, 2);</span>
+<span class="nc" id="L77">        entity.put(mxConstants.STYLE_EDGE, mxUtils.getHexColorString(Color.BLACK));</span>
+<span class="nc" id="L78">        stylesheet.putCellStyle(&quot;Entity&quot;, entity);</span>
+
+<span class="nc" id="L80">        Hashtable&lt;String, Object&gt; multiaspect = new Hashtable&lt;String, Object&gt;();</span>
+<span class="nc" id="L81">        multiaspect.put(mxConstants.STYLE_SHAPE, mxConstants.SHAPE_IMAGE);</span>
+<span class="nc" id="L82">        multiaspect.put(mxConstants.STYLE_VERTICAL_LABEL_POSITION, mxConstants.ALIGN_TOP);</span>
+<span class="nc" id="L83">        multiaspect.put(mxConstants.STYLE_FONTCOLOR, mxUtils.getHexColorString(Color.BLACK));</span>
+        
+<span class="nc" id="L85">        multiaspect.put(mxConstants.STYLE_IMAGE,</span>
+<span class="nc" id="L86">                ODMEEditor.class.getClassLoader().getResource(&quot;images/multi.png&quot;));</span>
+        
+<span class="nc" id="L88">        stylesheet.putCellStyle(&quot;Multiaspect&quot;, multiaspect);</span>
+
+<span class="nc" id="L90">        Hashtable&lt;String, Object&gt; aspect = new Hashtable&lt;String, Object&gt;();</span>
+<span class="nc" id="L91">        aspect.put(mxConstants.STYLE_SHAPE, mxConstants.SHAPE_IMAGE);</span>
+<span class="nc" id="L92">        aspect.put(mxConstants.STYLE_VERTICAL_LABEL_POSITION, mxConstants.ALIGN_TOP);</span>
+<span class="nc" id="L93">        aspect.put(mxConstants.STYLE_FONTCOLOR, mxUtils.getHexColorString(Color.BLACK));</span>
+<span class="nc" id="L94">        aspect.put(mxConstants.STYLE_IMAGE,</span>
+<span class="nc" id="L95">                ODMEEditor.class.getClassLoader().getResource(&quot;images/aspect.png&quot;));</span>
+<span class="nc" id="L96">        stylesheet.putCellStyle(&quot;Aspect&quot;, aspect);</span>
+
+<span class="nc" id="L98">        Hashtable&lt;String, Object&gt; specialization = new Hashtable&lt;String, Object&gt;();</span>
+<span class="nc" id="L99">        specialization.put(mxConstants.STYLE_SHAPE, mxConstants.SHAPE_IMAGE);</span>
+<span class="nc" id="L100">        specialization.put(mxConstants.STYLE_VERTICAL_LABEL_POSITION, mxConstants.ALIGN_TOP);</span>
+<span class="nc" id="L101">        specialization.put(mxConstants.STYLE_FONTCOLOR, mxUtils.getHexColorString(Color.BLACK));</span>
+        
+<span class="nc" id="L103">        specialization.put(mxConstants.STYLE_IMAGE,</span>
+<span class="nc" id="L104">                ODMEEditor.class.getClassLoader().getResource(&quot;images/spec.png&quot;));</span>
+        
+<span class="nc" id="L106">        specialization.put(mxConstants.STYLE_EDGE, mxUtils.getHexColorString(Color.BLACK));</span>
+<span class="nc" id="L107">        stylesheet.putCellStyle(&quot;Specialization&quot;, specialization);</span>
+        
+        //###############
+        
+<span class="nc" id="L111">        Hashtable&lt;String, Object&gt; entityp = new Hashtable&lt;String, Object&gt;();</span>
+<span class="nc" id="L112">        entityp.put(mxConstants.STYLE_SHAPE, mxConstants.SHAPE_RECTANGLE);</span>
+<span class="nc" id="L113">        entityp.put(mxConstants.STYLE_FONTCOLOR, mxUtils.getHexColorString(Color.BLACK));</span>
+<span class="nc" id="L114">        entityp.put(mxConstants.STYLE_FILLCOLOR, &quot;#FFFFFF&quot;);</span>
+<span class="nc" id="L115">        entityp.put(mxConstants.STYLE_ROUNDED, true);</span>
+<span class="nc" id="L116">        entityp.put(mxConstants.STYLE_LABEL_POSITION, mxConstants.ALIGN_BOTTOM);</span>
+<span class="nc" id="L117">        entityp.put(mxConstants.STYLE_STROKECOLOR, mxUtils.getHexColorString(new Color(0, 128, 0)));</span>
+<span class="nc" id="L118">        entityp.put(mxConstants.STYLE_STROKEWIDTH, 2);</span>
+<span class="nc" id="L119">        entityp.put(mxConstants.STYLE_EDGE, mxUtils.getHexColorString(Color.green));</span>
+<span class="nc" id="L120">        stylesheet.putCellStyle(&quot;Entityp&quot;, entityp);</span>
+
+
+<span class="nc" id="L123">        Hashtable&lt;String, Object&gt; multiaspectp = new Hashtable&lt;String, Object&gt;();</span>
+<span class="nc" id="L124">        multiaspectp.put(mxConstants.STYLE_SHAPE, mxConstants.SHAPE_IMAGE);</span>
+<span class="nc" id="L125">        multiaspectp.put(mxConstants.STYLE_VERTICAL_LABEL_POSITION, mxConstants.ALIGN_TOP);</span>
+<span class="nc" id="L126">        multiaspectp.put(mxConstants.STYLE_FONTCOLOR, mxUtils.getHexColorString(Color.BLACK));</span>
+<span class="nc" id="L127">        multiaspectp.put(mxConstants.STYLE_IMAGE,</span>
+<span class="nc" id="L128">                ODMEEditor.class.getClassLoader().getResource(&quot;images/maspectToBePruned.png&quot;));</span>
+<span class="nc" id="L129">        stylesheet.putCellStyle(&quot;Multiaspectp&quot;, multiaspectp);</span>
+
+<span class="nc" id="L131">        Hashtable&lt;String, Object&gt; specializationp = new Hashtable&lt;String, Object&gt;();</span>
+<span class="nc" id="L132">        specializationp.put(mxConstants.STYLE_SHAPE, mxConstants.SHAPE_IMAGE);</span>
+<span class="nc" id="L133">        specializationp.put(mxConstants.STYLE_VERTICAL_LABEL_POSITION, mxConstants.ALIGN_TOP);</span>
+<span class="nc" id="L134">        specializationp.put(mxConstants.STYLE_FONTCOLOR, mxUtils.getHexColorString(Color.BLACK));</span>
+<span class="nc" id="L135">        specializationp.put(mxConstants.STYLE_IMAGE,</span>
+<span class="nc" id="L136">                ODMEEditor.class.getClassLoader().getResource(&quot;images/specializationToBePruned.png&quot;));</span>
+<span class="nc" id="L137">        specializationp.put(mxConstants.STYLE_EDGE, mxUtils.getHexColorString(Color.BLACK));</span>
+<span class="nc" id="L138">        stylesheet.putCellStyle(&quot;Specializationp&quot;, specializationp);</span>
+        
+        //###############
+
+<span class="nc" id="L142">        parent = graph.getDefaultParent();</span>
+
+<span class="nc bnc" id="L144" title="All 2 branches missed.">        if (ssdFileGraph.exists()) {</span>
+<span class="nc" id="L145">            graph.getModel().beginUpdate();</span>
+            try {
+                // use &quot;org.w3c.dom.Document&quot; not swing Document
+<span class="nc" id="L148">                Document xml = mxXmlUtils.parseXml(mxUtils.readFile(</span>
+                        ODMEEditor.fileLocation + &quot;/&quot; + ODMEEditor.projName + &quot;/&quot; + projectFileNameGraph
+                        + &quot;Graph.xml&quot;));
+
+<span class="nc" id="L152">                mxCodec codec = new mxCodec(xml);</span>
+<span class="nc" id="L153">                codec.decode(xml.getDocumentElement(), graph.getModel());</span>
+<span class="nc" id="L154">                parent = graph.getDefaultParent();</span>
+            } 
+<span class="nc" id="L156">            catch (Exception ex) {</span>
+<span class="nc" id="L157">                ex.printStackTrace();</span>
+            } 
+            finally {
+<span class="nc" id="L160">                graph.getModel().endUpdate();</span>
+<span class="nc" id="L161">            }</span>
+        } 
+        else {
+<span class="nc" id="L164">            graph.getModel().beginUpdate();</span>
+            try {
+<span class="nc" id="L166">                graph.insertVertex(parent, &quot;rootnode&quot;, &quot;Thing&quot;, 515, 20, 80, 30, &quot;Entity&quot;);</span>
+<span class="nc" id="L167">                graph.insertVertex(parent, &quot;hideV&quot;, &quot;End of Canvas&quot;, 0, 50000, 80, 30, &quot;Entity&quot;);</span>
+<span class="nc" id="L168">                graph.insertVertex(parent, &quot;hideH&quot;, &quot;End of Canvas&quot;, 50000, 0, 80, 30, &quot;Entity&quot;);</span>
+            } 
+            finally {
+<span class="nc" id="L171">                graph.getModel().endUpdate();</span>
+            }
+        }
+<span class="nc" id="L174">        graphComponent = new mxGraphComponent(graph);</span>
+<span class="nc" id="L175">        graphComponent.getViewport().setBackground(Color.WHITE);</span>
+        
+        // undo redo settings
+<span class="nc" id="L178">        mxEventSource.mxIEventListener listener = new mxEventSource.mxIEventListener() {</span>
+
+            @Override
+            public void invoke(Object sender, mxEventObject evt) {
+                // this condition is added to control subtree undo addition
+<span class="nc bnc" id="L183" title="All 4 branches missed.">                if (!ODMEEditor.undoControlForSubTree == true) {</span>
+<span class="nc" id="L184">                    undoManager.undoableEditHappened((mxUndoableEdit) evt.getProperty(&quot;edit&quot;));</span>
+                }
+<span class="nc" id="L186">            }</span>
+        };
+
+        // for undo redo
+<span class="nc" id="L190">        graph.getModel().addListener(mxEvent.UNDO, listener);</span>
+<span class="nc" id="L191">        graph.getView().addListener(mxEvent.UNDO, listener);</span>
+
+<span class="nc" id="L193">        frame.getContentPane().add(graphComponent);</span>
+
+        // for edge connection event
+<span class="nc" id="L196">        graph.addListener(mxEvent.CELL_CONNECTED, new mxIEventListener() {</span>
+            @Override
+            public void invoke(Object sender, mxEventObject evt) {
+<span class="nc" id="L199">                mxCell connectionCell = (mxCell) evt.getProperty(&quot;edge&quot;);</span>
+
+<span class="nc" id="L201">                lastAddedCell = (mxCell) connectionCell</span>
+<span class="nc" id="L202">                        .getSource(); // if there is no terminal cell then have to handle</span>
+<span class="nc" id="L203">            }</span>
+        });
+
+<span class="nc" id="L206">        graphComponent.getGraphControl().addMouseListener(new MouseAdapter() {</span>
+            @SuppressWarnings(&quot;finally&quot;)
+			public void mouseReleased(MouseEvent e) {
+<span class="nc" id="L209">                Object cell = graphComponent.getCellAt(e.getX(), e.getY());</span>
+<span class="nc" id="L210">                currentSelectedCell = (mxCell) cell; // this for console use</span>
+
+<span class="nc bnc" id="L212" title="All 2 branches missed.">                if (e.getButton() == MouseEvent.BUTTON1) {</span>
+                	
+<span class="nc bnc" id="L214" title="All 2 branches missed.">                    if (cell == null) {</span>
+<span class="nc" id="L215">                        String ob = Integer.toString(nodeNumber);</span>
+<span class="nc" id="L216">                        String nodeName = &quot;node&quot; + ob;</span>
+
+<span class="nc" id="L218">                        graph.getModel().beginUpdate();</span>
+
+                        try {
+<span class="nc bnc" id="L221" title="All 2 branches missed.">                            if (ODMEEditor.nodeAddDetector.equals(&quot;entity&quot;)) {</span>
+<span class="nc" id="L222">                                graph.insertVertex(parent, null, nodeName, e.getX() - 40, e.getY(),</span>
+                                                80, 30, &quot;Entity&quot;);
+<span class="nc" id="L224">                                nodeNumber++;</span>
+                            } 
+<span class="nc bnc" id="L226" title="All 2 branches missed.">                            else if (ODMEEditor.nodeAddDetector.equals(&quot;aspect&quot;)) {</span>
+<span class="nc" id="L227">                                graph.insertVertex(parent, null, nodeName + &quot;Dec&quot;, e.getX() - 15,</span>
+<span class="nc" id="L228">                                        e.getY(), 30, 30, &quot;Aspect&quot;);</span>
+<span class="nc" id="L229">                                nodeNumber++;</span>
+                            } 
+<span class="nc bnc" id="L231" title="All 2 branches missed.">                            else if (ODMEEditor.nodeAddDetector.equals(&quot;multiaspect&quot;)) {</span>
+<span class="nc" id="L232">                                graph.insertVertex(parent, null, nodeName + &quot;MAsp&quot;, e.getX() - 15,</span>
+<span class="nc" id="L233">                                                e.getY(), 30, 30, &quot;Multiaspect&quot;);</span>
+<span class="nc" id="L234">                                nodeNumber++;</span>
+                            } 
+<span class="nc bnc" id="L236" title="All 2 branches missed.">                            else if (ODMEEditor.nodeAddDetector.equals(&quot;specialization&quot;)) {</span>
+<span class="nc" id="L237">                                graph.insertVertex(parent, null, nodeName + &quot;Spec&quot;, e.getX() - 15,</span>
+<span class="nc" id="L238">                                                e.getY(), 30, 30, &quot;Specialization&quot;);</span>
+<span class="nc" id="L239">                                nodeNumber++;</span>
+                            }
+                        } 
+                        finally {
+<span class="nc" id="L243">                            graph.getModel().endUpdate();</span>
+                            // De-Selecting mouse selection from menu items
+<span class="nc" id="L245">                            ODMEEditor.nodeAddDetector = &quot;&quot;;</span>
+<span class="nc" id="L246">                            return;</span>
+                        }
+                    } 
+                    else {
+                        // this section is for showing variables of the selected node to the variable
+                        // table
+<span class="nc bnc" id="L252" title="All 2 branches missed.">                        if (!ODMEEditor.nodeAddDetector.equals(&quot;delete&quot;)) {</span>
+                        	
+<span class="nc" id="L254">                            Object showvar = graphComponent.getCellAt(e.getX(), e.getY());</span>
+<span class="nc" id="L255">                            mxCell varCell = (mxCell) showvar;</span>
+<span class="nc" id="L256">                            selectedNodeCellForVariableUpdate = varCell;</span>
+                            
+<span class="nc bnc" id="L258" title="All 2 branches missed.">                            if (varCell.isVertex()) {</span>
+                            	
+                            	// double click handling
+<span class="nc bnc" id="L261" title="All 2 branches missed.">                                if (e.getClickCount() == 2) {</span>
+<span class="nc" id="L262">                                    mxCell clikedCell = (mxCell) cell;</span>
+<span class="nc bnc" id="L263" title="All 2 branches missed.">                                    if (clikedCell.isVertex()) {</span>
+<span class="nc bnc" id="L264" title="All 2 branches missed.">                                    	if (ODMEEditor.toolMode == &quot;ses&quot;) {</span>
+<span class="nc" id="L265">                                    		Object position = graphComponent.getCellAt(e.getX(), e.getY());</span>
+<span class="nc" id="L266">                                    		JtreeToGraphGeneral.renameCell(position);</span>
+                                    	}
+                                    }
+                                }
+                                
+<span class="nc" id="L271">                                pathToRoot.add((String) varCell.getValue());</span>
+<span class="nc" id="L272">                                JtreeToGraphConvert.nodeToRootPathVar(varCell);</span>
+
+<span class="nc" id="L274">                                String[] stringArray = pathToRoot.toArray(new String[0]);</span>
+<span class="nc" id="L275">                                ArrayList&lt;String&gt; pathToRootRev = new ArrayList&lt;String&gt;();</span>
+
+<span class="nc bnc" id="L277" title="All 2 branches missed.">                                for (int i = stringArray.length - 1; i &gt;= 0; i--) {</span>
+<span class="nc" id="L278">                                    pathToRootRev.add(stringArray[i]);</span>
+                                }
+
+<span class="nc" id="L281">                                String[] stringArrayRev = pathToRootRev.toArray(new String[0]);</span>
+                            
+<span class="nc" id="L283">                                TreePath treePathForVariable = JtreeToGraphGeneral.getTreeNodePath(stringArrayRev);</span>
+<span class="nc bnc" id="L284" title="All 2 branches missed.">                                if (!(treePathForVariable == null)) {</span>
+<span class="nc" id="L285">                                    DefaultMutableTreeNode currentNode =</span>
+                                            (DefaultMutableTreeNode) (treePathForVariable
+<span class="nc" id="L287">                                                                              .getLastPathComponent()); // if mouse not released then some condition</span>
+
+                                    // -------------------------------------------------------
+<span class="nc" id="L290">                                    TreeNode[] nodes = currentNode.getPath();</span>
+
+<span class="nc" id="L292">                                    String[] nodesToSelectedNode = new String[100];</span>
+<span class="nc" id="L293">                                    int b = 0;</span>
+
+<span class="nc bnc" id="L295" title="All 2 branches missed.">                                    for (TreePath key : DynamicTree.varMap.keySet()) {</span>
+<span class="nc" id="L296">                                        int a = 0;</span>
+
+<span class="nc bnc" id="L298" title="All 2 branches missed.">                                        for (String value : DynamicTree.varMap.get(key)) {</span>
+<span class="nc" id="L299">                                            DefaultMutableTreeNode currentNode2 =</span>
+<span class="nc" id="L300">                                                    (DefaultMutableTreeNode) (key.getLastPathComponent());</span>
+
+<span class="nc" id="L302">                                            TreeNode[] nodes2 = currentNode2.getPath();</span>
+                                            
+<span class="nc bnc" id="L304" title="All 2 branches missed.">                                            if (nodes.length == nodes2.length) {</span>
+<span class="nc" id="L305">                                            	int aa = 1;</span>
+<span class="nc bnc" id="L306" title="All 2 branches missed.">                                                for (int i = 0; i &lt; nodes.length; i++) {</span>
+<span class="nc bnc" id="L307" title="All 2 branches missed.">                                                    if (!nodes[i].toString().equals(nodes2[i].toString())) {</span>
+<span class="nc" id="L308">                                                    	aa = 0;</span>
+<span class="nc" id="L309">                                                    	break;</span>
+                                                    } 
+                                                }
+<span class="nc" id="L312">                                                a = aa;</span>
+                                            }
+<span class="nc bnc" id="L314" title="All 2 branches missed.">                                            if (a == 1) {</span>
+<span class="nc" id="L315">                                                nodesToSelectedNode[b] = value;</span>
+<span class="nc" id="L316">                                                b++;</span>
+                                            }
+<span class="nc" id="L318">                                        }</span>
+<span class="nc" id="L319">                                    }</span>
+
+<span class="nc" id="L321">                                    nodesToSelectedNode = Arrays.stream(nodesToSelectedNode)</span>
+<span class="nc bnc" id="L322" title="All 4 branches missed.">                                            .filter(s -&gt; (s != null &amp;&amp; s.length() &gt; 0))</span>
+<span class="nc" id="L323">                                            .toArray(String[]::new);</span>
+
+<span class="nc" id="L325">                                    Arrays.parallelSort(nodesToSelectedNode);</span>
+
+<span class="nc" id="L327">                                    ODMEEditor.scenarioVariable</span>
+<span class="nc" id="L328">                                            .showNodeValuesInTable(currentNode.toString(),</span>
+                                                    nodesToSelectedNode);
+                                    
+<span class="nc" id="L331">                                    variableList = nodesToSelectedNode;</span>
+                                    
+                                    // -------------------------------------------------------
+
+<span class="nc" id="L335">                                    pathToRoot.clear();</span>
+
+                                    // for showing constraints in the table when selecting any node from graph;
+<span class="nc" id="L338">                                    ODMEEditor.treePanel.showConstraintsInTable(treePathForVariable);</span>
+<span class="nc" id="L339">                                } </span>
+                                else {
+<span class="nc" id="L341">                                    pathToRoot.clear();</span>
+                                    
+                                }
+                            }
+                            
+                            
+//                            if (ODMEEditor.toolMode == &quot;ses&quot;) {
+//                            	new MyKeyboardHandler(graphComponent); 
+//                            	graph.addListener(mxEvent.CELLS_REMOVED, new mxIEventListener() {
+//                            		@Override public void invoke(Object sender, mxEventObject evt) {
+//                            			try {
+//                            				Object delcell = graphComponent.getCellAt(e.getX(), e.getY());
+//
+//                                            if (delcell != null) {
+//                                                mxCell deleteCell = (mxCell) delcell;
+//
+//                                                if (deleteCell.isEdge()) {
+//                                                	JtreeToGraphDelete.deleteEdgeFromGraphPopup(delcell);
+//                                                } 
+//                                                else {
+//                                                	JtreeToGraphDelete.deleteNodeFromGraphPopup(delcell);
+//                                                }
+//                                            }
+//                            				Thread.sleep(10);
+//                            			} catch (InterruptedException e1) {
+//                            				e1.printStackTrace();
+//                            			}
+//                            		} 
+//                            	});
+//                            }   
+<span class="nc" id="L371">                        }</span>
+                        
+                        //if (SESEditor.nodeAddDetector.equals(&quot;delete&quot;)) {
+                        else {
+                            // this delete will not delete all the child node. becuase sometimes we need to
+                            // delete
+                            // only one node that time we can use this and for that we have to add another
+                            // button for not synchronizing with jtree
+
+<span class="nc" id="L380">                            Object delcell = graphComponent.getCellAt(e.getX(), e.getY());</span>
+<span class="nc bnc" id="L381" title="All 2 branches missed.">                            if (delcell != null) {</span>
+<span class="nc" id="L382">                                mxCell deleteCell = (mxCell) delcell;</span>
+
+<span class="nc bnc" id="L384" title="All 2 branches missed.">                                if (deleteCell.isEdge()) {</span>
+<span class="nc" id="L385">                                	JtreeToGraphDelete.deleteEdgeFromGraphPopup(delcell);</span>
+                                } 
+                                else {
+<span class="nc" id="L388">                                	JtreeToGraphDelete.deleteNodeFromGraphPopup(delcell);</span>
+                                }
+                            }
+                            // De-Selecting mouse selection from menu items
+<span class="nc" id="L392">                            ODMEEditor.nodeAddDetector = &quot;&quot;;</span>
+                        }
+
+                        
+                    } // end of else from if cell==null
+
+                    
+                      
+                    
+                 // for the last added node
+<span class="nc" id="L402">                    callAfterEdgeConnectionComplete();</span>
+                } // button 1 end
+
+                // right click events using pop up menu
+                // #ROY - added BUtton2 check to support laptops too
+<span class="nc bnc" id="L407" title="All 2 branches missed.">                else if (   (e.getButton() == MouseEvent.BUTTON2)</span>
+<span class="nc bnc" id="L408" title="All 2 branches missed.">                	|| (e.getButton() == MouseEvent.BUTTON3) ) {</span>
+<span class="nc" id="L409">                	System.out.println(&quot;JTREETOGRAPH - RIGHT CLICK &quot;);</span>
+<span class="nc" id="L410">                	Object showvar = graphComponent.getCellAt(e.getX(), e.getY());</span>
+<span class="nc" id="L411">                    mxCell varCell = (mxCell) showvar;</span>
+<span class="nc" id="L412">                    selectedNodeCellForVariableUpdate = varCell;</span>
+                    
+                    //------------------------------
+<span class="nc bnc" id="L415" title="All 2 branches missed.">                    if (cell != null) {</span>
+<span class="nc bnc" id="L416" title="All 2 branches missed.">                    if (varCell.isVertex()) {</span>
+                    	
+                    	// double click handling
+<span class="nc bnc" id="L419" title="All 2 branches missed.">                        if (e.getClickCount() == 2) {</span>
+<span class="nc" id="L420">                            mxCell clikedCell = (mxCell) cell;</span>
+<span class="nc bnc" id="L421" title="All 2 branches missed.">                            if (clikedCell.isVertex()) {</span>
+<span class="nc bnc" id="L422" title="All 2 branches missed.">                            	if (ODMEEditor.toolMode == &quot;ses&quot;) {</span>
+<span class="nc" id="L423">                            		Object position = graphComponent.getCellAt(e.getX(), e.getY());</span>
+<span class="nc" id="L424">                            		JtreeToGraphGeneral.renameCell(position);</span>
+                            	}
+                            }
+                        }
+                        
+<span class="nc" id="L429">                        pathToRoot.add((String) varCell.getValue());</span>
+<span class="nc" id="L430">                        JtreeToGraphConvert.nodeToRootPathVar(varCell);</span>
+
+<span class="nc" id="L432">                        String[] stringArray = pathToRoot.toArray(new String[0]);</span>
+<span class="nc" id="L433">                        ArrayList&lt;String&gt; pathToRootRev = new ArrayList&lt;String&gt;();</span>
+
+<span class="nc bnc" id="L435" title="All 2 branches missed.">                        for (int i = stringArray.length - 1; i &gt;= 0; i--) {</span>
+<span class="nc" id="L436">                            pathToRootRev.add(stringArray[i]);</span>
+                        }
+
+<span class="nc" id="L439">                        String[] stringArrayRev = pathToRootRev.toArray(new String[0]);</span>
+
+<span class="nc" id="L441">                        TreePath treePathForVariable = JtreeToGraphGeneral.getTreeNodePath(stringArrayRev);</span>
+<span class="nc bnc" id="L442" title="All 2 branches missed.">                        if (!(treePathForVariable == null)) {</span>
+<span class="nc" id="L443">                            DefaultMutableTreeNode currentNode =</span>
+                                    (DefaultMutableTreeNode) (treePathForVariable
+<span class="nc" id="L445">                                                                      .getLastPathComponent()); // if mouse not released then some condition</span>
+
+                            // -------------------------------------------------------
+<span class="nc" id="L448">                            TreeNode[] nodes = currentNode.getPath();</span>
+<span class="nc" id="L449">                            String[] nodesToSelectedNode = new String[100];</span>
+<span class="nc" id="L450">                            int b = 0;</span>
+                           
+<span class="nc bnc" id="L452" title="All 2 branches missed.">                            for (TreePath key : DynamicTree.varMap.keySet()) {</span>
+<span class="nc" id="L453">                                int a = 0;</span>
+
+<span class="nc bnc" id="L455" title="All 2 branches missed.">                                for (String value : DynamicTree.varMap.get(key)) {</span>
+<span class="nc" id="L456">                                    DefaultMutableTreeNode currentNode2 =</span>
+<span class="nc" id="L457">                                            (DefaultMutableTreeNode) (key.getLastPathComponent());</span>
+
+<span class="nc" id="L459">                                    TreeNode[] nodes2 = currentNode2.getPath();</span>
+
+<span class="nc bnc" id="L461" title="All 2 branches missed.">                                    if (nodes.length == nodes2.length) {</span>
+<span class="nc" id="L462">                                           int aa = 1;</span>
+<span class="nc bnc" id="L463" title="All 2 branches missed.">                                           for (int i = 0; i &lt; nodes.length; i++) {</span>
+<span class="nc bnc" id="L464" title="All 2 branches missed.">                                        	   if (!nodes[i].toString().equals(nodes2[i].toString())) {</span>
+<span class="nc" id="L465">                                        		   aa = 0;</span>
+<span class="nc" id="L466">                                                   break;</span>
+                                        	   } 
+                                           	}
+                                            
+<span class="nc" id="L470">                                           a = aa;</span>
+                                    }
+<span class="nc bnc" id="L472" title="All 2 branches missed.">                                    if (a == 1) {</span>
+<span class="nc" id="L473">                                        nodesToSelectedNode[b] = value;</span>
+<span class="nc" id="L474">                                        b++;</span>
+                                    }
+<span class="nc" id="L476">                                }</span>
+<span class="nc" id="L477">                            }</span>
+
+<span class="nc" id="L479">                            nodesToSelectedNode = Arrays.stream(nodesToSelectedNode)</span>
+<span class="nc bnc" id="L480" title="All 4 branches missed.">                                    .filter(s -&gt; (s != null &amp;&amp; s.length() &gt; 0))</span>
+<span class="nc" id="L481">                                    .toArray(String[]::new);</span>
+
+<span class="nc" id="L483">                            Arrays.parallelSort(nodesToSelectedNode);</span>
+
+<span class="nc" id="L485">                            ODMEEditor.scenarioVariable</span>
+<span class="nc" id="L486">                                    .showNodeValuesInTable(currentNode.toString(),</span>
+                                            nodesToSelectedNode);
+                            
+<span class="nc" id="L489">                            variableList = nodesToSelectedNode;</span>
+                            // -------------------------------------------------------
+
+<span class="nc" id="L492">                            pathToRoot.clear();</span>
+
+                            // for showing constraints in the table when selecting any node from graph;
+<span class="nc" id="L495">                            ODMEEditor.treePanel.showConstraintsInTable(treePathForVariable);</span>
+<span class="nc" id="L496">                        } </span>
+                        else {
+<span class="nc" id="L498">                            pathToRoot.clear();</span>
+                        }
+                    }
+                    }
+                  //------------------------------
+       	
+                    // for fixing popup window while page is more thant monitor height
+<span class="nc" id="L505">                    Point p = MouseInfo.getPointerInfo().getLocation();</span>
+<span class="nc" id="L506">                    int y = p.y;</span>
+<span class="nc" id="L507">                    int x = p.x;</span>
+<span class="nc" id="L508">                    int screenWidth = java.awt.Toolkit.getDefaultToolkit().getScreenSize().width;</span>
+
+<span class="nc bnc" id="L510" title="All 2 branches missed.">                    if (x &gt; screenWidth) {</span>
+<span class="nc" id="L511">                        x = x - PanelSplitor.dividerLocation - 10 - screenWidth;</span>
+                    } 
+                    else {
+<span class="nc" id="L514">                        x = x - PanelSplitor.dividerLocation - 10;</span>
+                    }
+                    // end of that
+
+                    // here position will be edge or vertex on that place
+<span class="nc" id="L519">                    Object position = graphComponent.getCellAt(e.getX(), e.getY());</span>
+
+                    // checking if there is any vertex or edge
+<span class="nc bnc" id="L522" title="All 2 branches missed.">                    if (position != null) {</span>
+<span class="nc bnc" id="L523" title="All 4 branches missed.">                    	if (!((mxCell) position).isVertex() &amp;&amp; ODMEEditor.toolMode == &quot;pes&quot;) {}</span>
+                    	else {
+<span class="nc" id="L525">                    		GraphCellPopUp graphCellPopup = new GraphCellPopUp(position);</span>
+                    		// #ROY - removed &quot;isPoppupTrigger&quot; to solve contextMenu bug
+<span class="nc" id="L527">                			graphCellPopup.show(graphComponent, x, y - 104);</span>
+<span class="nc" id="L528">                    	}</span>
+                        
+                    }
+                    else {
+<span class="nc bnc" id="L532" title="All 2 branches missed.">                    	if (ODMEEditor.toolMode == &quot;ses&quot;) {	</span>
+<span class="nc" id="L533">                    		GraphPopup graphPopup = new GraphPopup(e.getX(), e.getY());</span>
+                    		// #ROY - removed &quot;isPoppupTrigger&quot; to solve contextMenu bug
+<span class="nc" id="L535">                			graphPopup.show(graphComponent, x, y - 104);</span>
+                    	}
+                    }
+                }
+                
+<span class="nc" id="L540">            }</span>
+            // mouse event 2
+        });
+<span class="nc" id="L543">    }</span>
+    
+    public static void callAfterEdgeConnectionComplete() {
+<span class="nc" id="L546">        mxCell addedCell = null;</span>
+
+<span class="nc bnc" id="L548" title="All 4 branches missed.">        if (lastAddedCell != null &amp;&amp; graph.getOutgoingEdges(lastAddedCell).length &gt; 0) {</span>
+<span class="nc" id="L549">            Object[] outgoing = graph.getOutgoingEdges(lastAddedCell);</span>
+<span class="nc" id="L550">            Object targetCell = graph.getModel().getTerminal(outgoing[outgoing.length - 1], false);</span>
+<span class="nc" id="L551">            addedCell = (mxCell) targetCell;</span>
+<span class="nc" id="L552">            Object[] incoming = graph.getIncomingEdges(addedCell);</span>
+
+<span class="nc" id="L554">            Object lastAddedEdge = outgoing[outgoing.length - 1];</span>
+<span class="nc" id="L555">            mxCell lastEdge = (mxCell) lastAddedEdge;</span>
+<span class="nc bnc" id="L556" title="All 2 branches missed.">            if (lastEdge.isEdge()) {</span>
+                try {
+<span class="nc" id="L558">                    lastEdge.getTarget().getValue();</span>
+                } 
+<span class="nc" id="L560">                catch (Exception e) {</span>
+<span class="nc" id="L561">                    graph.removeCells(new Object[] {outgoing[outgoing.length - 1]});</span>
+<span class="nc" id="L562">                    addedCell = null;</span>
+<span class="nc" id="L563">                    lastAddedCell = null;</span>
+<span class="nc" id="L564">                    return;</span>
+<span class="nc" id="L565">                }</span>
+            }
+
+<span class="nc bnc" id="L568" title="All 2 branches missed.">            if (lastAddedCell.getId().startsWith(&quot;uniformity&quot;)) {</span>
+<span class="nc" id="L569">                graph.removeCells(new Object[] {outgoing[outgoing.length - 1]});</span>
+
+<span class="nc" id="L571">                JOptionPane.showMessageDialog(Main.frame,</span>
+                        &quot;You can not add here. Add to the reference node.&quot;);
+
+<span class="nc" id="L574">                addedCell = null;</span>
+<span class="nc" id="L575">                lastAddedCell = null;</span>
+            }
+
+<span class="nc bnc" id="L578" title="All 2 branches missed.">            if (incoming.length &gt; 1) {</span>
+<span class="nc" id="L579">                graph.removeCells(new Object[] {outgoing[outgoing.length - 1]});</span>
+<span class="nc" id="L580">                lastAddedCell = null;</span>
+            } 
+            else {
+<span class="nc bnc" id="L583" title="All 2 branches missed.">                if (addedCell != null) {</span>
+
+<span class="nc" id="L585">                	JtreeToGraphConvert.nodeToRootPath(addedCell);</span>
+
+<span class="nc" id="L587">                    mxCell cellParentCheck = lastAddedCell;</span>
+<span class="nc" id="L588">                    lastAddedCell = null;</span>
+
+                    // update jtree
+<span class="nc" id="L591">                    String[] stringArray = path.toArray(new String[0]);</span>
+<span class="nc" id="L592">                    ArrayList&lt;String&gt; pathRev = new ArrayList&lt;String&gt;();</span>
+
+<span class="nc bnc" id="L594" title="All 2 branches missed.">                    for (int i = stringArray.length - 1; i &gt;= 0; i--) {</span>
+<span class="nc" id="L595">                        pathRev.add(stringArray[i]);</span>
+                    }
+
+<span class="nc" id="L598">                    String[] stringArrayRev = pathRev.toArray(new String[0]);</span>
+
+                    // have to check if the source node is connected with any parent or not.
+                    /*
+                     * for (int i = stringArrayRev.length - 1; i &gt;= 0; i--) {
+                     * System.out.println(stringArrayRev[i]); }
+                     */
+
+<span class="nc bnc" id="L606" title="All 2 branches missed.">                    if (cellParentCheck != null) {</span>
+<span class="nc" id="L607">                        if (cellParentCheck.getId()</span>
+<span class="nc bnc" id="L608" title="All 2 branches missed.">                                .equals(&quot;rootnode&quot;)) {// by using checkRootConnectivity() i can omit</span>
+                            // this section and make it only on if else.
+                            // have to check later
+<span class="nc bnc" id="L611" title="All 2 branches missed.">                            if (graph.getOutgoingEdges(addedCell).length &gt; 0) {</span>
+                                // for cell who has child elements and added to some other parent as- a child
+                                // node. subtree addition
+<span class="nc" id="L614">                            	JtreeToGraphSave.saveModuleFromCurrentModel(cellParentCheck);</span>
+<span class="nc" id="L615">                                ODMEEditor.undoControlForSubTree = true;</span>
+<span class="nc" id="L616">                                JtreeToGraphAdd.addModuleFromSubgraph(cellParentCheck);</span>
+<span class="nc" id="L617">                                JtreeToGraphDelete.deleteNodeFromGraphPopupForSubTree(firstAddedCellForSubTreeDeletion);</span>
+<span class="nc" id="L618">                                ODMEEditor.undoControlForSubTree = false;</span>
+<span class="nc" id="L619">                                firstAddedCellForSubTreeDeletion = null;</span>
+<span class="nc" id="L620">                                firstAddedCellForSubTree = 0;</span>
+
+                            } else {
+<span class="nc" id="L623">                            	JtreeToGraphAdd.addNodeWIthGraphAddition(addedCell.getValue().toString(),</span>
+                                        stringArrayRev);
+                                // have to check subtree here
+                            }
+                        }
+                        else {// if not root node
+<span class="nc" id="L629">                        	JtreeToGraphCheck.checkRootConnectivity(cellParentCheck);</span>
+
+<span class="nc bnc" id="L631" title="All 2 branches missed.">                            if (connectedToRoot) {</span>
+<span class="nc" id="L632">                                Object[] forParentCheck = graph.getIncomingEdges(cellParentCheck);</span>
+<span class="nc bnc" id="L633" title="All 2 branches missed.">                                if (forParentCheck.length == 1) {</span>
+<span class="nc bnc" id="L634" title="All 2 branches missed.">                                    if (graph.getOutgoingEdges(addedCell).length &gt; 0) {</span>
+                                        // for cell who has child elements and added to some other parent as a child
+                                        // node. subtree creation
+<span class="nc" id="L637">                                    	JtreeToGraphSave.saveModuleFromCurrentModel(cellParentCheck);</span>
+<span class="nc" id="L638">                                        ODMEEditor.undoControlForSubTree = true;</span>
+<span class="nc" id="L639">                                        JtreeToGraphAdd.addModuleFromSubgraph(cellParentCheck);</span>
+<span class="nc" id="L640">                                        JtreeToGraphDelete.deleteNodeFromGraphPopupForSubTree(firstAddedCellForSubTreeDeletion);</span>
+<span class="nc" id="L641">                                        ODMEEditor.undoControlForSubTree = false;</span>
+<span class="nc" id="L642">                                        firstAddedCellForSubTreeDeletion = null;</span>
+<span class="nc" id="L643">                                        firstAddedCellForSubTree = 0;</span>
+                                    }
+                                    else {
+<span class="nc" id="L646">                                    	JtreeToGraphAdd.addNodeWIthGraphAddition(addedCell.getValue().toString(),</span>
+                                                stringArrayRev);
+
+<span class="nc" id="L649">                                        System.out.println(&quot;Tested syn now&quot;);</span>
+<span class="nc" id="L650">                                        System.out.println(&quot;cellParentCheck:&quot; + cellParentCheck.getValue());</span>
+<span class="nc" id="L651">                                        System.out.println(&quot;addedCell:&quot; + addedCell.getValue());</span>
+                                        // Synchronization with its child node while adding into main reference node
+<span class="nc" id="L653">                                        JtreeToGraphCheck.checkSubtreeNodeForSync(cellParentCheck, addedCell);</span>
+                                        // have to check subtree here for adding node with same node
+<span class="nc" id="L655">                                        JtreeToGraphCheck.checkSubtreeNode(addedCell);</span>
+                                    }
+                                }
+                            }
+<span class="nc" id="L659">                            connectedToRoot = false;</span>
+                        }
+<span class="nc" id="L661">                        cellParentCheck = null;</span>
+                    }
+<span class="nc" id="L663">                    path.clear();</span>
+                }
+            }
+        }
+<span class="nc" id="L667">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

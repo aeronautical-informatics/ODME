@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>XMLViewer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SESEditor</a> &gt; <a href="index.source.html" class="el_package">odme.odmeeditor</a> &gt; <span class="el_source">XMLViewer.java</span></div><h1>XMLViewer.java</h1><pre class="source lang-java linenums">package odme.odmeeditor;
+
+import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
+import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
+import org.fife.ui.rtextarea.RTextScrollPane;
+
+import javax.swing.JInternalFrame;
+import javax.swing.JPanel;
+import java.awt.BorderLayout;
+
+/**
+ * &lt;h1&gt;XMLViewer&lt;/h1&gt;
+ * &lt;p&gt;
+ * This class inherits JInternalFrame because it is using within another frame.
+ * XMLViewer is used to display XML instance of the created SES model. XML
+ * Schema of the model is also displayed in this viewer. Console window also use
+ * this viewer to display errors.
+ * &lt;/p&gt;
+ *
+ * @author ---
+ * @version ---
+ */
+public class XMLViewer extends JInternalFrame {
+
+	private static final long serialVersionUID = 1L;
+	public RSyntaxTextArea textArea;
+    private JPanel cp;
+    private RTextScrollPane sp;
+
+<span class="nc" id="L30">    public XMLViewer() {</span>
+<span class="nc" id="L31">        cp = new JPanel(new BorderLayout());</span>
+<span class="nc" id="L32">        textArea = new RSyntaxTextArea(20, 60);</span>
+<span class="nc" id="L33">        textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_XML);</span>
+<span class="nc" id="L34">        textArea.setCodeFoldingEnabled(true);</span>
+<span class="nc" id="L35">        sp = new RTextScrollPane(textArea);</span>
+<span class="nc" id="L36">        cp.add(sp);</span>
+<span class="nc" id="L37">        setContentPane(cp);</span>
+<span class="nc" id="L38">        setTitle(&quot;XML Viewer&quot;);</span>
+<span class="nc" id="L39">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

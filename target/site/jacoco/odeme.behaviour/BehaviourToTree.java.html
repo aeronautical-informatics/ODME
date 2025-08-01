@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BehaviourToTree.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SESEditor</a> &gt; <a href="index.source.html" class="el_package">odeme.behaviour</a> &gt; <span class="el_source">BehaviourToTree.java</span></div><h1>BehaviourToTree.java</h1><pre class="source lang-java linenums">package odeme.behaviour;
+
+import java.awt.Cursor;
+import java.awt.GridLayout;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.ObjectInputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTree;
+import javax.swing.event.TreeModelEvent;
+import javax.swing.event.TreeModelListener;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeNode;
+import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
+
+import behaviourtreetograph.JtreeToGraphSave;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.LinkedHashMultimap;
+import com.google.common.collect.Multimap;
+
+import odeme.behaviour.ODMEBehaviourEditor;
+import odme.core.CustomIconRenderer;
+
+import odme.core.UndoableTreeModel;
+import odme.odmeeditor.ODMEEditor;
+import org.fife.util.DynamicIntArray;
+
+public class BehaviourToTree  extends JPanel implements MouseListener{
+
+
+	public  Multimap&lt;TreePath, String&gt; behavioursList;
+
+	public File ssdFileBeh;
+	public static String selectedScenario;
+	public static DefaultMutableTreeNode root;
+	public  JTree  tree;
+
+	private int clickControl;
+
+	@SuppressWarnings(&quot;unchecked&quot;)
+	public BehaviourToTree(){
+<span class="nc" id="L62">		super(new GridLayout(1, 0));</span>
+
+		//now construct tree of behaviours
+<span class="nc" id="L65">		ssdFileBeh = new File(ODMEEditor.fileLocation + &quot;/&quot;+ ODMEEditor.projName +&quot;/&quot;+ selectedScenario + &quot;/&quot;+ ODMEEditor.projName+&quot;.ssdbeh&quot; );</span>
+
+//		System.out.println(&quot;Path  = &quot;+ODMEEditor.fileLocation + &quot;/&quot;+ ODMEEditor.projName +&quot;/&quot;+ selectedScenario + &quot;/&quot;+ ODMEEditor.projName+&quot;.ssdbeh&quot;);
+<span class="nc" id="L68">		behavioursList = ArrayListMultimap.create();</span>
+
+<span class="nc bnc" id="L70" title="All 2 branches missed.">		if(ssdFileBeh.exists()) {</span>
+			//read Node from the  file
+			try {
+//				  behavioursList = null;
+<span class="nc" id="L74">				ObjectInputStream oisbeh = new ObjectInputStream(new FileInputStream(ssdFileBeh));</span>
+<span class="nc" id="L75">				behavioursList = (Multimap&lt;TreePath , String&gt;) oisbeh.readObject();</span>
+<span class="nc" id="L76">				oisbeh.close();</span>
+
+<span class="nc" id="L78">				System.out.println(&quot;behavioursList = &quot; + behavioursList.toString());</span>
+
+				//first sort this List so that i can get parent node
+<span class="nc" id="L81">				Comparator&lt;TreePath&gt; pathLengthComparator = Comparator.comparingInt(path -&gt; path.getPathCount());</span>
+
+				// Sort the behavioursList based on TreePath length
+<span class="nc" id="L84">				List&lt;TreePath&gt; sortedKeys = new ArrayList&lt;&gt;(behavioursList.keySet());</span>
+
+<span class="nc" id="L86">				HashSet&lt;TreePath&gt; sortedSet = new HashSet&lt;&gt;(behavioursList.keySet());</span>
+
+<span class="nc" id="L88">				Collections.sort(sortedKeys, pathLengthComparator);</span>
+
+<span class="nc" id="L90">				root = treeify(convert(behavioursList));</span>
+
+<span class="nc" id="L92">				tree = new JTree(root);</span>
+<span class="nc" id="L93">				tree.setEditable(true);</span>
+<span class="nc" id="L94">				tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);</span>
+<span class="nc" id="L95">				tree.setShowsRootHandles(true);</span>
+<span class="nc" id="L96">				tree.addMouseListener(this);</span>
+
+				// for expanding the tree on starting
+<span class="nc bnc" id="L99" title="All 2 branches missed.">				for (int i = 0; i &lt; tree.getRowCount(); i++) {</span>
+<span class="nc" id="L100">					tree.expandRow(i);</span>
+				}
+
+<span class="nc" id="L103">				Path path = Paths.get(&quot;&quot;).toAbsolutePath();</span>
+<span class="nc" id="L104">				String repFslas = path.toString().replace(&quot;\\&quot;, &quot;/&quot;);</span>
+
+<span class="nc" id="L106">				Icon entityIcon = new ImageIcon(repFslas + &quot;/resources/images/en.png&quot;);</span>
+
+<span class="nc" id="L108">				CustomIconRenderer customIconRenderer = new CustomIconRenderer();</span>
+<span class="nc" id="L109">				tree.setCellRenderer(customIconRenderer);</span>
+
+<span class="nc" id="L111">				customIconRenderer.setLeafIcon(entityIcon);</span>
+<span class="nc" id="L112">				tree.setCellRenderer(new CustomIconRenderer());</span>
+<span class="nc" id="L113">				tree.setCellRenderer(customIconRenderer);</span>
+
+//	              // for cursor change
+
+<span class="nc" id="L117">				tree.addMouseListener(this);</span>
+
+<span class="nc" id="L119">				JScrollPane scrollPane = new JScrollPane(tree);</span>
+<span class="nc" id="L120">				add(scrollPane);</span>
+
+<span class="nc" id="L122">			}catch(Exception e) {</span>
+<span class="nc" id="L123">			}</span>
+		} else {
+<span class="nc" id="L125">			System.out.println(&quot;Behaviour file does not exist&quot;);</span>
+		}
+<span class="nc" id="L127">	}</span>
+
+	public static String[][] convert(Multimap&lt;TreePath ,String&gt; multiMap) {
+
+<span class="nc" id="L131">		Map&lt;TreePath, Collection&lt;String&gt;&gt; map =   multiMap.asMap();</span>
+//		  System.out.println(&quot;Converted values &quot;+map.toString());
+
+<span class="nc" id="L134">		String[][] resultArray = convertMapToArray(map);</span>
+		// Sort the array using a custom comparator
+<span class="nc" id="L136">		Arrays.sort(resultArray, Comparator.comparing(strings -&gt; strings[0]));</span>
+<span class="nc" id="L137">		return resultArray;</span>
+
+	}
+
+	public static String[][] convertMapToArray(Map&lt;TreePath, Collection&lt;String&gt;&gt; map) {
+<span class="nc" id="L142">		List&lt;String[]&gt; resultList = new ArrayList&lt;&gt;();</span>
+
+<span class="nc bnc" id="L144" title="All 2 branches missed.">		for (Map.Entry&lt;TreePath, Collection&lt;String&gt;&gt; entry : map.entrySet()) {</span>
+<span class="nc" id="L145">			TreePath treePath = entry.getKey();</span>
+<span class="nc" id="L146">			Collection&lt;String&gt; values = entry.getValue();</span>
+
+<span class="nc" id="L148">			String[] row = new String[treePath.getPathCount() + values.size()];</span>
+
+<span class="nc" id="L150">			int index = 0;</span>
+<span class="nc bnc" id="L151" title="All 2 branches missed.">			for (Object pathComponent : treePath.getPath()) {</span>
+<span class="nc" id="L152">				row[index++] = pathComponent.toString();</span>
+			}
+
+<span class="nc bnc" id="L155" title="All 2 branches missed.">			for (String value : values) {</span>
+<span class="nc" id="L156">				row[index++] = value;</span>
+<span class="nc" id="L157">			}</span>
+
+<span class="nc" id="L159">			resultList.add(row);</span>
+<span class="nc" id="L160">		}</span>
+
+<span class="nc" id="L162">		return resultList.toArray(new String[0][0]);</span>
+	}
+
+
+	public static DefaultMutableTreeNode treeify(String[][] paths) {
+<span class="nc" id="L167">		DefaultMutableTreeNode root = new DefaultMutableTreeNode(&quot;&quot;);</span>
+<span class="nc bnc" id="L168" title="All 2 branches missed.">		for ( String[] path : paths) {</span>
+<span class="nc" id="L169">			DefaultMutableTreeNode curr = root;</span>
+
+<span class="nc bnc" id="L171" title="All 2 branches missed.">			for ( String value : path){</span>
+//			    	 System.out.println(value.toString());
+<span class="nc" id="L173">				DefaultMutableTreeNode next = null;</span>
+<span class="nc" id="L174">				Enumeration ce = curr.children();</span>
+<span class="nc bnc" id="L175" title="All 2 branches missed.">				while (ce.hasMoreElements()){</span>
+<span class="nc" id="L176">					DefaultMutableTreeNode kid = (DefaultMutableTreeNode) ce.nextElement();</span>
+<span class="nc bnc" id="L177" title="All 2 branches missed.">					if (((String)kid.getUserObject()).equals(value)){</span>
+
+<span class="nc" id="L179">						next = kid;</span>
+//		                    System.out.println(next.getUserObject().toString());
+<span class="nc" id="L181">						break;</span>
+					}
+<span class="nc" id="L183">				}</span>
+<span class="nc bnc" id="L184" title="All 2 branches missed.">				if (next == null){</span>
+<span class="nc" id="L185">					next = new DefaultMutableTreeNode(value);</span>
+<span class="nc" id="L186">					curr.add(next);</span>
+				}
+<span class="nc" id="L188">				curr = next;</span>
+			}
+		}
+<span class="nc" id="L191">		return root;</span>
+	}
+
+	public void saveTreeModel() {
+<span class="nc" id="L195">		JtreeToGraphSave.saveBehaviourGraph();</span>
+<span class="nc" id="L196">	}</span>
+
+	@Override
+	public void mouseClicked(MouseEvent e) {
+
+<span class="nc" id="L201">        int x = (int) e.getPoint().getX();</span>
+<span class="nc" id="L202">        int y = (int) e.getPoint().getY();</span>
+<span class="nc" id="L203">        TreePath path = tree.getPathForLocation(x, y);</span>
+        
+<span class="nc bnc" id="L205" title="All 2 branches missed.">        if (path == null) {</span>
+<span class="nc" id="L206">            tree.setCursor(Cursor.getDefaultCursor());</span>
+<span class="nc" id="L207">            clickControl = 0;</span>
+
+        } else {
+<span class="nc" id="L210">            tree.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));</span>
+<span class="nc" id="L211">            clickControl = 1;</span>
+<span class="nc" id="L212">            String name = path.getLastPathComponent().toString();</span>
+                       
+<span class="nc" id="L214">            ODMEBehaviourEditor.nodeBehaviour = name;</span>
+<span class="nc" id="L215">            System.out.println(name);</span>
+        }
+<span class="nc" id="L217">	}</span>
+
+
+	public void expandTree() {
+<span class="nc bnc" id="L221" title="All 2 branches missed.">		for (int i = 0; i &lt; tree.getRowCount(); i++) {</span>
+<span class="nc" id="L222">			tree.expandRow(i);</span>
+		}
+<span class="nc" id="L224">	}</span>
+
+	@Override
+	public void mousePressed(MouseEvent e) {
+		// TODO Auto-generated method stub
+<span class="nc" id="L229">	}</span>
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+		// TODO Auto-generated method stub
+
+<span class="nc" id="L235">	}</span>
+
+	@Override
+	public void mouseEntered(MouseEvent e) {
+		// TODO Auto-generated method stub
+
+<span class="nc" id="L241">	}</span>
+
+	@Override
+	public void mouseExited(MouseEvent e) {
+		// TODO Auto-generated method stub
+
+<span class="nc" id="L247">	}</span>
+
+
+<span class="nc" id="L250">	class MyTreeModelListener implements TreeModelListener {</span>
+
+        public void treeNodesChanged(TreeModelEvent e) {
+            DefaultMutableTreeNode node;
+<span class="nc" id="L254">            node = (DefaultMutableTreeNode) (e.getTreePath().getLastPathComponent());</span>
+
+            /*
+             * If the event lists children, then the changed node is the child of the node
+             * we've already gotten. Otherwise, the changed node and the specified node are
+             * the same.
+             */
+<span class="nc" id="L261">            int index = e.getChildIndices()[0];</span>
+<span class="nc" id="L262">            node = (DefaultMutableTreeNode) (node.getChildAt(index));</span>
+<span class="nc" id="L263">        }</span>
+
+<span class="nc" id="L265">        public void treeNodesInserted(TreeModelEvent e) {}</span>
+
+<span class="nc" id="L267">        public void treeNodesRemoved(TreeModelEvent e) {}</span>
+
+<span class="nc" id="L269">        public void treeStructureChanged(TreeModelEvent e) {}</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

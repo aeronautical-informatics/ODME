@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>XmlUtils.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SESEditor</a> &gt; <a href="index.source.html" class="el_package">odme.odmeeditor</a> &gt; <span class="el_source">XmlUtils.java</span></div><h1>XmlUtils.java</h1><pre class="source lang-java linenums">package odme.odmeeditor;
+
+import java.awt.Dimension;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.Scanner;
+
+import org.json.JSONObject;
+import org.json.XML;
+import org.json.JSONException;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import com.fasterxml.jackson.module.jaxb.JaxbAnnotationModule;
+
+import org.xml.sax.Locator;
+
+<span class="nc" id="L20">public class XmlUtils {</span>
+	
+    public static XMLViewer ontologyview, sesview, schemaview;
+    
+    /**
+     * @author Roy
+     * #ROY - adding new funcitonality
+     * DEPRECATED
+     * */
+    public static String xmlToJson(String xml) {
+<span class="nc" id="L30">    	JSONObject xmlJsonObj=null;</span>
+<span class="nc" id="L31">    	try {xmlJsonObj = XML.toJSONObject(xml);} </span>
+<span class="nc" id="L32">    	catch (JSONException je) {System.out.println(je.toString());}</span>
+<span class="nc bnc" id="L33" title="All 2 branches missed.">    	if(xmlJsonObj==null)return null;</span>
+<span class="nc" id="L34">    	return xmlJsonObj.toString(4);</span>
+    }
+    
+    public static XMLViewer initView(String title) {
+<span class="nc" id="L38">    	XMLViewer view = new XMLViewer();</span>
+<span class="nc" id="L39">    	view.setPreferredSize(new Dimension(200, 200));</span>
+<span class="nc" id="L40">    	ODMEEditor.removeTopLeftIcon(view);</span>
+<span class="nc" id="L41">    	view.pack();</span>
+<span class="nc" id="L42">    	view.setVisible(true);</span>
+<span class="nc" id="L43">    	view.setTitle(title);</span>
+<span class="nc" id="L44">    	view.textArea.setEditable(false);</span>
+<span class="nc" id="L45">    	return view;</span>
+    }
+    
+    /**
+     * @author Roy
+     *  converts xsd to yaml, but the newly converted text can be converted back to xsd
+     *  DEPRECATED
+     * */
+    public static String xsdToYaml(String fileLocation, String projName, String fileName) {
+    	
+    	// make the path string
+<span class="nc" id="L56">    	String path = new String();</span>
+<span class="nc bnc" id="L57" title="All 2 branches missed.">    	if (ODMEEditor.toolMode == &quot;ses&quot;)</span>
+<span class="nc" id="L58">    		path = fileLocation + &quot;/&quot; + projName + &quot;/&quot;+fileName;</span>
+    	else 
+<span class="nc" id="L60">    		path = fileLocation + &quot;/&quot; + ODMEEditor.currentScenario + &quot;/&quot;+fileName; </span>
+    	
+<span class="nc" id="L62">        ObjectMapper xmlMapper = new XmlMapper();</span>
+<span class="nc" id="L63">        ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());</span>
+
+        // Add JAXB annotations support to handle XSD elements
+<span class="nc" id="L66">        JaxbAnnotationModule module = new JaxbAnnotationModule();</span>
+<span class="nc" id="L67">        xmlMapper.registerModule(module);</span>
+<span class="nc" id="L68">        yamlMapper.registerModule(module);</span>
+
+<span class="nc" id="L70">        File xsdFile = new File(path);</span>
+        Object xsdObject;
+<span class="nc" id="L72">        String yamlString=null;</span>
+		try {
+			
+<span class="nc" id="L75">			xsdObject = xmlMapper.readValue(xsdFile, Object.class); // read xsd</span>
+<span class="nc" id="L76">	        yamlString = yamlMapper.writeValueAsString(xsdObject); // convert to yaml</span>
+	        // System.out.println(yamlString);
+<span class="nc" id="L78">		} catch (IOException ioe) {</span>
+<span class="nc" id="L79">			ioe.printStackTrace();</span>
+<span class="nc" id="L80">		}</span>
+		
+<span class="nc" id="L82">		return yamlString;</span>
+    }
+   
+    /**
+     * @author Roy
+     * #ROY - making re-usable (to be used in MenuBar::exportHumanReadable)
+     * */
+    public static String readFile(String fileLocation, String projName, String fileName) {
+<span class="nc" id="L90">    	Scanner in = null;</span>
+        try {
+<span class="nc" id="L92">        	String path = new String();</span>
+<span class="nc bnc" id="L93" title="All 2 branches missed.">        	if (ODMEEditor.toolMode == &quot;ses&quot;)</span>
+<span class="nc" id="L94">        		path = fileLocation + &quot;/&quot; + projName + &quot;/&quot;+fileName;</span>
+        	else 
+<span class="nc" id="L96">        		path = fileLocation + &quot;/&quot; + ODMEEditor.currentScenario + &quot;/&quot;+fileName; </span>
+<span class="nc" id="L97">            in = new Scanner(new File(path));</span>
+<span class="nc" id="L98">        } catch (FileNotFoundException e) {</span>
+<span class="nc" id="L99">            e.printStackTrace();</span>
+<span class="nc" id="L100">        }</span>
+<span class="nc" id="L101">        StringBuilder xmlcontent = new StringBuilder(); // lighter more efficient to use StringBuilder for stream of text</span>
+<span class="nc bnc" id="L102" title="All 2 branches missed.">        while (in.hasNext()) {</span>
+<span class="nc" id="L103">            String line = in.nextLine();</span>
+<span class="nc" id="L104">            xmlcontent.append(line+&quot;\n&quot;);</span>
+<span class="nc" id="L105">        }</span>
+<span class="nc" id="L106">        in.close();</span>
+<span class="nc" id="L107">        return xmlcontent.toString();</span>
+    }
+    
+    public static void showViewer(String fileLocation, String projName, String fileName, XMLViewer view) {
+<span class="nc" id="L111">        view.textArea.setText(</span>
+<span class="nc" id="L112">    		readFile(fileLocation,projName,fileName) // #ROY - call the re-usable function</span>
+		);
+<span class="nc" id="L114">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

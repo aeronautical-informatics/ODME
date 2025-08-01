@@ -1,0 +1,505 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MenuBar.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SESEditor</a> &gt; <a href="index.source.html" class="el_package">odme.odmeeditor</a> &gt; <span class="el_source">MenuBar.java</span></div><h1>MenuBar.java</h1><pre class="source lang-java linenums">package odme.odmeeditor;
+
+import java.awt.Color;
+import java.awt.Desktop;
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JTextField;
+import javax.swing.KeyStroke;
+import javax.swing.border.EmptyBorder;
+import javax.swing.filechooser.FileNameExtensionFilter;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+
+import com.google.common.collect.ArrayListMultimap;
+import com.mxgraph.util.mxCellRenderer;
+import com.mxgraph.util.mxUndoManager;
+import com.mxgraph.util.svg.ParseException;
+
+import odme.jtreetograph.JtreeToGraphConvert;
+import odme.jtreetograph.JtreeToGraphGeneral;
+import odme.jtreetograph.JtreeToGraphModify;
+import odme.jtreetograph.JtreeToGraphSave;
+import odme.jtreetograph.JtreeToGraphVariables;
+
+import static odme.odmeeditor.XmlUtils.sesview;
+
+public class MenuBar {
+	
+	private JMenuBar menuBar;
+<span class="nc" id="L54">	public static List&lt;JMenuItem&gt; fileMenuItems= new ArrayList&lt;&gt;();</span>
+	
+<span class="nc" id="L56">	public MenuBar(JFrame frame) {</span>
+<span class="nc" id="L57">		menuBar = new JMenuBar();</span>
+<span class="nc" id="L58">        frame.setJMenuBar(menuBar);</span>
+<span class="nc" id="L59">    }</span>
+	
+	public void show() {
+		// File Menu
+<span class="nc" id="L63">		final String[] items_file =  {&quot;Save&quot;       , &quot;Save As&quot;    , &quot;Save as PNG&quot; , null, &quot;Exit&quot;       };</span>
+<span class="nc" id="L64">		final int[] keyevents_file = {KeyEvent.VK_S, KeyEvent.VK_A, 0             , 0   , KeyEvent.VK_X};</span>
+<span class="nc" id="L65">		final String[] keys_file =   {&quot;control S&quot;  ,&quot;control A&quot;   , null          , null, &quot;control X&quot;  };</span>
+<span class="nc" id="L66">		final String[] images_file = {&quot;save_icon&quot;  , &quot;save_icon&quot;  , &quot;png_icon&quot;    , null, &quot;exit_icon&quot;  };</span>
+				
+<span class="nc" id="L68">		addMenu(&quot;File&quot;, KeyEvent.VK_F, items_file, keyevents_file, keys_file, images_file);</span>
+
+		// Domain Modelling Menu
+<span class="nc" id="L71">		final String[] items_domain_modelling =  {&quot;New Project&quot;, &quot;Open&quot;       , &quot;Import Template&quot;, &quot;Save as Template&quot;};</span>
+<span class="nc" id="L72">		final int[] keyevents_domain_modelling = {KeyEvent.VK_N, KeyEvent.VK_O, KeyEvent.VK_I    , KeyEvent.VK_E     };</span>
+<span class="nc" id="L73">		final String[] keys_domain_modelling =   {&quot;control N&quot;  , &quot;control O&quot;  , &quot;control I&quot;      , &quot;control E&quot;       };</span>
+<span class="nc" id="L74">		final String[] images_domain_modelling = {&quot;new_icon&quot;   , &quot;open_icon&quot;  , &quot;import_icon&quot;    , &quot;export_icon&quot;     };</span>
+				
+<span class="nc" id="L76">		addMenu(&quot;Domain Modelling&quot;, 0, items_domain_modelling, keyevents_domain_modelling, keys_domain_modelling, images_domain_modelling);</span>
+		
+		// Scenario Modelling Menu
+<span class="nc" id="L79">		final String[] items_scenario_modelling =  {&quot;Save Scenario&quot;};</span>
+<span class="nc" id="L80">		final int[] keyevents_scenario_modelling = {0};</span>
+<span class="nc" id="L81">		final String[] keys_scenario_modelling =   {null};</span>
+<span class="nc" id="L82">		final String[] images_scenario_modelling = {&quot;save_scenario&quot;};</span>
+						
+<span class="nc" id="L84">		addMenu(&quot;Scenario Modelling&quot;, 0, items_scenario_modelling, keyevents_scenario_modelling, keys_scenario_modelling, images_scenario_modelling);</span>
+
+		//Behavior Modelling
+<span class="nc" id="L87">		String[] items_behaviour_modelling = {&quot;Sync Behaviour&quot;};</span>
+<span class="nc" id="L88">		final int[] keyevents_behaviour_modelling = {KeyEvent.VK_B};</span>
+<span class="nc" id="L89">		final String[] keys_behaviour_modelling =   {&quot;control B&quot;};</span>
+<span class="nc" id="L90">		final String[] images_behaviour_modelling = {&quot;sync&quot;};</span>
+
+<span class="nc" id="L92">		addMenu(&quot;Behavior Modelling &quot; , 0 ,items_behaviour_modelling,</span>
+				keyevents_behaviour_modelling,
+				keys_behaviour_modelling,images_behaviour_modelling);
+
+		// #ROY - adding a new ICON
+		// Operation Design Domain Menu
+<span class="nc" id="L98">		final String[] items_operation_design_domain =  {&quot;Generate OD&quot;,&quot;ODD Manager&quot;};</span>
+<span class="nc" id="L99">		final int[] keyevents_operation_design_domain = {0,0};</span>
+<span class="nc" id="L100">		final String[] keys_operation_design_domain =   {null,null};</span>
+<span class="nc" id="L101">		final String[] images_operation_design_domain = {&quot;export_icon&quot;,&quot;list&quot;};</span>
+								
+<span class="nc" id="L103">		addMenu(&quot;Operation Design Domain&quot;, 0, items_operation_design_domain, keyevents_operation_design_domain, keys_operation_design_domain, images_operation_design_domain);</span>
+		
+		// Scenario Manager Menu
+<span class="nc" id="L106">		final String[] items_scenario_manager =  {&quot;Scenarios List&quot;, &quot;Excution&quot;, &quot;Feedback Loop&quot;};</span>
+<span class="nc" id="L107">		final int[] keyevents_scenario_manager = {0               , 0         ,  0             };</span>
+<span class="nc" id="L108">		final String[] keys_scenario_manager =   {null            , null      ,  null          };</span>
+<span class="nc" id="L109">		final String[] images_scenario_manager = {&quot;list&quot;          , null      ,  null          };</span>
+										
+<span class="nc" id="L111">		addMenu(&quot;Scenario Manager&quot;, 0, items_scenario_manager, keyevents_scenario_manager, keys_scenario_manager, images_scenario_manager);</span>
+		
+		// Help Menu
+<span class="nc" id="L114">		final String[] items_help =  {&quot;Manual&quot;     , &quot;About&quot;   };</span>
+<span class="nc" id="L115">		final int[] keyevents_help = {KeyEvent.VK_M, KeyEvent.VK_B};</span>
+<span class="nc" id="L116">		final String[] keys_help =   {&quot;control M&quot;  , &quot;control B&quot;  };</span>
+<span class="nc" id="L117">		final String[] images_help = {&quot;manual_icon&quot;, &quot;about_icon&quot;  };</span>
+						
+<span class="nc" id="L119">		addMenu(&quot;Help&quot;, KeyEvent.VK_H, items_help, keyevents_help, keys_help, images_help);</span>
+
+
+<span class="nc" id="L122">	}</span>
+
+    private void addMenu(String name, int key_event, String[] items, int[] keyevents, String[] keys, String[] images) {
+    	
+<span class="nc" id="L126">    	JMenu menu = new JMenu(name);</span>
+<span class="nc" id="L127">    	menu.setMnemonic(key_event);</span>
+<span class="nc" id="L128">    	menu.setBorder( new EmptyBorder(10,20,10,20));</span>
+    	
+<span class="nc" id="L130">    	final int itemLength=40, itemWidth=200; </span>
+		
+<span class="nc bnc" id="L132" title="All 2 branches missed.">		for(int i=0; i&lt;items.length; i++) {</span>
+<span class="nc bnc" id="L133" title="All 2 branches missed.">			if (items[i]==null) {</span>
+<span class="nc" id="L134">				menu.addSeparator();</span>
+<span class="nc" id="L135">				continue;</span>
+			}
+			
+			JMenuItem menuItem;
+			
+<span class="nc" id="L140">			menuItem = new JMenuItem(items[i], keyevents[i]);</span>
+<span class="nc" id="L141">		    KeyStroke ctrlSKeyStrokeNew = KeyStroke.getKeyStroke(keys[i]);</span>
+<span class="nc" id="L142">		    menuItem.setAccelerator(ctrlSKeyStrokeNew);</span>
+<span class="nc" id="L143">		    menuItem.setPreferredSize(new Dimension(itemWidth, itemLength));</span>
+<span class="nc bnc" id="L144" title="All 2 branches missed.">		    if (images[i] != null) {</span>
+<span class="nc" id="L145">		    	ImageIcon newIcon = new ImageIcon(ODMEEditor.class.getClassLoader().getResource(&quot;images/&quot;+images[i]+&quot;.png&quot;));</span>
+<span class="nc" id="L146">		    	menuItem.setIcon(newIcon);</span>
+		    }
+		    
+<span class="nc bnc" id="L149" title="All 8 branches missed.">		    if (items[i]==&quot;Save Scenario&quot; || items[i]==&quot;Scenarios List&quot; || items[i]==&quot;Excution&quot; || items[i]==&quot;Feedback Loop&quot;)</span>
+<span class="nc" id="L150">		    	menuItem.setEnabled(false);</span>
+		    
+<span class="nc bnc" id="L152" title="All 20 branches missed.">		    if (items[i]==&quot;New Project&quot; || items[i]==&quot;Import Template&quot; || items[i]==&quot;Save Scenario&quot; ||</span>
+		    		items[i]==&quot;Open&quot; || items[i]==&quot;Save as Template&quot; || items[i]==&quot;Scenarios List&quot; ||
+		    		items[i]==&quot;Excution&quot; || items[i]==&quot;Feedback Loop&quot; || items[i]==&quot;Export XML&quot; ||
+		    		items[i]==&quot;Export Yaml&quot;) {
+<span class="nc" id="L156">		    	fileMenuItems.add(menuItem);</span>
+		    }
+		    
+<span class="nc" id="L159">		    menuItem.addActionListener(new ActionListener() {</span>
+		        @Override
+		        public void actionPerformed(ActionEvent e) {
+<span class="nc bnc" id="L162" title="All 15 branches missed.">		            switch (e.getActionCommand()) {</span>
+		            	case &quot;Save Scenario&quot;:
+<span class="nc" id="L164">		            		saveScenario();</span>
+<span class="nc" id="L165">		            		break;</span>
+		            	case &quot;Scenarios List&quot;:
+<span class="nc" id="L167">		            		ScenarioList scenarioList = new ScenarioList();</span>
+<span class="nc" id="L168">		                	scenarioList.createScenarioListWindow();</span>
+<span class="nc" id="L169">		            	  	break;</span>
+		            	case &quot;New Project&quot;:
+<span class="nc" id="L171">		            	  	newFunc();</span>
+<span class="nc" id="L172">		            	  	break;</span>
+		            	case &quot;Open&quot;:
+<span class="nc" id="L174">		            	  	openFunc();</span>
+<span class="nc" id="L175">		            	  	break;</span>
+		            	case &quot;Save As&quot;:
+<span class="nc" id="L177">		            	  	saveAsFunc();</span>
+<span class="nc" id="L178">			                break;</span>
+		            	case &quot;Save as PNG&quot;:
+<span class="nc" id="L180">		            	  	saveAsPNGFunc();</span>
+<span class="nc" id="L181">			                break;</span>
+		            	case &quot;Import Template&quot;:
+<span class="nc" id="L183">		            	  	importFunc();</span>
+<span class="nc" id="L184">			                break;</span>
+						case &quot;Sync Behaviour&quot;:
+<span class="nc" id="L186">							BehaviourList b = new BehaviourList();</span>
+<span class="nc" id="L187">							b.createScenarioListWindow();</span>
+						case &quot;Save as Template&quot;:
+<span class="nc" id="L189">		            	  	exportFunc();</span>
+<span class="nc" id="L190">			                break;</span>
+		            	case &quot;Exit&quot;:
+<span class="nc" id="L192">		            	  	System.exit(1);</span>
+<span class="nc" id="L193">			                break;</span>
+		            	case &quot;Manual&quot;:
+<span class="nc" id="L195">		            	  	manualFunc();</span>
+<span class="nc" id="L196">			                break;</span>
+		            	case &quot;About&quot;:
+<span class="nc" id="L198">		            	  	About about = new About();</span>
+<span class="nc" id="L199">		            	  	about.aboutGUI();</span>
+<span class="nc" id="L200">		            	  	break;</span>
+		            	case &quot;Generate OD&quot;:
+<span class="nc" id="L202">		            		openODDManager(&quot;Generate OD&quot;);</span>
+<span class="nc" id="L203">		            		break;</span>
+		            	case &quot;ODD Manager&quot;:
+<span class="nc" id="L205">		            		openODDManager(&quot;ODD Manager&quot;);</span>
+		            		break;
+		        	}
+<span class="nc" id="L208">		        }</span>
+		    });
+<span class="nc" id="L210">		    menu.add(menuItem);</span>
+		}
+<span class="nc" id="L212">    	menuBar.add(menu);</span>
+<span class="nc" id="L213">    }</span>
+    
+    /**
+     * @author Roy
+     * #ROY - adding new Functionality to see all the nodes 
+     * */
+    private void openODDManager(String mode) {
+<span class="nc" id="L220">    	ODMEEditor.saveFunc(false); // save the results</span>
+<span class="nc" id="L221">    	ODMEEditor.updateState();</span>
+<span class="nc" id="L222">    	ODDManager nt=new ODDManager(mode);</span>
+<span class="nc" id="L223">    	JFrame jd = new JFrame();</span>
+<span class="nc" id="L224">    	jd.getContentPane().add(nt);</span>
+<span class="nc" id="L225">    	jd.pack();</span>
+<span class="nc" id="L226">    	jd.setVisible(true);</span>
+    	// jd.setLocation(128, 128);
+<span class="nc" id="L228">    	jd.setLocationRelativeTo(null);</span>
+    	// jd.setAlwaysOnTop(true);
+<span class="nc" id="L230">    }</span>
+
+   
+	
+    
+    @SuppressWarnings(&quot;unchecked&quot;)
+	private void saveScenario() {
+<span class="nc" id="L237">    	JSONParser jsonParser = new JSONParser();</span>
+        
+<span class="nc" id="L239">        try (FileReader reader = new FileReader(ODMEEditor.fileLocation + &quot;/scenarios.json&quot;)){</span>
+<span class="nc" id="L240">            Object obj = null;</span>
+			try {
+<span class="nc" id="L242">				obj = jsonParser.parse(reader);</span>
+			} 
+<span class="nc" id="L244">			catch (org.json.simple.parser.ParseException e) {</span>
+<span class="nc" id="L245">				e.printStackTrace();</span>
+<span class="nc" id="L246">			}</span>
+			
+<span class="nc" id="L248">            JSONArray data = (JSONArray) obj;</span>
+            
+<span class="nc" id="L250">        	JTextField nameField = new JTextField();</span>
+<span class="nc" id="L251">        	nameField.setText(&quot;Scenario&quot; + Integer.toString(data.size()+1));</span>
+
+<span class="nc" id="L253">        	Object[] message = {&quot;Scenario Name:&quot;, nameField};</span>
+
+<span class="nc" id="L255">        	int option = JOptionPane</span>
+<span class="nc" id="L256">        			.showConfirmDialog(Main.frame, message, &quot;Create Scenario&quot;, JOptionPane.OK_CANCEL_OPTION,</span>
+        			JOptionPane.PLAIN_MESSAGE);
+        	
+<span class="nc bnc" id="L259" title="All 2 branches missed.">        	if (option == JOptionPane.OK_OPTION) {</span>
+<span class="nc" id="L260">            	createScenario(nameField.getText());</span>
+            	
+<span class="nc" id="L262">        		JSONObject jo = new JSONObject();</span>
+<span class="nc" id="L263">        		jo.put(&quot;name&quot;, nameField.getText());</span>
+<span class="nc" id="L264">        		jo.put(&quot;risk&quot;, &quot;&quot;);</span>
+<span class="nc" id="L265">        		jo.put(&quot;remarks&quot;, &quot;&quot;);</span>
+				
+<span class="nc" id="L267">				JSONObject jom = new JSONObject();</span>
+<span class="nc" id="L268">				jom.put(&quot;scenario&quot;, jo);</span>
+<span class="nc" id="L269">				data.add(jom);</span>
+<span class="nc" id="L270">        	}</span>
+        	
+        	else
+<span class="nc" id="L273">        		return;</span>
+        	
+        	try {
+<span class="nc" id="L276">		         FileWriter file = new FileWriter(ODMEEditor.fileLocation + &quot;/scenarios.json&quot;);</span>
+<span class="nc" id="L277">		         file.write(data.toJSONString());</span>
+<span class="nc" id="L278">		         file.close();</span>
+<span class="nc" id="L279">		         ODMEEditor.graphWindow.setTitle(nameField.getText());</span>
+		      }
+<span class="nc" id="L281">        	catch (IOException e) {</span>
+<span class="nc" id="L282">		         e.printStackTrace();</span>
+<span class="nc" id="L283">		      }</span>
+
+<span class="nc" id="L285">        } </span>
+<span class="nc" id="L286">        catch (FileNotFoundException e) {</span>
+<span class="nc" id="L287">            e.printStackTrace();</span>
+        } 
+<span class="nc" id="L289">        catch (IOException e) {</span>
+<span class="nc" id="L290">            e.printStackTrace();</span>
+        } 
+<span class="nc" id="L292">        catch (ParseException e) {</span>
+<span class="nc" id="L293">            e.printStackTrace();</span>
+<span class="nc" id="L294">        } </span>
+<span class="nc" id="L295">    }</span>
+    
+    private void createScenario(String ScenarioName) {
+<span class="nc" id="L298">        ODMEEditor.currentScenario = ScenarioName;</span>
+        
+<span class="nc" id="L300">        JtreeToGraphVariables.ssdFileGraph = new File(String.format(&quot;%s/%s/%sGraph.xml&quot;,</span>
+    			 ODMEEditor.fileLocation, ScenarioName, ODMEEditor.projName));
+<span class="nc" id="L302">    	 ODMEEditor.treePanel.ssdFile = new File(String.format(&quot;%s/%s/%s.xml&quot;,</span>
+    			 ODMEEditor.fileLocation,  ScenarioName, ODMEEditor.projName));
+<span class="nc" id="L304">    	 ODMEEditor.treePanel.ssdFileVar = new File(String.format(&quot;%s/%s/%s.ssdvar&quot;,</span>
+    			 ODMEEditor.fileLocation,  ScenarioName, ODMEEditor.projName));
+<span class="nc" id="L306">    	 ODMEEditor.treePanel.ssdFileCon = new File(String.format(&quot;%s/%s/%s.ssdcon&quot;,</span>
+    			 ODMEEditor.fileLocation,  ScenarioName, ODMEEditor.projName));
+<span class="nc" id="L308">    	 ODMEEditor.treePanel.ssdFileFlag = new File(String.format(&quot;%s/%s/%s.ssdflag&quot;,</span>
+    			 ODMEEditor.fileLocation,  ScenarioName, ODMEEditor.projName));
+
+<span class="nc" id="L311">		ODMEEditor.treePanel.ssdFileBeh = new File(String.format(&quot;%s/%s/%s.ssdbeh&quot;,</span>
+				ODMEEditor.fileLocation,  ScenarioName, ODMEEditor.projName));
+
+<span class="nc" id="L314">        File f = new File(ODMEEditor.fileLocation + &quot;/&quot; +  ScenarioName);</span>
+<span class="nc" id="L315">        f.mkdirs();</span>
+        
+<span class="nc" id="L317">        ODMEEditor.updateState();</span>
+<span class="nc" id="L318">        ODMEEditor.changePruneColor();</span>
+<span class="nc" id="L319">    }</span>
+    
+    private void newFunc() {
+<span class="nc" id="L322">    	DynamicTree.varMap = ArrayListMultimap.create();</span>
+<span class="nc" id="L323">    	NewProject newProject = new NewProject();</span>
+<span class="nc" id="L324">	  	newProject.createNewProjectWindow();</span>
+	  	// resetting undoManager so that it will remove its indexes from previous projects
+<span class="nc" id="L326">	  	JtreeToGraphVariables.undoManager = new mxUndoManager();</span>
+<span class="nc" id="L327">    }</span>
+    
+    private void openFunc() {
+    	// filechooser
+    	//DynamicTree.varMap = ArrayListMultimap.create();
+    	//JtreeToGraphVariables.variableList = new String[100];
+    	
+    	
+<span class="nc" id="L335">        JFileChooser fileChooser = new JFileChooser();</span>
+<span class="nc" id="L336">        fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);</span>
+<span class="nc" id="L337">        fileChooser.setAcceptAllFileFilterUsed(false);</span>
+<span class="nc" id="L338">        fileChooser.setCurrentDirectory(</span>
+                new File(ODMEEditor.repFslas)); // this is ok because normally all the file will be
+        // in default location. so don't need to add fileLocation
+
+<span class="nc" id="L342">        int result = fileChooser.showOpenDialog(Main.frame);</span>
+
+<span class="nc bnc" id="L344" title="All 2 branches missed.">        if (result == JFileChooser.APPROVE_OPTION) {</span>
+<span class="nc" id="L345">            File selectedFile = fileChooser.getSelectedFile();</span>
+<span class="nc" id="L346">            String fileName = selectedFile.getName();</span>
+<span class="nc" id="L347">            System.out.println(&quot;Selected file: &quot; + selectedFile.getName());</span>
+
+<span class="nc" id="L349">            String oldProjectTreeProjectName = ODMEEditor.projName;</span>
+<span class="nc" id="L350">            ODMEEditor.projName = fileName;</span>
+<span class="nc" id="L351">            ODMEEditor.fileLocation = selectedFile.getParentFile().getAbsolutePath();</span>
+<span class="nc" id="L352">            JtreeToGraphGeneral.openExistingProject(fileName, oldProjectTreeProjectName);</span>
+
+<span class="nc" id="L354">            JtreeToGraphVariables.undoManager = new mxUndoManager();</span>
+<span class="nc" id="L355">            sesview.textArea.setText(&quot;&quot;);</span>
+<span class="nc" id="L356">            Console.consoleText.setText(&quot;&gt;&gt;&quot;);</span>
+<span class="nc" id="L357">            Variable.setNullToAllRows();</span>
+<span class="nc" id="L358">            Constraint.setNullToAllRows();</span>
+            
+<span class="nc bnc" id="L360" title="All 2 branches missed.">            if (ODMEEditor.toolMode == &quot;pes&quot;)</span>
+<span class="nc" id="L361">            	ODMEEditor.applyGuiSES();</span>
+        }
+<span class="nc" id="L363">    }</span>
+    
+    private void saveAsFunc() {
+<span class="nc" id="L366">    	JFileChooser fileChooser = new JFileChooser();</span>
+<span class="nc" id="L367">        fileChooser.setCurrentDirectory(new File(ODMEEditor.fileLocation));</span>
+<span class="nc" id="L368">        int result = fileChooser.showSaveDialog(Main.frame);</span>
+<span class="nc bnc" id="L369" title="All 2 branches missed.">        if (result == JFileChooser.APPROVE_OPTION) {</span>
+<span class="nc" id="L370">            File selectedFile = fileChooser.getSelectedFile();</span>
+            
+<span class="nc" id="L372">            ODMEEditor.fileLocation = selectedFile.getParentFile().getAbsolutePath();</span>
+
+<span class="nc" id="L374">            String newProjectName = selectedFile.getName();</span>
+<span class="nc" id="L375">            String oldProjectTreeProjectName = ODMEEditor.projName;</span>
+
+<span class="nc" id="L377">            ODMEEditor.projName = newProjectName;</span>
+<span class="nc" id="L378">            JtreeToGraphVariables.newFileName = newProjectName;</span>
+<span class="nc" id="L379">            JtreeToGraphVariables.projectFileNameGraph = newProjectName;</span>
+
+<span class="nc" id="L381">            JtreeToGraphVariables.ssdFileGraph = new File(String.format(&quot;%s/%s/%sGraph.xml&quot;,</span>
+            		ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
+<span class="nc" id="L383">            ODMEEditor.treePanel.ssdFile = new File(String.format(&quot;%s/%s/%s.xml&quot;,</span>
+            		ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
+<span class="nc" id="L385">            ODMEEditor.treePanel.ssdFileVar = new File(String.format(&quot;%s/%s/%s.ssdvar&quot;,</span>
+            		ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
+<span class="nc" id="L387">            ODMEEditor.treePanel.ssdFileCon = new File(String.format(&quot;%s/%s/%s.ssdcon&quot;,</span>
+            		ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
+<span class="nc" id="L389">            ODMEEditor.treePanel.ssdFileFlag = new File(String.format(&quot;%s/%s/%s.ssdflag&quot;,</span>
+            		ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
+
+<span class="nc" id="L392">            ProjectTree.projectName = newProjectName;</span>
+<span class="nc" id="L393">            ODMEEditor.projectPanel.changeCurrentProjectFileName(newProjectName, oldProjectTreeProjectName);</span>
+
+<span class="nc" id="L395">            ODMEEditor.newProjectFolderCreation();</span>
+<span class="nc" id="L396">            ODMEEditor.treePanel.saveTreeModel();</span>
+<span class="nc" id="L397">            JtreeToGraphSave.saveGraph();</span>
+
+            // also it will convert after saving from here
+            // this code is also present in convert to xml button click action.
+<span class="nc" id="L401">            JtreeToGraphConvert.convertTreeToXML(); // this function is using for converting project tree into xml file</span>
+<span class="nc" id="L402">            JtreeToGraphConvert.graphToXML();</span>
+<span class="nc" id="L403">            JtreeToGraphConvert.graphToXMLWithUniformity();</span>
+<span class="nc" id="L404">            JOptionPane.showMessageDialog(Main.frame, &quot;Saved Successfully.&quot;, &quot;Save&quot;,</span>
+                    JOptionPane.INFORMATION_MESSAGE);
+        }
+<span class="nc" id="L407">    }</span>
+    
+    private void saveAsPNGFunc() {
+    	// remove border nodes
+<span class="nc" id="L411">    	JtreeToGraphVariables.graph.getModel().beginUpdate();</span>
+<span class="nc" id="L412">    	Object position = JtreeToGraphVariables.graphComponent.getCellAt(0, 50000);</span>
+<span class="nc" id="L413">    	JtreeToGraphVariables.graph.removeCells(new Object[]{position});</span>
+<span class="nc" id="L414">		position = JtreeToGraphVariables.graphComponent.getCellAt(50000, 0);</span>
+<span class="nc" id="L415">		JtreeToGraphVariables.graph.removeCells(new Object[]{position});</span>
+<span class="nc" id="L416">		JtreeToGraphVariables.graph.getModel().endUpdate();</span>
+
+        // saving drawn graph as a png
+    	try{
+<span class="nc" id="L420">    		BufferedImage image = mxCellRenderer.createBufferedImage(JtreeToGraphVariables.graph, null, 1, Color.WHITE, true, null);</span>
+<span class="nc" id="L421">    		String path = new String();</span>
+<span class="nc bnc" id="L422" title="All 2 branches missed.">        	if (ODMEEditor.toolMode == &quot;ses&quot;)</span>
+<span class="nc" id="L423">        		path = ODMEEditor.fileLocation + &quot;/&quot; + ODMEEditor.projName  + &quot;/graph.png&quot;;</span>
+        	else
+<span class="nc" id="L425">        		path = ODMEEditor.fileLocation + &quot;/&quot; + ODMEEditor.currentScenario + &quot;/graph.png&quot;;</span>
+        		
+<span class="nc" id="L427">            ImageIO.write(image, &quot;PNG&quot;, new File(path));</span>
+<span class="nc" id="L428">            JOptionPane.showMessageDialog(Main.frame, &quot;Saved Successfully.&quot;, &quot;Save PNG&quot;,</span>
+                    JOptionPane.INFORMATION_MESSAGE);
+        } 
+<span class="nc" id="L431">    	catch (Exception e) {</span>
+<span class="nc" id="L432">            System.out.println(&quot;Error:&quot; + e);</span>
+<span class="nc" id="L433">            JOptionPane.showMessageDialog(Main.frame, &quot;Error:&quot; + e, &quot;Error&quot;,</span>
+                    JOptionPane.ERROR_MESSAGE);
+<span class="nc" id="L435">        }</span>
+    	
+    	// add border nodes again
+<span class="nc" id="L438">    	JtreeToGraphVariables.graph.getModel().beginUpdate();</span>
+<span class="nc" id="L439">    	JtreeToGraphVariables.graph.insertVertex(JtreeToGraphVariables.parent, &quot;hideV&quot;, &quot;End of Canvas&quot;, 0, 50000, 80, 30, &quot;Entity&quot;);</span>
+<span class="nc" id="L440">    	JtreeToGraphVariables.graph.insertVertex(JtreeToGraphVariables.parent, &quot;hideH&quot;, &quot;End of Canvas&quot;, 50000, 0, 80, 30, &quot;Entity&quot;);</span>
+<span class="nc" id="L441">    	JtreeToGraphVariables.graph.getModel().endUpdate();	</span>
+<span class="nc" id="L442">    }</span>
+
+    private void importFunc() {
+<span class="nc" id="L445">    	ImportProject impProj = new ImportProject();</span>
+<span class="nc" id="L446">        impProj.importProject();</span>
+<span class="nc" id="L447">    }</span>
+
+    private void exportFunc() {
+<span class="nc" id="L450">    	ToolBar.validation();</span>
+<span class="nc" id="L451">        String fileName = ODMEEditor.projName; // don't know why not fetching the file name here</span>
+<span class="nc" id="L452">        JFileChooser fileChooser = new JFileChooser();</span>
+<span class="nc" id="L453">        FileNameExtensionFilter xmlfilter = new FileNameExtensionFilter(&quot;xml files (*.xml)&quot;, &quot;xml&quot;);</span>
+<span class="nc" id="L454">        fileChooser.setFileFilter(xmlfilter);</span>
+<span class="nc" id="L455">        fileChooser.setSelectedFile(new File(fileName)); // not working because filename is null</span>
+<span class="nc" id="L456">        fileChooser.setCurrentDirectory(new File(ODMEEditor.fileLocation + &quot;/&quot; + ODMEEditor.projName));</span>
+<span class="nc" id="L457">        int result = fileChooser.showSaveDialog(Main.frame);</span>
+<span class="nc bnc" id="L458" title="All 2 branches missed.">        if (result == JFileChooser.APPROVE_OPTION) {</span>
+<span class="nc" id="L459">            File selectedFile = fileChooser.getSelectedFile();</span>
+<span class="nc" id="L460">            System.out.println(&quot;Exported file path: &quot; + selectedFile.getAbsolutePath());</span>
+<span class="nc" id="L461">            PrintWriter f0 = null;</span>
+            try {
+<span class="nc" id="L463">                f0 = new PrintWriter(new FileWriter(</span>
+<span class="nc" id="L464">                        selectedFile.getAbsolutePath() + &quot;.xml&quot;));</span>
+            }
+<span class="nc" id="L466">            catch (IOException e1) {</span>
+<span class="nc" id="L467">                e1.printStackTrace();</span>
+<span class="nc" id="L468">            }</span>
+<span class="nc" id="L469">            Scanner in = null;</span>
+            try {
+<span class="nc" id="L471">                in = new Scanner(new File(</span>
+                        ODMEEditor.fileLocation + &quot;/&quot; + ODMEEditor.projName + &quot;/xmlforxsd.xml&quot;));
+<span class="nc" id="L473">            } catch (FileNotFoundException e2) {</span>
+<span class="nc" id="L474">                e2.printStackTrace();</span>
+<span class="nc" id="L475">            }</span>
+<span class="nc bnc" id="L476" title="All 2 branches missed.">            while (in.hasNext()) { // Iterates each line in the file</span>
+<span class="nc" id="L477">                String line = in.nextLine();</span>
+<span class="nc" id="L478">                f0.println(line);</span>
+<span class="nc" id="L479">            }</span>
+<span class="nc" id="L480">            in.close();</span>
+<span class="nc" id="L481">            f0.close();</span>
+        }
+<span class="nc" id="L483">    }</span>
+
+    private void manualFunc() {
+<span class="nc" id="L486">    	File pdfTemp = null;</span>
+<span class="nc bnc" id="L487" title="All 2 branches missed.">        if (Desktop.isDesktopSupported()) {</span>
+            try {
+<span class="nc" id="L489">            	java.net.URL resource = ODMEEditor.class.getClassLoader().getResource(&quot;docs/manual.pdf&quot;);</span>
+            	
+            	try {
+<span class="nc" id="L492">					pdfTemp = new File(resource.toURI());</span>
+<span class="nc" id="L493">				} catch (URISyntaxException e) {</span>
+<span class="nc" id="L494">					e.printStackTrace();</span>
+<span class="nc" id="L495">				}</span>
+                // Open the PDF
+<span class="nc" id="L497">                Desktop.getDesktop().open(pdfTemp);</span>
+            }
+<span class="nc" id="L499">            catch (IOException e1) {</span>
+<span class="nc" id="L500">                System.out.println(&quot;erreur : &quot; + e1);</span>
+<span class="nc" id="L501">            }</span>
+        }
+<span class="nc" id="L503">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

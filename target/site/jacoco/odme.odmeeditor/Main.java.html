@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Main.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SESEditor</a> &gt; <a href="index.source.html" class="el_package">odme.odmeeditor</a> &gt; <span class="el_source">Main.java</span></div><h1>Main.java</h1><pre class="source lang-java linenums">package odme.odmeeditor;
+import javax.swing.*;
+import javax.swing.UIManager.LookAndFeelInfo;
+import java.awt.*;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+
+/*
+ * run configuration for eclipse:
+ * mainclass=&gt; odme.odmeeditor.Main
+ * */
+
+
+<span class="nc" id="L18">public class Main {</span>
+	public static JFrame frame;
+	
+	private static SplashScreen splash;
+	private static ODMEEditor newContentPane;
+	private static MenuBar menuBar;
+	private static ToolBar toolBar;
+
+    public static void main(String[] args) {
+      // Create the folder of the Main project if it doesn't exist
+<span class="nc" id="L28">      File f = new File(&quot;Main&quot;);</span>
+<span class="nc" id="L29">      f.mkdirs(); </span>
+      
+<span class="nc" id="L31">      File scenarioFile = new File(ODMEEditor.fileLocation + &quot;/&quot; + ODMEEditor.projName + &quot;/scenarios.json&quot;);</span>
+<span class="nc bnc" id="L32" title="All 2 branches missed.">      if(!scenarioFile.exists()){ </span>
+<span class="nc" id="L33">    	  createScenariosJson();</span>
+      }
+      
+      //-------------------------------------
+    	
+    	// look and feel
+<span class="nc" id="L39">        setLookAndFeel();</span>
+        
+        // show splash screen
+<span class="nc" id="L42">        splash = new SplashScreen(1);</span>
+<span class="nc" id="L43">        splash.runningPBar();</span>
+
+        // Create and set up the main window.
+<span class="nc" id="L46">        frame = new JFrame(&quot;Operation Domain Modeling Environment&quot;);</span>
+<span class="nc" id="L47">        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);</span>
+
+        // Create and set up the content pane.
+<span class="nc" id="L50">        newContentPane = new ODMEEditor();</span>
+<span class="nc" id="L51">        frame.setContentPane(newContentPane);</span>
+      
+        // add menubar
+<span class="nc" id="L54">        menuBar = new MenuBar(frame);</span>
+<span class="nc" id="L55">     	menuBar.show();</span>
+     	
+     	// add toolbar
+<span class="nc" id="L58">     	toolBar = new ToolBar(frame);</span>
+<span class="nc" id="L59">     	toolBar.show();</span>
+     	
+<span class="nc" id="L61">     	ODMEEditor.addStatuBar(frame);</span>
+
+<span class="nc" id="L63">     	frame.add(ODMEEditor.splitPane, BorderLayout.CENTER);</span>
+      
+//      -------------------------------------
+<span class="nc" id="L66">       frame.pack();</span>
+<span class="nc" id="L67">       ImageIcon windowIcon =</span>
+<span class="nc" id="L68">              new ImageIcon(ODMEEditor.class.getClassLoader().getResource(&quot;images/tu_clausthal_icon.jpg&quot;));</span>
+<span class="nc" id="L69">       frame.setIconImage(windowIcon.getImage());</span>
+<span class="nc" id="L70">       frame.setExtendedState(java.awt.Frame.MAXIMIZED_BOTH);</span>
+<span class="nc" id="L71">       frame.setVisible(true);</span>
+//      -------------------------------------
+      //printMemeoryUsage();
+<span class="nc" id="L74">    }</span>
+    
+    private static void setLookAndFeel() {
+        try {
+<span class="nc bnc" id="L78" title="All 2 branches missed.">            for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {</span>
+<span class="nc bnc" id="L79" title="All 2 branches missed.">                if (&quot;Nimbus&quot;.equals(info.getName())) {</span>
+<span class="nc" id="L80">                    UIManager.setLookAndFeel(info.getClassName());</span>
+<span class="nc" id="L81">                    break;</span>
+                }
+            }
+        } 
+<span class="nc" id="L85">        catch (Exception e) {</span>
+            // If Nimbus is not available, then have to set another look and feel.
+<span class="nc" id="L87">        }</span>
+<span class="nc" id="L88">    }</span>
+    
+    @SuppressWarnings(&quot;unchecked&quot;)
+	public static void createScenariosJson() {
+<span class="nc" id="L92">    	JSONArray data = new JSONArray();</span>
+<span class="nc" id="L93">    	JSONObject jo = new JSONObject();</span>
+<span class="nc" id="L94">    	jo.put(&quot;name&quot;, &quot;InitScenario&quot;);</span>
+<span class="nc" id="L95">    	jo.put(&quot;risk&quot;, &quot;&quot;);</span>
+<span class="nc" id="L96">    	jo.put(&quot;remarks&quot;, &quot;&quot;);</span>
+			
+<span class="nc" id="L98">		JSONObject jom = new JSONObject();</span>
+<span class="nc" id="L99">		jom.put(&quot;scenario&quot;, jo);			</span>
+<span class="nc" id="L100">		data.add(jom);</span>
+    	
+    	try {
+<span class="nc" id="L103">	         FileWriter file = new FileWriter(ODMEEditor.fileLocation + &quot;/&quot; + ODMEEditor.projName + &quot;/scenarios.json&quot;);</span>
+<span class="nc" id="L104">	         file.write(data.toJSONString());</span>
+<span class="nc" id="L105">	         file.close();</span>
+	    } 
+<span class="nc" id="L107">    	catch (IOException e) {</span>
+<span class="nc" id="L108">	         e.printStackTrace();</span>
+<span class="nc" id="L109">	    }</span>
+<span class="nc" id="L110">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

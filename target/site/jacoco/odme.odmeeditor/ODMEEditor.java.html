@@ -1,0 +1,519 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ODMEEditor.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SESEditor</a> &gt; <a href="index.source.html" class="el_package">odme.odmeeditor</a> &gt; <span class="el_source">ODMEEditor.java</span></div><h1>ODMEEditor.java</h1><pre class="source lang-java linenums">package odme.odmeeditor;
+
+import javax.swing.*;
+import javax.swing.border.BevelBorder;
+import javax.swing.border.Border;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.EtchedBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.plaf.basic.BasicInternalFrameUI;
+import javax.swing.table.JTableHeader;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
+import javax.swing.tree.TreePath;
+import javax.swing.undo.UndoManager;
+
+import com.google.common.collect.ArrayListMultimap;
+import com.mxgraph.model.mxCell;
+import com.mxgraph.util.mxUndoManager;
+
+import odeme.behaviour.Behaviour;
+import odme.core.EditorUndoableEditListener;
+import odme.core.FileConvertion;
+import odme.jtreetograph.*;
+
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+import java.util.Map;
+
+import static odme.odmeeditor.ODDManager.getOpenedFile;
+import static odme.odmeeditor.XmlUtils.sesview;
+
+
+public class ODMEEditor extends JPanel {
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+<span class="nc" id="L53">	public static String toolMode = &quot;ses&quot;;</span>
+	
+<span class="nc" id="L55">    public static String nodeName = &quot;NewNode &quot;;</span>
+<span class="nc" id="L56">    public static int openClicked = 0;</span>
+<span class="nc" id="L57">    public static String openFileName = &quot;Scenario&quot;;</span>
+<span class="nc" id="L58">    public static String nodeAddDetector = &quot;&quot;;</span>
+    
+<span class="nc" id="L60">    public static String currentScenario = &quot;InitScenario&quot;;</span>
+<span class="nc" id="L61">    public static String projName = &quot;Main&quot;;</span>
+    
+    
+<span class="nc" id="L64">    public static UndoManager undoJtree = new UndoManager();</span>
+<span class="nc" id="L65">    public static boolean undoControlForSubTree = false;</span>
+<span class="nc" id="L66">    public static int sesValidationControl = 0;</span>
+<span class="nc" id="L67">    public static int errorPresentInSES  = 0;</span>
+<span class="nc" id="L68">    public static String errorMessageInSES = null;</span>
+    public static DynamicTree treePanel;
+    
+    public static Constraint scenarioConstraint;
+    public static Behaviour scenarioBehaviour;
+    
+    public static ProjectTree projectPanel;
+    public static GraphWindow graphWindow;
+    public static Console console;
+    public static Variable scenarioVariable;
+
+<span class="nc" id="L79">    public static JTabbedPane tabbedPane = null;</span>
+    public static JSplitPane splitPane;
+    
+<span class="nc" id="L82">    private static Path path = Paths.get(&quot;&quot;).toAbsolutePath();</span>
+<span class="nc" id="L83">    public static String repFslas = path.toString().replace(&quot;\\&quot;, &quot;/&quot;);</span>
+<span class="nc" id="L84">    public static String fileLocation = repFslas;</span>
+<span class="nc" id="L85">    public static String importFileLocation = &quot;&quot;;</span>
+<span class="nc" id="L86">    public static String importFileName = &quot;&quot;;</span>
+    
+<span class="nc" id="L88">    public static JButton btnMode = new JButton(&quot;Domain Modelling&quot;);</span>
+<span class="nc" id="L89">    public static JLabel statusLabel = new JLabel(&quot;Current Mode: Domain Modelling&quot;);</span>
+    
+<span class="nc" id="L91">    public static FileConvertion fileConversion = new FileConvertion();</span>
+    
+    public ODMEEditor() {
+<span class="nc" id="L94">        super(new BorderLayout());</span>
+//      -------------------------------------
+<span class="nc" id="L96">        DynamicTree.projectFileName = JtreeToGraphVariables.newFileName;</span>
+        
+        //
+<span class="nc" id="L99">        tabbedPane =  new JTabbedPane();</span>
+        
+<span class="nc" id="L101">        treePanel = new DynamicTree();</span>
+<span class="nc" id="L102">        treePanel.addUndoableEditListener(new EditorUndoableEditListener());</span>
+<span class="nc" id="L103">        treePanel.setPreferredSize(new Dimension(200, 600));</span>
+        
+//      -------------------------------------
+<span class="nc" id="L106">        projectPanel = new ProjectTree();</span>
+        
+//      -------------------------------------
+<span class="nc" id="L109">        scenarioVariable = new Variable();</span>
+<span class="nc" id="L110">        scenarioVariable.setPreferredSize(new Dimension(100, 100));</span>
+<span class="nc" id="L111">        scenarioVariable.setBorder(new EtchedBorder());</span>
+    
+        
+//      -------------------------------------
+<span class="nc" id="L115">        scenarioConstraint = new Constraint();</span>
+<span class="nc" id="L116">        scenarioConstraint.setPreferredSize(new Dimension(100, 100));</span>
+<span class="nc" id="L117">        scenarioConstraint.setBorder(new EtchedBorder());</span>
+
+<span class="nc" id="L119">        scenarioBehaviour = new Behaviour();</span>
+<span class="nc" id="L120">        scenarioBehaviour.setPreferredSize(new Dimension(100 , 100));</span>
+<span class="nc" id="L121">        scenarioBehaviour.setBorder(new EtchedBorder());</span>
+      
+//        -------------------------------------
+        // Adding jgraph window in the center
+<span class="nc" id="L125">        graphWindow = new GraphWindow();</span>
+<span class="nc" id="L126">        graphWindow.setPreferredSize(new Dimension(800, 400));</span>
+<span class="nc" id="L127">        removeTopLeftIcon(graphWindow);</span>
+<span class="nc" id="L128">        graphWindow.pack();</span>
+<span class="nc" id="L129">        graphWindow.setVisible(true);</span>
+<span class="nc" id="L130">        JtreeToGraphCreate.createGraph(graphWindow);</span>
+        
+//        -------------------------------------
+        // Console
+<span class="nc" id="L134">        console = new Console();</span>
+<span class="nc" id="L135">        console.setPreferredSize(new Dimension(250, 100));</span>
+<span class="nc" id="L136">        removeTopLeftIcon(console);</span>
+<span class="nc" id="L137">        console.pack();</span>
+<span class="nc" id="L138">        console.setVisible(true);</span>
+        
+//      -------------------------------------
+<span class="nc" id="L141">        XmlUtils.ontologyview = XmlUtils.initView(&quot;Ontology&quot;);</span>
+<span class="nc" id="L142">        XmlUtils.sesview = XmlUtils.initView(&quot;XML&quot;);</span>
+<span class="nc" id="L143">        XmlUtils.schemaview = XmlUtils.initView(&quot;Schema&quot;);</span>
+
+        // creating tab window
+<span class="nc" id="L146">        tabbedPaneChange();</span>
+<span class="nc" id="L147">        tabbedPane.addTab(&quot;Ontology&quot;, XmlUtils.ontologyview);</span>
+<span class="nc" id="L148">        tabbedPane.addTab(&quot;Schema&quot;, XmlUtils.schemaview);</span>
+        
+//    -------------------------------------
+        // add panelSpliter with main window's parts 
+<span class="nc" id="L152">        PanelSplitor panelSplitor = new PanelSplitor();</span>
+<span class="nc" id="L153">        splitPane = panelSplitor.addSplitor(projectPanel, treePanel, graphWindow,</span>
+        			console, scenarioVariable, scenarioBehaviour,scenarioConstraint, tabbedPane);  
+       
+<span class="nc" id="L156">    }</span>
+    
+    public static void addStatuBar(JFrame frame) {
+    	
+    	// create the status bar panel and show it down the bottom of the frame
+<span class="nc" id="L161">    	JPanel statusPanel = new JPanel();</span>
+<span class="nc" id="L162">    	statusPanel.setBorder(new BevelBorder(BevelBorder.LOWERED));</span>
+<span class="nc" id="L163">    	frame.add(statusPanel, BorderLayout.SOUTH);</span>
+<span class="nc" id="L164">    	statusPanel.setPreferredSize(new Dimension(frame.getWidth(), 32));</span>
+<span class="nc" id="L165">    	statusPanel.setLayout(new BoxLayout(statusPanel, BoxLayout.X_AXIS));</span>
+    	
+<span class="nc" id="L167">    	statusLabel.setHorizontalAlignment(SwingConstants.LEFT);</span>
+<span class="nc" id="L168">    	statusPanel.add(statusLabel);</span>
+    	
+<span class="nc" id="L170">    	Border border = statusLabel.getBorder();</span>
+<span class="nc" id="L171">    	Border margin = new EmptyBorder(0,10,0,0);</span>
+<span class="nc" id="L172">    	statusLabel.setBorder(new CompoundBorder(border, margin));</span>
+<span class="nc" id="L173">    	statusPanel.add(Box.createHorizontalGlue());</span>
+    			
+<span class="nc" id="L175">    	btnMode.setBackground(new Color(255,255,255));</span>
+<span class="nc" id="L176">    	btnMode.setFont(btnMode.getFont().deriveFont(Font.BOLD));</span>
+<span class="nc" id="L177">    	btnMode.setIcon(new ImageIcon(ODMEEditor.class.getClassLoader().getResource(&quot;images/switch.png&quot;)));</span>
+<span class="nc" id="L178">        statusPanel.add(btnMode);</span>
+<span class="nc" id="L179">        btnMode.addActionListener(new ActionListener() {</span>
+            @Override
+            public void actionPerformed(ActionEvent e) { 
+<span class="nc bnc" id="L182" title="All 2 branches missed.">            	if (ODMEEditor.toolMode == &quot;ses&quot;) {</span>
+            		//Save Current
+<span class="nc" id="L184">            		ODMEEditor.treePanel.saveTreeModel();</span>
+
+<span class="nc" id="L186">                	JtreeToGraphConvert.convertTreeToXML();</span>
+<span class="nc" id="L187">                	JtreeToGraphConvert.graphToXML();</span>
+<span class="nc" id="L188">                	JtreeToGraphConvert.graphToXMLWithUniformity();</span>
+<span class="nc" id="L189">                	switchToPes();</span>
+            	}
+
+            	else {
+            		//Save Current (Pes)
+<span class="nc" id="L194">            		treePanel.saveTreeModel();</span>
+<span class="nc" id="L195">                	JtreeToGraphConvert.convertTreeToXML();</span>
+<span class="nc" id="L196">                	JtreeToGraphConvert.graphToXML();</span>
+<span class="nc" id="L197">                	JtreeToGraphConvert.graphToXMLWithUniformity();</span>
+
+                	//open Ses
+<span class="nc" id="L200">                	toolMode = &quot;ses&quot;;</span>
+                	
+<span class="nc" id="L202">                	File selectedFile = new File(fileLocation);</span>
+<span class="nc" id="L203">                	String fileName = selectedFile.getName();</span>
+<span class="nc" id="L204">                    String oldProjectTreeProjectName = projName;</span>
+<span class="nc" id="L205">                    projName = fileName;</span>
+<span class="nc" id="L206">                    fileLocation = selectedFile.getParentFile().getAbsolutePath();</span>
+<span class="nc" id="L207">                    JtreeToGraphGeneral.openExistingProject(projName, oldProjectTreeProjectName);</span>
+<span class="nc" id="L208">                    JtreeToGraphVariables.</span>
+                            undoManager = new mxUndoManager();
+
+<span class="nc" id="L211">                    sesview.textArea.setText(&quot;&quot;);</span>
+<span class="nc" id="L212">                    Console.consoleText.setText(&quot;&gt;&gt;&quot;);</span>
+<span class="nc" id="L213">                    Variable.setNullToAllRows();</span>
+<span class="nc" id="L214">                    Constraint.setNullToAllRows();</span>
+<span class="nc" id="L215">                    Behaviour.setNullToAllRows();</span>
+<span class="nc" id="L216">                    applyGuiSES();</span>
+            	}
+<span class="nc" id="L218">            }</span>
+        }); 
+<span class="nc" id="L220">    }</span>
+    
+    public static void applyGuiSES() {
+    	// Apply Gui changes
+<span class="nc" id="L224">        btnMode.setText(&quot;Domain Modelling&quot;);</span>
+		
+<span class="nc bnc" id="L226" title="All 2 branches missed.">		for (Map.Entry&lt;String, JButton&gt; entry : ToolBar.btnItems.entrySet()) {</span>
+<span class="nc" id="L227">			JButton btn = entry.getValue();</span>
+<span class="nc" id="L228">			btn.setVisible(true);</span>
+<span class="nc" id="L229">		}</span>
+
+		// Change MenuBar 
+<span class="nc bnc" id="L232" title="All 2 branches missed.">		for (JMenuItem item : MenuBar.fileMenuItems) {</span>
+<span class="nc bnc" id="L233" title="All 2 branches missed.">			if (item.isEnabled())</span>
+<span class="nc" id="L234">				item.setEnabled(false);</span>
+			else
+<span class="nc" id="L236">				item.setEnabled(true);</span>
+<span class="nc" id="L237">		}</span>
+		
+<span class="nc" id="L239">		statusLabel.setText(&quot;Current Mode: Domain Modelling&quot;);</span>
+<span class="nc" id="L240">		tabbedPane.removeAll();</span>
+<span class="nc" id="L241">		tabbedPane.addTab(&quot;Ontology&quot;, XmlUtils.ontologyview);</span>
+<span class="nc" id="L242">        tabbedPane.addTab(&quot;Schema&quot;, XmlUtils.schemaview);</span>
+		
+		
+<span class="nc" id="L245">		ToolBar.btnScenario.setVisible(false);</span>
+<span class="nc" id="L246">		ODMEEditor.graphWindow.setTitle(projName);</span>
+		
+<span class="nc" id="L248">		JTableHeader th = Variable.table.getTableHeader();</span>
+<span class="nc" id="L249">        TableColumnModel tcm = th.getColumnModel();</span>
+<span class="nc" id="L250">        TableColumn tc = tcm.getColumn(3);</span>
+<span class="nc" id="L251">        tc.setHeaderValue( &quot;Default Value&quot; );</span>
+<span class="nc" id="L252">        th.repaint();</span>
+<span class="nc" id="L253">    }</span>
+    
+    private static void switchToPes() {
+<span class="nc" id="L256">    	btnMode.setText(&quot;Scenario Modelling&quot;);</span>
+<span class="nc" id="L257">    	statusLabel.setText(&quot;Current Mode: Scenario Modelling&quot;);</span>
+<span class="nc" id="L258">		ODMEEditor.toolMode = &quot;pes&quot;;</span>
+<span class="nc" id="L259">		currentScenario = &quot;InitScenario&quot;;</span>
+		
+		// Change Toollbar
+<span class="nc bnc" id="L262" title="All 2 branches missed.">		for (Map.Entry&lt;String, JButton&gt; entry : ToolBar.btnItems.entrySet()) {</span>
+<span class="nc" id="L263">			String name = entry.getKey();</span>
+<span class="nc" id="L264">			JButton btn = entry.getValue();</span>
+<span class="nc bnc" id="L265" title="All 10 branches missed.">		    if (name==&quot;Add Entity&quot; || name== &quot;Add Aspect&quot; || name==&quot;Add Specialization&quot; ||</span>
+		    		name==&quot;Add Multi-Aspect&quot; || name==&quot;Delete Node&quot;) {
+<span class="nc" id="L267">		    	btn.setVisible(false);</span>
+		    }
+<span class="nc" id="L269">		}</span>
+		
+		// Change MenuBar 
+<span class="nc bnc" id="L272" title="All 2 branches missed.">		for (JMenuItem item : MenuBar.fileMenuItems) {</span>
+<span class="nc bnc" id="L273" title="All 2 branches missed.">			if (item.isEnabled())</span>
+<span class="nc" id="L274">				item.setEnabled(false);</span>
+			else
+<span class="nc" id="L276">				item.setEnabled(true);</span>
+<span class="nc" id="L277">    	}</span>
+    	
+    	//Save as to create Pes version
+<span class="nc" id="L280">        fileLocation = fileLocation+&quot;/&quot;+projName;</span>
+<span class="nc" id="L281">        JtreeToGraphVariables.newFileName = currentScenario;</span>
+<span class="nc" id="L282">        JtreeToGraphVariables.projectFileNameGraph = currentScenario;</span>
+  
+<span class="nc" id="L284">        JtreeToGraphVariables.ssdFileGraph = new File(String.format(&quot;%s/%s/%sGraph.xml&quot;,</span>
+    			fileLocation, currentScenario, projName));
+<span class="nc" id="L286">        treePanel.ssdFile = new File(String.format(&quot;%s/%s/%s.xml&quot;,</span>
+        		fileLocation, currentScenario, projName));
+<span class="nc" id="L288">        treePanel.ssdFileVar = new File(String.format(&quot;%s/%s/%s.ssdvar&quot;,</span>
+        		fileLocation, currentScenario, projName));
+<span class="nc" id="L290">        treePanel.ssdFileCon = new File(String.format(&quot;%s/%s/%s.ssdcon&quot;,</span>
+        		fileLocation, currentScenario, projName));
+
+<span class="nc" id="L293">        treePanel.ssdFileBeh = new File(String.format(&quot;%s/%s/%s.ssdbeh&quot;,</span>
+        		fileLocation, currentScenario, projName));
+        
+<span class="nc" id="L296">        treePanel.ssdFileFlag = new File(String.format(&quot;%s/%s/%s.ssdflag&quot;,</span>
+        		fileLocation, currentScenario, projName));
+
+<span class="nc" id="L299">        File f = new File(fileLocation + &quot;/&quot; + currentScenario);</span>
+<span class="nc" id="L300">        f.mkdirs();</span>
+        
+<span class="nc" id="L302">        treePanel.saveTreeModel();</span>
+        
+<span class="nc" id="L304">        JtreeToGraphConvert.convertTreeToXML();</span>
+<span class="nc" id="L305">        JtreeToGraphConvert.graphToXML();</span>
+<span class="nc" id="L306">        JtreeToGraphConvert.graphToXMLWithUniformity();</span>
+        
+<span class="nc" id="L308">        tabbedPane.removeAll();</span>
+<span class="nc" id="L309">        tabbedPane.addTab(&quot;XML&quot;, XmlUtils.sesview);</span>
+<span class="nc" id="L310">        changePruneColor();</span>
+<span class="nc" id="L311">        ToolBar.btnScenario.setVisible(true);</span>
+<span class="nc" id="L312">        ODMEEditor.graphWindow.setTitle(currentScenario);</span>
+<span class="nc" id="L313">        nodeAddDetector = &quot;&quot;;</span>
+        
+<span class="nc" id="L315">        JTableHeader th = Variable.table.getTableHeader();</span>
+<span class="nc" id="L316">        TableColumnModel tcm = th.getColumnModel();</span>
+<span class="nc" id="L317">        TableColumn tc = tcm.getColumn(3);</span>
+<span class="nc" id="L318">        tc.setHeaderValue( &quot;Value&quot; );</span>
+<span class="nc" id="L319">        th.repaint();</span>
+
+<span class="nc" id="L321">        JtreeToGraphPrune.behMapTransfer = ArrayListMultimap.create();</span>
+<span class="nc" id="L322">        JtreeToGraphPrune.varMapTransfer = ArrayListMultimap.create();</span>
+<span class="nc" id="L323">    }</span>
+    
+    public static void changePruneColor() {
+<span class="nc" id="L326">    	JtreeToGraphVariables.graph.clearSelection();  </span>
+<span class="nc" id="L327">    	JtreeToGraphVariables.graph.selectAll();</span>
+<span class="nc" id="L328">        Object[] cells = JtreeToGraphVariables.graph.getSelectionCells(); //here you have all cells</span>
+<span class="nc bnc" id="L329" title="All 2 branches missed.">        for (Object c : cells) {</span>
+<span class="nc" id="L330">        	mxCell cell = (mxCell) c; //cast</span>
+<span class="nc bnc" id="L331" title="All 2 branches missed.">        	if (cell.isVertex()) { //isVertex</span>
+<span class="nc" id="L332">        		Object[] temp =  new Object[1];</span>
+<span class="nc" id="L333">        		temp[0] = cell;</span>
+        		
+<span class="nc bnc" id="L335" title="All 2 branches missed.">        		if (cell.getValue().toString().endsWith(&quot;Dec&quot;)){}</span>
+        		
+<span class="nc bnc" id="L337" title="All 2 branches missed.">        		else if (cell.getValue().toString().endsWith(&quot;MAsp&quot;))</span>
+<span class="nc" id="L338">        			JtreeToGraphVariables.graph.setCellStyle(&quot;Multiaspectp&quot;, temp);</span>
+<span class="nc bnc" id="L339" title="All 2 branches missed.">        		else if (cell.getValue().toString().endsWith(&quot;Spec&quot;))</span>
+<span class="nc" id="L340">        			JtreeToGraphVariables.graph.setCellStyle(&quot;Specializationp&quot;, temp);</span>
+        		else {
+<span class="nc bnc" id="L342" title="All 2 branches missed.">        			for (TreePath key : DynamicTree.varMap.keySet()) {</span>
+<span class="nc" id="L343">        				String[] arr = key.toString().substring(1,key.toString().length()-1).split(&quot;,&quot;);</span>
+<span class="nc bnc" id="L344" title="All 2 branches missed.">        				if (cell.getValue().toString().trim().equals(arr[arr.length-1].trim())) {</span>
+<span class="nc" id="L345">        					JtreeToGraphVariables.graph.setCellStyle(&quot;Entityp&quot;, temp);</span>
+<span class="nc" id="L346">        					break;</span>
+        				}
+<span class="nc" id="L348">        			}</span>
+        		}	
+        	}
+        	else { //is not a vertex, so u can get source and target 
+        		//cell.getChildCount(); //Returns the number of child cells. (edges)
+        	}
+        }
+<span class="nc" id="L355">        JtreeToGraphVariables.graph.clearSelection();</span>
+<span class="nc" id="L356">    }</span>
+    
+    
+    /**
+     * This function saves all the required files based on current addition.
+     */
+    public static void saveChanges() {
+<span class="nc" id="L363">        treePanel.saveTreeModel();</span>
+<span class="nc" id="L364">        JtreeToGraphConvert.convertTreeToXML();</span>
+<span class="nc" id="L365">        JtreeToGraphConvert.graphToXML();</span>
+<span class="nc" id="L366">        JtreeToGraphConvert.graphToXMLWithUniformity();</span>
+<span class="nc" id="L367">    }</span>
+
+    public static void newProjectFolderCreation() {
+<span class="nc" id="L370">        File f = new File(fileLocation + &quot;/&quot; + projName);</span>
+<span class="nc" id="L371">        f.mkdirs();</span>
+<span class="nc" id="L372">    }</span>
+
+    /**
+     * editted by Roy: for compatibility issues, added a function that calls
+     * the saveFunc but with parameter (used polymorphism). this is to enable
+     * the user functions to use saveFunc without feeling any changes
+     * */
+    public static void saveFunc() {
+<span class="nc" id="L380">        saveFunc(true);</span>
+<span class="nc" id="L381">    }</span>
+
+    /**
+     * editted by Roy: added this boolean that enables showing a message
+     * */
+    public static void saveFunc(boolean showMessage) {
+        // this code is also present in convert to xml button click action.
+<span class="nc" id="L388">        ODMEEditor.treePanel.saveTreeModel();</span>
+<span class="nc" id="L389">        JtreeToGraphSave.saveGraph();</span>
+
+<span class="nc" id="L391">        JtreeToGraphConvert.convertTreeToXML(); // this function is using for converting project tree into xml file</span>
+<span class="nc" id="L392">        JtreeToGraphConvert.graphToXML();</span>
+<span class="nc" id="L393">        JtreeToGraphConvert.graphToXMLWithUniformity();</span>
+
+<span class="nc bnc" id="L395" title="All 2 branches missed.">        if(showMessage)</span>
+<span class="nc" id="L396">            JOptionPane.showMessageDialog(Main.frame, &quot;Saved Successfully.&quot;, &quot;Save&quot;,</span>
+                    JOptionPane.INFORMATION_MESSAGE);
+<span class="nc" id="L398">    }</span>
+
+    /**
+     * @author Roy
+     * this function is being used at multiple places
+     * to update the state of the program and make sure
+     * the latest version of the projet is being read
+     * */
+    public static void updateState() {
+<span class="nc" id="L407">        ODMEEditor.treePanel.saveTreeModel();</span>
+<span class="nc" id="L408">        JtreeToGraphConvert.convertTreeToXML();</span>
+<span class="nc" id="L409">        JtreeToGraphConvert.graphToXML();</span>
+<span class="nc" id="L410">        JtreeToGraphConvert.graphToXMLWithUniformity();</span>
+<span class="nc" id="L411">        ODMEEditor.graphWindow.setTitle( ODMEEditor.currentScenario);</span>
+
+<span class="nc" id="L413">        ODMEEditor.saveChanges();</span>
+<span class="nc" id="L414">        ODMEEditor.fileConversion.modifyXmlOutputForXSD();</span>
+<span class="nc" id="L415">        JtreeToGraphConvert.rootToEndNodeSequenceSolve();</span>
+<span class="nc" id="L416">        JtreeToGraphConvert.rootToEndNodeVariable();</span>
+
+<span class="nc" id="L418">        JtreeToGraphModify.modifyXmlOutputFixForSameNameNode();</span>
+<span class="nc" id="L419">        JtreeToGraphGeneral.xmlOutputForXSD();</span>
+<span class="nc" id="L420">        ODMEEditor.fileConversion.xmlToXSDConversion();</span>
+<span class="nc" id="L421">    }</span>
+
+    public static void chooseAndSaveFile(String content, String suggestedPath, Object o) {
+<span class="nc" id="L424">        chooseAndSaveFile(content, suggestedPath,null);</span>
+<span class="nc" id="L425">    }</span>
+    /**
+     * @author Roy
+     * #ROY - add new Functionality (set the path to human readable content)
+     * */
+    public static void chooseAndSaveFile(String content,String suggestedPath,String ext) {
+<span class="nc" id="L431">        FileWriter fw=null;</span>
+        try{
+<span class="nc" id="L433">            fw=new FileWriter(getOpenedFile(suggestedPath));</span>
+<span class="nc" id="L434">            fw.write(content);</span>
+<span class="nc" id="L435">            javax.swing.JOptionPane.showMessageDialog(null,&quot;File Saved Successfully.&quot;);</span>
+<span class="nc" id="L436">        }catch(IOException ioe) {ioe.printStackTrace();}</span>
+
+        // handle leakage and canceling
+<span class="nc bnc" id="L439" title="All 2 branches missed.">        try { if(fw!=null) fw.close(); }</span>
+<span class="nc" id="L440">        catch(IOException ioe1) { ioe1.printStackTrace(); }</span>
+<span class="nc" id="L441">    }</span>
+
+    private void tabbedPaneChange() {
+    	
+<span class="nc" id="L445">        tabbedPane.addChangeListener(new ChangeListener() {</span>
+            @Override
+            public void stateChanged(ChangeEvent arg0) {
+<span class="nc bnc" id="L448" title="All 2 branches missed.">                if (tabbedPane.getSelectedIndex() == 0) {</span>
+                	
+<span class="nc bnc" id="L450" title="All 2 branches missed.">                	if (ODMEEditor.toolMode == &quot;ses&quot;) {</span>
+<span class="nc" id="L451">                		sesview.setTitle(&quot;Ontology&quot;);</span>
+<span class="nc" id="L452">                		fileConversion.createSES(fileLocation + &quot;/&quot; + projName + &quot;/ses.xsd&quot;);</span>
+<span class="nc" id="L453">                		XmlUtils.showViewer(fileLocation, projName, &quot;ses.xsd&quot;, XmlUtils.ontologyview);</span>
+                	}
+                	else {
+<span class="nc" id="L456">                		sesview.setTitle(&quot;XML&quot;);</span>
+<span class="nc" id="L457">                        saveChanges();</span>
+                        
+<span class="nc" id="L459">                    	fileConversion.createSES(fileLocation + &quot;/&quot; + currentScenario + &quot;/ses.xsd&quot;);</span>
+                        
+                        // have to fix this--------------------------------------
+<span class="nc" id="L462">                        fileConversion.modifyXmlOutputForXSD(); // changed the input file to graphxmluniformity</span>
+<span class="nc" id="L463">                        JtreeToGraphConvert.rootToEndNodeSequenceSolve();</span>
+<span class="nc" id="L464">                        JtreeToGraphConvert.rootToEndNodeVariable();</span>
+                        // have to fix this end not needed all-----------------------------------
+                        // this is important here. others above have to check
+                        /*
+                         * if i use modifyXmlOutputFixForSameNameNode then var is added as entity and
+                         * SES is not generated showing error. have to check why
+                         */
+<span class="nc" id="L471">                        JtreeToGraphModify.modifyXmlOutputFixForSameNameNode();</span>
+<span class="nc" id="L472">                        JtreeToGraphGeneral.xmlOutputForXSD();</span>
+<span class="nc" id="L473">                        JtreeToGraphAdd.addconstraintToSESStructure();</span>
+<span class="nc" id="L474">                        sesValidationControl = 1;</span>
+                        //TypeInfoWriter.validateXML();
+//                        if (errorPresentInSES == 1) {
+//                            sesview.textArea
+//                                    .setText(&quot;Error presents in the SES. Check console output for details.&quot;);
+//                            errorPresentInSES = 0;
+//                        } 
+//                        else {
+<span class="nc" id="L482">                            XmlUtils.showViewer(fileLocation, projName, &quot;xmlforxsd.xml&quot;, XmlUtils.sesview);</span>
+//                        }
+                	}
+                		
+//                		fileConversion.createSES(fileLocation + &quot;/&quot; + currentScenario + &quot;/ses.xsd&quot;);
+//                    
+//                    XmlUtils.showViewer(fileLocation, projName, &quot;ses.xsd&quot;, XmlUtils.ontologyview);
+                } 
+<span class="nc bnc" id="L490" title="All 2 branches missed.">                else if (tabbedPane.getSelectedIndex() == 1) {</span>
+<span class="nc" id="L491">                	XmlUtils.schemaview.setTitle(&quot;Schema&quot;); // SES Ontology / Schema Viewer</span>
+<span class="nc" id="L492">                    saveChanges();</span>
+<span class="nc" id="L493">                    fileConversion.modifyXmlOutputForXSD();</span>
+<span class="nc" id="L494">                    JtreeToGraphConvert.rootToEndNodeSequenceSolve();</span>
+                    JtreeToGraphConvert
+<span class="nc" id="L496">                            .rootToEndNodeVariable(); // have to try using saving keys in a list like i did in</span>
+<span class="nc" id="L497">                    JtreeToGraphModify.modifyXmlOutputFixForSameNameNode();</span>
+<span class="nc" id="L498">                    fileConversion.xmlToXSDConversion();</span>
+<span class="nc" id="L499">                    fileConversion.placeAssertInRightPosition();</span>
+<span class="nc" id="L500">                    XmlUtils.showViewer(fileLocation, projName, &quot;xsdfromxml.xsd&quot;, XmlUtils.schemaview);</span>
+                } 
+<span class="nc bnc" id="L502" title="All 2 branches missed.">                else if (tabbedPane.getSelectedIndex() == 2) {</span>
+                    
+                }
+<span class="nc" id="L505">            }</span>
+        });
+<span class="nc" id="L507">    }</span>
+    
+    public static void removeTopLeftIcon(JInternalFrame internalFrame){
+    	// this is for removing the top-left icon of the internal frame
+<span class="nc" id="L511">        BasicInternalFrameUI ui = (BasicInternalFrameUI) internalFrame.getUI();</span>
+<span class="nc" id="L512">        Container north = ui.getNorthPane();</span>
+<span class="nc" id="L513">        north.remove(0);</span>
+<span class="nc" id="L514">        north.validate();</span>
+<span class="nc" id="L515">        north.repaint();</span>
+<span class="nc" id="L516">    }</span>
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

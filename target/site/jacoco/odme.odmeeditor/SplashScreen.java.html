@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SplashScreen.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SESEditor</a> &gt; <a href="index.source.html" class="el_package">odme.odmeeditor</a> &gt; <span class="el_source">SplashScreen.java</span></div><h1>SplashScreen.java</h1><pre class="source lang-java linenums">package odme.odmeeditor;
+
+import java.awt.Color;
+import java.awt.Font;
+
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JProgressBar;
+
+
+
+public class SplashScreen {
+	
+    private JFrame frame;
+    private JLabel image;
+    private JLabel text;
+    private JProgressBar progressBar;
+    private JLabel message;
+    private int duration_sec;
+    
+<span class="nc" id="L23">    public SplashScreen(int duration) {</span>
+<span class="nc" id="L24">    	duration_sec = duration;</span>
+<span class="nc" id="L25">    	image = new JLabel(new ImageIcon(</span>
+<span class="nc" id="L26">    			ODMEEditor.class.getClassLoader().getResource(&quot;images/tu_clausthal_logo.png&quot;)));</span>
+<span class="nc" id="L27">    	text=new JLabel(&quot;   Operation Domain Modeling Environment&quot;);</span>
+<span class="nc" id="L28">    	progressBar=new JProgressBar();</span>
+<span class="nc" id="L29">    	message=new JLabel(&quot;© Copyright 2022 by TU Clausthal, Informatik institute. All rights reserved.&quot;);</span>
+    			
+<span class="nc" id="L31">        createGUI();</span>
+<span class="nc" id="L32">        addImage();</span>
+<span class="nc" id="L33">        addText();</span>
+<span class="nc" id="L34">        addProgressBar();</span>
+<span class="nc" id="L35">        addMessage();</span>
+<span class="nc" id="L36">    }</span>
+    public void createGUI() {
+<span class="nc" id="L38">        frame=new JFrame();</span>
+<span class="nc" id="L39">        frame.getContentPane().setLayout(null);</span>
+<span class="nc" id="L40">        frame.setUndecorated(true);</span>
+<span class="nc" id="L41">        frame.setSize(600,380);</span>
+<span class="nc" id="L42">        frame.setLocationRelativeTo(null);</span>
+<span class="nc" id="L43">        frame.getContentPane().setBackground(Color.white);</span>
+<span class="nc" id="L44">        frame.getRootPane().setBorder(</span>
+<span class="nc" id="L45">                BorderFactory.createMatteBorder(8, 1, 1, 1, Color.ORANGE));</span>
+<span class="nc" id="L46">        frame.setVisible(true);</span>
+<span class="nc" id="L47">    }</span>
+    
+    public void addImage() {
+<span class="nc" id="L50">        image.setSize(600,230);</span>
+<span class="nc" id="L51">        frame.add(image);</span>
+<span class="nc" id="L52">    }</span>
+    
+    public void addText() {
+<span class="nc" id="L55">        text.setFont(new Font(&quot;arial&quot;,Font.BOLD,26));</span>
+<span class="nc" id="L56">        text.setBounds(15,230,600,40);</span>
+<span class="nc" id="L57">        text.setForeground(new Color(0x04773b));</span>
+<span class="nc" id="L58">        frame.add(text);</span>
+<span class="nc" id="L59">    }</span>
+    
+    public void addMessage() {
+<span class="nc" id="L62">        message.setBounds(15,325,450,40);//Setting the size and location of the label</span>
+<span class="nc" id="L63">        message.setForeground(Color.black);//Setting foreground Color</span>
+        //message.setFont(new Font(&quot;arial&quot;,Font.BOLD,15));//Setting font properties
+<span class="nc" id="L65">        frame.add(message);//adding label to the frame</span>
+<span class="nc" id="L66">    }</span>
+    
+    public void addProgressBar() {
+<span class="nc" id="L69">        progressBar.setBounds(100,280,400,30);</span>
+<span class="nc" id="L70">        progressBar.setBorderPainted(true);</span>
+<span class="nc" id="L71">        progressBar.setStringPainted(true);</span>
+<span class="nc" id="L72">        progressBar.setBackground(Color.WHITE);</span>
+<span class="nc" id="L73">        progressBar.setForeground(new Color(0x04773b));</span>
+<span class="nc" id="L74">        progressBar.setValue(0);</span>
+<span class="nc" id="L75">        frame.add(progressBar);</span>
+<span class="nc" id="L76">    }</span>
+    
+    public void runningPBar() {
+<span class="nc" id="L79">        int i=0;//Creating an integer variable and intializing it to 0</span>
+
+<span class="nc bnc" id="L81" title="All 2 branches missed.">        while( i&lt;=100){</span>
+            try{
+<span class="nc" id="L83">                Thread.sleep(duration_sec*10);//Pausing execution for 50 milliseconds</span>
+<span class="nc" id="L84">                progressBar.setValue(i);//Setting value of Progress Bar</span>
+<span class="nc" id="L85">                i++;</span>
+<span class="nc bnc" id="L86" title="All 2 branches missed.">                if(i==100)</span>
+<span class="nc" id="L87">                    frame.dispose();</span>
+                }
+<span class="nc" id="L89">            catch(Exception e){</span>
+<span class="nc" id="L90">                e.printStackTrace();</span>
+<span class="nc" id="L91">            }</span>
+        }
+<span class="nc" id="L93">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

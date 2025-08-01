@@ -1,0 +1,349 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ScenarioList.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SESEditor</a> &gt; <a href="index.source.html" class="el_package">odme.odmeeditor</a> &gt; <span class="el_source">ScenarioList.java</span></div><h1>ScenarioList.java</h1><pre class="source lang-java linenums">package odme.odmeeditor;
+
+import static odme.jtreetograph.JtreeToGraphVariables.nodeNumber;
+import static odme.jtreetograph.JtreeToGraphVariables.undoManager;
+import static odme.odmeeditor.XmlUtils.sesview;
+
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.swing.JFrame;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
+import javax.swing.border.EtchedBorder;
+import javax.swing.table.DefaultTableModel;
+
+import odeme.behaviour.Behaviour;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+
+import com.google.common.collect.ArrayListMultimap;
+import com.mxgraph.util.mxUndoManager;
+import com.mxgraph.util.svg.ParseException;
+
+import odme.jtreetograph.JtreeToGraphGeneral;
+
+
+
+<span class="nc" id="L47">public class ScenarioList extends JPanel {</span>
+
+	private static final long serialVersionUID = 1L;
+	private JTable table;
+	private DefaultTableModel model;
+
+    public void createScenarioListWindow() {
+    	
+<span class="nc" id="L55">    	List&lt;String[]&gt; dataList = getJsonData();</span>
+    	
+<span class="nc" id="L57">    	model = new DefaultTableModel(new String[]{&quot;Name&quot;, &quot;Risk&quot;, &quot;Remarks&quot;}, 0);</span>
+<span class="nc bnc" id="L58" title="All 2 branches missed.">    	for (String[] arr: dataList)</span>
+<span class="nc" id="L59">    		model.addRow(arr);</span>
+
+<span class="nc" id="L61">        table = new JTable(model);</span>
+<span class="nc" id="L62">        table.setShowVerticalLines(true);</span>
+<span class="nc" id="L63">        table.setDefaultEditor(Object.class, null);</span>
+<span class="nc" id="L64">        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);</span>
+        
+<span class="nc" id="L66">        table.setAutoCreateRowSorter(true);</span>
+        
+<span class="nc" id="L68">        final JPopupMenu popupMenu = new JPopupMenu();</span>
+<span class="nc" id="L69">        JMenuItem openItem = new JMenuItem(&quot;Open&quot;);</span>
+<span class="nc" id="L70">        JMenuItem deleteItem = new JMenuItem(&quot;Delete&quot;);</span>
+        
+<span class="nc" id="L72">        openItem.addActionListener(new ActionListener() {</span>
+            @Override
+            public void actionPerformed(ActionEvent e) {
+            	try {
+
+<span class="nc" id="L77">            		DynamicTree.varMap = ArrayListMultimap.create();</span>
+
+<span class="nc" id="L79">            		int row = table.getSelectedRow();</span>
+<span class="nc" id="L80">            		String fileName = (String) table.getModel().getValueAt(row, 0);</span>
+
+<span class="nc" id="L82">            		System.out.println(&quot;Selected file: &quot; + fileName);</span>
+<span class="nc" id="L83">            		ODMEEditor.currentScenario = fileName;</span>
+
+<span class="nc" id="L85">            		nodeNumber = 1;</span>
+<span class="nc" id="L86">            		JtreeToGraphGeneral.openExistingProject(ODMEEditor.projName, ODMEEditor.projName);</span>
+
+<span class="nc" id="L88">            		undoManager = new mxUndoManager();</span>
+
+<span class="nc" id="L90">            		sesview.textArea.setText(&quot;&quot;);</span>
+<span class="nc" id="L91">            		Console.consoleText.setText(&quot;&gt;&gt;&quot;);</span>
+<span class="nc" id="L92">            		Variable.setNullToAllRows();</span>
+<span class="nc" id="L93">            		Constraint.setNullToAllRows();</span>
+<span class="nc" id="L94">            		Behaviour.setNullToAllRows();</span>
+
+<span class="nc" id="L96">            		ODMEEditor.graphWindow.setTitle(fileName);</span>
+<span class="nc" id="L97">            		ODMEEditor.changePruneColor();</span>
+            	}
+<span class="nc" id="L99">            	catch (Exception ex){</span>
+<span class="nc" id="L100">            	}</span>
+<span class="nc" id="L101">            }</span>
+        });
+        
+<span class="nc" id="L104">        popupMenu.add(openItem);</span>
+<span class="nc" id="L105">        popupMenu.add(deleteItem);</span>
+        
+<span class="nc" id="L107">        deleteItem.addActionListener(new ActionListener() {</span>
+            @Override
+            public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L110">            	int row = table.getSelectedRow();</span>
+<span class="nc" id="L111">            	String fileName = (String) table.getModel().getValueAt(row, 0);</span>
+<span class="nc bnc" id="L112" title="All 2 branches missed.">            	if (fileName.equals(ODMEEditor.currentScenario)) {</span>
+<span class="nc" id="L113">            		JOptionPane.showMessageDialog(Main.frame, &quot;The Scenario is currently opened!&quot;, &quot;Error&quot;,</span>
+                            JOptionPane.ERROR_MESSAGE);
+<span class="nc" id="L115">            		return;</span>
+            	}
+            	
+<span class="nc" id="L118">            	int dialogResult = -1;</span>
+<span class="nc" id="L119">            	dialogResult = JOptionPane.showConfirmDialog (null,</span>
+        				&quot;Do you want to delete &quot;+fileName+&quot;?&quot;,&quot;Delete Scenario&quot;,JOptionPane.YES_NO_OPTION);
+<span class="nc bnc" id="L121" title="All 2 branches missed.">        		if(dialogResult == JOptionPane.YES_OPTION){</span>
+<span class="nc" id="L122">        			deleteFolder(new File(ODMEEditor.fileLocation + &quot;/&quot; +  fileName));  </span>
+<span class="nc" id="L123">        			deleteFromJson(fileName);</span>
+        		}
+<span class="nc" id="L125">            }</span>
+        });
+         
+<span class="nc" id="L128">        table.setComponentPopupMenu(popupMenu);</span>
+        
+<span class="nc" id="L130">        table.addMouseListener(new MouseAdapter() {</span>
+            public void mouseClicked(MouseEvent e) {
+<span class="nc bnc" id="L132" title="All 2 branches missed.">                if (e.getClickCount() == 2) {</span>
+<span class="nc" id="L133">                    JTable target = (JTable) e.getSource();</span>
+<span class="nc" id="L134">                    int row = table.getSelectedRow();</span>
+                    
+<span class="nc" id="L136">                    String name = (String) target.getModel().getValueAt(row, 0);</span>
+<span class="nc" id="L137">                    String risk = (String) target.getModel().getValueAt(row, 1);</span>
+<span class="nc" id="L138">                    String remarks = (String) target.getModel().getValueAt(row, 2);</span>
+ 
+<span class="nc" id="L140">                    updateTableData(name, risk, remarks);</span>
+                }
+<span class="nc" id="L142">            }</span>
+        });
+        
+        
+//        TableRowSorter&lt;TableModel&gt; sorter = new TableRowSorter&lt;TableModel&gt;(table.getModel());
+//        table.setRowSorter(sorter);
+//
+//        List&lt;RowSorter.SortKey&gt; sortKeys = new ArrayList&lt;&gt;(25);
+//        sortKeys.add(new RowSorter.SortKey(3, SortOrder.ASCENDING));
+//        sortKeys.add(new RowSorter.SortKey(0, SortOrder.ASCENDING));
+//        sorter.setSortKeys(sortKeys);
+                
+<span class="nc" id="L154">        JFrame frame = new JFrame(&quot;Senario List&quot;);</span>
+<span class="nc" id="L155">        JPanel panelCenter = new JPanel();</span>
+                
+<span class="nc" id="L157">        JScrollPane scroll = new JScrollPane(table);</span>
+<span class="nc" id="L158">        scroll.setPreferredSize(new Dimension(480, 200));</span>
+                
+<span class="nc" id="L160">        panelCenter.add(scroll);</span>
+                
+<span class="nc" id="L162">        panelCenter.setBorder(new EtchedBorder());</span>
+                
+<span class="nc" id="L164">        int width = 500;</span>
+<span class="nc" id="L165">        int height = 250;</span>
+<span class="nc" id="L166">        Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();</span>
+<span class="nc" id="L167">        int x = (screen.width - width) / 2;</span>
+<span class="nc" id="L168">        int y = (screen.height - height) / 2;</span>
+
+<span class="nc" id="L170">        frame.pack();</span>
+                
+<span class="nc" id="L172">        frame.setBounds(x, y, width, height);</span>
+<span class="nc" id="L173">        frame.setSize(width, height);</span>
+                
+<span class="nc" id="L175">        frame.add(panelCenter, BorderLayout.CENTER);</span>
+
+<span class="nc" id="L177">        frame.setResizable(false);</span>
+<span class="nc" id="L178">        frame.setVisible(true);</span>
+<span class="nc" id="L179">    }</span>
+    
+    private void deleteFolder(File folder) {
+<span class="nc" id="L182">        File[] files = folder.listFiles();</span>
+<span class="nc bnc" id="L183" title="All 2 branches missed.">        if(files!=null) {</span>
+<span class="nc bnc" id="L184" title="All 2 branches missed.">            for(File f: files) {</span>
+<span class="nc bnc" id="L185" title="All 2 branches missed.">                if(f.isDirectory()) {</span>
+<span class="nc" id="L186">                    deleteFolder(f);</span>
+                } else {
+<span class="nc" id="L188">                    f.delete();</span>
+                }
+            }
+        }
+<span class="nc" id="L192">        folder.delete();</span>
+<span class="nc" id="L193">    }</span>
+    
+    @SuppressWarnings(&quot;unchecked&quot;)
+	private void deleteFromJson(String scenario) {
+<span class="nc" id="L197">    	List&lt;String[]&gt; dataList = getJsonData();</span>
+		
+<span class="nc" id="L199">		JSONArray ja = new JSONArray();</span>
+<span class="nc bnc" id="L200" title="All 2 branches missed.">		for (String[] arr: dataList) {</span>
+<span class="nc" id="L201">			JSONObject jo = new JSONObject();</span>
+<span class="nc bnc" id="L202" title="All 2 branches missed.">			if (arr[0].equals(scenario)) {</span>
+<span class="nc" id="L203">				continue;</span>
+			}
+			else {
+<span class="nc" id="L206">				jo.put(&quot;name&quot;, arr[0]);</span>
+<span class="nc" id="L207">				jo.put(&quot;risk&quot;, arr[1]);</span>
+<span class="nc" id="L208">				jo.put(&quot;remarks&quot;, arr[2]);</span>
+				
+<span class="nc" id="L210">				JSONObject jom = new JSONObject();</span>
+<span class="nc" id="L211">				jom.put(&quot;scenario&quot;, jo);</span>
+<span class="nc" id="L212">				ja.add(jom);</span>
+			}
+<span class="nc" id="L214">		}</span>
+		
+		try {
+<span class="nc" id="L217">	         FileWriter file = new FileWriter(ODMEEditor.fileLocation  + &quot;/scenarios.json&quot;);</span>
+<span class="nc" id="L218">	         file.write(ja.toJSONString());</span>
+<span class="nc" id="L219">	         file.close();</span>
+<span class="nc" id="L220">	      } catch (IOException e) {</span>
+<span class="nc" id="L221">	         e.printStackTrace();</span>
+<span class="nc" id="L222">	      }</span>
+		
+<span class="nc" id="L224">		DefaultTableModel dm = (DefaultTableModel)table.getModel();</span>
+<span class="nc bnc" id="L225" title="All 2 branches missed.">		while(dm.getRowCount() &gt; 0) {</span>
+<span class="nc" id="L226">		    dm.removeRow(0);</span>
+		}
+		
+<span class="nc" id="L229">		List&lt;String[]&gt; newDataList = getJsonData();</span>
+		
+<span class="nc bnc" id="L231" title="All 2 branches missed.">		for (String[] arr: newDataList)</span>
+<span class="nc" id="L232">    		model.addRow(arr);</span>
+<span class="nc" id="L233">    }</span>
+    
+    private List&lt;String[]&gt; getJsonData() {
+<span class="nc" id="L236">    	JSONParser jsonParser = new JSONParser();</span>
+<span class="nc" id="L237">    	List&lt;String[]&gt; dataList = new ArrayList&lt;String[]&gt;();</span>
+    	
+<span class="nc" id="L239">        try (FileReader reader = new FileReader(ODMEEditor.fileLocation + &quot;/scenarios.json&quot;)){</span>
+
+<span class="nc" id="L241">            Object obj = null;</span>
+			try {
+<span class="nc" id="L243">				obj = jsonParser.parse(reader);</span>
+			} 
+<span class="nc" id="L245">			catch (org.json.simple.parser.ParseException e) {</span>
+<span class="nc" id="L246">				e.printStackTrace();</span>
+<span class="nc" id="L247">			}</span>
+			
+<span class="nc" id="L249">            JSONArray data = (JSONArray) obj;</span>
+
+<span class="nc bnc" id="L251" title="All 2 branches missed.">            for (Object dtObj:data) {</span>
+<span class="nc" id="L252">            	dataList.add(parseObject((JSONObject)dtObj));</span>
+<span class="nc" id="L253">            }</span>
+        } 
+<span class="nc" id="L255">        catch (FileNotFoundException e) {</span>
+<span class="nc" id="L256">            e.printStackTrace();</span>
+        } 
+<span class="nc" id="L258">        catch (IOException e) {</span>
+<span class="nc" id="L259">            e.printStackTrace();</span>
+        } 
+<span class="nc" id="L261">        catch (ParseException e) {</span>
+<span class="nc" id="L262">            e.printStackTrace();</span>
+<span class="nc" id="L263">        }</span>
+    	
+<span class="nc" id="L265">    	return dataList;</span>
+    }
+    
+    private String[] parseObject(JSONObject obj) {
+<span class="nc" id="L269">        JSONObject dataObject = (JSONObject) obj.get(&quot;scenario&quot;);</span>
+        
+<span class="nc" id="L271">        String name = (String) dataObject.get(&quot;name&quot;);   </span>
+<span class="nc" id="L272">        String risk = (String) dataObject.get(&quot;risk&quot;);  </span>
+<span class="nc" id="L273">        String remarks = (String) dataObject.get(&quot;remarks&quot;);</span>
+        
+<span class="nc" id="L275">        String[] arr = {name, risk, remarks};</span>
+        
+<span class="nc" id="L277">        return arr;</span>
+    }
+    
+    @SuppressWarnings(&quot;unchecked&quot;)
+	public void updateTableData(String name, String risk, String remarks) {
+<span class="nc" id="L282">    	JTextField nameField = new JTextField();</span>
+<span class="nc" id="L283">    	JTextField riskField = new JTextField();</span>
+<span class="nc" id="L284">    	JTextField remarksField = new JTextField();</span>
+
+<span class="nc" id="L286">    	nameField.setEnabled(false);</span>
+    	
+<span class="nc" id="L288">    	nameField.setText(name);</span>
+<span class="nc" id="L289">    	riskField.setText(risk);</span>
+<span class="nc" id="L290">    	remarksField.setText(remarks);</span>
+
+
+<span class="nc" id="L293">    	Object[] message = {&quot;Scenario Name:&quot;, nameField, &quot;Risk:&quot;, riskField, &quot;Remarks:&quot;, remarksField};</span>
+
+<span class="nc" id="L295">    	int option = JOptionPane</span>
+<span class="nc" id="L296">    			.showConfirmDialog(Main.frame, message, &quot;Update Scenario&quot;, JOptionPane.OK_CANCEL_OPTION,</span>
+    			JOptionPane.PLAIN_MESSAGE);
+
+<span class="nc bnc" id="L299" title="All 2 branches missed.">    	if (option == JOptionPane.OK_OPTION) {</span>
+<span class="nc" id="L300">    			name = nameField.getText();</span>
+<span class="nc" id="L301">    			risk = riskField.getText();</span>
+<span class="nc" id="L302">    			remarks = remarksField.getText();</span>
+    			
+<span class="nc" id="L304">    			List&lt;String[]&gt; dataList = getJsonData();</span>
+    			
+<span class="nc" id="L306">    			JSONArray ja = new JSONArray();</span>
+<span class="nc bnc" id="L307" title="All 2 branches missed.">    			for (String[] arr: dataList) {</span>
+<span class="nc" id="L308">    				JSONObject jo = new JSONObject();</span>
+<span class="nc bnc" id="L309" title="All 2 branches missed.">    				if (arr[0].equals(name)) {</span>
+<span class="nc" id="L310">    					jo.put(&quot;name&quot;, name);</span>
+<span class="nc" id="L311">    					jo.put(&quot;risk&quot;, risk);</span>
+<span class="nc" id="L312">    					jo.put(&quot;remarks&quot;, remarks);</span>
+    					
+<span class="nc" id="L314">    					JSONObject jom = new JSONObject();</span>
+<span class="nc" id="L315">    					jom.put(&quot;scenario&quot;, jo);</span>
+<span class="nc" id="L316">    					ja.add(jom);</span>
+<span class="nc" id="L317">    				}</span>
+    				else {
+<span class="nc" id="L319">    					jo.put(&quot;name&quot;, arr[0]);</span>
+<span class="nc" id="L320">    					jo.put(&quot;risk&quot;, arr[1]);</span>
+<span class="nc" id="L321">    					jo.put(&quot;remarks&quot;, arr[2]);</span>
+    					
+<span class="nc" id="L323">    					JSONObject jom = new JSONObject();</span>
+<span class="nc" id="L324">    					jom.put(&quot;scenario&quot;, jo);</span>
+<span class="nc" id="L325">    					ja.add(jom);</span>
+    				}
+<span class="nc" id="L327">    			}</span>
+    			
+    			try {
+<span class="nc" id="L330">    		         FileWriter file = new FileWriter(ODMEEditor.fileLocation  + &quot;/scenarios.json&quot;);</span>
+<span class="nc" id="L331">    		         file.write(ja.toJSONString());</span>
+<span class="nc" id="L332">    		         file.close();</span>
+<span class="nc" id="L333">    		      } catch (IOException e) {</span>
+<span class="nc" id="L334">    		         e.printStackTrace();</span>
+<span class="nc" id="L335">    		      }</span>
+    			
+<span class="nc" id="L337">    			DefaultTableModel dm = (DefaultTableModel)table.getModel();</span>
+<span class="nc bnc" id="L338" title="All 2 branches missed.">    			while(dm.getRowCount() &gt; 0) {</span>
+<span class="nc" id="L339">    			    dm.removeRow(0);</span>
+    			}
+    			
+<span class="nc" id="L342">    			List&lt;String[]&gt; newDataList = getJsonData();</span>
+    			
+<span class="nc bnc" id="L344" title="All 2 branches missed.">    			for (String[] arr: newDataList)</span>
+<span class="nc" id="L345">    	    		model.addRow(arr);</span>
+    	}	
+<span class="nc" id="L347">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

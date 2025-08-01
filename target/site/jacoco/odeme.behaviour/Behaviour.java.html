@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Behaviour.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SESEditor</a> &gt; <a href="index.source.html" class="el_package">odeme.behaviour</a> &gt; <span class="el_source">Behaviour.java</span></div><h1>Behaviour.java</h1><pre class="source lang-java linenums">package odeme.behaviour;
+
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.GridLayout;
+import java.awt.Point;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextArea;
+import javax.swing.ListSelectionModel;
+import javax.swing.table.DefaultTableModel;
+
+import odme.jtreetograph.JtreeToGraphDelete;
+import odme.jtreetograph.JtreeToGraphVariables;
+import odme.odmeeditor.Main;
+
+public class Behaviour extends JPanel {
+
+
+    private static final long serialVersionUID = 1L;
+    public static JTable table;
+    public static DefaultTableModel model;
+    
+    
+<span class="fc" id="L30">    public Behaviour() {</span>
+
+<span class="fc" id="L32">        setLayout(new GridLayout(1, 0));</span>
+
+<span class="fc" id="L34">        final String[] columnNames = {&quot;Node Name&quot;,&quot;Behaviours&quot;};</span>
+<span class="fc" id="L35">        model = new DefaultTableModel(columnNames, 0);</span>
+<span class="fc" id="L36">        table = new JTable();</span>
+<span class="fc" id="L37">        table.setModel(model);</span>
+
+<span class="fc" id="L39">        table.setPreferredScrollableViewportSize(new Dimension());</span>
+<span class="fc" id="L40">        table.setFillsViewportHeight(true);</span>
+<span class="fc" id="L41">        table.setShowVerticalLines(true);</span>
+<span class="fc" id="L42">        table.setEnabled(false);</span>
+<span class="fc" id="L43">        table.setSelectionBackground(new Color(217, 237, 146));</span>
+<span class="fc" id="L44">        table.setSelectionForeground(new Color(188, 71, 73));</span>
+        
+        // row listener
+<span class="fc" id="L47">        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);</span>
+<span class="fc" id="L48">        table.addMouseListener(new MouseAdapter() {</span>
+            public void mouseClicked(MouseEvent e) {
+                // Double click
+<span class="nc bnc" id="L51" title="All 2 branches missed.">                if (e.getClickCount() == 2) {</span>
+<span class="nc" id="L52">                    JTable target = (JTable) e.getSource();</span>
+<span class="nc" id="L53">                    Point point = e.getPoint();</span>
+<span class="nc" id="L54">                    int row = table.rowAtPoint(point);</span>
+                    
+<span class="nc" id="L56">                    String behaviour = (String) target.getModel().getValueAt(row, 1);</span>
+<span class="nc" id="L57">                    String nodeName = (String) target.getModel().getValueAt(row,0);</span>
+<span class="nc" id="L58">                    System.out.println(nodeName);</span>
+<span class="nc" id="L59">                    updateTableData(behaviour);</span>
+                }
+<span class="nc" id="L61">            }</span>
+        });
+        // Create the scroll pane and add the table to it.
+<span class="fc" id="L64">        JScrollPane scrollPane = new JScrollPane(table);</span>
+        // Add the scroll pane to this panel.
+<span class="fc" id="L66">        add(scrollPane);</span>
+<span class="fc" id="L67">        setNullRowsToVariableTable();</span>
+<span class="fc" id="L68">    }</span>
+
+    private static void setNullRowsToVariableTable() {
+<span class="fc bfc" id="L71" title="All 2 branches covered.">        for (int i = 0; i &lt; 100; i++) {</span>
+<span class="fc" id="L72">            model.addRow(new Object[] {&quot;&quot;});</span>
+        }
+<span class="fc" id="L74">    }</span>
+
+    public static void setNullToAllRows() {
+<span class="fc" id="L77">        DefaultTableModel dtm = (DefaultTableModel) table.getModel();</span>
+<span class="fc" id="L78">        dtm.setRowCount(0); // for deleting previous table content</span>
+<span class="fc bfc" id="L79" title="All 2 branches covered.">        for (int i = 0; i &lt; 100; i++) {</span>
+<span class="fc" id="L80">            model.addRow(new Object[] {&quot;&quot;});</span>
+        }
+       
+<span class="fc" id="L83">    }</span>
+
+    public void showBehavioursInTable(String nodeName , String[] nodesToSelectedNode) {
+<span class="fc" id="L86">        DefaultTableModel dtm = (DefaultTableModel) table.getModel();</span>
+<span class="fc" id="L87">        dtm.setRowCount(0); // for deleting previous table content</span>
+<span class="fc bfc" id="L88" title="All 2 branches covered.">        for (String value : nodesToSelectedNode) {</span>
+<span class="fc bfc" id="L89" title="All 2 branches covered.">            if (value == null) {</span>
+<span class="fc" id="L90">                model.addRow(new Object[] {&quot;&quot;});</span>
+            } else {
+<span class="fc" id="L92">                model.addRow(new Object[] { nodeName, value});</span>
+            }
+        }
+<span class="fc" id="L95">        setNullRowsToVariableTable();</span>
+<span class="fc" id="L96">    }</span>
+    
+    private void updateTableData(String behaviour) {
+        // multiple input for variable---------------------------------
+<span class="nc" id="L100">        JTextArea behavioursField = new JTextArea(10, 30);</span>
+<span class="nc" id="L101">        behavioursField.setLineWrap(true);</span>
+<span class="nc" id="L102">        behavioursField.setWrapStyleWord(true);</span>
+<span class="nc" id="L103">        behavioursField.setText(behaviour);</span>
+        
+<span class="nc" id="L105">        String behaviourOld = behaviour;</span>
+<span class="nc" id="L106">        Object[] message = {&quot;Behaviours:&quot;, behavioursField};</span>
+        
+<span class="nc" id="L108">        int option = JOptionPane</span>
+<span class="nc" id="L109">                .showConfirmDialog(Main.frame, message, &quot;Please Update&quot;, JOptionPane.OK_CANCEL_OPTION,</span>
+                        JOptionPane.PLAIN_MESSAGE);
+        
+<span class="nc bnc" id="L112" title="All 2 branches missed.">        if (option == JOptionPane.OK_OPTION) {</span>
+<span class="nc" id="L113">            behaviour = behavioursField.getText();</span>
+<span class="nc" id="L114">            JtreeToGraphDelete.deleteBehaviourFromScenarioTableForUpdate(</span>
+                    JtreeToGraphVariables.selectedNodeCellForVariableUpdate, behaviourOld, behaviour);
+        }
+<span class="nc" id="L117">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

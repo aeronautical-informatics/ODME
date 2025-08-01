@@ -1,0 +1,1318 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>JtreeToGraphAdd.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SESEditor</a> &gt; <a href="index.source.html" class="el_package">odme.jtreetograph</a> &gt; <span class="el_source">JtreeToGraphAdd.java</span></div><h1>JtreeToGraphAdd.java</h1><pre class="source lang-java linenums">package odme.jtreetograph;
+
+import static odme.jtreetograph.JtreeToGraphVariables.*;
+
+import java.awt.Color;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+
+import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreeNode;
+import javax.swing.tree.TreePath;
+
+import com.mxgraph.model.mxCell;
+
+import odme.core.FileConvertion;
+import odme.odmeeditor.DynamicTree;
+import odme.odmeeditor.Main;
+import odme.odmeeditor.ODMEEditor;
+
+<span class="nc" id="L35">public class JtreeToGraphAdd {</span>
+	
+<span class="nc" id="L37">	public static String selectedType = &quot;byte&quot;;</span>
+
+	public static void addNodeIntoJtreeWithNewModuleAddition(mxCell lastAddedCell) {
+<span class="nc" id="L40">        mxCell addedCell = null;</span>
+<span class="nc bnc" id="L41" title="All 2 branches missed.">        if (lastAddedCell != null) {</span>
+<span class="nc" id="L42">            Object[] outgoing = graph.getOutgoingEdges(lastAddedCell);</span>
+<span class="nc" id="L43">            Object targetCell = graph.getModel().getTerminal(outgoing[outgoing.length - 1], false);</span>
+<span class="nc" id="L44">            addedCell = (mxCell) targetCell;</span>
+
+<span class="nc bnc" id="L46" title="All 2 branches missed.">            if (addedCell != null) {</span>
+<span class="nc" id="L47">            	JtreeToGraphConvert.nodeToRootPath(addedCell);</span>
+<span class="nc" id="L48">                lastAddedCell = null;</span>
+
+                // update jtree
+<span class="nc" id="L51">                String[] stringArray = path.toArray(new String[0]);</span>
+<span class="nc" id="L52">                ArrayList&lt;String&gt; pathRev = new ArrayList&lt;String&gt;();</span>
+
+<span class="nc bnc" id="L54" title="All 2 branches missed.">                for (int i = stringArray.length - 1; i &gt;= 0; i--) {</span>
+<span class="nc" id="L55">                    pathRev.add(stringArray[i]);</span>
+                }
+                
+<span class="nc" id="L58">                String[] stringArrayRev = pathRev.toArray(new String[0]);</span>
+<span class="nc" id="L59">                addNodeWIthGraphAddition(addedCell.getValue().toString(), stringArrayRev);</span>
+<span class="nc" id="L60">                path.clear();</span>
+            }
+        }
+<span class="nc" id="L63">    }</span>
+	
+	private static void addNodeIntoJtreeForSubTree(mxCell lastAddedCell) {
+<span class="nc" id="L66">        path.clear();</span>
+<span class="nc" id="L67">        mxCell addedCell = null;</span>
+<span class="nc bnc" id="L68" title="All 2 branches missed.">        if (lastAddedCell != null) {</span>
+<span class="nc" id="L69">            Object[] outgoing = graph.getOutgoingEdges(lastAddedCell);</span>
+<span class="nc" id="L70">            Object targetCell = graph.getModel().getTerminal(outgoing[outgoing.length - 1], false);</span>
+<span class="nc" id="L71">            addedCell = (mxCell) targetCell;</span>
+
+<span class="nc bnc" id="L73" title="All 2 branches missed.">            if (addedCell != null) {</span>
+<span class="nc" id="L74">            	JtreeToGraphConvert.nodeToRootPath(addedCell);</span>
+<span class="nc" id="L75">                lastAddedCell = null;</span>
+
+                // update jtree
+<span class="nc" id="L78">                String[] stringArray = path.toArray(new String[0]);</span>
+<span class="nc" id="L79">                ArrayList&lt;String&gt; pathRev = new ArrayList&lt;String&gt;();</span>
+
+<span class="nc bnc" id="L81" title="All 2 branches missed.">                for (int i = stringArray.length - 1; i &gt;= 0; i--) {</span>
+<span class="nc" id="L82">                    pathRev.add(stringArray[i]);</span>
+                }
+
+<span class="nc" id="L85">                String[] stringArrayRev = pathRev.toArray(new String[0]);</span>
+<span class="nc" id="L86">                addNodeWIthGraphAddition(addedCell.getValue().toString(), stringArrayRev);</span>
+<span class="nc" id="L87">                path.clear();</span>
+            }
+        }
+<span class="nc" id="L90">    }</span>
+
+    public static void addBehaviourFromGraphPopup(Object pos) {
+<span class="nc" id="L93">        mxCell varCell = (mxCell) pos;</span>
+<span class="nc" id="L94">        selectedNodeCellForVariableUpdate = varCell;</span>
+<span class="nc" id="L95">        String variableName = null;</span>
+
+<span class="nc" id="L97">        JTextField variableField = new JTextField();</span>
+//	     JTextField valueField = new JTextField();
+
+<span class="nc" id="L100">        String variableFieldRegEx = &quot;[a-zA-Z_][a-zA-Z0-9_]*&quot;; // alphanumeric but not start with number</span>
+
+        // for validation of input
+<span class="nc" id="L103">        JLabel errorLabelField = new JLabel();</span>
+<span class="nc" id="L104">        errorLabelField.setForeground(Color.RED);</span>
+<span class="nc" id="L105">        errorLabelField.setVisible(true);</span>
+
+<span class="nc" id="L107">        variableField.addKeyListener(new KeyListener() {</span>
+            @Override
+<span class="nc" id="L109">            public void keyTyped(KeyEvent e) {}</span>
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+<span class="nc bnc" id="L113" title="All 2 branches missed.">                if (selectedType.equals(&quot;string&quot;)) {</span>
+<span class="nc" id="L114">                    errorLabelField.setVisible(</span>
+<span class="nc bnc" id="L115" title="All 2 branches missed.">                            !variableField.getText().trim().matches(variableFieldRegEx));</span>
+                }
+                else {
+<span class="nc" id="L118">                    errorLabelField.setVisible(</span>
+<span class="nc bnc" id="L119" title="All 2 branches missed.">                            !variableField.getText().trim().matches(variableFieldRegEx));</span>
+                }
+<span class="nc" id="L121">            }</span>
+
+            @Override
+<span class="nc" id="L124">            public void keyPressed(KeyEvent e) {}</span>
+        });
+
+<span class="nc" id="L127">        Object[] message = {&quot;Behaviour:&quot;, variableField};</span>
+<span class="nc" id="L128">        int option = JOptionPane</span>
+<span class="nc" id="L129">                .showConfirmDialog(Main.frame, message, &quot;Please Enter&quot;, JOptionPane.OK_CANCEL_OPTION,</span>
+                        JOptionPane.PLAIN_MESSAGE);
+
+
+<span class="nc bnc" id="L133" title="All 2 branches missed.">        if (option == JOptionPane.OK_OPTION) {</span>
+
+
+<span class="nc" id="L136">            variableName = variableField.getText();</span>
+
+<span class="nc bnc" id="L138" title="All 4 branches missed.">            boolean valid = (variableField.getText() != null) &amp;&amp; (!variableField.getText().trim().isEmpty());</span>
+
+<span class="nc bnc" id="L140" title="All 2 branches missed.">            if(!valid) {</span>
+
+<span class="nc" id="L142">                JOptionPane.showMessageDialog(Main.frame, &quot;Please input all values correctly.&quot;);</span>
+            }
+<span class="nc bnc" id="L144" title="All 2 branches missed.">            if(valid) {</span>
+<span class="nc" id="L145">                mxCell cellForAddingBehaviour = (mxCell) pos;</span>
+<span class="nc" id="L146">                pathToRoot.add((String) cellForAddingBehaviour.getValue());</span>
+<span class="nc" id="L147">                JtreeToGraphConvert.nodeToRootPathVar(cellForAddingBehaviour);</span>
+
+<span class="nc" id="L149">                String[] stringArray = pathToRoot.toArray(new String[0]);</span>
+<span class="nc" id="L150">                ArrayList&lt;String&gt; pathToRootRev = new ArrayList&lt;String&gt;();</span>
+
+<span class="nc bnc" id="L152" title="All 2 branches missed.">                for (int i = stringArray.length - 1; i &gt;= 0; i--) {</span>
+<span class="nc" id="L153">                    pathToRootRev.add(stringArray[i]);</span>
+<span class="nc" id="L154">                    System.out.println(&quot; &quot; + stringArray[i]);</span>
+                }
+
+<span class="nc" id="L157">                String[] stringArrayRev = pathToRootRev.toArray(new String[0]);</span>
+
+<span class="nc" id="L159">                TreePath treePathForVariable = JtreeToGraphGeneral.getTreeNodePath(stringArrayRev);</span>
+
+<span class="nc" id="L161">                System.out.println(&quot;Tree path &quot; + treePathForVariable );</span>
+
+
+<span class="nc" id="L164">                DynamicTree.behavioursList.put(treePathForVariable, variableName);</span>
+
+<span class="nc" id="L166">                pathToRoot.clear();</span>
+
+                // have to call a function to refresh the table view
+<span class="nc" id="L169">                ODMEEditor.treePanel.showBehavioursInTable(treePathForVariable);</span>
+            }
+        }
+
+<span class="nc" id="L173">    }</span>
+
+    public static void addVariableFromGraphPopup(Object pos) {
+<span class="nc" id="L176">        mxCell varCell = (mxCell) pos;</span>
+<span class="nc" id="L177">        selectedNodeCellForVariableUpdate = varCell;</span>
+
+<span class="nc" id="L179">        String variableName = null;</span>
+<span class="nc" id="L180">        String variableType = null;</span>
+<span class="nc" id="L181">        String variableValue = null;</span>
+<span class="nc" id="L182">        String variableLowerBound = null;</span>
+<span class="nc" id="L183">        String variableUpperBound = null;</span>
+<span class="nc" id="L184">        String variableComment=null;</span>
+
+        // multiple input for variable---------------------------------
+<span class="nc" id="L187">        JTextField variableField = new JTextField();</span>
+<span class="nc" id="L188">        JTextField valueField = new JTextField();</span>
+<span class="nc" id="L189">        JTextField lowerBoundField = new JTextField();</span>
+<span class="nc" id="L190">        JTextField upperBoundField = new JTextField();</span>
+<span class="nc" id="L191">        JTextField commentField = new JTextField();</span>
+        
+        // for validation of input
+<span class="nc" id="L194">        JLabel errorLabelField = new JLabel();</span>
+<span class="nc" id="L195">        errorLabelField.setForeground(Color.RED);</span>
+<span class="nc" id="L196">        errorLabelField.setVisible(true);</span>
+
+<span class="nc" id="L198">        lowerBoundField.setEnabled(false);</span>
+<span class="nc" id="L199">        upperBoundField.setEnabled(false);</span>
+<span class="nc" id="L200">        commentField.setEnabled(true);</span>
+
+<span class="nc" id="L202">        String[] typeList = {&quot;Select Type:&quot;, &quot;boolean&quot;, &quot;int&quot;, &quot;float&quot;, &quot;double&quot;, &quot;string&quot;};</span>
+
+<span class="nc" id="L204">        String variableFieldRegEx = &quot;[a-zA-Z_][a-zA-Z0-9_]*&quot;; // alphanumeric but not start with number</span>
+
+<span class="nc" id="L206">        JComboBox&lt;String&gt; variableTypeField = new JComboBox&lt;String&gt;(typeList);</span>
+
+<span class="nc" id="L208">        variableTypeField.addItemListener(new ItemListener() {</span>
+            public void itemStateChanged(ItemEvent event) {
+<span class="nc bnc" id="L210" title="All 2 branches missed.">                if (event.getStateChange() == ItemEvent.SELECTED) {</span>
+<span class="nc" id="L211">                    selectedType = variableTypeField.getSelectedItem().toString();</span>
+
+<span class="nc bnc" id="L213" title="All 4 branches missed.">                    if (selectedType.equals(&quot;string&quot;) || selectedType.equals(&quot;boolean&quot;)) {</span>
+<span class="nc" id="L214">                        lowerBoundField.setEnabled(false);</span>
+<span class="nc" id="L215">                        upperBoundField.setEnabled(false);</span>
+                    } 
+                    else {
+<span class="nc" id="L218">                        lowerBoundField.setEnabled(true);</span>
+<span class="nc" id="L219">                        upperBoundField.setEnabled(true);</span>
+                    }
+
+                    // --------------
+<span class="nc bnc" id="L223" title="All 2 branches missed.">                    if (selectedType.equals(&quot;boolean&quot;)) {</span>
+<span class="nc" id="L224">                        errorLabelField.setVisible(</span>
+<span class="nc bnc" id="L225" title="All 2 branches missed.">                                !variableField.getText().trim().matches(variableFieldRegEx) || (</span>
+<span class="nc bnc" id="L226" title="All 2 branches missed.">                                        !valueField.getText().trim().equals(&quot;true&quot;) &amp;&amp; !variableField</span>
+<span class="nc bnc" id="L227" title="All 2 branches missed.">                                                .getText().trim().equals(&quot;false&quot;)));</span>
+                    }
+<span class="nc bnc" id="L229" title="All 2 branches missed.">                    else if (selectedType.equals(&quot;string&quot;)) {</span>
+<span class="nc" id="L230">                        errorLabelField.setVisible(</span>
+<span class="nc bnc" id="L231" title="All 2 branches missed.">                                !variableField.getText().trim().matches(variableFieldRegEx) || !valueField</span>
+<span class="nc bnc" id="L232" title="All 2 branches missed.">                                        .getText().trim().matches(variableFieldRegEx));</span>
+                    } 
+<span class="nc bnc" id="L234" title="All 2 branches missed.">                    else if (selectedType.equals(&quot;double&quot;)) {</span>
+<span class="nc" id="L235">                        errorLabelField.setVisible(</span>
+<span class="nc bnc" id="L236" title="All 2 branches missed.">                                !valueField.getText().trim().matches(&quot;^\\d*\\.\\d+&quot;) || !variableField</span>
+<span class="nc bnc" id="L237" title="All 2 branches missed.">                                        .getText().trim().matches(variableFieldRegEx) || !lowerBoundField</span>
+<span class="nc bnc" id="L238" title="All 2 branches missed.">                                        .getText().trim().matches(&quot;^\\d*\\.\\d+&quot;) || !upperBoundField</span>
+<span class="nc bnc" id="L239" title="All 2 branches missed.">                                        .getText().trim().matches(&quot;^\\d*\\.\\d+&quot;));</span>
+                    } 
+                    else {
+<span class="nc" id="L242">                        errorLabelField.setVisible(</span>
+<span class="nc bnc" id="L243" title="All 2 branches missed.">                                !variableField.getText().trim().matches(variableFieldRegEx) || !valueField</span>
+<span class="nc bnc" id="L244" title="All 2 branches missed.">                                        .getText().trim().matches(&quot;^[0-9]+&quot;) || !lowerBoundField.getText()</span>
+<span class="nc bnc" id="L245" title="All 2 branches missed.">                                        .trim().matches(&quot;^[0-9]+&quot;) || !upperBoundField.getText().trim()</span>
+<span class="nc bnc" id="L246" title="All 2 branches missed.">                                        .matches(&quot;^[0-9]+&quot;));</span>
+                    }
+                }
+<span class="nc" id="L249">            }</span>
+        });
+        
+<span class="nc" id="L252">        commentField.addKeyListener(new KeyListener() {</span>
+        	@Override
+<span class="nc" id="L254">            public void keyTyped(KeyEvent e) {}</span>
+        	
+        	@Override
+            public void keyReleased(KeyEvent e) {
+<span class="nc" id="L258">        		errorLabelField.setVisible(</span>
+<span class="nc bnc" id="L259" title="All 2 branches missed.">                        !commentField.getText().trim().matches(variableFieldRegEx) || !commentField</span>
+<span class="nc bnc" id="L260" title="All 2 branches missed.">                                .getText().trim().matches(variableFieldRegEx));</span>
+<span class="nc" id="L261">        	}</span>
+        	
+        	@Override
+<span class="nc" id="L264">            public void keyPressed(KeyEvent e) {}</span>
+        });
+
+<span class="nc" id="L267">        variableField.addKeyListener(new KeyListener() {</span>
+            @Override
+<span class="nc" id="L269">            public void keyTyped(KeyEvent e) {}</span>
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+<span class="nc bnc" id="L273" title="All 2 branches missed.">                if (selectedType.equals(&quot;string&quot;)) {</span>
+<span class="nc" id="L274">                    errorLabelField.setVisible(</span>
+<span class="nc bnc" id="L275" title="All 2 branches missed.">                            !variableField.getText().trim().matches(variableFieldRegEx) || !valueField</span>
+<span class="nc bnc" id="L276" title="All 2 branches missed.">                                    .getText().trim().matches(variableFieldRegEx));</span>
+                } 
+<span class="nc bnc" id="L278" title="All 2 branches missed.">                else if (selectedType.equals(&quot;boolean&quot;)) {</span>
+
+<span class="nc" id="L280">                    errorLabelField.setVisible(</span>
+<span class="nc bnc" id="L281" title="All 2 branches missed.">                            (!valueField.getText().trim().equals(&quot;false&quot;) &amp;&amp; !valueField.getText().trim()</span>
+<span class="nc bnc" id="L282" title="All 2 branches missed.">                                    .equals(&quot;true&quot;)) || !variableField.getText().trim()</span>
+<span class="nc bnc" id="L283" title="All 2 branches missed.">                                    .matches(variableFieldRegEx));</span>
+
+                }
+<span class="nc bnc" id="L286" title="All 2 branches missed.">                else if (selectedType.equals(&quot;double&quot;)) {</span>
+<span class="nc" id="L287">                    errorLabelField.setVisible(</span>
+<span class="nc bnc" id="L288" title="All 2 branches missed.">                            !valueField.getText().trim().matches(&quot;^\\d*\\.\\d+&quot;) || !variableField.getText()</span>
+<span class="nc bnc" id="L289" title="All 2 branches missed.">                                    .trim().matches(variableFieldRegEx) || !lowerBoundField.getText().trim()</span>
+<span class="nc bnc" id="L290" title="All 2 branches missed.">                                    .matches(&quot;^\\d*\\.\\d+&quot;) || !upperBoundField.getText().trim()</span>
+<span class="nc bnc" id="L291" title="All 2 branches missed.">                                    .matches(&quot;^\\d*\\.\\d+&quot;));</span>
+                } 
+                else {
+<span class="nc" id="L294">                    errorLabelField.setVisible(</span>
+<span class="nc bnc" id="L295" title="All 2 branches missed.">                            !variableField.getText().trim().matches(variableFieldRegEx) || !valueField</span>
+<span class="nc bnc" id="L296" title="All 2 branches missed.">                                    .getText().trim().matches(&quot;^[0-9]+&quot;) || !lowerBoundField.getText().trim()</span>
+<span class="nc bnc" id="L297" title="All 2 branches missed.">                                    .matches(&quot;^[0-9]+&quot;) || !upperBoundField.getText().trim()</span>
+<span class="nc bnc" id="L298" title="All 2 branches missed.">                                    .matches(&quot;^[0-9]+&quot;));</span>
+                }
+<span class="nc" id="L300">            }</span>
+
+            @Override
+<span class="nc" id="L303">            public void keyPressed(KeyEvent e) {}</span>
+        });
+
+<span class="nc" id="L306">        valueField.addKeyListener(new KeyListener() {</span>
+            @Override
+<span class="nc" id="L308">            public void keyTyped(KeyEvent e) {}</span>
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+
+<span class="nc bnc" id="L313" title="All 2 branches missed.">                if (selectedType.equals(&quot;boolean&quot;)) {</span>
+<span class="nc" id="L314">                    errorLabelField.setVisible(</span>
+<span class="nc bnc" id="L315" title="All 2 branches missed.">                            (!valueField.getText().trim().equals(&quot;false&quot;) &amp;&amp; !valueField.getText().trim()</span>
+<span class="nc bnc" id="L316" title="All 2 branches missed.">                                    .equals(&quot;true&quot;)) || !variableField.getText().trim()</span>
+<span class="nc bnc" id="L317" title="All 2 branches missed.">                                    .matches(variableFieldRegEx));</span>
+
+                }
+<span class="nc bnc" id="L320" title="All 2 branches missed.">                else if (selectedType.equals(&quot;int&quot;)) {</span>
+<span class="nc" id="L321">                    errorLabelField.setVisible(</span>
+<span class="nc bnc" id="L322" title="All 2 branches missed.">                            !valueField.getText().trim().matches(&quot;^[0-9]+&quot;) || !variableField.getText().trim()</span>
+<span class="nc bnc" id="L323" title="All 2 branches missed.">                                    .matches(variableFieldRegEx) || !lowerBoundField.getText().trim()</span>
+<span class="nc bnc" id="L324" title="All 2 branches missed.">                                    .matches(&quot;^[0-9]+&quot;) || !upperBoundField.getText().trim()</span>
+<span class="nc bnc" id="L325" title="All 2 branches missed.">                                    .matches(&quot;^[0-9]+&quot;));</span>
+
+                }
+<span class="nc bnc" id="L328" title="All 2 branches missed.">                else if (selectedType.equals(&quot;float&quot;)) {</span>
+<span class="nc" id="L329">                    errorLabelField.setVisible(</span>
+<span class="nc bnc" id="L330" title="All 2 branches missed.">                            !valueField.getText().trim().matches(&quot;^\\d*\\.\\d+&quot;) || !variableField.getText()</span>
+<span class="nc bnc" id="L331" title="All 2 branches missed.">                                    .trim().matches(variableFieldRegEx)</span>
+<span class="nc bnc" id="L332" title="All 2 branches missed.">                            || !lowerBoundField.getText().trim().matches(&quot;^\\d*\\.\\d+&quot;) || !upperBoundField</span>
+<span class="nc bnc" id="L333" title="All 2 branches missed.">                                    .getText().trim().matches(&quot;^\\d*\\.\\d+&quot;));</span>
+
+                } 
+<span class="nc bnc" id="L336" title="All 2 branches missed.">                else if (selectedType.equals(&quot;double&quot;)) {</span>
+<span class="nc" id="L337">                    errorLabelField.setVisible(</span>
+<span class="nc bnc" id="L338" title="All 2 branches missed.">                            !valueField.getText().trim().matches(&quot;^\\d*\\.\\d+&quot;) || !variableField.getText()</span>
+<span class="nc bnc" id="L339" title="All 2 branches missed.">                                    .trim().matches(variableFieldRegEx) || !lowerBoundField.getText().trim()</span>
+<span class="nc bnc" id="L340" title="All 2 branches missed.">                                    .matches(&quot;^\\d*\\.\\d+&quot;) || !upperBoundField.getText().trim()</span>
+<span class="nc bnc" id="L341" title="All 2 branches missed.">                                    .matches(&quot;^\\d*\\.\\d+&quot;));</span>
+
+                }
+<span class="nc bnc" id="L344" title="All 2 branches missed.">                else if (selectedType.equals(&quot;string&quot;)) {</span>
+<span class="nc" id="L345">                    errorLabelField.setVisible(</span>
+<span class="nc bnc" id="L346" title="All 2 branches missed.">                            !valueField.getText().trim().matches(variableFieldRegEx) || !variableField</span>
+<span class="nc bnc" id="L347" title="All 2 branches missed.">                                    .getText().trim().matches(variableFieldRegEx));</span>
+                }
+
+<span class="nc" id="L350">            }</span>
+
+            @Override
+<span class="nc" id="L353">            public void keyPressed(KeyEvent e) {}</span>
+        });
+
+<span class="nc" id="L356">        lowerBoundField.addKeyListener(new KeyListener() {</span>
+
+            @Override
+<span class="nc" id="L359">            public void keyTyped(KeyEvent e) {}</span>
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+<span class="nc bnc" id="L363" title="All 2 branches missed.">                if (selectedType.equals(&quot;float&quot;)) {</span>
+<span class="nc" id="L364">                    errorLabelField.setVisible(</span>
+<span class="nc bnc" id="L365" title="All 2 branches missed.">                            !valueField.getText().trim().matches(&quot;^[0-9]+&quot;) || !variableField.getText().trim()</span>
+<span class="nc bnc" id="L366" title="All 2 branches missed.">                                    .matches(variableFieldRegEx) || !lowerBoundField.getText().trim()</span>
+<span class="nc bnc" id="L367" title="All 2 branches missed.">                                    .matches(&quot;^[0-9]+&quot;) || !upperBoundField.getText().trim()</span>
+<span class="nc bnc" id="L368" title="All 2 branches missed.">                                    .matches(&quot;^[0-9]+&quot;));</span>
+                } 
+<span class="nc bnc" id="L370" title="All 2 branches missed.">                else if (selectedType.equals(&quot;int&quot;)) {</span>
+<span class="nc" id="L371">                    errorLabelField.setVisible(</span>
+<span class="nc bnc" id="L372" title="All 2 branches missed.">                            !valueField.getText().trim().matches(&quot;^[0-9]+&quot;) || !variableField.getText().trim()</span>
+<span class="nc bnc" id="L373" title="All 2 branches missed.">                                    .matches(variableFieldRegEx) || !lowerBoundField.getText().trim()</span>
+<span class="nc bnc" id="L374" title="All 2 branches missed.">                                    .matches(&quot;^[0-9]+&quot;) || !upperBoundField.getText().trim()</span>
+<span class="nc bnc" id="L375" title="All 2 branches missed.">                                    .matches(&quot;^[0-9]+&quot;));</span>
+                } 
+<span class="nc bnc" id="L377" title="All 2 branches missed.">                else if (selectedType.equals(&quot;double&quot;)) {</span>
+<span class="nc" id="L378">                    errorLabelField.setVisible(</span>
+<span class="nc bnc" id="L379" title="All 2 branches missed.">                            !valueField.getText().trim().matches(&quot;^\\d*\\.\\d+&quot;) || !variableField.getText()</span>
+<span class="nc bnc" id="L380" title="All 2 branches missed.">                                    .trim().matches(variableFieldRegEx) || !lowerBoundField.getText().trim()</span>
+<span class="nc bnc" id="L381" title="All 2 branches missed.">                                    .matches(&quot;^\\d*\\.\\d+&quot;) || !upperBoundField.getText().trim()</span>
+<span class="nc bnc" id="L382" title="All 2 branches missed.">                                    .matches(&quot;^\\d*\\.\\d+&quot;));</span>
+                }
+<span class="nc" id="L384">            }</span>
+
+            @Override
+<span class="nc" id="L387">            public void keyPressed(KeyEvent e) {}</span>
+        });
+
+<span class="nc" id="L390">        upperBoundField.addKeyListener(new KeyListener() {</span>
+            @Override
+<span class="nc" id="L392">            public void keyTyped(KeyEvent e) {}</span>
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+<span class="nc bnc" id="L396" title="All 2 branches missed.">                if (selectedType.equals(&quot;float&quot;)) {</span>
+<span class="nc" id="L397">                    errorLabelField.setVisible(</span>
+<span class="nc bnc" id="L398" title="All 2 branches missed.">                            !valueField.getText().trim().matches(&quot;^[0-9]+&quot;) || !variableField.getText().trim()</span>
+<span class="nc bnc" id="L399" title="All 2 branches missed.">                                    .matches(variableFieldRegEx) || !lowerBoundField.getText().trim()</span>
+<span class="nc bnc" id="L400" title="All 2 branches missed.">                                    .matches(&quot;^[0-9]+&quot;) || !upperBoundField.getText().trim()</span>
+<span class="nc bnc" id="L401" title="All 2 branches missed.">                                    .matches(&quot;^[0-9]+&quot;));</span>
+                } 
+<span class="nc bnc" id="L403" title="All 2 branches missed.">                else if (selectedType.equals(&quot;int&quot;)) {</span>
+<span class="nc" id="L404">                    errorLabelField.setVisible(</span>
+<span class="nc bnc" id="L405" title="All 2 branches missed.">                            !valueField.getText().trim().matches(&quot;^[0-9]+&quot;) || !variableField.getText().trim()</span>
+<span class="nc bnc" id="L406" title="All 2 branches missed.">                                    .matches(variableFieldRegEx) || !lowerBoundField.getText().trim()</span>
+<span class="nc bnc" id="L407" title="All 2 branches missed.">                                    .matches(&quot;^[0-9]+&quot;) || !upperBoundField.getText().trim()</span>
+<span class="nc bnc" id="L408" title="All 2 branches missed.">                                    .matches(&quot;^[0-9]+&quot;));</span>
+                } 
+<span class="nc bnc" id="L410" title="All 2 branches missed.">                else if (selectedType.equals(&quot;double&quot;)) {</span>
+<span class="nc" id="L411">                    errorLabelField.setVisible(</span>
+<span class="nc bnc" id="L412" title="All 2 branches missed.">                            !valueField.getText().trim().matches(&quot;^\\d*\\.\\d+&quot;) || !variableField.getText()</span>
+<span class="nc bnc" id="L413" title="All 2 branches missed.">                                    .trim().matches(variableFieldRegEx) || !lowerBoundField.getText().trim()</span>
+<span class="nc bnc" id="L414" title="All 2 branches missed.">                                    .matches(&quot;^\\d*\\.\\d+&quot;) || !upperBoundField.getText().trim()</span>
+<span class="nc bnc" id="L415" title="All 2 branches missed.">                                    .matches(&quot;^\\d*\\.\\d+&quot;));</span>
+                }
+<span class="nc" id="L417">            }</span>
+
+            @Override
+<span class="nc" id="L420">            public void keyPressed(KeyEvent e) {}</span>
+        });
+
+<span class="nc" id="L423">        Object[] message =</span>
+                {&quot;Variable Name:&quot;, variableField, &quot;Variable Type:&quot;, variableTypeField, &quot;Default Value:&quot;,
+                        valueField, &quot;Lower Bound:&quot;, lowerBoundField, &quot;Upper Bound:&quot;, upperBoundField, &quot; &quot;,
+                        errorLabelField,&quot;Comment: &quot;,commentField};
+
+<span class="nc" id="L428">        int option = JOptionPane</span>
+<span class="nc" id="L429">                .showConfirmDialog(Main.frame, message, &quot;Please Enter&quot;, JOptionPane.OK_CANCEL_OPTION,</span>
+                        JOptionPane.PLAIN_MESSAGE);
+
+<span class="nc bnc" id="L432" title="All 2 branches missed.">        if (option == JOptionPane.OK_OPTION) {</span>
+<span class="nc" id="L433">            variableName = variableField.getText();</span>
+<span class="nc" id="L434">            variableType = (String) variableTypeField.getSelectedItem();</span>
+<span class="nc" id="L435">            variableValue = valueField.getText();</span>
+<span class="nc" id="L436">            variableLowerBound = lowerBoundField.getText();</span>
+<span class="nc" id="L437">            variableUpperBound = upperBoundField.getText();</span>
+<span class="nc" id="L438">            variableComment = commentField.getText();</span>
+
+<span class="nc bnc" id="L440" title="All 2 branches missed.">            if (variableType.equals(&quot;&quot;)) {</span>
+<span class="nc" id="L441">                variableType = &quot;none&quot;;</span>
+            }
+
+<span class="nc bnc" id="L444" title="All 2 branches missed.">            if (variableValue.equals(&quot;&quot;)) {</span>
+<span class="nc" id="L445">                variableValue = &quot;none&quot;;</span>
+            }
+
+<span class="nc bnc" id="L448" title="All 2 branches missed.">            if (variableLowerBound.equals(&quot;&quot;)) {</span>
+<span class="nc bnc" id="L449" title="All 2 branches missed.">            	if (selectedType.equals(&quot;int&quot;)){</span>
+<span class="nc" id="L450">            		variableLowerBound = Integer.toString(Integer.MIN_VALUE);</span>
+            	}
+<span class="nc bnc" id="L452" title="All 2 branches missed.">            	else if (selectedType.equals(&quot;float&quot;)){</span>
+<span class="nc" id="L453">            		variableLowerBound = Float.toString(Float.MIN_VALUE);</span>
+            	}
+<span class="nc bnc" id="L455" title="All 2 branches missed.">            	else if (selectedType.equals(&quot;double&quot;)){</span>
+<span class="nc" id="L456">            		variableLowerBound = Double.toString(Double.MIN_VALUE);</span>
+            	}
+            	else
+<span class="nc" id="L459">            		variableLowerBound = &quot;none&quot;;</span>
+            }
+
+<span class="nc bnc" id="L462" title="All 2 branches missed.">            if (variableUpperBound.equals(&quot;&quot;)) {</span>
+<span class="nc bnc" id="L463" title="All 2 branches missed.">            	if (selectedType.equals(&quot;int&quot;)){</span>
+<span class="nc" id="L464">            		variableUpperBound = Integer.toString(Integer.MAX_VALUE);</span>
+            	}
+<span class="nc bnc" id="L466" title="All 2 branches missed.">            	else if (selectedType.equals(&quot;float&quot;)){</span>
+<span class="nc" id="L467">            		variableUpperBound = Float.toString(Float.MAX_VALUE);</span>
+            	}
+<span class="nc bnc" id="L469" title="All 2 branches missed.">            	else if (selectedType.equals(&quot;double&quot;)){</span>
+<span class="nc" id="L470">            		variableUpperBound = Double.toString(Double.MAX_VALUE);</span>
+            	}
+            	else
+<span class="nc" id="L473">            		variableUpperBound = &quot;none&quot;;</span>
+            }
+            //...........................
+
+            // added inside IF block so that if variable window closed without adding then
+            // nothing will happen.
+<span class="nc bnc" id="L479" title="All 2 branches missed.">            if (variableTypeField.getSelectedItem().toString().trim().equals(&quot;string&quot;) || variableTypeField</span>
+<span class="nc bnc" id="L480" title="All 2 branches missed.">                    .getSelectedItem().toString().trim().equals(&quot;boolean&quot;)) {</span>
+<span class="nc" id="L481">                variableName = variableName + &quot;,&quot; + variableType + &quot;,&quot; + variableValue;</span>
+            } 
+            else {
+<span class="nc" id="L484">                variableName =</span>
+                        variableName + &quot;,&quot; + variableType + &quot;,&quot; + variableValue + &quot;,&quot; + variableLowerBound
+                        + &quot;,&quot; + variableUpperBound;
+            }
+
+
+<span class="nc" id="L490">            boolean validInput =</span>
+<span class="nc bnc" id="L491" title="All 4 branches missed.">                    (variableField.getText() != null) &amp;&amp; (!variableField.getText().trim().isEmpty()) &amp;&amp; (</span>
+<span class="nc bnc" id="L492" title="All 2 branches missed.">                            variableTypeField.getSelectedItem() != null) &amp;&amp; (!variableTypeField</span>
+<span class="nc bnc" id="L493" title="All 2 branches missed.">                            .getSelectedItem().toString().trim().isEmpty());</span>
+            
+<span class="nc bnc" id="L495" title="All 2 branches missed.">            if (!validInput) {</span>
+<span class="nc" id="L496">                JOptionPane.showMessageDialog(Main.frame, &quot;Please input all values correctly.&quot;);</span>
+            }
+
+            // end of multiple input for variable----------------------------
+<span class="nc bnc" id="L500" title="All 2 branches missed.">            if (validInput) {</span>
+<span class="nc" id="L501">                mxCell cellForAddingVariable = (mxCell) pos;</span>
+<span class="nc" id="L502">                pathToRoot.add((String) cellForAddingVariable.getValue());</span>
+<span class="nc" id="L503">                JtreeToGraphConvert.nodeToRootPathVar(cellForAddingVariable);</span>
+
+<span class="nc" id="L505">                String[] stringArray = pathToRoot.toArray(new String[0]);</span>
+<span class="nc" id="L506">                ArrayList&lt;String&gt; pathToRootRev = new ArrayList&lt;String&gt;();</span>
+
+<span class="nc bnc" id="L508" title="All 2 branches missed.">                for (int i = stringArray.length - 1; i &gt;= 0; i--) {</span>
+<span class="nc" id="L509">                    pathToRootRev.add(stringArray[i]);</span>
+                }
+
+<span class="nc" id="L512">                String[] stringArrayRev = pathToRootRev.toArray(new String[0]);</span>
+
+<span class="nc" id="L514">                TreePath treePathForVariable = JtreeToGraphGeneral.getTreeNodePath(stringArrayRev);</span>
+
+<span class="nc" id="L516">                DynamicTree.varMap.put(treePathForVariable, variableName);</span>
+
+<span class="nc" id="L518">                pathToRoot.clear();</span>
+
+                // have to call a function to refresh the table view
+<span class="nc" id="L521">                ODMEEditor.treePanel.refreshVariableTable(treePathForVariable);</span>
+            }
+        }
+<span class="nc" id="L524">    }</span>
+
+	public static void addConstraintFromGraphPopup(Object pos) {
+<span class="nc" id="L527">        JTextArea constraintsField = new JTextArea(10, 30);</span>
+<span class="nc" id="L528">        constraintsField.setLineWrap(true);</span>
+<span class="nc" id="L529">        constraintsField.setWrapStyleWord(true);</span>
+
+<span class="nc" id="L531">        Object[] message = {&quot;Constraint:&quot;, constraintsField};</span>
+
+<span class="nc" id="L533">        int option = JOptionPane</span>
+<span class="nc" id="L534">                .showConfirmDialog(Main.frame, message, &quot;Please Enter&quot;, JOptionPane.OK_CANCEL_OPTION,</span>
+                        JOptionPane.PLAIN_MESSAGE);
+<span class="nc bnc" id="L536" title="All 2 branches missed.">        if (option == JOptionPane.OK_OPTION) {</span>
+<span class="nc" id="L537">            String constraints = constraintsField.getText();</span>
+
+<span class="nc" id="L539">            boolean validInput =</span>
+<span class="nc bnc" id="L540" title="All 4 branches missed.">                    (constraintsField.getText() != null) &amp;&amp; (!constraintsField.getText().trim().isEmpty());</span>
+
+<span class="nc bnc" id="L542" title="All 2 branches missed.">            if (validInput) {</span>
+<span class="nc" id="L543">                mxCell cellForAddingVariable = (mxCell) pos;</span>
+<span class="nc" id="L544">                pathToRoot.add((String) cellForAddingVariable.getValue());</span>
+<span class="nc" id="L545">                JtreeToGraphConvert.nodeToRootPathVar(cellForAddingVariable);</span>
+
+<span class="nc" id="L547">                String[] stringArray = pathToRoot.toArray(new String[0]);</span>
+<span class="nc" id="L548">                ArrayList&lt;String&gt; pathToRootRev = new ArrayList&lt;String&gt;();</span>
+
+<span class="nc bnc" id="L550" title="All 2 branches missed.">                for (int i = stringArray.length - 1; i &gt;= 0; i--) {</span>
+<span class="nc" id="L551">                    pathToRootRev.add(stringArray[i]);</span>
+                }
+
+<span class="nc" id="L554">                String[] stringArrayRev = pathToRootRev.toArray(new String[0]);</span>
+
+<span class="nc" id="L556">                TreePath treePathForVariable = JtreeToGraphGeneral.getTreeNodePath(stringArrayRev);</span>
+
+<span class="nc" id="L558">                DynamicTree.constraintsList.put(treePathForVariable, constraints);</span>
+
+<span class="nc" id="L560">                pathToRoot.clear();</span>
+
+                // have to call a function to refresh the table view
+<span class="nc" id="L563">                ODMEEditor.treePanel.showConstraintsInTable(treePathForVariable);</span>
+            }
+        }
+<span class="nc" id="L566">    }</span>
+    
+    public static void addNodeWithJtreeAddition(String nodeName, String[] nodesToSelectedNode) {
+<span class="nc" id="L569">        mxCell selectedCell = JtreeToGraphConvert.rootToSelectedNode(nodesToSelectedNode);</span>
+
+<span class="nc" id="L571">        Object[] outgoing = graph.getOutgoingEdges(selectedCell);</span>
+
+<span class="nc" id="L573">        mxCell selectedCellNew = null;</span>
+<span class="nc" id="L574">        int len = outgoing.length;</span>
+
+        double x;
+        double y;
+
+<span class="nc bnc" id="L579" title="All 2 branches missed.">        if (len &gt; 0) {</span>
+
+<span class="nc" id="L581">            Object targetCell = graph.getModel().getTerminal(outgoing[len - 1], false);</span>
+<span class="nc" id="L582">            selectedCellNew = (mxCell) targetCell;</span>
+<span class="nc" id="L583">            x = selectedCellNew.getGeometry().getX();</span>
+<span class="nc" id="L584">            y = selectedCellNew.getGeometry().getY();</span>
+<span class="nc" id="L585">            x = x + 100;</span>
+
+            // if the added node manually changed to other position then overlap may happen.
+            // for removing that bug have to compare all the child nodes x positions and
+            // have to
+            // add after the most right one. didn't implement it yet. will do later after
+            // first
+            // prototype
+
+<span class="nc" id="L594">        } </span>
+        else {
+<span class="nc" id="L596">            x = selectedCell.getGeometry().getX();</span>
+<span class="nc" id="L597">            y = selectedCell.getGeometry().getY();</span>
+<span class="nc" id="L598">            y = y + 100;</span>
+        }
+
+<span class="nc" id="L601">        graph.getModel().beginUpdate();</span>
+        try {
+<span class="nc bnc" id="L603" title="All 2 branches missed.">            if (nodeName.endsWith(&quot;Dec&quot;)) {</span>
+<span class="nc" id="L604">                Object obj = graph.insertVertex(parent, null, nodeName, x + 25, y, 30, 30, &quot;Aspect&quot;);</span>
+<span class="nc" id="L605">                graph.insertEdge(parent, null, &quot;&quot;, selectedCell, obj);</span>
+<span class="nc" id="L606">                lastAddedCell = null; // so that it will not cause duplicate addition in tree</span>
+<span class="nc" id="L607">                nodeNumber++;</span>
+<span class="nc" id="L608">            } </span>
+<span class="nc bnc" id="L609" title="All 2 branches missed.">            else if (nodeName.endsWith(&quot;MAsp&quot;)) {</span>
+<span class="nc" id="L610">                Object obj = graph.insertVertex(parent, null, nodeName, x + 25, y, 30, 30, &quot;Multiaspectp&quot;);</span>
+<span class="nc" id="L611">                graph.insertEdge(parent, null, &quot;&quot;, selectedCell, obj);</span>
+<span class="nc" id="L612">                lastAddedCell = null; // so that it will not cause duplicate addition in tree</span>
+<span class="nc" id="L613">                nodeNumber++;</span>
+<span class="nc" id="L614">            }</span>
+<span class="nc bnc" id="L615" title="All 2 branches missed.">            else if (nodeName.endsWith(&quot;Spec&quot;)) {</span>
+<span class="nc" id="L616">                Object obj = graph.insertVertex(parent, null, nodeName, x + 25, y, 30, 30, &quot;Specializationp&quot;);</span>
+<span class="nc" id="L617">                graph.insertEdge(parent, null, &quot;&quot;, selectedCell, obj);</span>
+<span class="nc" id="L618">                lastAddedCell = null; // so that it will not cause duplicate addition in tree</span>
+<span class="nc" id="L619">                nodeNumber++;</span>
+<span class="nc" id="L620">            } </span>
+            else /* if (DynamicTreeDemo.nodeAddDetector.equals(&quot;entity&quot;)) */ {
+<span class="nc" id="L622">                Object obj = graph.insertVertex(parent, null, nodeName, x, y, 80, 30,</span>
+                        &quot;Entityp&quot;); // &quot;Aspect;fillColor=#0759cf;strokeColor=white;&quot;);
+<span class="nc" id="L624">                graph.insertEdge(parent, null, &quot;&quot;, selectedCell, obj);</span>
+<span class="nc" id="L625">                lastAddedCell = null; // so that it will not cause duplicate addition in tree</span>
+<span class="nc" id="L626">                nodeNumber++;</span>
+            }
+        } 
+        finally {
+<span class="nc" id="L630">            graph.getModel().endUpdate();</span>
+        }
+<span class="nc" id="L632">    }</span>
+
+    public static void addNodeFromConsole(String nodeName) {
+<span class="nc bnc" id="L635" title="All 2 branches missed.">        if (currentSelectedCell != null) {</span>
+<span class="nc" id="L636">            mxCell selectedCell = currentSelectedCell;</span>
+
+<span class="nc" id="L638">            Object[] outgoing = graph.getOutgoingEdges(selectedCell);</span>
+
+<span class="nc" id="L640">            mxCell selectedCellNew = null;</span>
+<span class="nc" id="L641">            int len = outgoing.length;</span>
+
+            double x;
+            double y;
+
+<span class="nc bnc" id="L646" title="All 2 branches missed.">            if (len &gt; 0) {</span>
+
+<span class="nc" id="L648">                Object targetCell = graph.getModel().getTerminal(outgoing[len - 1], false);</span>
+<span class="nc" id="L649">                selectedCellNew = (mxCell) targetCell;</span>
+<span class="nc" id="L650">                x = selectedCellNew.getGeometry().getX();</span>
+<span class="nc" id="L651">                y = selectedCellNew.getGeometry().getY();</span>
+<span class="nc" id="L652">                x = x + 100;</span>
+
+                // if the added node manually changed to other position then overlap may happen.
+                // for removing that bug have to compare all the child nodes x positions and
+                // have to
+                // add after the most right one. didn't implement it yet. will do later after
+                // first
+                // prototype
+<span class="nc" id="L660">            } </span>
+            else {
+<span class="nc" id="L662">                x = selectedCell.getGeometry().getX();</span>
+<span class="nc" id="L663">                y = selectedCell.getGeometry().getY();</span>
+<span class="nc" id="L664">                y = y + 100;</span>
+            }
+
+<span class="nc" id="L667">            graph.getModel().beginUpdate();</span>
+            try {
+<span class="nc bnc" id="L669" title="All 2 branches missed.">                if (nodeName.endsWith(&quot;Dec&quot;)) {</span>
+<span class="nc" id="L670">                    Object obj = graph.insertVertex(parent, null, nodeName, x + 25, y, 30, 30, &quot;Aspect&quot;);</span>
+<span class="nc" id="L671">                    graph.insertEdge(parent, null, &quot;&quot;, selectedCell, obj);</span>
+<span class="nc" id="L672">                    lastAddedCell = null; // so that it will not cause duplicate addition in tree</span>
+<span class="nc" id="L673">                    nodeNumber++;</span>
+<span class="nc" id="L674">                } </span>
+<span class="nc bnc" id="L675" title="All 2 branches missed.">                else if (nodeName.endsWith(&quot;MAsp&quot;)) {</span>
+<span class="nc" id="L676">                    Object obj = graph.insertVertex(parent, null, nodeName, x + 25, y, 30, 30, &quot;Multiaspectp&quot;);</span>
+<span class="nc" id="L677">                    graph.insertEdge(parent, null, &quot;&quot;, selectedCell, obj);</span>
+<span class="nc" id="L678">                    lastAddedCell = null; // so that it will not cause duplicate addition in tree</span>
+<span class="nc" id="L679">                    nodeNumber++;</span>
+<span class="nc" id="L680">                }</span>
+<span class="nc bnc" id="L681" title="All 2 branches missed.">                else if (nodeName.endsWith(&quot;Spec&quot;)) {</span>
+<span class="nc" id="L682">                    Object obj =</span>
+<span class="nc" id="L683">                            graph.insertVertex(parent, null, nodeName, x + 25, y, 30, 30, &quot;Specializationp&quot;);</span>
+<span class="nc" id="L684">                    graph.insertEdge(parent, null, &quot;&quot;, selectedCell, obj);</span>
+<span class="nc" id="L685">                    lastAddedCell = null; // so that it will not cause duplicate addition in tree</span>
+<span class="nc" id="L686">                    nodeNumber++;</span>
+<span class="nc" id="L687">                }</span>
+                else /* if (DynamicTreeDemo.nodeAddDetector.equals(&quot;entity&quot;)) */ {
+<span class="nc" id="L689">                    Object obj = graph.insertVertex(parent, null, nodeName, x, y, 80, 30,</span>
+                            &quot;Entityp&quot;); // &quot;Aspect;fillColor=#0759cf;strokeColor=white;&quot;);
+<span class="nc" id="L691">                    graph.insertEdge(parent, null, &quot;&quot;, selectedCell, obj);</span>
+<span class="nc" id="L692">                    lastAddedCell = null; // so that it will not cause duplicate addition in tree</span>
+<span class="nc" id="L693">                    nodeNumber++;</span>
+                }
+            } 
+            finally {
+<span class="nc" id="L697">                graph.getModel().endUpdate();</span>
+            }
+        }
+<span class="nc" id="L700">    }</span>
+    
+
+    public static void addModuleFromOtherModelAsXML(Object obj) {
+        // a small tree will be added dynamically to the selected node.
+
+<span class="nc" id="L706">        String fileName = &quot;&quot;;</span>
+        // choosing file from a directory
+        //Path currentDirectory = Paths.get(&quot;&quot;).toAbsolutePath();
+        //String repFslas = currentDirectory.toString().replace(&quot;\\&quot;, &quot;/&quot;);
+
+<span class="nc" id="L711">        JFileChooser fileChooser = new JFileChooser();</span>
+
+<span class="nc" id="L713">        FileNameExtensionFilter xmlfilter = new FileNameExtensionFilter(&quot;xml files (*.xml)&quot;, &quot;xml&quot;);</span>
+<span class="nc" id="L714">        fileChooser.setFileFilter(xmlfilter);</span>
+
+<span class="nc" id="L716">        fileChooser.setCurrentDirectory(new File(ODMEEditor.fileLocation + &quot;/&quot; + ODMEEditor.projName));</span>
+<span class="nc" id="L717">        int result = fileChooser.showOpenDialog(Main.frame);</span>
+<span class="nc bnc" id="L718" title="All 2 branches missed.">        if (result == JFileChooser.APPROVE_OPTION) {</span>
+<span class="nc" id="L719">            File selectedFile = fileChooser.getSelectedFile();</span>
+<span class="nc" id="L720">            fileName = selectedFile.getName();</span>
+
+<span class="nc" id="L722">            Object[] addedNodes = new Object[100];</span>
+<span class="nc" id="L723">            int addedNodeCount = 0;</span>
+<span class="nc" id="L724">            String[] nodeNameSplits = null;</span>
+<span class="nc" id="L725">            int nodeCount = 0;</span>
+
+<span class="nc" id="L727">            String[] parentNames = new String[100];</span>
+<span class="nc" id="L728">            int parentCount = 0;</span>
+
+<span class="nc" id="L730">            String[] nodeNames = new String[100];</span>
+
+            try {
+<span class="nc" id="L733">                FileReader reader = new FileReader(selectedFile.getAbsolutePath());</span>
+<span class="nc" id="L734">                BufferedReader bufferedReader = new BufferedReader(reader);</span>
+
+                String line;
+
+<span class="nc bnc" id="L738" title="All 2 branches missed.">                while ((line = bufferedReader.readLine()) != null) {</span>
+<span class="nc bnc" id="L739" title="All 2 branches missed.">                    if (line.startsWith(&quot;&lt;?&quot;)) {</span>
+<span class="nc" id="L740">                        continue;</span>
+                    } 
+<span class="nc bnc" id="L742" title="All 4 branches missed.">                    else if (line.startsWith(&quot;&lt;start&quot;) || line.startsWith(&quot;&lt;/start&quot;)) {</span>
+<span class="nc" id="L743">                        continue;</span>
+                    } 
+<span class="nc bnc" id="L745" title="All 2 branches missed.">                    else if (line.startsWith(&quot;&lt;/&quot;)) {</span>
+<span class="nc" id="L746">                        parentCount--;</span>
+                    } 
+<span class="nc bnc" id="L748" title="All 2 branches missed.">                    else if (line.startsWith(&quot;&lt;&quot;)) {</span>
+<span class="nc bnc" id="L749" title="All 2 branches missed.">                        if (line.endsWith(&quot;/&gt;&quot;)) {</span>
+<span class="nc" id="L750">                            String ln = line.replaceAll(&quot;[&lt;/&gt;]&quot;, &quot;&quot;);</span>
+<span class="nc" id="L751">                            nodeNames[nodeCount] = ln + &quot;-&quot; + parentNames[parentCount - 1] + &quot;-hasparent&quot;;</span>
+<span class="nc" id="L752">                            nodeCount++;</span>
+<span class="nc" id="L753">                        }</span>
+                        else {
+<span class="nc" id="L755">                            String ln = line.replaceAll(&quot;[&lt;/&gt;]&quot;, &quot;&quot;);</span>
+
+<span class="nc bnc" id="L757" title="All 2 branches missed.">                            if (parentCount &gt; 0) {</span>
+<span class="nc" id="L758">                                nodeNames[nodeCount] = ln + &quot;-&quot; + parentNames[parentCount - 1] + &quot;-hasparent&quot;;</span>
+<span class="nc" id="L759">                                nodeCount++;</span>
+                            } 
+                            else {
+<span class="nc" id="L762">                                nodeNames[nodeCount] = ln;</span>
+<span class="nc" id="L763">                                nodeCount++;</span>
+                            }
+<span class="nc" id="L765">                            parentNames[parentCount] = ln;</span>
+<span class="nc" id="L766">                            parentCount++;</span>
+<span class="nc" id="L767">                        }</span>
+                    }
+                }
+
+<span class="nc" id="L771">                reader.close();</span>
+
+            } 
+<span class="nc" id="L774">            catch (IOException e) {</span>
+<span class="nc" id="L775">                e.printStackTrace();</span>
+<span class="nc" id="L776">            }</span>
+<span class="nc bnc" id="L777" title="All 2 branches missed.">            for (int i = 0; i &lt; nodeCount; i++) {</span>
+<span class="nc" id="L778">                String nodeName = nodeNames[i];</span>
+
+<span class="nc bnc" id="L780" title="All 2 branches missed.">                if (nodeName.endsWith(&quot;hasparent&quot;)) {</span>
+<span class="nc" id="L781">                    nodeNameSplits = nodeName.split(&quot;-&quot;);</span>
+<span class="nc" id="L782">                    nodeName = nodeNameSplits[0];</span>
+
+<span class="nc" id="L784">                    String parentNode = nodeNameSplits[1];</span>
+<span class="nc bnc" id="L785" title="All 2 branches missed.">                    for (Object node : addedNodes) {</span>
+<span class="nc bnc" id="L786" title="All 2 branches missed.">                        if (!(node == null)) {</span>
+<span class="nc" id="L787">                            mxCell cell = (mxCell) node;</span>
+<span class="nc bnc" id="L788" title="All 2 branches missed.">                            if (cell.getValue().equals(parentNode)) {</span>
+<span class="nc" id="L789">                                obj = cell;</span>
+                            }
+                        }
+                    }
+                }
+
+<span class="nc" id="L795">                mxCell selectedCell = (mxCell) obj;</span>
+
+<span class="nc" id="L797">                Object[] outgoing = graph.getOutgoingEdges(selectedCell);</span>
+
+<span class="nc" id="L799">                mxCell selectedCellNew = null;</span>
+<span class="nc" id="L800">                int len = outgoing.length;</span>
+
+                double x;
+                double y;
+
+<span class="nc bnc" id="L805" title="All 2 branches missed.">                if (len &gt; 0) {</span>
+
+<span class="nc" id="L807">                    Object targetCell = graph.getModel().getTerminal(outgoing[len - 1], false);</span>
+<span class="nc" id="L808">                    selectedCellNew = (mxCell) targetCell;</span>
+<span class="nc" id="L809">                    x = selectedCellNew.getGeometry().getX();</span>
+<span class="nc" id="L810">                    y = selectedCellNew.getGeometry().getY();</span>
+<span class="nc" id="L811">                    x = x + 100;</span>
+
+                    // if the added node manually changed to other position then overlap may happen.
+                    // for removing that bug have to compare all the child nodes x positions and
+                    // have to
+                    // add after the most right one. didn't implement it yet. will do later after
+                    // first
+                    // prototype
+
+<span class="nc" id="L820">                }</span>
+                else {
+<span class="nc" id="L822">                    x = selectedCell.getGeometry().getX();</span>
+<span class="nc" id="L823">                    y = selectedCell.getGeometry().getY();</span>
+<span class="nc" id="L824">                    y = y + 100;</span>
+                }
+
+<span class="nc" id="L827">                graph.getModel().beginUpdate();</span>
+                try {
+<span class="nc bnc" id="L829" title="All 2 branches missed.">                    if (nodeName.endsWith(&quot;Dec&quot;)) {</span>
+<span class="nc" id="L830">                        obj = graph.insertVertex(parent, null, nodeName, x + 25, y, 30, 30, &quot;Aspect&quot;);</span>
+<span class="nc" id="L831">                        graph.insertEdge(parent, null, &quot;&quot;, selectedCell, obj);</span>
+<span class="nc" id="L832">                        lastAddedCell = null; // so that it will not cause duplicate addition in tree</span>
+<span class="nc" id="L833">                        nodeNumber++;</span>
+
+<span class="nc" id="L835">                        addNodeIntoJtreeWithNewModuleAddition(selectedCell);</span>
+                    } 
+<span class="nc bnc" id="L837" title="All 2 branches missed.">                    else if (nodeName.endsWith(&quot;MAsp&quot;)) {</span>
+
+<span class="nc" id="L839">                        obj = graph.insertVertex(parent, null, nodeName, x + 25, y, 30, 30, &quot;Multiaspectp&quot;);</span>
+<span class="nc" id="L840">                        graph.insertEdge(parent, null, &quot;&quot;, selectedCell, obj);</span>
+<span class="nc" id="L841">                        lastAddedCell = null; // so that it will not cause duplicate addition in tree</span>
+<span class="nc" id="L842">                        nodeNumber++;</span>
+
+<span class="nc" id="L844">                        addNodeIntoJtreeWithNewModuleAddition(selectedCell);</span>
+                    } 
+<span class="nc bnc" id="L846" title="All 2 branches missed.">                    else if (nodeName.endsWith(&quot;Spec&quot;)) {</span>
+
+<span class="nc" id="L848">                        obj = graph.insertVertex(parent, null, nodeName, x + 25, y, 30, 30, &quot;Specializationp&quot;);</span>
+<span class="nc" id="L849">                        graph.insertEdge(parent, null, &quot;&quot;, selectedCell, obj);</span>
+<span class="nc" id="L850">                        lastAddedCell = null; // so that it will not cause duplicate addition in tree</span>
+<span class="nc" id="L851">                        nodeNumber++;</span>
+
+<span class="nc" id="L853">                        addNodeIntoJtreeWithNewModuleAddition(selectedCell);</span>
+                    } 
+                    else {
+<span class="nc" id="L856">                        obj = graph.insertVertex(parent, null, nodeName, x, y, 80, 30,</span>
+                                &quot;Entityp&quot;); // &quot;Aspect;fillColor=#0759cf;strokeColor=white;&quot;);
+<span class="nc" id="L858">                        graph.insertEdge(parent, null, &quot;&quot;, selectedCell, obj);</span>
+<span class="nc" id="L859">                        lastAddedCell = null; // so that it will not cause duplicate addition in tree</span>
+<span class="nc" id="L860">                        nodeNumber++;</span>
+
+<span class="nc" id="L862">                        addNodeIntoJtreeWithNewModuleAddition(selectedCell);</span>
+                    }
+
+                    // added nodes in the array
+<span class="nc" id="L866">                    addedNodes[addedNodeCount] = obj;</span>
+<span class="nc" id="L867">                    addedNodeCount++;</span>
+                }
+                finally {
+<span class="nc" id="L870">                    graph.getModel().endUpdate();</span>
+                }
+            }
+            // have to add xml file to project here
+<span class="nc" id="L874">            ODMEEditor.projectPanel.addModueFile(fileName);</span>
+        }
+<span class="nc" id="L876">    }</span>
+    
+    public static void addModuleFromSubgraph(Object obj) {
+        // a small tree will be added dynamically to the jtree which is drawn in graph
+        // editor and connected later to other node
+
+<span class="nc" id="L882">        Object[] addedNodes = new Object[100];</span>
+<span class="nc" id="L883">        int addedNodeCount = 0;</span>
+<span class="nc" id="L884">        String[] nodeNameSplits = null;</span>
+
+<span class="nc" id="L886">        String[] nodeNames = new String[100];</span>
+<span class="nc" id="L887">        int nodeCount = 0;</span>
+<span class="nc" id="L888">        nodeCount = treeSyncNodeCount;</span>
+<span class="nc" id="L889">        nodeNames = nodeNamesForGraphSync;</span>
+
+<span class="nc bnc" id="L891" title="All 2 branches missed.">        for (int i = 0; i &lt; nodeCount; i++) {</span>
+<span class="nc" id="L892">            String nodeName = nodeNames[i];</span>
+
+<span class="nc bnc" id="L894" title="All 2 branches missed.">            if (nodeName.endsWith(&quot;hasparent&quot;)) {</span>
+<span class="nc" id="L895">                nodeNameSplits = nodeName.split(&quot;-&quot;);</span>
+<span class="nc" id="L896">                nodeName = nodeNameSplits[0];</span>
+
+<span class="nc" id="L898">                String parentNode = nodeNameSplits[1];</span>
+<span class="nc bnc" id="L899" title="All 2 branches missed.">                for (Object node : addedNodes) {</span>
+<span class="nc bnc" id="L900" title="All 2 branches missed.">                    if (!(node == null)) {</span>
+<span class="nc" id="L901">                        mxCell cell = (mxCell) node;</span>
+<span class="nc bnc" id="L902" title="All 2 branches missed.">                        if (cell.getValue().equals(parentNode)) {</span>
+<span class="nc" id="L903">                            obj = cell;</span>
+                        }
+                    }
+                }
+            }
+
+<span class="nc" id="L909">            mxCell selectedCell = (mxCell) obj;</span>
+
+<span class="nc" id="L911">            Object[] outgoing = graph.getOutgoingEdges(selectedCell);</span>
+
+<span class="nc" id="L913">            mxCell selectedCellNew = null;</span>
+<span class="nc" id="L914">            int len = outgoing.length;</span>
+
+            double x;
+            double y;
+
+<span class="nc bnc" id="L919" title="All 2 branches missed.">            if (len &gt; 0) {</span>
+
+<span class="nc" id="L921">                Object targetCell = graph.getModel().getTerminal(outgoing[len - 1], false);</span>
+<span class="nc" id="L922">                selectedCellNew = (mxCell) targetCell;</span>
+
+<span class="nc" id="L924">                x = selectedCellNew.getGeometry().getX();</span>
+<span class="nc" id="L925">                y = selectedCellNew.getGeometry().getY();</span>
+<span class="nc" id="L926">                x = x + 100;</span>
+
+                // if the added node manually changed to other position then overlap may happen.
+                // for removing that bug have to compare all the child nodes x positions and
+                // have to
+                // add after the most right one. didn't implement it yet. will do later after
+                // first
+                // prototype
+<span class="nc" id="L934">            }</span>
+            else {
+<span class="nc" id="L936">                x = selectedCell.getGeometry().getX();</span>
+<span class="nc" id="L937">                y = selectedCell.getGeometry().getY();</span>
+<span class="nc" id="L938">                y = y + 100;</span>
+            }
+
+<span class="nc" id="L941">            graph.getModel().beginUpdate();</span>
+            try {
+<span class="nc bnc" id="L943" title="All 2 branches missed.">                if (nodeName.endsWith(&quot;Dec&quot;)) {</span>
+<span class="nc" id="L944">                    obj = graph.insertVertex(parent, null, nodeName, x + 25, y, 30, 30, &quot;Aspect&quot;);</span>
+
+<span class="nc" id="L946">                    graph.insertEdge(parent, null, &quot;&quot;, selectedCell, obj);</span>
+<span class="nc" id="L947">                    lastAddedCell = null; // so that it will not cause duplicate addition in tree</span>
+
+                    // mxCell cell = (mxCell) obj; cell.setVisible(false);
+
+                    // have to send tree path and node name
+                    // i have node name- nodeName
+                    // have to find tree path for that nodeName
+
+<span class="nc" id="L955">                    addNodeIntoJtreeForSubTree(selectedCell);</span>
+
+<span class="nc bnc" id="L957" title="All 2 branches missed.">                    if (firstAddedCellForSubTree == 0) {</span>
+<span class="nc" id="L958">                        firstAddedCellForSubTreeDeletion = (mxCell) obj;</span>
+<span class="nc" id="L959">                        firstAddedCellForSubTree = 1;</span>
+                    }
+                } 
+<span class="nc bnc" id="L962" title="All 2 branches missed.">                else if (nodeName.endsWith(&quot;MAsp&quot;)) {</span>
+<span class="nc" id="L963">                    obj = graph.insertVertex(parent, null, nodeName, x + 25, y, 30, 30, &quot;Multiaspectp&quot;);</span>
+<span class="nc" id="L964">                    graph.insertEdge(parent, null, &quot;&quot;, selectedCell, obj);</span>
+<span class="nc" id="L965">                    lastAddedCell = null;</span>
+
+<span class="nc" id="L967">                    addNodeIntoJtreeForSubTree(selectedCell);</span>
+
+<span class="nc bnc" id="L969" title="All 2 branches missed.">                    if (firstAddedCellForSubTree == 0) {</span>
+<span class="nc" id="L970">                        firstAddedCellForSubTreeDeletion = (mxCell) obj;</span>
+<span class="nc" id="L971">                        firstAddedCellForSubTree = 1;</span>
+                    }
+                } 
+<span class="nc bnc" id="L974" title="All 2 branches missed.">                else if (nodeName.endsWith(&quot;Spec&quot;)) {</span>
+<span class="nc" id="L975">                    obj = graph.insertVertex(parent, null, nodeName, x + 25, y, 30, 30, &quot;Specializationp&quot;);</span>
+<span class="nc" id="L976">                    graph.insertEdge(parent, null, &quot;&quot;, selectedCell, obj);</span>
+<span class="nc" id="L977">                    lastAddedCell = null;</span>
+
+<span class="nc" id="L979">                    addNodeIntoJtreeForSubTree(selectedCell);</span>
+
+<span class="nc bnc" id="L981" title="All 2 branches missed.">                    if (firstAddedCellForSubTree == 0) {</span>
+<span class="nc" id="L982">                        firstAddedCellForSubTreeDeletion = (mxCell) obj;</span>
+<span class="nc" id="L983">                        firstAddedCellForSubTree = 1;</span>
+                    }
+                } 
+                else {
+<span class="nc" id="L987">                    obj = graph.insertVertex(parent, null, nodeName, x, y, 80, 30, &quot;Entityp&quot;);</span>
+<span class="nc" id="L988">                    graph.insertEdge(parent, null, &quot;&quot;, selectedCell, obj);</span>
+
+<span class="nc" id="L990">                    lastAddedCell = null;</span>
+
+<span class="nc" id="L992">                    addNodeIntoJtreeForSubTree(selectedCell);</span>
+
+<span class="nc bnc" id="L994" title="All 2 branches missed.">                    if (firstAddedCellForSubTree == 0) {</span>
+<span class="nc" id="L995">                        firstAddedCellForSubTreeDeletion = (mxCell) obj;</span>
+<span class="nc" id="L996">                        firstAddedCellForSubTree = 1;</span>
+                    }
+                }
+
+                // added nodes in the array
+<span class="nc" id="L1001">                addedNodes[addedNodeCount] = obj;</span>
+<span class="nc" id="L1002">                addedNodeCount++;</span>
+            } 
+            finally {
+<span class="nc" id="L1005">                graph.getModel().endUpdate();</span>
+            }
+        }
+
+        // have to make used array null and count 0 here
+<span class="nc" id="L1010">        nodeNamesForGraphSync = new String[100]; // or have to delete the added nodes in other way</span>
+        //undoForSubTreeCount = treeSyncNodeCount; // not using have to check carefully then delete
+<span class="nc" id="L1012">        treeSyncNodeCount = 0;</span>
+<span class="nc" id="L1013">    }</span>
+
+    public static void addModuleFromSubgraphUniformity(Object obj) {
+        // a small tree will be added dynamically to the jtree which is drawn in graph
+        // editor and connected later to other node
+
+<span class="nc" id="L1019">        Object[] addedNodes = new Object[100];</span>
+<span class="nc" id="L1020">        int addedNodeCount = 0;</span>
+<span class="nc" id="L1021">        String[] nodeNameSplits = null;</span>
+
+<span class="nc" id="L1023">        String[] nodeNames = new String[100];</span>
+<span class="nc" id="L1024">        int nodeCount = 0;</span>
+<span class="nc" id="L1025">        nodeCount = treeSyncNodeCount;</span>
+<span class="nc" id="L1026">        nodeNames = nodeNamesForGraphSync;</span>
+
+        // deleting null nodes;
+<span class="nc" id="L1029">        nodeNames =</span>
+<span class="nc bnc" id="L1030" title="All 4 branches missed.">                Arrays.stream(nodeNames).filter(s -&gt; (s != null &amp;&amp; s.length() &gt; 0)).toArray(String[]::new);</span>
+
+        // adding uniformity node to the array
+<span class="nc" id="L1033">        addedNodes[addedNodeCount] = obj;</span>
+<span class="nc" id="L1034">        addedNodeCount++;</span>
+
+<span class="nc bnc" id="L1036" title="All 2 branches missed.">        for (int i = 0; i &lt; nodeCount; i++) {</span>
+<span class="nc" id="L1037">            String nodeName = nodeNames[i];</span>
+
+<span class="nc bnc" id="L1039" title="All 2 branches missed.">            if (nodeName.endsWith(&quot;hasparent&quot;)) {</span>
+<span class="nc" id="L1040">                nodeNameSplits = nodeName.split(&quot;-&quot;);</span>
+<span class="nc" id="L1041">                nodeName = nodeNameSplits[0];</span>
+
+<span class="nc" id="L1043">                String parentNode = nodeNameSplits[1];</span>
+<span class="nc bnc" id="L1044" title="All 2 branches missed.">                for (Object node : addedNodes) {</span>
+<span class="nc bnc" id="L1045" title="All 2 branches missed.">                    if (!(node == null)) {</span>
+<span class="nc" id="L1046">                        mxCell cell = (mxCell) node;</span>
+<span class="nc bnc" id="L1047" title="All 2 branches missed.">                        if (cell.getValue().equals(parentNode)) {</span>
+<span class="nc" id="L1048">                            obj = cell;</span>
+                        }
+                    }
+                }
+            }
+
+<span class="nc" id="L1054">            mxCell selectedCell = (mxCell) obj;</span>
+
+<span class="nc" id="L1056">            Object[] outgoing = graph.getOutgoingEdges(selectedCell);</span>
+
+<span class="nc" id="L1058">            mxCell selectedCellNew = null;</span>
+<span class="nc" id="L1059">            int len = outgoing.length;</span>
+
+            double x;
+            double y;
+
+<span class="nc bnc" id="L1064" title="All 2 branches missed.">            if (len &gt; 0) {</span>
+
+<span class="nc" id="L1066">                Object targetCell = graph.getModel().getTerminal(outgoing[len - 1], false);</span>
+<span class="nc" id="L1067">                selectedCellNew = (mxCell) targetCell;</span>
+
+<span class="nc" id="L1069">                x = selectedCellNew.getGeometry().getX();</span>
+<span class="nc" id="L1070">                y = selectedCellNew.getGeometry().getY();</span>
+<span class="nc" id="L1071">                x = x + 100;</span>
+
+                // if the added node manually changed to other position then overlap may happen.
+                // for removing that bug have to compare all the child nodes x positions and
+                // have to
+                // add after the most right one. didn't implement it yet. will do later after
+                // first
+                // prototype
+<span class="nc" id="L1079">            } </span>
+            else {
+<span class="nc" id="L1081">                x = selectedCell.getGeometry().getX();</span>
+<span class="nc" id="L1082">                y = selectedCell.getGeometry().getY();</span>
+<span class="nc" id="L1083">                y = y + 100;</span>
+            }
+
+<span class="nc" id="L1086">            String nodeId = &quot;uniformity&quot; + uniformityNodeNumber;</span>
+
+<span class="nc" id="L1088">            graph.getModel().beginUpdate();</span>
+            try {
+<span class="nc bnc" id="L1090" title="All 2 branches missed.">                if (nodeName.endsWith(&quot;Dec&quot;)) {</span>
+<span class="nc" id="L1091">                    obj = graph.insertVertex(parent, nodeId, nodeName, x + 25, y, 30, 30, &quot;Aspect&quot;);</span>
+
+<span class="nc" id="L1093">                    graph.insertEdge(parent, null, &quot;&quot;, selectedCell, obj);</span>
+<span class="nc" id="L1094">                    lastAddedCell = null; // so that it will not cause duplicate addition in tree</span>
+
+<span class="nc" id="L1096">                    uniformityNodeNumber++;</span>
+
+<span class="nc" id="L1098">                    addNodeIntoJtreeForSubTree(selectedCell);</span>
+                } 
+<span class="nc bnc" id="L1100" title="All 2 branches missed.">                else if (nodeName.endsWith(&quot;MAsp&quot;)) {</span>
+<span class="nc" id="L1101">                    obj = graph.insertVertex(parent, nodeId, nodeName, x + 25, y, 30, 30, &quot;Multiaspectp&quot;);</span>
+<span class="nc" id="L1102">                    graph.insertEdge(parent, null, &quot;&quot;, selectedCell, obj);</span>
+<span class="nc" id="L1103">                    lastAddedCell = null;</span>
+
+<span class="nc" id="L1105">                    uniformityNodeNumber++;</span>
+
+<span class="nc" id="L1107">                    addNodeIntoJtreeForSubTree(selectedCell);</span>
+                } 
+<span class="nc bnc" id="L1109" title="All 2 branches missed.">                else if (nodeName.endsWith(&quot;Spec&quot;)) {</span>
+<span class="nc" id="L1110">                    obj = graph.insertVertex(parent, nodeId, nodeName, x + 25, y, 30, 30, &quot;Specializationp&quot;);</span>
+<span class="nc" id="L1111">                    graph.insertEdge(parent, null, &quot;&quot;, selectedCell, obj);</span>
+<span class="nc" id="L1112">                    lastAddedCell = null;</span>
+
+<span class="nc" id="L1114">                    uniformityNodeNumber++;</span>
+
+<span class="nc" id="L1116">                    addNodeIntoJtreeForSubTree(selectedCell);</span>
+                } 
+                else {
+<span class="nc" id="L1119">                    obj = graph.insertVertex(parent, nodeId, nodeName, x, y, 80, 30, &quot;Entityp&quot;);</span>
+<span class="nc" id="L1120">                    graph.insertEdge(parent, null, &quot;&quot;, selectedCell, obj);</span>
+
+<span class="nc" id="L1122">                    lastAddedCell = null;</span>
+
+<span class="nc" id="L1124">                    uniformityNodeNumber++;</span>
+
+<span class="nc" id="L1126">                    addNodeIntoJtreeForSubTree(selectedCell);</span>
+                }
+
+                // added nodes in the array
+<span class="nc" id="L1130">                addedNodes[addedNodeCount] = obj;</span>
+<span class="nc" id="L1131">                addedNodeCount++;</span>
+            } 
+            finally {
+<span class="nc" id="L1134">                graph.getModel().endUpdate();</span>
+            }
+        }
+
+        // have to make used array null and count 0 here
+<span class="nc" id="L1139">        nodeNamesForGraphSync = new String[100]; // or have to delete the added nodes in other way</span>
+        //undoForSubTreeCount = treeSyncNodeCount; // not using have to check carefully then delete
+<span class="nc" id="L1141">        treeSyncNodeCount = 0;</span>
+<span class="nc" id="L1142">    }</span>
+    
+    public static void addNodeFromGraphPopup(String node, int x, int y) {
+<span class="nc" id="L1145">        String variableName = JOptionPane</span>
+<span class="nc" id="L1146">                .showInputDialog(Main.frame, &quot;Node Name:&quot;, &quot;New Node&quot;, JOptionPane.INFORMATION_MESSAGE);</span>
+
+<span class="nc bnc" id="L1148" title="All 2 branches missed.">        if (variableName != null) {</span>
+<span class="nc" id="L1149">            variableName = variableName.replaceAll(&quot;\\s+&quot;, &quot;&quot;);</span>
+        }
+
+<span class="nc bnc" id="L1152" title="All 4 branches missed.">        if ((variableName != null) &amp;&amp; (!variableName.trim().isEmpty())) {</span>
+<span class="nc" id="L1153">            graph.getModel().beginUpdate();</span>
+            try {
+<span class="nc bnc" id="L1155" title="All 2 branches missed.">                if (node.endsWith(&quot;Dec&quot;)) {</span>
+<span class="nc bnc" id="L1156" title="All 2 branches missed.">                    if (!variableName.endsWith(&quot;Dec&quot;)) {</span>
+<span class="nc" id="L1157">                        variableName = variableName + &quot;Dec&quot;;</span>
+                    }
+<span class="nc" id="L1159">                    graph.insertVertex(parent, null, variableName, x - 15, y, 30, 30, &quot;Aspect&quot;);</span>
+<span class="nc" id="L1160">                    nodeNumber++;</span>
+                } 
+<span class="nc bnc" id="L1162" title="All 2 branches missed.">                else if (node.endsWith(&quot;MAsp&quot;)) {</span>
+<span class="nc bnc" id="L1163" title="All 2 branches missed.">                    if (!variableName.endsWith(&quot;MAsp&quot;)) {</span>
+<span class="nc" id="L1164">                        variableName = variableName + &quot;MAsp&quot;;</span>
+                    }
+<span class="nc" id="L1166">                    graph.insertVertex(parent, null, variableName, x - 15, y, 30, 30, &quot;Multiaspectp&quot;);</span>
+<span class="nc" id="L1167">                    nodeNumber++;</span>
+                } 
+<span class="nc bnc" id="L1169" title="All 2 branches missed.">                else if (node.endsWith(&quot;Spec&quot;)) {</span>
+<span class="nc bnc" id="L1170" title="All 2 branches missed.">                    if (!variableName.endsWith(&quot;Spec&quot;)) {</span>
+<span class="nc" id="L1171">                        variableName = variableName + &quot;Spec&quot;;</span>
+                    }
+<span class="nc" id="L1173">                    graph.insertVertex(parent, null, variableName, x - 15, y, 30, 30, &quot;Specializationp&quot;);</span>
+<span class="nc" id="L1174">                    nodeNumber++;</span>
+                } 
+                else /* if (DynamicTreeDemo.nodeAddDetector.equals(&quot;entity&quot;)) */ {
+<span class="nc" id="L1177">                    graph.insertVertex(parent, null, variableName, x - 40, y, 80, 30,</span>
+                            &quot;Entityp&quot;); // &quot;Aspect;fillColor=#0759cf;strokeColor=white;&quot;);
+<span class="nc" id="L1179">                    nodeNumber++;</span>
+                }
+            } 
+            finally {
+<span class="nc" id="L1183">                graph.getModel().endUpdate();</span>
+            }
+        }
+<span class="nc" id="L1186">    }</span>
+    
+    /**
+     * This function add two nodes at Top-Right and Bottom-Left corner to make the
+     * page big enough during new project creation.
+     */
+    public static void addPageLengthNodes() {
+<span class="nc" id="L1193">        graph.getModel().beginUpdate();</span>
+        try {
+<span class="nc" id="L1195">        	graph.insertVertex(parent, &quot;hideV&quot;, &quot;End of Canvas&quot;, 0, 50000, 80, 30, &quot;Entity&quot;);</span>
+
+<span class="nc" id="L1197">        	graph.insertVertex(parent, &quot;hideH&quot;, &quot;End of Canvas&quot;, 50000, 0, 80, 30, &quot;Entity&quot;);</span>
+        } 
+        finally {
+<span class="nc" id="L1200">            graph.getModel().endUpdate();</span>
+        }
+<span class="nc" id="L1202">    }</span>
+    
+    /**
+     * Add constraint to the aspect node in the SES XML structure.
+     */
+    public static void addconstraintToSESStructure() {
+<span class="nc" id="L1208">        TreePath keyPath = null;</span>
+<span class="nc" id="L1209">        String constraint = &quot;&quot;;</span>
+
+<span class="nc bnc" id="L1211" title="All 2 branches missed.">        for (TreePath keyPath2 : DynamicTree.constraintsList.keySet()) {</span>
+<span class="nc" id="L1212">            keyPath = keyPath2;</span>
+<span class="nc" id="L1213">        }</span>
+
+<span class="nc bnc" id="L1215" title="All 2 branches missed.">        if (keyPath != null) {</span>
+<span class="nc" id="L1216">            DefaultMutableTreeNode currentNode = (DefaultMutableTreeNode) (keyPath.getLastPathComponent());</span>
+<span class="nc" id="L1217">            TreeNode[] nodes = currentNode.getPath();</span>
+<span class="nc" id="L1218">            int len = nodes.length;</span>
+<span class="nc" id="L1219">            String[] sesNodesInPath = new String[len];</span>
+
+<span class="nc" id="L1221">            String[] nodesToSelectedNode = new String[100];</span>
+
+<span class="nc" id="L1223">            int b = 0;</span>
+
+<span class="nc bnc" id="L1225" title="All 2 branches missed.">            for (TreePath key : DynamicTree.constraintsList.keySet()) {</span>
+<span class="nc" id="L1226">                int a = 0;</span>
+
+<span class="nc bnc" id="L1228" title="All 2 branches missed.">                for (String value : DynamicTree.constraintsList.get(key)) {</span>
+<span class="nc" id="L1229">                    DefaultMutableTreeNode currentNode2 =</span>
+<span class="nc" id="L1230">                            (DefaultMutableTreeNode) (key.getLastPathComponent());</span>
+
+<span class="nc" id="L1232">                    TreeNode[] nodes2 = currentNode2.getPath();</span>
+
+<span class="nc bnc" id="L1234" title="All 2 branches missed.">                    if (nodes.length == nodes2.length) {</span>
+<span class="nc bnc" id="L1235" title="All 2 branches missed.">                        for (int i = 0; i &lt; nodes.length; i++) {</span>
+
+<span class="nc bnc" id="L1237" title="All 2 branches missed.">                            if (nodes[i].toString().equals(nodes2[i].toString())) {</span>
+<span class="nc" id="L1238">                                a = 1;</span>
+                            } 
+                            else {
+<span class="nc" id="L1241">                                a = 0;</span>
+                            }
+                        }
+                    }
+
+<span class="nc bnc" id="L1246" title="All 2 branches missed.">                    if (a == 1) {</span>
+<span class="nc" id="L1247">                        nodesToSelectedNode[b] = value;</span>
+<span class="nc" id="L1248">                        b++;</span>
+                    }
+<span class="nc" id="L1250">                }</span>
+<span class="nc" id="L1251">            }</span>
+
+<span class="nc" id="L1253">            nodesToSelectedNode =</span>
+<span class="nc bnc" id="L1254" title="All 4 branches missed.">                    Arrays.stream(nodesToSelectedNode).filter(s -&gt; (s != null &amp;&amp; s.length() &gt; 0))</span>
+<span class="nc" id="L1255">                            .toArray(String[]::new);</span>
+
+<span class="nc bnc" id="L1257" title="All 2 branches missed.">            for (String con : nodesToSelectedNode) {</span>
+<span class="nc bnc" id="L1258" title="All 2 branches missed.">                if (constraint.equals(&quot;&quot;)) {</span>
+<span class="nc" id="L1259">                    constraint = con;</span>
+                }
+                else {
+<span class="nc" id="L1262">                    constraint = constraint + &quot;, &quot; + con;</span>
+                }
+            }
+
+<span class="nc bnc" id="L1266" title="All 2 branches missed.">            for (int i = 0; i &lt; len; i++) {</span>
+<span class="nc bnc" id="L1267" title="All 2 branches missed.">                if (nodes[i].toString().endsWith(&quot;Dec&quot;)) {</span>
+<span class="nc" id="L1268">                    sesNodesInPath[i] = &quot;aspect&quot;;</span>
+                }
+<span class="nc bnc" id="L1270" title="All 2 branches missed.">                else if (nodes[i].toString().endsWith(&quot;MAsp&quot;)) {</span>
+<span class="nc" id="L1271">                    sesNodesInPath[i] = &quot;multiAspect&quot;;</span>
+                } 
+<span class="nc bnc" id="L1273" title="All 2 branches missed.">                else if (nodes[i].toString().endsWith(&quot;Spec&quot;)) {</span>
+<span class="nc" id="L1274">                    sesNodesInPath[i] = &quot;specialization&quot;;</span>
+                } 
+                else {
+<span class="nc" id="L1277">                    sesNodesInPath[i] = &quot;entity&quot;;</span>
+                }
+            }
+<span class="nc" id="L1280">            FileConvertion fileConvertion = new FileConvertion();</span>
+<span class="nc" id="L1281">            fileConvertion.addConstraintToSESStructure(sesNodesInPath, constraint);</span>
+        }
+<span class="nc" id="L1283">    }</span>
+    
+    public static void addNodeWIthGraphAddition(String childNode, String[] nodePath) {
+<span class="nc" id="L1286">    	ODMEEditor.treePanel.addObjectWIthGraphAddition(childNode, nodePath);</span>
+<span class="nc" id="L1287">    }</span>
+    
+    public static void addVariableFromScenarioTableForUpdate(mxCell cellForAddingVariable, String variableName) {
+<span class="nc" id="L1290">        pathToRoot.add((String) cellForAddingVariable.getValue());</span>
+<span class="nc" id="L1291">        JtreeToGraphConvert.nodeToRootPathVar(cellForAddingVariable);</span>
+
+<span class="nc" id="L1293">        String[] stringArray = pathToRoot.toArray(new String[0]);</span>
+<span class="nc" id="L1294">        ArrayList&lt;String&gt; pathToRootRev = new ArrayList&lt;String&gt;();</span>
+
+<span class="nc bnc" id="L1296" title="All 2 branches missed.">        for (int i = stringArray.length - 1; i &gt;= 0; i--) {</span>
+<span class="nc" id="L1297">            pathToRootRev.add(stringArray[i]);</span>
+        }
+
+<span class="nc" id="L1300">        String[] stringArrayRev = pathToRootRev.toArray(new String[0]);</span>
+<span class="nc" id="L1301">        TreePath treePathForVariable = JtreeToGraphGeneral.getTreeNodePath(stringArrayRev);</span>
+
+<span class="nc" id="L1303">        DynamicTree.varMap.put(treePathForVariable, variableName);</span>
+<span class="nc" id="L1304">        pathToRoot.clear();</span>
+
+        // //just testing setting as attributes
+        // //not working have to delete later
+        // cellForAddingVariable.setAttribute(&quot;variable&quot;, variableName);
+        // String st = cellForAddingVariable.getAttribute(&quot;variable&quot;);
+        // System.out.println(st);
+
+        // have to call a function to refresh the table view
+        //System.out.println(&quot;#####&quot;+treePathForVariable);
+        
+<span class="nc" id="L1315">        ODMEEditor.treePanel.refreshVariableTable(treePathForVariable);</span>
+<span class="nc" id="L1316">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>
