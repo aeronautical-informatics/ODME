@@ -5,8 +5,8 @@ Var
 <node1Dec>
 Var
 <AirFrame>
-<testFloat,float,1.0,1.0,5.0Var/>
 <intType,int,0,0,20Var/>
+<testFloat,float,1.0,1.0,5.0Var/>
 Var
 <node3Spec>
 Var
