@@ -88,7 +88,7 @@ public class Constraint extends JPanel {
 <span class="nc bnc" id="L88" title="All 2 branches missed.">        for (String value : nodesToSelectedNode) {</span>
 <span class="nc bnc" id="L89" title="All 2 branches missed.">            if (value == null) {</span>
 <span class="nc" id="L90">                model.addRow(new Object[] {&quot;&quot;});</span>
-            } else {
+<span class="nc" id="L91">            } else {</span>
 <span class="nc" id="L92">                model.addRow(new Object[] {value});</span>
             }
         }
@@ -110,12 +110,12 @@ public class Constraint extends JPanel {
         
 <span class="nc" id="L111">        int option = JOptionPane</span>
 <span class="nc" id="L112">                .showConfirmDialog(Main.frame, message, &quot;Please Update&quot;, JOptionPane.OK_CANCEL_OPTION,</span>
-                        JOptionPane.PLAIN_MESSAGE);
+<span class="nc" id="L113">                        JOptionPane.PLAIN_MESSAGE);</span>
         
 <span class="nc bnc" id="L115" title="All 2 branches missed.">        if (option == JOptionPane.OK_OPTION) {</span>
 <span class="nc" id="L116">            constraints = constraintsField.getText();</span>
 <span class="nc" id="L117">            JtreeToGraphDelete.deleteConstraintFromScenarioTableForUpdate(</span>
-            		JtreeToGraphVariables.selectedNodeCellForVariableUpdate, constraintsOld, constraints);
+<span class="nc" id="L118">            		JtreeToGraphVariables.selectedNodeCellForVariableUpdate, constraintsOld, constraints);</span>
         }
 <span class="nc" id="L120">    }</span>
 }

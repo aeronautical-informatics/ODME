@@ -95,9 +95,9 @@ import odme.jtreetograph.JtreeToGraphGeneral;
 
 <span class="nc" id="L96">            		ODMEEditor.graphWindow.setTitle(fileName);</span>
 <span class="nc" id="L97">            		ODMEEditor.changePruneColor();</span>
-            	}
+<span class="nc" id="L98">            	}</span>
 <span class="nc" id="L99">            	catch (Exception ex){</span>
-<span class="nc" id="L100">            	}</span>
+            	}
 <span class="nc" id="L101">            }</span>
         });
         
@@ -111,13 +111,13 @@ import odme.jtreetograph.JtreeToGraphGeneral;
 <span class="nc" id="L111">            	String fileName = (String) table.getModel().getValueAt(row, 0);</span>
 <span class="nc bnc" id="L112" title="All 2 branches missed.">            	if (fileName.equals(ODMEEditor.currentScenario)) {</span>
 <span class="nc" id="L113">            		JOptionPane.showMessageDialog(Main.frame, &quot;The Scenario is currently opened!&quot;, &quot;Error&quot;,</span>
-                            JOptionPane.ERROR_MESSAGE);
+<span class="nc" id="L114">                            JOptionPane.ERROR_MESSAGE);</span>
 <span class="nc" id="L115">            		return;</span>
             	}
             	
 <span class="nc" id="L118">            	int dialogResult = -1;</span>
 <span class="nc" id="L119">            	dialogResult = JOptionPane.showConfirmDialog (null,</span>
-        				&quot;Do you want to delete &quot;+fileName+&quot;?&quot;,&quot;Delete Scenario&quot;,JOptionPane.YES_NO_OPTION);
+<span class="nc" id="L120">        				&quot;Do you want to delete &quot;+fileName+&quot;?&quot;,&quot;Delete Scenario&quot;,JOptionPane.YES_NO_OPTION);</span>
 <span class="nc bnc" id="L121" title="All 2 branches missed.">        		if(dialogResult == JOptionPane.YES_OPTION){</span>
 <span class="nc" id="L122">        			deleteFolder(new File(ODMEEditor.fileLocation + &quot;/&quot; +  fileName));  </span>
 <span class="nc" id="L123">        			deleteFromJson(fileName);</span>
@@ -184,7 +184,7 @@ import odme.jtreetograph.JtreeToGraphGeneral;
 <span class="nc bnc" id="L184" title="All 2 branches missed.">            for(File f: files) {</span>
 <span class="nc bnc" id="L185" title="All 2 branches missed.">                if(f.isDirectory()) {</span>
 <span class="nc" id="L186">                    deleteFolder(f);</span>
-                } else {
+<span class="nc" id="L187">                } else {</span>
 <span class="nc" id="L188">                    f.delete();</span>
                 }
             }
@@ -211,7 +211,7 @@ import odme.jtreetograph.JtreeToGraphGeneral;
 <span class="nc" id="L211">				jom.put(&quot;scenario&quot;, jo);</span>
 <span class="nc" id="L212">				ja.add(jom);</span>
 			}
-<span class="nc" id="L214">		}</span>
+		}
 		
 		try {
 <span class="nc" id="L217">	         FileWriter file = new FileWriter(ODMEEditor.fileLocation  + &quot;/scenarios.json&quot;);</span>
@@ -219,7 +219,7 @@ import odme.jtreetograph.JtreeToGraphGeneral;
 <span class="nc" id="L219">	         file.close();</span>
 <span class="nc" id="L220">	      } catch (IOException e) {</span>
 <span class="nc" id="L221">	         e.printStackTrace();</span>
-<span class="nc" id="L222">	      }</span>
+	      }
 		
 <span class="nc" id="L224">		DefaultTableModel dm = (DefaultTableModel)table.getModel();</span>
 <span class="nc bnc" id="L225" title="All 2 branches missed.">		while(dm.getRowCount() &gt; 0) {</span>
@@ -241,16 +241,16 @@ import odme.jtreetograph.JtreeToGraphGeneral;
 <span class="nc" id="L241">            Object obj = null;</span>
 			try {
 <span class="nc" id="L243">				obj = jsonParser.parse(reader);</span>
-			} 
+<span class="nc" id="L244">			} </span>
 <span class="nc" id="L245">			catch (org.json.simple.parser.ParseException e) {</span>
 <span class="nc" id="L246">				e.printStackTrace();</span>
-<span class="nc" id="L247">			}</span>
+			}
 			
 <span class="nc" id="L249">            JSONArray data = (JSONArray) obj;</span>
 
 <span class="nc bnc" id="L251" title="All 2 branches missed.">            for (Object dtObj:data) {</span>
 <span class="nc" id="L252">            	dataList.add(parseObject((JSONObject)dtObj));</span>
-<span class="nc" id="L253">            }</span>
+            }
         } 
 <span class="nc" id="L255">        catch (FileNotFoundException e) {</span>
 <span class="nc" id="L256">            e.printStackTrace();</span>
@@ -260,7 +260,7 @@ import odme.jtreetograph.JtreeToGraphGeneral;
         } 
 <span class="nc" id="L261">        catch (ParseException e) {</span>
 <span class="nc" id="L262">            e.printStackTrace();</span>
-<span class="nc" id="L263">        }</span>
+        }
     	
 <span class="nc" id="L265">    	return dataList;</span>
     }
@@ -294,7 +294,7 @@ import odme.jtreetograph.JtreeToGraphGeneral;
 
 <span class="nc" id="L295">    	int option = JOptionPane</span>
 <span class="nc" id="L296">    			.showConfirmDialog(Main.frame, message, &quot;Update Scenario&quot;, JOptionPane.OK_CANCEL_OPTION,</span>
-    			JOptionPane.PLAIN_MESSAGE);
+<span class="nc" id="L297">    			JOptionPane.PLAIN_MESSAGE);</span>
 
 <span class="nc bnc" id="L299" title="All 2 branches missed.">    	if (option == JOptionPane.OK_OPTION) {</span>
 <span class="nc" id="L300">    			name = nameField.getText();</span>
@@ -324,7 +324,7 @@ import odme.jtreetograph.JtreeToGraphGeneral;
 <span class="nc" id="L324">    					jom.put(&quot;scenario&quot;, jo);</span>
 <span class="nc" id="L325">    					ja.add(jom);</span>
     				}
-<span class="nc" id="L327">    			}</span>
+    			}
     			
     			try {
 <span class="nc" id="L330">    		         FileWriter file = new FileWriter(ODMEEditor.fileLocation  + &quot;/scenarios.json&quot;);</span>
@@ -332,7 +332,7 @@ import odme.jtreetograph.JtreeToGraphGeneral;
 <span class="nc" id="L332">    		         file.close();</span>
 <span class="nc" id="L333">    		      } catch (IOException e) {</span>
 <span class="nc" id="L334">    		         e.printStackTrace();</span>
-<span class="nc" id="L335">    		      }</span>
+    		      }
     			
 <span class="nc" id="L337">    			DefaultTableModel dm = (DefaultTableModel)table.getModel();</span>
 <span class="nc bnc" id="L338" title="All 2 branches missed.">    			while(dm.getRowCount() &gt; 0) {</span>

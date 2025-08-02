@@ -164,7 +164,7 @@ public class NewProject extends JPanel {
 <span class="nc bnc" id="L164" title="All 4 branches missed.">                if (fileName.exists() &amp;&amp; fileName.isDirectory()) {</span>
 <span class="nc" id="L165">                    errorLabelField.setText(&quot;There is a file with the same name. It will be overwritten.&quot;);</span>
 <span class="nc" id="L166">                    errorLabelField.setVisible(true);</span>
-                } else {
+<span class="nc" id="L167">                } else {</span>
 <span class="nc" id="L168">                    errorLabelField.setVisible(false);</span>
                 }
 <span class="nc" id="L170">            }</span>
@@ -183,7 +183,7 @@ public class NewProject extends JPanel {
 <span class="nc" id="L183">                    projectLocationField.setEnabled(false);</span>
 <span class="nc" id="L184">                    projectLocationLabel.setEnabled(false);</span>
 <span class="nc" id="L185">                    selectProjectLocation.setEnabled(false);</span>
-                } else {
+<span class="nc" id="L186">                } else {</span>
 <span class="nc" id="L187">                    projectLocationField.setEnabled(true);</span>
 <span class="nc" id="L188">                    projectLocationLabel.setEnabled(true);</span>
 <span class="nc" id="L189">                    selectProjectLocation.setEnabled(true);</span>
@@ -213,7 +213,7 @@ public class NewProject extends JPanel {
 <span class="nc bnc" id="L213" title="All 2 branches missed.">                if (newRootNameField.getText().trim().equals(newProjectNameField.getText().trim())) {</span>
 <span class="nc" id="L214">                    errorLabelField.setVisible(true);</span>
 <span class="nc" id="L215">                    errorLabelField.setText(&quot;Root name should be different from project name.&quot;);</span>
-                } else {
+<span class="nc" id="L216">                } else {</span>
 <span class="nc" id="L217">                    errorLabelField.setText(&quot;&quot;);</span>
 <span class="nc" id="L218">                    errorLabelField.setVisible(false);</span>
                 }
@@ -267,17 +267,17 @@ public class NewProject extends JPanel {
 <span class="nc" id="L267">        JtreeToGraphVariables.nodeNumber = 1;</span>
 
 <span class="nc" id="L269">        JtreeToGraphVariables.ssdFileGraph = new File(String.format(&quot;%s/%s/%sGraph.xml&quot;,</span>
-                ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
+<span class="nc" id="L270">                ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));</span>
 <span class="nc" id="L271">        ODMEEditor.treePanel.ssdFile = new File(String.format(&quot;%s/%s/%s.xml&quot;,</span>
-                ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
+<span class="nc" id="L272">                ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));</span>
 <span class="nc" id="L273">        ODMEEditor.treePanel.ssdFileVar = new File(String.format(&quot;%s/%s/%s.ssdvar&quot;,</span>
-                ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
+<span class="nc" id="L274">                ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));</span>
 <span class="nc" id="L275">        ODMEEditor.treePanel.ssdFileCon = new File(String.format(&quot;%s/%s/%s.ssdcon&quot;,</span>
-                ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
+<span class="nc" id="L276">                ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));</span>
 <span class="nc" id="L277">        ODMEEditor.treePanel.ssdFileBeh = new File(String.format(&quot;%s/%s/%s.ssdbeh&quot;,</span>
-                ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
+<span class="nc" id="L278">                ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));</span>
 <span class="nc" id="L279">        ODMEEditor.treePanel.ssdFileFlag = new File(String.format(&quot;%s/%s/%s.ssdflag&quot;,</span>
-                ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
+<span class="nc" id="L280">                ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));</span>
         
 <span class="nc" id="L282">        ProjectTree.projectName = newProjectName;</span>
 

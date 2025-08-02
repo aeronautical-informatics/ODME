@@ -27,7 +27,7 @@ import odme.odmeeditor.ODMEEditor;
 
 <span class="nc" id="L28">        }catch (IOException e1){</span>
 <span class="nc" id="L29">            e1.printStackTrace();</span>
-<span class="nc" id="L30">        }</span>
+        }
 
 <span class="nc" id="L32">        Scanner in = null;</span>
         try {
@@ -52,15 +52,15 @@ import odme.odmeeditor.ODMEEditor;
 <span class="nc" id="L52">                }else {</span>
 <span class="nc" id="L53">                    f0.println(line);</span>
                 }
-<span class="nc" id="L55">            }</span>
+            }
 <span class="nc" id="L56">            in.close();</span>
 <span class="nc" id="L57">            f0.close();</span>
-        }
+<span class="nc" id="L58">        }</span>
 <span class="nc" id="L59">        catch (FileNotFoundException e) {</span>
 <span class="nc" id="L60">            e.printStackTrace();</span>
 <span class="nc" id="L61">        } catch (IOException e) {</span>
 <span class="nc" id="L62">            e.printStackTrace();</span>
-<span class="nc" id="L63">        }</span>
+        }
 
 <span class="nc" id="L65">    }</span>
         /**
@@ -78,10 +78,10 @@ import odme.odmeeditor.ODMEEditor;
 <span class="nc" id="L78">                path = ODMEEditor.fileLocation + &quot;/&quot; + ODMEEditor.currentScenario + &quot;/&quot; + ODMEEditor.projName + &quot;.xml&quot;;</span>
 
 <span class="nc" id="L80">            f0 = new PrintWriter(new FileWriter(path));</span>
-        } 
+<span class="nc" id="L81">        } </span>
 <span class="nc" id="L82">        catch (IOException e1) {</span>
 <span class="nc" id="L83">            e1.printStackTrace();</span>
-<span class="nc" id="L84">        }</span>
+        }
 
 <span class="nc" id="L86">        Scanner in = null;</span>
         try {
@@ -92,10 +92,10 @@ import odme.odmeeditor.ODMEEditor;
 <span class="nc" id="L92">                path = ODMEEditor.fileLocation + &quot;/&quot; + ODMEEditor.currentScenario + &quot;/graphxml.xml&quot;;</span>
 
 <span class="nc" id="L94">            in = new Scanner(new File(path));</span>
-        } 
+<span class="nc" id="L95">        } </span>
 <span class="nc" id="L96">        catch (FileNotFoundException e) {</span>
 <span class="nc" id="L97">            e.printStackTrace();</span>
-<span class="nc" id="L98">        }</span>
+        }
 
 <span class="nc bnc" id="L100" title="All 2 branches missed.">        while (in.hasNext()) { // Iterates each line in the file</span>
 <span class="nc" id="L101">            String line = in.nextLine();</span>
@@ -114,7 +114,7 @@ import odme.odmeeditor.ODMEEditor;
             else {
 <span class="nc" id="L115">                f0.println(line);</span>
             }
-<span class="nc" id="L117">        }</span>
+        }
 <span class="nc" id="L118">        in.close();</span>
 <span class="nc" id="L119">        f0.close();</span>
 <span class="nc" id="L120">    }</span>
@@ -134,10 +134,10 @@ import odme.odmeeditor.ODMEEditor;
 
 <span class="nc" id="L135">            f0 = new PrintWriter(new FileWriter(path));</span>
 
-        } 
+<span class="nc" id="L137">        } </span>
 <span class="nc" id="L138">        catch (IOException e1) {</span>
 <span class="nc" id="L139">            e1.printStackTrace();</span>
-<span class="nc" id="L140">        }</span>
+        }
 
 <span class="nc" id="L142">        Scanner in = null;</span>
         try {
@@ -148,10 +148,10 @@ import odme.odmeeditor.ODMEEditor;
 <span class="nc" id="L148">                path = ODMEEditor.fileLocation + &quot;/&quot; + ODMEEditor.currentScenario + &quot;/projectTree.xml&quot;;</span>
 
 <span class="nc" id="L150">            in = new Scanner(new File(path));</span>
-        } 
+<span class="nc" id="L151">        } </span>
 <span class="nc" id="L152">        catch (FileNotFoundException e) {</span>
 <span class="nc" id="L153">            e.printStackTrace();</span>
-<span class="nc" id="L154">        }</span>
+        }
         
 <span class="nc bnc" id="L156" title="All 2 branches missed.">        while (in.hasNext()) { // Iterates each line in the file</span>
 <span class="nc" id="L157">            String line = in.nextLine();</span>
@@ -170,7 +170,7 @@ import odme.odmeeditor.ODMEEditor;
             else {
 <span class="nc" id="L171">                f0.println(line);</span>
             }
-<span class="nc" id="L173">        }</span>
+        }
 <span class="nc" id="L174">        in.close();</span>
 <span class="nc" id="L175">        f0.close();</span>
 <span class="nc" id="L176">    }</span>
@@ -189,10 +189,10 @@ import odme.odmeeditor.ODMEEditor;
 <span class="nc" id="L189">                path = ODMEEditor.fileLocation + &quot;/&quot; + ODMEEditor.currentScenario + &quot;/outputgraphxmlforxsdvar.xml&quot;;</span>
 
 <span class="nc" id="L191">            f0 = new PrintWriter(new FileWriter(path));</span>
-        } 
+<span class="nc" id="L192">        } </span>
 <span class="nc" id="L193">        catch (IOException e1) {</span>
 <span class="nc" id="L194">            e1.printStackTrace();</span>
-<span class="nc" id="L195">        }</span>
+        }
 
 <span class="nc" id="L197">        Scanner in = null;</span>
         try {
@@ -203,10 +203,10 @@ import odme.odmeeditor.ODMEEditor;
 <span class="nc" id="L203">                path = ODMEEditor.fileLocation + &quot;/&quot; + ODMEEditor.currentScenario + &quot;/outputgraphxmlforxsd.xml&quot;;</span>
 
 <span class="nc" id="L205">            in = new Scanner(new File(path));</span>
-        } 
+<span class="nc" id="L206">        } </span>
 <span class="nc" id="L207">        catch (FileNotFoundException e) {</span>
 <span class="nc" id="L208">            e.printStackTrace();</span>
-<span class="nc" id="L209">        }</span>
+        }
 
 <span class="nc bnc" id="L211" title="All 2 branches missed.">        while (in.hasNext()) { // Iterates each line in the file</span>
 <span class="nc" id="L212">            String line = in.nextLine();</span>
@@ -215,13 +215,13 @@ import odme.odmeeditor.ODMEEditor;
 <span class="nc" id="L215">                String result = line.replaceAll(&quot;[&lt;/&gt;]&quot;, &quot;&quot;);</span>
 <span class="nc bnc" id="L216" title="All 2 branches missed.">                if (result.endsWith(&quot;RefNode&quot;)) {</span>
 <span class="nc" id="L217">                    f0.println(line);</span>
-                }
+<span class="nc" id="L218">                }</span>
 <span class="nc bnc" id="L219" title="All 2 branches missed.">                else if (result.endsWith(&quot;Var&quot;)) {</span>
 <span class="nc" id="L220">                    f0.println(line);</span>
-                } 
+<span class="nc" id="L221">                } </span>
 <span class="nc bnc" id="L222" title="All 2 branches missed.">                else if (result.endsWith(&quot;Con&quot;)) {</span>
 <span class="nc" id="L223">                    f0.println(line);</span>
-                } 
+<span class="nc" id="L224">                } </span>
                 else {
 <span class="nc" id="L226">                    result = result.replaceAll(&quot;\\s+&quot;, &quot;&quot;);</span>
 <span class="nc" id="L227">                    String line1 = &quot;&lt;&quot; + result + &quot;&gt;&quot;;</span>
@@ -233,7 +233,7 @@ import odme.odmeeditor.ODMEEditor;
             else {
 <span class="nc" id="L234">                f0.println(line);</span>
             }
-<span class="nc" id="L236">        }</span>
+        }
 
 <span class="nc" id="L238">        in.close();</span>
 <span class="nc" id="L239">        f0.close();</span>
@@ -251,10 +251,10 @@ import odme.odmeeditor.ODMEEditor;
 <span class="nc" id="L251">                path = ODMEEditor.fileLocation + &quot;/&quot; + ODMEEditor.currentScenario + &quot;/outputgraphxmlforxsd.xml&quot;;</span>
 
 <span class="nc" id="L253">            f0 = new PrintWriter(new FileWriter(path));</span>
-        } 
+<span class="nc" id="L254">        } </span>
 <span class="nc" id="L255">        catch (IOException e1) {</span>
 <span class="nc" id="L256">            e1.printStackTrace();</span>
-<span class="nc" id="L257">        }</span>
+        }
 
 <span class="nc" id="L259">        Scanner in = null;</span>
         try {
@@ -265,15 +265,15 @@ import odme.odmeeditor.ODMEEditor;
 <span class="nc" id="L265">                path = ODMEEditor.fileLocation + &quot;/&quot; + ODMEEditor.currentScenario + &quot;/outputgraphxmlforxsdvar.xml&quot;;</span>
 
 <span class="nc" id="L267">            in = new Scanner(new File(path));</span>
-        } 
+<span class="nc" id="L268">        } </span>
 <span class="nc" id="L269">        catch (FileNotFoundException e) {</span>
 <span class="nc" id="L270">            e.printStackTrace();</span>
-<span class="nc" id="L271">        }</span>
+        }
 
 <span class="nc bnc" id="L273" title="All 2 branches missed.">        while (in.hasNext()) { // Iterates each line in the file</span>
 <span class="nc" id="L274">            String line = in.nextLine();</span>
 <span class="nc" id="L275">            f0.println(line);</span>
-<span class="nc" id="L276">        }</span>
+        }
 
 <span class="nc" id="L278">        in.close();</span>
 <span class="nc" id="L279">        f0.close();</span>

@@ -50,7 +50,7 @@ public class Variable extends JPanel {
 <span class="nc" id="L50">        setLayout(new GridLayout(1, 0)); // rows,cols</span>
 
 <span class="nc" id="L52">        String[] columnNames =</span>
-                {&quot;Node Name&quot;, &quot;Variables&quot;, &quot;Type&quot;, &quot;Default Value&quot;, &quot;Lower Bound&quot;, &quot;Upper Bound&quot;};
+<span class="nc" id="L53">                {&quot;Node Name&quot;, &quot;Variables&quot;, &quot;Type&quot;, &quot;Default Value&quot;, &quot;Lower Bound&quot;, &quot;Upper Bound&quot;};</span>
 <span class="nc" id="L54">        model = new DefaultTableModel(columnNames, 0);</span>
 <span class="nc" id="L55">        table = new JTable();</span>
 <span class="nc" id="L56">        table.setModel(model);</span>
@@ -84,7 +84,7 @@ public class Variable extends JPanel {
                     
 <span class="nc bnc" id="L85" title="All 2 branches missed.">                    if (variableName != &quot;&quot;)</span>
 <span class="nc" id="L86">                    	updateTableData(nodeName, variableName, variableType, variableValue, lowerBound,</span>
-                    			uperBound,comment);
+<span class="nc" id="L87">                    			uperBound,comment);</span>
                 }
 <span class="nc" id="L89">            }</span>
         });
@@ -123,17 +123,17 @@ public class Variable extends JPanel {
 <span class="nc bnc" id="L123" title="All 2 branches missed.">            if (a == 0) {</span>
 <span class="nc bnc" id="L124" title="All 2 branches missed.">                if (value == null) {</span>
 <span class="nc" id="L125">                    model.addRow(new Object[] {selectedNode, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;});</span>
-                } 
+<span class="nc" id="L126">                } </span>
                 else {
 <span class="nc" id="L128">                    properties = value.split(&quot;,&quot;);</span>
 
 <span class="nc bnc" id="L130" title="All 4 branches missed.">                    if (properties[1].equals(&quot;string&quot;) || properties[1].equals(&quot;boolean&quot;)) {</span>
 <span class="nc" id="L131">                        model.addRow(</span>
-                                new Object[] {selectedNode, properties[0], properties[1], properties[2]});
-                    } 
+<span class="nc" id="L132">                                new Object[] {selectedNode, properties[0], properties[1], properties[2]});</span>
+<span class="nc" id="L133">                    } </span>
                     else {
 <span class="nc" id="L135">                        model.addRow(new Object[] {selectedNode, properties[0], properties[1], properties[2],</span>
-                                properties[3], properties[4]});
+<span class="nc" id="L136">                                properties[3], properties[4]});</span>
                     }
                 }
 <span class="nc" id="L139">                a = 1;</span>
@@ -151,10 +151,10 @@ public class Variable extends JPanel {
 
 <span class="nc bnc" id="L152" title="All 4 branches missed.">                if (properties[1].equals(&quot;string&quot;) || properties[1].equals(&quot;boolean&quot;)) {</span>
 <span class="nc" id="L153">                    model.addRow(new Object[] {selectedNode, properties[0], properties[1], properties[2]});</span>
-                }
+<span class="nc" id="L154">                }</span>
                 else {
 <span class="nc" id="L156">                    model.addRow(new Object[] {selectedNode, properties[0], properties[1], properties[2],</span>
-                            properties[3], properties[4]});
+<span class="nc" id="L157">                            properties[3], properties[4]});</span>
                 }
             }
         }
@@ -199,7 +199,7 @@ public class Variable extends JPanel {
             public void itemStateChanged(ItemEvent event) {
 <span class="nc bnc" id="L200" title="All 2 branches missed.">            	if (event.getStateChange() == ItemEvent.SELECTED) {</span>
 <span class="nc" id="L201">            	variableTypeFieldChange(variableField, valueField, errorLabelField,</span>
-                		lowerBoundField, upperBoundField, variableTypeField);
+<span class="nc" id="L202">                		lowerBoundField, upperBoundField, variableTypeField);</span>
             	}
 <span class="nc" id="L204">            }</span>
         });
@@ -226,7 +226,7 @@ public class Variable extends JPanel {
             // have to check why without this gives error during opening this form even
             // value is correct.during debugging i saw if condition is not working and make
             // the error label visible but values was correct
-        } 
+<span class="nc" id="L229">        } </span>
         else {
 <span class="nc" id="L231">            lowerBoundField.setEnabled(true);</span>
 <span class="nc" id="L232">            upperBoundField.setEnabled(true);</span>
@@ -235,10 +235,10 @@ public class Variable extends JPanel {
 <span class="nc bnc" id="L235" title="All 4 branches missed.">        if (selectedType.equals(&quot;string&quot;) || selectedType.equals(&quot;boolean&quot;)) {</span>
 <span class="nc" id="L236">            variableNameOld = variableName + &quot;,&quot; + variableType + &quot;,&quot; + variableValue;</span>
             //System.out.println(variableNameOld);
-        } else {
+<span class="nc" id="L238">        } else {</span>
 <span class="nc" id="L239">            variableNameOld =</span>
-                    variableName + &quot;,&quot; + variableType + &quot;,&quot; + variableValue + &quot;,&quot; + variableLowerBound + &quot;,&quot;
-                    + variableUpperBound;
+<span class="nc" id="L240">                    variableName + &quot;,&quot; + variableType + &quot;,&quot; + variableValue + &quot;,&quot; + variableLowerBound + &quot;,&quot;</span>
+<span class="nc" id="L241">                    + variableUpperBound;</span>
         }
         
 <span class="nc bnc" id="L244" title="All 2 branches missed.">        if (ODMEEditor.toolMode == &quot;pes&quot;) {</span>
@@ -252,23 +252,23 @@ public class Variable extends JPanel {
         
         
 <span class="nc" id="L254">        variableTypeFieldChange(variableField, valueField, errorLabelField,</span>
-        		lowerBoundField, upperBoundField, variableTypeField);
+<span class="nc" id="L255">        		lowerBoundField, upperBoundField, variableTypeField);</span>
         
 <span class="nc" id="L257">        variableFieldValidator(</span>
-        		variableField, valueField, errorLabelField,
-        		lowerBoundField, upperBoundField);
+<span class="nc" id="L258">        		variableField, valueField, errorLabelField,</span>
+<span class="nc" id="L259">        		lowerBoundField, upperBoundField);</span>
         
 <span class="nc" id="L261">        valueFieldvalidator(</span>
-        		variableField, valueField, errorLabelField,
-        		lowerBoundField, upperBoundField);
+<span class="nc" id="L262">        		variableField, valueField, errorLabelField,</span>
+<span class="nc" id="L263">        		lowerBoundField, upperBoundField);</span>
         
 <span class="nc" id="L265">        lowerBoundFieldValidator(</span>
-        		variableField, valueField, errorLabelField,
-        	    lowerBoundField, upperBoundField);
+<span class="nc" id="L266">        		variableField, valueField, errorLabelField,</span>
+<span class="nc" id="L267">        	    lowerBoundField, upperBoundField);</span>
         
 <span class="nc" id="L269">        upperBoundFieldValidator(</span>
-        		variableField, valueField, errorLabelField,
-        		lowerBoundField, upperBoundField);
+<span class="nc" id="L270">        		variableField, valueField, errorLabelField,</span>
+<span class="nc" id="L271">        		lowerBoundField, upperBoundField);</span>
         
 <span class="nc" id="L273">        variableCommentValidator(variableField,errorLabelField); // added by amir</span>
 
@@ -278,8 +278,8 @@ public class Variable extends JPanel {
             @Override
             public void keyReleased(KeyEvent e) {
 <span class="nc" id="L280">            	variableFieldValidator(</span>
-                		variableField, valueField, errorLabelField,
-                		lowerBoundField, upperBoundField);
+<span class="nc" id="L281">                		variableField, valueField, errorLabelField,</span>
+<span class="nc" id="L282">                		lowerBoundField, upperBoundField);</span>
 <span class="nc" id="L283">            }</span>
             @Override
 <span class="nc" id="L285">            public void keyPressed(KeyEvent e) {}</span>
@@ -291,8 +291,8 @@ public class Variable extends JPanel {
             @Override
             public void keyReleased(KeyEvent e) {
 <span class="nc" id="L293">            	valueFieldvalidator(</span>
-                		variableField, valueField, errorLabelField,
-                		lowerBoundField, upperBoundField);
+<span class="nc" id="L294">                		variableField, valueField, errorLabelField,</span>
+<span class="nc" id="L295">                		lowerBoundField, upperBoundField);</span>
 <span class="nc" id="L296">            }</span>
             @Override
 <span class="nc" id="L298">            public void keyPressed(KeyEvent e) {}</span>
@@ -304,8 +304,8 @@ public class Variable extends JPanel {
             @Override
             public void keyReleased(KeyEvent e) {
 <span class="nc" id="L306">            	lowerBoundFieldValidator(</span>
-                		variableField, valueField, errorLabelField,
-                		lowerBoundField, upperBoundField);
+<span class="nc" id="L307">                		variableField, valueField, errorLabelField,</span>
+<span class="nc" id="L308">                		lowerBoundField, upperBoundField);</span>
 <span class="nc" id="L309">            }</span>
             @Override
 <span class="nc" id="L311">            public void keyPressed(KeyEvent e) {}</span>
@@ -317,20 +317,20 @@ public class Variable extends JPanel {
             @Override
             public void keyReleased(KeyEvent e) {
 <span class="nc" id="L319">            	upperBoundFieldValidator(</span>
-                		variableField, valueField, errorLabelField,
-                		lowerBoundField, upperBoundField);
+<span class="nc" id="L320">                		variableField, valueField, errorLabelField,</span>
+<span class="nc" id="L321">                		lowerBoundField, upperBoundField);</span>
 <span class="nc" id="L322">            }</span>
             @Override
 <span class="nc" id="L324">            public void keyPressed(KeyEvent e) {}</span>
         });
 
 <span class="nc" id="L327">        Object[] message = {&quot;Node Name:&quot;, nodeNameleField, &quot;Variable Name:&quot;, variableField, &quot;Variable Type:&quot;,</span>
-                variableTypeField, &quot;Value:&quot;, valueField, &quot;Lower Bound:&quot;, lowerBoundField, &quot;Upper Bound:&quot;,
-                upperBoundField, &quot; &quot;, errorLabelField,&quot;Comment:&quot;,commentField};
+<span class="nc" id="L328">                variableTypeField, &quot;Value:&quot;, valueField, &quot;Lower Bound:&quot;, lowerBoundField, &quot;Upper Bound:&quot;,</span>
+<span class="nc" id="L329">                upperBoundField, &quot; &quot;, errorLabelField,&quot;Comment:&quot;,commentField};</span>
 
 <span class="nc" id="L331">        int option = JOptionPane</span>
 <span class="nc" id="L332">                .showConfirmDialog(Main.frame, message, &quot;Please Update&quot;, JOptionPane.OK_CANCEL_OPTION,</span>
-                        JOptionPane.PLAIN_MESSAGE);
+<span class="nc" id="L333">                        JOptionPane.PLAIN_MESSAGE);</span>
 
 <span class="nc bnc" id="L335" title="All 4 branches missed.">        if (option == JOptionPane.OK_OPTION &amp;&amp; !errorLabelField.isVisible()) {</span>
 <span class="nc" id="L336">            variableName = variableField.getText();</span>
@@ -360,22 +360,22 @@ public class Variable extends JPanel {
 <span class="nc bnc" id="L360" title="All 2 branches missed.">            if (variableTypeField.getSelectedItem().toString().trim().equals(&quot;string&quot;) ||</span>
 <span class="nc bnc" id="L361" title="All 2 branches missed.">            	variableTypeField.getSelectedItem().toString().trim().equals(&quot;boolean&quot;)) {</span>
 <span class="nc" id="L362">                   variableName = variableName + &quot;,&quot; + variableType + &quot;,&quot; + variableValue;</span>
-            }
+<span class="nc" id="L363">            }</span>
             else {
 <span class="nc" id="L365">                   variableName = variableName + &quot;,&quot; + variableType + &quot;,&quot; + variableValue + &quot;,&quot; + variableLowerBound</span>
-                            + &quot;,&quot; + variableUpperBound;
+<span class="nc" id="L366">                            + &quot;,&quot; + variableUpperBound;</span>
             }
 
 <span class="nc" id="L369">            JtreeToGraphDelete.deleteVariableFromScenarioTableForUpdate(</span>
-            		JtreeToGraphVariables.selectedNodeCellForVariableUpdate, variableNameOld, variableName);
-        }
+<span class="nc" id="L370">            		JtreeToGraphVariables.selectedNodeCellForVariableUpdate, variableNameOld, variableName);</span>
+<span class="nc" id="L371">        }</span>
         
 <span class="nc bnc" id="L373" title="All 4 branches missed.">        else if (option == JOptionPane.OK_OPTION &amp;&amp; errorLabelField.isVisible()){</span>
 <span class="nc" id="L374">        	JOptionPane.showMessageDialog(Main.frame, &quot;Value is not Valid!&quot;, &quot;Error&quot;,</span>
-                    JOptionPane.ERROR_MESSAGE);
+<span class="nc" id="L375">                    JOptionPane.ERROR_MESSAGE);</span>
         	
 <span class="nc" id="L377">        	updateTableData(nodeName, variableName, variableType,</span>
-                    variableValue, variableLowerBound, variableUpperBound);
+<span class="nc" id="L378">                    variableValue, variableLowerBound, variableUpperBound);</span>
         }
 <span class="nc" id="L380">    }</span>
     
@@ -386,14 +386,14 @@ public class Variable extends JPanel {
 <span class="nc" id="L386">            errorLabelField.setVisible(</span>
 <span class="nc bnc" id="L387" title="All 2 branches missed.">                    !variableField.getText().trim().matches(variableFieldRegEx) || !valueField</span>
 <span class="nc bnc" id="L388" title="All 2 branches missed.">                            .getText().trim().matches(variableFieldRegEx));</span>
-        }
+<span class="nc" id="L389">        }</span>
 <span class="nc bnc" id="L390" title="All 2 branches missed.">        else if (selectedType.equals(&quot;boolean&quot;)) {</span>
 
 <span class="nc" id="L392">            errorLabelField.setVisible(</span>
 <span class="nc bnc" id="L393" title="All 2 branches missed.">                    (!valueField.getText().trim().equals(&quot;false&quot;) &amp;&amp; !valueField.getText().trim()</span>
 <span class="nc bnc" id="L394" title="All 2 branches missed.">                            .equals(&quot;true&quot;)) || !variableField.getText().trim()</span>
 <span class="nc bnc" id="L395" title="All 2 branches missed.">                            .matches(variableFieldRegEx));</span>
-        }
+<span class="nc" id="L396">        }</span>
 <span class="nc bnc" id="L397" title="All 2 branches missed.">        else if (selectedType.equals(&quot;double&quot;)) {</span>
 
 <span class="nc" id="L399">            errorLabelField.setVisible(</span>
@@ -401,7 +401,7 @@ public class Variable extends JPanel {
 <span class="nc bnc" id="L401" title="All 2 branches missed.">                            .trim().matches(variableFieldRegEx) || !lowerBoundField.getText().trim()</span>
 <span class="nc bnc" id="L402" title="All 2 branches missed.">                            .matches(&quot;^\\d*\\.\\d+&quot;) || !upperBoundField.getText().trim()</span>
 <span class="nc bnc" id="L403" title="All 2 branches missed.">                            .matches(&quot;^\\d*\\.\\d+&quot;));</span>
-        } 
+<span class="nc" id="L404">        } </span>
         else {
 <span class="nc" id="L406">            errorLabelField.setVisible(</span>
 <span class="nc bnc" id="L407" title="All 2 branches missed.">                    !variableField.getText().trim().matches(variableFieldRegEx) || !valueField</span>
@@ -417,10 +417,10 @@ public class Variable extends JPanel {
 <span class="nc" id="L417">    		errorLabelField.setVisible(</span>
 <span class="nc bnc" id="L418" title="All 2 branches missed.">				!commentFiled.getText().trim().matches(&quot;^[a-zA-Z_][a-Z0-9A-Z ]*&quot;)</span>
     		);
-    	}
+<span class="nc" id="L420">    	}</span>
 <span class="nc" id="L421">    	catch (Exception e) {</span>
 <span class="nc" id="L422">    		errorLabelField.setVisible(true);</span>
-<span class="nc" id="L423">		}</span>
+		}
 <span class="nc" id="L424">    }</span>
     
     public static void valueFieldvalidator(
@@ -430,29 +430,29 @@ public class Variable extends JPanel {
 <span class="nc" id="L430">            errorLabelField.setVisible(</span>
 <span class="nc bnc" id="L431" title="All 2 branches missed.">                    !valueField.getText().trim().equals(&quot;false&quot;) </span>
 <span class="nc bnc" id="L432" title="All 2 branches missed.">                    &amp;&amp; !valueField.getText().trim().equals(&quot;true&quot;));</span>
-        } 
+<span class="nc" id="L433">        } </span>
 <span class="nc bnc" id="L434" title="All 2 branches missed.">        else if (selectedType.equals(&quot;int&quot;)) {</span>
         	try {
 <span class="nc" id="L436">        		errorLabelField.setVisible(</span>
 <span class="nc bnc" id="L437" title="All 2 branches missed.">        				!valueField.getText().trim().matches(&quot;^-{0,1}[0-9]+&quot;) ||</span>
 <span class="nc bnc" id="L438" title="All 2 branches missed.">        				Integer.parseInt(valueField.getText()) &gt; Integer.parseInt(upperBoundField.getText()) || </span>
 <span class="nc bnc" id="L439" title="All 2 branches missed.">        				Integer.parseInt(valueField.getText()) &lt; Integer.parseInt(lowerBoundField.getText()));</span>
-        	}
+<span class="nc" id="L440">        	}</span>
 <span class="nc" id="L441">        	catch (Exception e) {</span>
 <span class="nc" id="L442">        		errorLabelField.setVisible(true);</span>
-<span class="nc" id="L443">			}</span>
-        } 
+			}
+<span class="nc" id="L444">        } </span>
 <span class="nc bnc" id="L445" title="All 2 branches missed.">        else if (selectedType.equals(&quot;float&quot;)) {</span>
         	try {
 <span class="nc" id="L447">        		errorLabelField.setVisible(</span>
 <span class="nc bnc" id="L448" title="All 2 branches missed.">        				!valueField.getText().trim().matches(&quot;^\\d*\\.\\d+&quot;) ||</span>
 <span class="nc bnc" id="L449" title="All 2 branches missed.">        				Float.parseFloat(valueField.getText()) &gt; Float.parseFloat(upperBoundField.getText()) || </span>
 <span class="nc bnc" id="L450" title="All 2 branches missed.">        				Float.parseFloat(valueField.getText()) &lt; Float.parseFloat(lowerBoundField.getText()));</span>
-        	}
+<span class="nc" id="L451">        	}</span>
 <span class="nc" id="L452">        	catch (Exception e) {</span>
 <span class="nc" id="L453">        		errorLabelField.setVisible(true);</span>
-<span class="nc" id="L454">        	}</span>
-        } 
+        	}
+<span class="nc" id="L455">        } </span>
     	
 <span class="nc bnc" id="L457" title="All 2 branches missed.">        else if (selectedType.equals(&quot;double&quot;)) {</span>
         	try {
@@ -460,11 +460,11 @@ public class Variable extends JPanel {
 <span class="nc bnc" id="L460" title="All 2 branches missed.">        				!valueField.getText().trim().matches(&quot;^\\d*\\.\\d+&quot;) ||</span>
 <span class="nc bnc" id="L461" title="All 2 branches missed.">        				Double.parseDouble(valueField.getText()) &gt; Double.parseDouble(upperBoundField.getText()) || </span>
 <span class="nc bnc" id="L462" title="All 2 branches missed.">        				Double.parseDouble(valueField.getText()) &lt; Double.parseDouble(lowerBoundField.getText()));</span>
-        	}
+<span class="nc" id="L463">        	}</span>
 <span class="nc" id="L464">        	catch (Exception e) {</span>
 <span class="nc" id="L465">        		errorLabelField.setVisible(true);</span>
-<span class="nc" id="L466">        	}</span>
-        }
+        	}
+<span class="nc" id="L467">        }</span>
         	
 <span class="nc bnc" id="L469" title="All 2 branches missed.">        else if (selectedType.equals(&quot;string&quot;)) {</span>
 <span class="nc" id="L470">            errorLabelField.setVisible(</span>
@@ -483,7 +483,7 @@ public class Variable extends JPanel {
 <span class="nc bnc" id="L483" title="All 2 branches missed.">                            .matches(variableFieldRegEx) || !lowerBoundField.getText().trim()</span>
 <span class="nc bnc" id="L484" title="All 2 branches missed.">                            .matches(&quot;^[0-9]+&quot;) || !upperBoundField.getText().trim()</span>
 <span class="nc bnc" id="L485" title="All 2 branches missed.">                            .matches(&quot;^[0-9]+&quot;));</span>
-        } 
+<span class="nc" id="L486">        } </span>
 <span class="nc bnc" id="L487" title="All 4 branches missed.">        else if (selectedType.equals(&quot;float&quot;) || selectedType.equals(&quot;double&quot;)) {</span>
 
 <span class="nc" id="L489">            errorLabelField.setVisible(</span>
@@ -504,7 +504,7 @@ public class Variable extends JPanel {
 <span class="nc bnc" id="L504" title="All 2 branches missed.">                            .matches(variableFieldRegEx) || !lowerBoundField.getText().trim()</span>
 <span class="nc bnc" id="L505" title="All 2 branches missed.">                            .matches(&quot;^[0-9]+&quot;) || !upperBoundField.getText().trim()</span>
 <span class="nc bnc" id="L506" title="All 2 branches missed.">                            .matches(&quot;^[0-9]+&quot;));</span>
-        }
+<span class="nc" id="L507">        }</span>
 <span class="nc bnc" id="L508" title="All 2 branches missed.">        else if (selectedType.equals(&quot;int&quot;)) {</span>
 
 <span class="nc" id="L510">            errorLabelField.setVisible(</span>
@@ -512,7 +512,7 @@ public class Variable extends JPanel {
 <span class="nc bnc" id="L512" title="All 2 branches missed.">                            .matches(variableFieldRegEx) || !lowerBoundField.getText().trim()</span>
 <span class="nc bnc" id="L513" title="All 2 branches missed.">                            .matches(&quot;^[0-9]+&quot;) || !upperBoundField.getText().trim()</span>
 <span class="nc bnc" id="L514" title="All 2 branches missed.">                            .matches(&quot;^[0-9]+&quot;));</span>
-        } 
+<span class="nc" id="L515">        } </span>
 <span class="nc bnc" id="L516" title="All 2 branches missed.">        else if (selectedType.equals(&quot;double&quot;)) {</span>
 
 <span class="nc" id="L518">            errorLabelField.setVisible(</span>
@@ -536,7 +536,7 @@ public class Variable extends JPanel {
 <span class="nc" id="L536">                upperBoundField.setText(null);</span>
 <span class="nc" id="L537">                lowerBoundField.setEnabled(false);</span>
 <span class="nc" id="L538">                upperBoundField.setEnabled(false);</span>
-            } 
+<span class="nc" id="L539">            } </span>
 <span class="nc bnc" id="L540" title="All 2 branches missed.">            else if (ODMEEditor.toolMode == &quot;ses&quot;){</span>
 <span class="nc" id="L541">                lowerBoundField.setEnabled(true);</span>
 <span class="nc" id="L542">                upperBoundField.setEnabled(true);</span>
@@ -548,19 +548,19 @@ public class Variable extends JPanel {
 <span class="nc bnc" id="L548" title="All 2 branches missed.">                        !variableField.getText().trim().matches(variableFieldRegEx) || (</span>
 <span class="nc bnc" id="L549" title="All 2 branches missed.">                                !valueField.getText().trim().equals(&quot;true&quot;) &amp;&amp; !variableField</span>
 <span class="nc bnc" id="L550" title="All 2 branches missed.">                                        .getText().trim().equals(&quot;false&quot;)));</span>
-            }
+<span class="nc" id="L551">            }</span>
 <span class="nc bnc" id="L552" title="All 2 branches missed.">            else if (selectedType.equals(&quot;string&quot;)) {</span>
 <span class="nc" id="L553">                errorLabelField.setVisible(</span>
 <span class="nc bnc" id="L554" title="All 2 branches missed.">                        !variableField.getText().trim().matches(variableFieldRegEx) || !valueField</span>
 <span class="nc bnc" id="L555" title="All 2 branches missed.">                                .getText().trim().matches(variableFieldRegEx));</span>
-            } 
+<span class="nc" id="L556">            } </span>
 <span class="nc bnc" id="L557" title="All 2 branches missed.">            else if (selectedType.equals(&quot;double&quot;)) {</span>
 <span class="nc" id="L558">                errorLabelField.setVisible(</span>
 <span class="nc bnc" id="L559" title="All 2 branches missed.">                        !valueField.getText().trim().matches(&quot;^\\d*\\.\\d+&quot;) || !variableField</span>
 <span class="nc bnc" id="L560" title="All 2 branches missed.">                                .getText().trim().matches(variableFieldRegEx) || !lowerBoundField</span>
 <span class="nc bnc" id="L561" title="All 2 branches missed.">                                .getText().trim().matches(&quot;^\\d*\\.\\d+&quot;) || !upperBoundField</span>
 <span class="nc bnc" id="L562" title="All 2 branches missed.">                                .getText().trim().matches(&quot;^\\d*\\.\\d+&quot;));</span>
-            } 
+<span class="nc" id="L563">            } </span>
             else {
 <span class="nc" id="L565">                errorLabelField.setVisible(</span>
 <span class="nc bnc" id="L566" title="All 2 branches missed.">                        !variableField.getText().trim().matches(variableFieldRegEx) || !valueField</span>

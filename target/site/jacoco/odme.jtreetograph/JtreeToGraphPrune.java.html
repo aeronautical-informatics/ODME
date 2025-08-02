@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>JtreeToGraphPrune.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SESEditor</a> &gt; <a href="index.source.html" class="el_package">odme.jtreetograph</a> &gt; <span class="el_source">JtreeToGraphPrune.java</span></div><h1>JtreeToGraphPrune.java</h1><pre class="source lang-java linenums">package odme.jtreetograph;
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>JtreeToGraphPrune.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SESEditor</a> &gt; <a href="index.source.html" class="el_package">odme.jtreetograph</a> &gt; <span class="el_source">JtreeToGraphPrune.java</span></div><h1>JtreeToGraphPrune.java</h1><pre class="source lang-java linenums"><span class="nc" id="L1">package odme.jtreetograph;</span>
 
 import static odme.jtreetograph.JtreeToGraphVariables.*;
 
@@ -81,7 +81,7 @@ import odme.odmeeditor.Variable;
 
 <span class="nc" id="L82">        int option = JOptionPane</span>
 <span class="nc" id="L83">                .showConfirmDialog(Main.frame, pruneOptions, &quot;Please Choose from Options&quot;,</span>
-                        JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+<span class="nc" id="L84">                        JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);</span>
 
 <span class="nc bnc" id="L86" title="All 2 branches missed.">        if (option == JOptionPane.OK_OPTION) {</span>
 <span class="nc bnc" id="L87" title="All 2 branches missed.">            if (outgoing.length &gt; 0) {</span>
@@ -177,7 +177,7 @@ import odme.odmeeditor.Variable;
 <span class="nc" id="L177">                    n = Integer.parseInt(nodeListTf.getText());</span>
 <span class="nc" id="L178">                } catch(NumberFormatException ex){</span>
 <span class="nc" id="L179">                    nodeListTf.setText(&quot;&quot;);</span>
-<span class="nc" id="L180">                }</span>
+                }
 
 <span class="nc bnc" id="L182" title="All 4 branches missed.">                if (n&gt;1000 || n&lt;1) {</span>
 <span class="nc" id="L183">                    JOptionPane.showMessageDialog(null, &quot;Number of Entities should be between 1 and 1000&quot;);</span>
@@ -193,7 +193,7 @@ import odme.odmeeditor.Variable;
 
 <span class="nc" id="L194">        int option = JOptionPane</span>
 <span class="nc" id="L195">                .showConfirmDialog(Main.frame, pruneOptions, &quot;Please Choose from Options&quot;,</span>
-                        JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+<span class="nc" id="L196">                        JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);</span>
 
 <span class="nc bnc" id="L198" title="All 2 branches missed.">        if (option == JOptionPane.OK_OPTION) {</span>
 <span class="nc bnc" id="L199" title="All 2 branches missed.">            if (nodeListTf.getText().equals(&quot;&quot;)) {</span>
@@ -260,8 +260,8 @@ import odme.odmeeditor.Variable;
 <span class="nc bnc" id="L260" title="All 2 branches missed.">                    for (String value : DynamicTree.varMap.get(key)) {</span>
 <span class="nc" id="L261">                        String lastNodeName = key.getLastPathComponent().toString();</span>
 <span class="nc" id="L262">                        variableTransferAfterMultiAspectPruning(lastNodeName, value);</span>
-<span class="nc" id="L263">                    }</span>
-<span class="nc" id="L264">                }</span>
+                    }
+                }
 
                 //copy behaviour of the node to transfer other node
 <span class="nc bnc" id="L267" title="All 2 branches missed.">                for (TreePath key : DynamicTree.behavioursList.keySet()) {</span>
@@ -272,13 +272,13 @@ import odme.odmeeditor.Variable;
 <span class="nc" id="L272">                        String lastNodeName = key.getLastPathComponent().toString();</span>
 <span class="nc" id="L273">                        behaviourTransferAfterMultiAspectPruning(lastNodeName, value);</span>
 //                        DynamicTree.behavioursList.remove(key,value);
-<span class="nc" id="L275">                    }</span>
-<span class="nc" id="L276">                }</span>
-            }
+                    }
+                }
+<span class="nc" id="L277">            }</span>
         
 <span class="nc" id="L279">            catch (ConcurrentModificationException e) {</span>
 <span class="nc" id="L280">                System.out.println(e.getMessage());</span>
-<span class="nc" id="L281">            }</span>
+            }
 
             // have to make used array null and count 0 here
 <span class="nc" id="L284">            nodeNamesForGraphSync = new String[100]; // or have to delete the added nodes in other way</span>
@@ -328,7 +328,7 @@ import odme.odmeeditor.Variable;
 <span class="nc" id="L328">                            a = 0;</span>
 <span class="nc" id="L329">                            break;</span>
                         }
-<span class="nc" id="L331">                    }</span>
+                    }
 
 <span class="nc bnc" id="L333" title="All 2 branches missed.">                    if (a == 1)</span>
 <span class="nc" id="L334">                        behMapTransfer.put(treePathForVariableTransfer, value);</span>
@@ -369,7 +369,7 @@ import odme.odmeeditor.Variable;
 <span class="nc" id="L369">                            break;</span>
                         }
 
-<span class="nc" id="L372">                    }</span>
+                    }
 
 <span class="nc bnc" id="L374" title="All 2 branches missed.">                    if (a == 1)</span>
 <span class="nc" id="L375">                        varMapTransfer.put(treePathForVariableTransfer, value);</span>
@@ -384,7 +384,7 @@ import odme.odmeeditor.Variable;
 
 <span class="nc bnc" id="L385" title="All 2 branches missed.">        if (variableList.length == 0) {</span>
 <span class="nc" id="L386">            JOptionPane.showMessageDialog(Main.frame, &quot;No variables to prune!&quot;, &quot;Error&quot;,</span>
-                    JOptionPane.WARNING_MESSAGE);
+<span class="nc" id="L387">                    JOptionPane.WARNING_MESSAGE);</span>
 <span class="nc" id="L388">            return;</span>
         }
         else {
@@ -409,7 +409,7 @@ import odme.odmeeditor.Variable;
 
 <span class="nc" id="L410">            int option = JOptionPane</span>
 <span class="nc" id="L411">                    .showConfirmDialog(Main.frame, pruneOptions, &quot;Please Choose from Options&quot;,</span>
-                        JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+<span class="nc" id="L412">                        JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);</span>
 
 <span class="nc bnc" id="L414" title="All 2 branches missed.">            if (option == JOptionPane.OK_OPTION) {</span>
 
@@ -457,15 +457,15 @@ import odme.odmeeditor.Variable;
 <span class="nc" id="L457">                    graph.getModel().beginUpdate();</span>
                     try {
 <span class="nc" id="L459">                        graph.getModel().setValue(cell, newName);</span>
-                    } 
+<span class="nc" id="L460">                    } </span>
                     finally {
 <span class="nc" id="L462">                        graph.getModel().endUpdate();</span>
-<span class="nc" id="L463">                    }</span>
+                    }
                 }
             }
             else {
 <span class="nc" id="L467">                JOptionPane.showMessageDialog(Main.frame,</span>
-                        &quot;You can't rename a root node having child node.&quot;);
+<span class="nc" id="L468">                        &quot;You can't rename a root node having child node.&quot;);</span>
             }
 <span class="nc" id="L470">        } </span>
         else {
@@ -477,12 +477,12 @@ import odme.odmeeditor.Variable;
 <span class="nc bnc" id="L477" title="All 2 branches missed.">                    if (!newName.endsWith(&quot;Dec&quot;)) {</span>
 <span class="nc" id="L478">                        newName = newName + &quot;Dec&quot;;</span>
                     }
-                } 
+<span class="nc" id="L480">                } </span>
 <span class="nc bnc" id="L481" title="All 2 branches missed.">                else if (currentName.endsWith(&quot;Spec&quot;)) {</span>
 <span class="nc bnc" id="L482" title="All 2 branches missed.">                    if (!newName.endsWith(&quot;Spec&quot;)) {</span>
 <span class="nc" id="L483">                        newName = newName + &quot;Spec&quot;;</span>
                     }
-                }
+<span class="nc" id="L485">                }</span>
 <span class="nc bnc" id="L486" title="All 2 branches missed.">                else if (currentName.endsWith(&quot;MAsp&quot;)) {</span>
 <span class="nc bnc" id="L487" title="All 2 branches missed.">                    if (!newName.endsWith(&quot;MAsp&quot;)) {</span>
 <span class="nc" id="L488">                        newName = newName + &quot;MAsp&quot;;</span>
@@ -520,7 +520,7 @@ import odme.odmeeditor.Variable;
 <span class="nc" id="L520">                graph.getModel().beginUpdate();</span>
                 try {
 <span class="nc" id="L522">                    graph.getModel().setValue(cell, newName);</span>
-                } 
+<span class="nc" id="L523">                } </span>
                 finally {
 <span class="nc" id="L525">                    graph.getModel().endUpdate();</span>
                 }
@@ -580,8 +580,8 @@ import odme.odmeeditor.Variable;
 <span class="nc" id="L580">                        nodesToSelectedNode[b] = value;</span>
 <span class="nc" id="L581">                        b++;</span>
                     }
-<span class="nc" id="L583">                }</span>
-<span class="nc" id="L584">            }</span>
+                }
+            }
         }
 <span class="nc" id="L586">        pathToRoot.clear();</span>
 <span class="nc bnc" id="L587" title="All 2 branches missed.">        for (String s : nodesToSelectedNode) {</span>
@@ -674,8 +674,8 @@ import odme.odmeeditor.Variable;
 //                        System.out.println(&quot;variable to prune = &quot; + value);
 <span class="nc" id="L675">                        b++;</span>
                     }
-<span class="nc" id="L677">                }</span>
-<span class="nc" id="L678">            }</span>
+                }
+            }
         }
 <span class="nc" id="L680">        pathToRoot.clear();</span>
 <span class="nc" id="L681">        return nodesToSelectedNode;</span>
@@ -763,13 +763,13 @@ import odme.odmeeditor.Variable;
 <span class="nc" id="L763">                } </span>
                 else /* if (DynamicTreeDemo.nodeAddDetector.equals(&quot;entity&quot;)) */ {
 <span class="nc" id="L765">                    Object obj = graph.insertVertex(parent, null, nodeName, x, y, 80, 30,</span>
-                            &quot;Entity&quot;); // &quot;Aspect;fillColor=#0759cf;strokeColor=white;&quot;);
+<span class="nc" id="L766">                            &quot;Entity&quot;); // &quot;Aspect;fillColor=#0759cf;strokeColor=white;&quot;);</span>
 <span class="nc" id="L767">                    graph.insertEdge(parent, null, &quot;&quot;, selectedCell, obj);</span>
                     // lastAddedCell = null; // so that it will not cause duplicate addition in tree
 <span class="nc" id="L769">                    nodeNumber++;</span>
 <span class="nc" id="L770">                    currentSelectedCell = (mxCell) obj;</span>
                 }
-            } 
+<span class="nc" id="L772">            } </span>
             finally {
 <span class="nc" id="L774">                graph.getModel().endUpdate();</span>
 
@@ -861,7 +861,7 @@ import odme.odmeeditor.Variable;
 <span class="nc" id="L861">                    uniformityNodeNumber++;</span>
 
 <span class="nc" id="L863">                    addNodeIntoJtreeForSubTree(selectedCell);</span>
-                }
+<span class="nc" id="L864">                }</span>
 <span class="nc bnc" id="L865" title="All 2 branches missed.">                else if (nodeName.endsWith(&quot;MAsp&quot;)) {</span>
 <span class="nc" id="L866">                    obj = graph.insertVertex(parent, nodeId, nodeName, x + 25, y, 30, 30, &quot;Multiaspect&quot;);</span>
 <span class="nc" id="L867">                    graph.insertEdge(parent, null, &quot;&quot;, selectedCell, obj);</span>
@@ -870,7 +870,7 @@ import odme.odmeeditor.Variable;
 <span class="nc" id="L870">                    uniformityNodeNumber++;</span>
 
 <span class="nc" id="L872">                    addNodeIntoJtreeForSubTree(selectedCell);</span>
-                }
+<span class="nc" id="L873">                }</span>
 <span class="nc bnc" id="L874" title="All 2 branches missed.">                else if (nodeName.endsWith(&quot;Spec&quot;)) {</span>
 <span class="nc" id="L875">                    obj = graph.insertVertex(parent, nodeId, nodeName, x + 25, y, 30, 30, &quot;Specialization&quot;);</span>
 <span class="nc" id="L876">                    graph.insertEdge(parent, null, &quot;&quot;, selectedCell, obj);</span>
@@ -879,7 +879,7 @@ import odme.odmeeditor.Variable;
 <span class="nc" id="L879">                    uniformityNodeNumber++;</span>
 
 <span class="nc" id="L881">                    addNodeIntoJtreeForSubTree(selectedCell);</span>
-                }
+<span class="nc" id="L882">                }</span>
                 else {
 <span class="nc" id="L884">                    obj = graph.insertVertex(parent, nodeId, nodeName, x, y, 80, 30, &quot;Entity&quot;);</span>
 <span class="nc" id="L885">                    graph.insertEdge(parent, null, &quot;&quot;, selectedCell, obj);</span>
@@ -894,7 +894,7 @@ import odme.odmeeditor.Variable;
                 // added nodes in the array
 <span class="nc" id="L895">                addedNodes[addedNodeCount] = obj;</span>
 <span class="nc" id="L896">                addedNodeCount++;</span>
-            }
+<span class="nc" id="L897">            }</span>
             finally {
 <span class="nc" id="L899">                graph.getModel().endUpdate();</span>
             }
@@ -958,7 +958,7 @@ import odme.odmeeditor.Variable;
 <span class="nc bnc" id="L958" title="All 2 branches missed.">                if (decnum &gt;= 2) {</span>
 <span class="nc" id="L959">                    graph.setCellStyles(mxConstants.STYLE_STROKECOLOR,</span>
 <span class="nc" id="L960">                            mxUtils.getHexColorString(Color.getHSBColor(1.41f, .96f, 0.50f)),</span>
-                            new Object[] {nextnode});
+<span class="nc" id="L961">                            new Object[] {nextnode});</span>
 <span class="nc" id="L962">                    graphComponent.refresh();</span>
 
                     // have to change icon of left tree here

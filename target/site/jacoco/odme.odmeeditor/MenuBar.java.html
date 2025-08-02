@@ -90,8 +90,8 @@ public class MenuBar {
 <span class="nc" id="L90">		final String[] images_behaviour_modelling = {&quot;sync&quot;};</span>
 
 <span class="nc" id="L92">		addMenu(&quot;Behavior Modelling &quot; , 0 ,items_behaviour_modelling,</span>
-				keyevents_behaviour_modelling,
-				keys_behaviour_modelling,images_behaviour_modelling);
+<span class="nc" id="L93">				keyevents_behaviour_modelling,</span>
+<span class="nc" id="L94">				keys_behaviour_modelling,images_behaviour_modelling);</span>
 
 		// #ROY - adding a new ICON
 		// Operation Design Domain Menu
@@ -149,10 +149,10 @@ public class MenuBar {
 <span class="nc bnc" id="L149" title="All 8 branches missed.">		    if (items[i]==&quot;Save Scenario&quot; || items[i]==&quot;Scenarios List&quot; || items[i]==&quot;Excution&quot; || items[i]==&quot;Feedback Loop&quot;)</span>
 <span class="nc" id="L150">		    	menuItem.setEnabled(false);</span>
 		    
-<span class="nc bnc" id="L152" title="All 20 branches missed.">		    if (items[i]==&quot;New Project&quot; || items[i]==&quot;Import Template&quot; || items[i]==&quot;Save Scenario&quot; ||</span>
-		    		items[i]==&quot;Open&quot; || items[i]==&quot;Save as Template&quot; || items[i]==&quot;Scenarios List&quot; ||
-		    		items[i]==&quot;Excution&quot; || items[i]==&quot;Feedback Loop&quot; || items[i]==&quot;Export XML&quot; ||
-		    		items[i]==&quot;Export Yaml&quot;) {
+<span class="nc bnc" id="L152" title="All 6 branches missed.">		    if (items[i]==&quot;New Project&quot; || items[i]==&quot;Import Template&quot; || items[i]==&quot;Save Scenario&quot; ||</span>
+<span class="nc bnc" id="L153" title="All 6 branches missed.">		    		items[i]==&quot;Open&quot; || items[i]==&quot;Save as Template&quot; || items[i]==&quot;Scenarios List&quot; ||</span>
+<span class="nc bnc" id="L154" title="All 6 branches missed.">		    		items[i]==&quot;Excution&quot; || items[i]==&quot;Feedback Loop&quot; || items[i]==&quot;Export XML&quot; ||</span>
+<span class="nc bnc" id="L155" title="All 2 branches missed.">		    		items[i]==&quot;Export Yaml&quot;) {</span>
 <span class="nc" id="L156">		    	fileMenuItems.add(menuItem);</span>
 		    }
 		    
@@ -240,10 +240,10 @@ public class MenuBar {
 <span class="nc" id="L240">            Object obj = null;</span>
 			try {
 <span class="nc" id="L242">				obj = jsonParser.parse(reader);</span>
-			} 
+<span class="nc" id="L243">			} </span>
 <span class="nc" id="L244">			catch (org.json.simple.parser.ParseException e) {</span>
 <span class="nc" id="L245">				e.printStackTrace();</span>
-<span class="nc" id="L246">			}</span>
+			}
 			
 <span class="nc" id="L248">            JSONArray data = (JSONArray) obj;</span>
             
@@ -254,7 +254,7 @@ public class MenuBar {
 
 <span class="nc" id="L255">        	int option = JOptionPane</span>
 <span class="nc" id="L256">        			.showConfirmDialog(Main.frame, message, &quot;Create Scenario&quot;, JOptionPane.OK_CANCEL_OPTION,</span>
-        			JOptionPane.PLAIN_MESSAGE);
+<span class="nc" id="L257">        			JOptionPane.PLAIN_MESSAGE);</span>
         	
 <span class="nc bnc" id="L259" title="All 2 branches missed.">        	if (option == JOptionPane.OK_OPTION) {</span>
 <span class="nc" id="L260">            	createScenario(nameField.getText());</span>
@@ -277,12 +277,12 @@ public class MenuBar {
 <span class="nc" id="L277">		         file.write(data.toJSONString());</span>
 <span class="nc" id="L278">		         file.close();</span>
 <span class="nc" id="L279">		         ODMEEditor.graphWindow.setTitle(nameField.getText());</span>
-		      }
+<span class="nc" id="L280">		      }</span>
 <span class="nc" id="L281">        	catch (IOException e) {</span>
 <span class="nc" id="L282">		         e.printStackTrace();</span>
-<span class="nc" id="L283">		      }</span>
+		      }
 
-<span class="nc" id="L285">        } </span>
+        } 
 <span class="nc" id="L286">        catch (FileNotFoundException e) {</span>
 <span class="nc" id="L287">            e.printStackTrace();</span>
         } 
@@ -291,25 +291,25 @@ public class MenuBar {
         } 
 <span class="nc" id="L292">        catch (ParseException e) {</span>
 <span class="nc" id="L293">            e.printStackTrace();</span>
-<span class="nc" id="L294">        } </span>
+        } 
 <span class="nc" id="L295">    }</span>
     
     private void createScenario(String ScenarioName) {
 <span class="nc" id="L298">        ODMEEditor.currentScenario = ScenarioName;</span>
         
 <span class="nc" id="L300">        JtreeToGraphVariables.ssdFileGraph = new File(String.format(&quot;%s/%s/%sGraph.xml&quot;,</span>
-    			 ODMEEditor.fileLocation, ScenarioName, ODMEEditor.projName));
+<span class="nc" id="L301">    			 ODMEEditor.fileLocation, ScenarioName, ODMEEditor.projName));</span>
 <span class="nc" id="L302">    	 ODMEEditor.treePanel.ssdFile = new File(String.format(&quot;%s/%s/%s.xml&quot;,</span>
-    			 ODMEEditor.fileLocation,  ScenarioName, ODMEEditor.projName));
+<span class="nc" id="L303">    			 ODMEEditor.fileLocation,  ScenarioName, ODMEEditor.projName));</span>
 <span class="nc" id="L304">    	 ODMEEditor.treePanel.ssdFileVar = new File(String.format(&quot;%s/%s/%s.ssdvar&quot;,</span>
-    			 ODMEEditor.fileLocation,  ScenarioName, ODMEEditor.projName));
+<span class="nc" id="L305">    			 ODMEEditor.fileLocation,  ScenarioName, ODMEEditor.projName));</span>
 <span class="nc" id="L306">    	 ODMEEditor.treePanel.ssdFileCon = new File(String.format(&quot;%s/%s/%s.ssdcon&quot;,</span>
-    			 ODMEEditor.fileLocation,  ScenarioName, ODMEEditor.projName));
+<span class="nc" id="L307">    			 ODMEEditor.fileLocation,  ScenarioName, ODMEEditor.projName));</span>
 <span class="nc" id="L308">    	 ODMEEditor.treePanel.ssdFileFlag = new File(String.format(&quot;%s/%s/%s.ssdflag&quot;,</span>
-    			 ODMEEditor.fileLocation,  ScenarioName, ODMEEditor.projName));
+<span class="nc" id="L309">    			 ODMEEditor.fileLocation,  ScenarioName, ODMEEditor.projName));</span>
 
 <span class="nc" id="L311">		ODMEEditor.treePanel.ssdFileBeh = new File(String.format(&quot;%s/%s/%s.ssdbeh&quot;,</span>
-				ODMEEditor.fileLocation,  ScenarioName, ODMEEditor.projName));
+<span class="nc" id="L312">				ODMEEditor.fileLocation,  ScenarioName, ODMEEditor.projName));</span>
 
 <span class="nc" id="L314">        File f = new File(ODMEEditor.fileLocation + &quot;/&quot; +  ScenarioName);</span>
 <span class="nc" id="L315">        f.mkdirs();</span>
@@ -336,7 +336,7 @@ public class MenuBar {
 <span class="nc" id="L336">        fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);</span>
 <span class="nc" id="L337">        fileChooser.setAcceptAllFileFilterUsed(false);</span>
 <span class="nc" id="L338">        fileChooser.setCurrentDirectory(</span>
-                new File(ODMEEditor.repFslas)); // this is ok because normally all the file will be
+<span class="nc" id="L339">                new File(ODMEEditor.repFslas)); // this is ok because normally all the file will be</span>
         // in default location. so don't need to add fileLocation
 
 <span class="nc" id="L342">        int result = fileChooser.showOpenDialog(Main.frame);</span>
@@ -379,15 +379,15 @@ public class MenuBar {
 <span class="nc" id="L379">            JtreeToGraphVariables.projectFileNameGraph = newProjectName;</span>
 
 <span class="nc" id="L381">            JtreeToGraphVariables.ssdFileGraph = new File(String.format(&quot;%s/%s/%sGraph.xml&quot;,</span>
-            		ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
+<span class="nc" id="L382">            		ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));</span>
 <span class="nc" id="L383">            ODMEEditor.treePanel.ssdFile = new File(String.format(&quot;%s/%s/%s.xml&quot;,</span>
-            		ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
+<span class="nc" id="L384">            		ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));</span>
 <span class="nc" id="L385">            ODMEEditor.treePanel.ssdFileVar = new File(String.format(&quot;%s/%s/%s.ssdvar&quot;,</span>
-            		ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
+<span class="nc" id="L386">            		ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));</span>
 <span class="nc" id="L387">            ODMEEditor.treePanel.ssdFileCon = new File(String.format(&quot;%s/%s/%s.ssdcon&quot;,</span>
-            		ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
+<span class="nc" id="L388">            		ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));</span>
 <span class="nc" id="L389">            ODMEEditor.treePanel.ssdFileFlag = new File(String.format(&quot;%s/%s/%s.ssdflag&quot;,</span>
-            		ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
+<span class="nc" id="L390">            		ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));</span>
 
 <span class="nc" id="L392">            ProjectTree.projectName = newProjectName;</span>
 <span class="nc" id="L393">            ODMEEditor.projectPanel.changeCurrentProjectFileName(newProjectName, oldProjectTreeProjectName);</span>
@@ -402,7 +402,7 @@ public class MenuBar {
 <span class="nc" id="L402">            JtreeToGraphConvert.graphToXML();</span>
 <span class="nc" id="L403">            JtreeToGraphConvert.graphToXMLWithUniformity();</span>
 <span class="nc" id="L404">            JOptionPane.showMessageDialog(Main.frame, &quot;Saved Successfully.&quot;, &quot;Save&quot;,</span>
-                    JOptionPane.INFORMATION_MESSAGE);
+<span class="nc" id="L405">                    JOptionPane.INFORMATION_MESSAGE);</span>
         }
 <span class="nc" id="L407">    }</span>
     
@@ -426,13 +426,13 @@ public class MenuBar {
         		
 <span class="nc" id="L427">            ImageIO.write(image, &quot;PNG&quot;, new File(path));</span>
 <span class="nc" id="L428">            JOptionPane.showMessageDialog(Main.frame, &quot;Saved Successfully.&quot;, &quot;Save PNG&quot;,</span>
-                    JOptionPane.INFORMATION_MESSAGE);
-        } 
+<span class="nc" id="L429">                    JOptionPane.INFORMATION_MESSAGE);</span>
+<span class="nc" id="L430">        } </span>
 <span class="nc" id="L431">    	catch (Exception e) {</span>
 <span class="nc" id="L432">            System.out.println(&quot;Error:&quot; + e);</span>
 <span class="nc" id="L433">            JOptionPane.showMessageDialog(Main.frame, &quot;Error:&quot; + e, &quot;Error&quot;,</span>
-                    JOptionPane.ERROR_MESSAGE);
-<span class="nc" id="L435">        }</span>
+<span class="nc" id="L434">                    JOptionPane.ERROR_MESSAGE);</span>
+        }
     	
     	// add border nodes again
 <span class="nc" id="L438">    	JtreeToGraphVariables.graph.getModel().beginUpdate();</span>
@@ -462,21 +462,21 @@ public class MenuBar {
             try {
 <span class="nc" id="L463">                f0 = new PrintWriter(new FileWriter(</span>
 <span class="nc" id="L464">                        selectedFile.getAbsolutePath() + &quot;.xml&quot;));</span>
-            }
+<span class="nc" id="L465">            }</span>
 <span class="nc" id="L466">            catch (IOException e1) {</span>
 <span class="nc" id="L467">                e1.printStackTrace();</span>
-<span class="nc" id="L468">            }</span>
+            }
 <span class="nc" id="L469">            Scanner in = null;</span>
             try {
 <span class="nc" id="L471">                in = new Scanner(new File(</span>
-                        ODMEEditor.fileLocation + &quot;/&quot; + ODMEEditor.projName + &quot;/xmlforxsd.xml&quot;));
+<span class="nc" id="L472">                        ODMEEditor.fileLocation + &quot;/&quot; + ODMEEditor.projName + &quot;/xmlforxsd.xml&quot;));</span>
 <span class="nc" id="L473">            } catch (FileNotFoundException e2) {</span>
 <span class="nc" id="L474">                e2.printStackTrace();</span>
-<span class="nc" id="L475">            }</span>
+            }
 <span class="nc bnc" id="L476" title="All 2 branches missed.">            while (in.hasNext()) { // Iterates each line in the file</span>
 <span class="nc" id="L477">                String line = in.nextLine();</span>
 <span class="nc" id="L478">                f0.println(line);</span>
-<span class="nc" id="L479">            }</span>
+            }
 <span class="nc" id="L480">            in.close();</span>
 <span class="nc" id="L481">            f0.close();</span>
         }
@@ -492,13 +492,13 @@ public class MenuBar {
 <span class="nc" id="L492">					pdfTemp = new File(resource.toURI());</span>
 <span class="nc" id="L493">				} catch (URISyntaxException e) {</span>
 <span class="nc" id="L494">					e.printStackTrace();</span>
-<span class="nc" id="L495">				}</span>
+				}
                 // Open the PDF
 <span class="nc" id="L497">                Desktop.getDesktop().open(pdfTemp);</span>
-            }
+<span class="nc" id="L498">            }</span>
 <span class="nc" id="L499">            catch (IOException e1) {</span>
 <span class="nc" id="L500">                System.out.println(&quot;erreur : &quot; + e1);</span>
-<span class="nc" id="L501">            }</span>
+            }
         }
 <span class="nc" id="L503">    }</span>
 }

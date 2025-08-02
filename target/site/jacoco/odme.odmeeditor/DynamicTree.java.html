@@ -66,7 +66,7 @@ public class DynamicTree extends JPanel implements MouseListener {
     public static String projectFileName;
     
     private DefaultMutableTreeNode rootNode;
-    public static UndoableTreeModel treeModel;
+<span class="nc" id="L69">    public static UndoableTreeModel treeModel;</span>
     public JTree tree;
     
     private Toolkit toolkit;
@@ -125,19 +125,19 @@ public class DynamicTree extends JPanel implements MouseListener {
 
                     // restoring jtree from xml
 <span class="nc" id="L127">                    XmlJTree myTree = new XmlJTree(</span>
-                            ODMEEditor.fileLocation + &quot;/&quot; + ODMEEditor.projName + &quot;/&quot; + projectFileName
+<span class="nc" id="L128">                            ODMEEditor.fileLocation + &quot;/&quot; + ODMEEditor.projName + &quot;/&quot; + projectFileName</span>
                             + &quot;.xml&quot;);
 <span class="nc" id="L130">                    treeModel = myTree.dtModel;</span>
 <span class="nc" id="L131">                    treeModel.addTreeModelListener(new MyTreeModelListener());</span>
                 }
-            } 
+<span class="nc" id="L133">            } </span>
 <span class="nc" id="L134">            catch (IOException err) {</span>
 <span class="nc" id="L135">                err.printStackTrace();</span>
             } 
 <span class="nc" id="L137">            catch (ClassNotFoundException err) {</span>
 <span class="nc" id="L138">                err.printStackTrace();</span>
-<span class="nc" id="L139">            }</span>
-        } 
+            }
+<span class="nc" id="L140">        } </span>
         else {
         	
 <span class="nc" id="L143">            rootNode = new DefaultMutableTreeNode(&quot;Thing&quot;);</span>
@@ -177,7 +177,7 @@ public class DynamicTree extends JPanel implements MouseListener {
 <span class="nc" id="L177">                TreePath path = tree.getPathForLocation(x, y);</span>
 <span class="nc bnc" id="L178" title="All 2 branches missed.">                if (path == null) {</span>
 <span class="nc" id="L179">                    tree.setCursor(Cursor.getDefaultCursor());</span>
-                } else {
+<span class="nc" id="L180">                } else {</span>
 <span class="nc" id="L181">                    tree.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));</span>
                 }
 <span class="nc" id="L183">            }</span>
@@ -198,7 +198,7 @@ public class DynamicTree extends JPanel implements MouseListener {
 <span class="nc" id="L198">    		path = ODMEEditor.fileLocation + &quot;/&quot; + ODMEEditor.currentScenario + &quot;/&quot; + filename + &quot;.xml&quot;;</span>
     	
 <span class="nc" id="L200">        XmlJTree myTree =</span>
-                new XmlJTree(path);
+<span class="nc" id="L201">                new XmlJTree(path);</span>
 <span class="nc" id="L202">        treeModel = myTree.dtModel;</span>
 <span class="nc" id="L203">        DefaultMutableTreeNode root = (DefaultMutableTreeNode) treeModel.getRoot();</span>
 <span class="nc" id="L204">        treeModel.addTreeModelListener(new MyTreeModelListener());</span>
@@ -224,7 +224,7 @@ public class DynamicTree extends JPanel implements MouseListener {
 
 <span class="nc" id="L225">        JtreeToGraphVariables.ssdFileGraph = new File(path);</span>
 <span class="nc" id="L226">        ODMEEditor.treePanel.ssdFile =</span>
-                new File(ODMEEditor.fileLocation + &quot;/&quot; + ODMEEditor.projName + &quot;/&quot; + newProjectName + &quot;.xml&quot;);
+<span class="nc" id="L227">                new File(ODMEEditor.fileLocation + &quot;/&quot; + ODMEEditor.projName + &quot;/&quot; + newProjectName + &quot;.xml&quot;);</span>
         try {
         	
 <span class="nc bnc" id="L230" title="All 2 branches missed.">        	if (ODMEEditor.toolMode == &quot;ses&quot;)</span>
@@ -262,7 +262,7 @@ public class DynamicTree extends JPanel implements MouseListener {
 <span class="nc" id="L262">                oisflag.close();</span>
             }
 
-        } 
+<span class="nc" id="L265">        } </span>
 <span class="nc" id="L266">        catch (FileNotFoundException e) {</span>
 <span class="nc" id="L267">            e.printStackTrace();</span>
         } 
@@ -271,7 +271,7 @@ public class DynamicTree extends JPanel implements MouseListener {
         } 
 <span class="nc" id="L272">        catch (ClassNotFoundException e) {</span>
 <span class="nc" id="L273">            e.printStackTrace();</span>
-<span class="nc" id="L274">        }</span>
+        }
 
 <span class="nc" id="L276">        ProjectTree.projectName = newProjectName;</span>
 
@@ -320,7 +320,7 @@ public class DynamicTree extends JPanel implements MouseListener {
                 }
 
 <span class="nc" id="L322">                treeModel.removeNodeFromParent(</span>
-                        currentNode); // if this line is above the currentNode.getPath() then it
+<span class="nc" id="L323">                        currentNode); // if this line is above the currentNode.getPath() then it</span>
                 // will not work because before cullect path nodes the
                 // variable is deleted then
 <span class="nc" id="L326">                JtreeToGraphDelete.deleteNodeWithTree(nodesToSelectedNode);</span>
@@ -362,7 +362,7 @@ public class DynamicTree extends JPanel implements MouseListener {
 <span class="nc" id="L362">        parentPath = FindByName.path;</span>
 <span class="nc bnc" id="L363" title="All 2 branches missed.">        if (parentPath == null) {</span>
 <span class="nc" id="L364">            parentNode = rootNode;</span>
-        } else {
+<span class="nc" id="L365">        } else {</span>
 <span class="nc" id="L366">            parentNode = (DefaultMutableTreeNode) (parentPath.getLastPathComponent());</span>
         }
 <span class="nc" id="L368">        return addObject(parentNode, child, true);</span>
@@ -376,7 +376,7 @@ public class DynamicTree extends JPanel implements MouseListener {
 <span class="nc" id="L376">        TreePath parentPath = tree.getSelectionPath();</span>
 <span class="nc bnc" id="L377" title="All 2 branches missed.">        if (parentPath == null) {</span>
 <span class="nc" id="L378">            parentNode = rootNode;</span>
-        } 
+<span class="nc" id="L379">        } </span>
         else {
 <span class="nc" id="L381">            parentNode = (DefaultMutableTreeNode) (parentPath.getLastPathComponent());</span>
         }
@@ -447,10 +447,10 @@ public class DynamicTree extends JPanel implements MouseListener {
 
 <span class="nc" id="L448">            JtreeToGraphSave.saveGraph();</span>
             
-        } 
+<span class="nc" id="L450">        } </span>
 <span class="nc" id="L451">        catch (IOException err) {</span>
 <span class="nc" id="L452">            err.printStackTrace();</span>
-<span class="nc" id="L453">        }</span>
+        }
 <span class="nc" id="L454">    }</span>
 
     public void saveTreeModelAs(String fileName) {
@@ -462,10 +462,10 @@ public class DynamicTree extends JPanel implements MouseListener {
 <span class="nc" id="L462">            oosvar.writeObject(varMap);</span>
 <span class="nc" id="L463">            oosvar.close();</span>
 
-        } 
+<span class="nc" id="L465">        } </span>
 <span class="nc" id="L466">        catch (IOException err) {</span>
 <span class="nc" id="L467">            err.printStackTrace();</span>
-<span class="nc" id="L468">        }</span>
+        }
 <span class="nc" id="L469">    }</span>
 
     public void openTreeModel(File fileName) {
@@ -476,7 +476,7 @@ public class DynamicTree extends JPanel implements MouseListener {
 <span class="nc" id="L476">                ois.close();</span>
 <span class="nc" id="L477">            } catch (IOException err) {</span>
 <span class="nc" id="L478">                err.printStackTrace();</span>
-<span class="nc" id="L479">            }</span>
+            }
         }
 <span class="nc" id="L481">    }</span>
 
@@ -528,8 +528,8 @@ public class DynamicTree extends JPanel implements MouseListener {
 <span class="nc" id="L528">                            nodesToSelectedNode[b] = value;</span>
 <span class="nc" id="L529">                            b++;</span>
                         }
-<span class="nc" id="L531">                    }</span>
-<span class="nc" id="L532">                }</span>
+                    }
+                }
 
 <span class="nc" id="L534">                ODMEEditor.scenarioVariable</span>
 <span class="nc" id="L535">                        .showNodeValuesInTable(currentNode.toString(), nodesToSelectedNode);</span>
@@ -577,8 +577,8 @@ public class DynamicTree extends JPanel implements MouseListener {
 <span class="nc" id="L577">                    nodesToSelectedNode[b] = value;</span>
 <span class="nc" id="L578">                    b++;</span>
                 }
-<span class="nc" id="L580">            }</span>
-<span class="nc" id="L581">        }</span>
+            }
+        }
         
 <span class="nc" id="L583">        ODMEEditor.scenarioVariable</span>
 <span class="nc" id="L584">                .showNodeValuesInTable(currentNode.toString(), nodesToSelectedNode); </span>
@@ -617,8 +617,8 @@ public class DynamicTree extends JPanel implements MouseListener {
 <span class="nc" id="L617">                    nodesToSelectedNode[b] = value;</span>
 <span class="nc" id="L618">                    b++;</span>
                 }
-<span class="nc" id="L620">            }</span>
-<span class="nc" id="L621">        }</span>
+            }
+        }
 
 <span class="nc" id="L623">        ODMEEditor.scenarioConstraint.showConstraintsInTable(nodesToSelectedNode);</span>
 <span class="nc" id="L624">    }</span>
@@ -660,8 +660,8 @@ public class DynamicTree extends JPanel implements MouseListener {
 <span class="nc" id="L660">                    b++;</span>
 <span class="nc" id="L661">                    ODMEEditor.scenarioBehaviour.showBehavioursInTable(currentNode2.getUserObject().toString(),nodesToSelectedNode);</span>
                 }
-<span class="nc" id="L663">            }</span>
-<span class="nc" id="L664">        }</span>
+            }
+        }
 <span class="nc" id="L665">    }</span>
 
 

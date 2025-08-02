@@ -165,7 +165,7 @@ public class ImportProject extends JPanel {
 <span class="nc bnc" id="L165" title="All 4 branches missed.">                if (fileName.exists() &amp;&amp; fileName.isDirectory()) {</span>
 <span class="nc" id="L166">                    errorLabelField.setVisible(true);</span>
 <span class="nc" id="L167">                    errorLabelField.setText(&quot;There is a file with the same name. It will be overwritten.&quot;);</span>
-                } else {
+<span class="nc" id="L168">                } else {</span>
 <span class="nc" id="L169">                    errorLabelField.setVisible(false);</span>
                 }
 <span class="nc" id="L171">            }</span>
@@ -183,7 +183,7 @@ public class ImportProject extends JPanel {
 <span class="nc" id="L183">                    projectLocationField.setEnabled(false);</span>
 <span class="nc" id="L184">                    projectLocationLabel.setEnabled(false);</span>
 <span class="nc" id="L185">                    selectProjectLocation.setEnabled(false);</span>
-                } else {
+<span class="nc" id="L186">                } else {</span>
 <span class="nc" id="L187">                    projectLocationField.setEnabled(true);</span>
 <span class="nc" id="L188">                    projectLocationLabel.setEnabled(true);</span>
 <span class="nc" id="L189">                    selectProjectLocation.setEnabled(true);</span>
@@ -250,7 +250,7 @@ public class ImportProject extends JPanel {
 <span class="nc" id="L250">    	String newProjectName = newProjectNameField.getText();</span>
 <span class="nc bnc" id="L251" title="All 4 branches missed.">    	if (newProjectName.trim().length() == 0 || errorLabelField.isVisible() == true) {</span>
 <span class="nc" id="L252">    		JOptionPane.showMessageDialog(this, &quot;Project name should be not empty and not alrady exist!&quot;, &quot;Import Error!&quot;,</span>
-                    JOptionPane.WARNING_MESSAGE);
+<span class="nc" id="L253">                    JOptionPane.WARNING_MESSAGE);</span>
 <span class="nc" id="L254">    		return;</span>
     	}
     	
@@ -263,19 +263,19 @@ public class ImportProject extends JPanel {
 <span class="nc" id="L263">        JtreeToGraphVariables.projectFileNameGraph = newProjectName;</span>
         
 <span class="nc" id="L265">        JtreeToGraphVariables.ssdFileGraph = new File(String.format(&quot;%s/%s/%sGraph.xml&quot;,</span>
-        		ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
+<span class="nc" id="L266">        		ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));</span>
         
 <span class="nc" id="L268">        ODMEEditor.treePanel.ssdFile = new File(String.format(&quot;%s/%s/%s.xml&quot;,</span>
-        		ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
+<span class="nc" id="L269">        		ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));</span>
 <span class="nc" id="L270">        ODMEEditor.treePanel.ssdFileVar = new File(String.format(&quot;%s/%s/%s.ssdvar&quot;,</span>
-        		ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
+<span class="nc" id="L271">        		ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));</span>
 <span class="nc" id="L272">        ODMEEditor.treePanel.ssdFileCon = new File(String.format(&quot;%s/%s/%s.ssdcon&quot;,</span>
-        		ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
+<span class="nc" id="L273">        		ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));</span>
 <span class="nc" id="L274">        ODMEEditor.treePanel.ssdFileBeh = new File(String.format(&quot;%s/%s/%s.ssdbeh&quot;,</span>
-        		ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
+<span class="nc" id="L275">        		ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));</span>
         
 <span class="nc" id="L277">        ODMEEditor.treePanel.ssdFileFlag = new File(String.format(&quot;%s/%s/%s.ssdflag&quot;,</span>
-        		ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
+<span class="nc" id="L278">        		ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));</span>
 
 <span class="nc" id="L280">        ProjectTree.projectName = newProjectName;</span>
 
@@ -300,24 +300,24 @@ public class ImportProject extends JPanel {
 <span class="nc" id="L300">        Scanner in = null;</span>
         try {
 <span class="nc" id="L302">            in = new Scanner(new File(ODMEEditor.importFileLocation + &quot;/&quot; + ODMEEditor.importFileName));</span>
-        } 
+<span class="nc" id="L303">        } </span>
 <span class="nc" id="L304">        catch (FileNotFoundException e1) {</span>
 <span class="nc" id="L305">        	JOptionPane.showMessageDialog(Main.frame, &quot;Import error!&quot;, &quot;Import Error!&quot;,</span>
-                    JOptionPane.WARNING_MESSAGE);
+<span class="nc" id="L306">                    JOptionPane.WARNING_MESSAGE);</span>
 <span class="nc" id="L307">        	return;</span>
-<span class="nc" id="L308">        }</span>
+        }
 
 <span class="nc" id="L310">        PrintWriter f0 = null;</span>
         try {
 <span class="nc" id="L312">            f0 = new PrintWriter(new FileWriter(</span>
-                    ODMEEditor.fileLocation + &quot;/&quot; + ODMEEditor.projName + &quot;/&quot; + ODMEEditor.projName + &quot;.xml&quot;));
+<span class="nc" id="L313">                    ODMEEditor.fileLocation + &quot;/&quot; + ODMEEditor.projName + &quot;/&quot; + ODMEEditor.projName + &quot;.xml&quot;));</span>
 <span class="nc" id="L314">            f0.println(&quot;&lt;?xml version=\&quot;1.0\&quot; encoding=\&quot;UTF-8\&quot; standalone=\&quot;no\&quot;?&gt;&quot;);</span>
-        }
+<span class="nc" id="L315">        }</span>
 <span class="nc" id="L316">        catch (IOException e1) {</span>
 <span class="nc" id="L317">        	JOptionPane.showMessageDialog(Main.frame, &quot;Import error!&quot;, &quot;Import Error!&quot;,</span>
-                    JOptionPane.WARNING_MESSAGE);
+<span class="nc" id="L318">                    JOptionPane.WARNING_MESSAGE);</span>
 <span class="nc" id="L319">        	return;</span>
-<span class="nc" id="L320">        }</span>
+        }
 
         Stack&lt;String&gt; stackEntity, stackAspect, stackMultiAspect, stackSpecialization;
 <span class="nc" id="L323">        stackEntity = new Stack&lt;String&gt;();</span>
@@ -340,19 +340,19 @@ public class ImportProject extends JPanel {
 <span class="nc bnc" id="L340" title="All 2 branches missed.">            if (line.startsWith(&quot;&lt;entity&quot;)) {</span>
 <span class="nc" id="L341">                f0.println(&quot;&lt;&quot; + element + &quot;&gt;&quot;);</span>
 <span class="nc" id="L342">                stackEntity.push(&quot;&lt;/&quot; + element + &quot;&gt;&quot;);</span>
-            } 
+<span class="nc" id="L343">            } </span>
 <span class="nc bnc" id="L344" title="All 2 branches missed.">            else if (line.startsWith(&quot;&lt;aspect&quot;)) {</span>
 <span class="nc" id="L345">                f0.println(&quot;&lt;&quot; + element + &quot;&gt;&quot;);</span>
 <span class="nc" id="L346">                stackAspect.push(&quot;&lt;/&quot; + element + &quot;&gt;&quot;);</span>
-            } 
+<span class="nc" id="L347">            } </span>
 <span class="nc bnc" id="L348" title="All 2 branches missed.">            else if (line.startsWith(&quot;&lt;multiAspect&quot;)) {</span>
 <span class="nc" id="L349">                f0.println(&quot;&lt;&quot; + element + &quot;&gt;&quot;);</span>
 <span class="nc" id="L350">                stackMultiAspect.push(&quot;&lt;/&quot; + element + &quot;&gt;&quot;);</span>
-            }
+<span class="nc" id="L351">            }</span>
 <span class="nc bnc" id="L352" title="All 2 branches missed.">            else if (line.startsWith(&quot;&lt;specialization&quot;)) {</span>
 <span class="nc" id="L353">                f0.println(&quot;&lt;&quot; + element + &quot;&gt;&quot;);</span>
 <span class="nc" id="L354">                stackSpecialization.push(&quot;&lt;/&quot; + element + &quot;&gt;&quot;);</span>
-            } 
+<span class="nc" id="L355">            } </span>
 <span class="nc bnc" id="L356" title="All 2 branches missed.">            else if (line.startsWith(&quot;&lt;/entity&quot;)) {</span>
 <span class="nc" id="L357">                String pop = (String) stackEntity.pop();</span>
 <span class="nc" id="L358">                f0.println(pop);</span>
@@ -369,7 +369,7 @@ public class ImportProject extends JPanel {
 <span class="nc" id="L369">                String pop = (String) stackSpecialization.pop();</span>
 <span class="nc" id="L370">                f0.println(pop);</span>
             }
-<span class="nc" id="L372">        }</span>
+        }
 <span class="nc" id="L373">        in.close();</span>
 <span class="nc" id="L374">        f0.close();</span>
         // below function is working. Have to make a xml file like projectName.xml for

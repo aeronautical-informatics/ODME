@@ -5,7 +5,7 @@ import com.mxgraph.model.mxCell;
 import com.mxgraph.util.mxXmlUtils;
 import odme.jtreetograph.JtreeToGraphGeneral;
 import odme.odmeeditor.ODMEEditor;
-import org.w3c.dom.DOMException;
+<span class="nc" id="L8">import org.w3c.dom.DOMException;</span>
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -25,84 +25,84 @@ import java.util.logging.Logger;
 import static odeme.behaviour.BehaviourToTree.selectedScenario;
 import static odme.jtreetograph.JtreeToGraphVariables.*;
 
-<span class="nc" id="L28">public class JtreeToGraphSave {</span>
+public class JtreeToGraphSave {
 
-	public static boolean saveToXMLFile(Document doc, String filePath) 
+<span class="nc" id="L30">	public static boolean saveToXMLFile(Document doc, String filePath) </span>
 			throws TransformerException {
-<span class="nc bnc" id="L32" title="All 2 branches missed.">        if (doc != null) {</span>
+        if (doc != null) {
             try {
                 javax.xml.transform.TransformerFactory tFactory =
-<span class="nc" id="L35">                        javax.xml.transform.TransformerFactory.newInstance();</span>
-<span class="nc" id="L36">                javax.xml.transform.Transformer transformer = tFactory.newTransformer();</span>
-<span class="nc" id="L37">                javax.xml.transform.dom.DOMSource source = new javax.xml.transform.dom.DOMSource(doc);</span>
-<span class="nc" id="L38">                javax.xml.transform.stream.StreamResult result =</span>
+                        javax.xml.transform.TransformerFactory.newInstance();
+                javax.xml.transform.Transformer transformer = tFactory.newTransformer();
+                javax.xml.transform.dom.DOMSource source = new javax.xml.transform.dom.DOMSource(doc);
+                javax.xml.transform.stream.StreamResult result =
                         new javax.xml.transform.stream.StreamResult(new File(filePath));
-<span class="nc" id="L40">                transformer.setOutputProperty(OutputKeys.INDENT, &quot;yes&quot;);</span>
-<span class="nc" id="L41">                transformer.setOutputProperty(&quot;{http://xml.apache.org/xslt}indent-amount&quot;, &quot;0&quot;);</span>
+                transformer.setOutputProperty(OutputKeys.INDENT, &quot;yes&quot;);
+                transformer.setOutputProperty(&quot;{http://xml.apache.org/xslt}indent-amount&quot;, &quot;0&quot;);
 
-<span class="nc" id="L43">                transformer.transform(source, result);</span>
-<span class="nc" id="L44">                return true;</span>
+                transformer.transform(source, result);
+                return true;
             } 
-<span class="nc" id="L46">            catch (TransformerFactoryConfigurationError ex) {</span>
-<span class="nc" id="L47">                return false;</span>
+            catch (TransformerFactoryConfigurationError ex) {
+                return false;
             }
         } 
         else {
-<span class="nc" id="L51">            return false;</span>
+            return false;
         }
     }
 
-    public static void saveBehaviourGraph() {
+<span class="nc" id="L55">    public static void saveBehaviourGraph() {</span>
         try {
             // saving into xml
-<span class="nc" id="L58">            mxCodec codec = new mxCodec();</span>
-<span class="nc" id="L59">            String xml = mxXmlUtils.getXml(codec.encode(JTreeToGraphBehaviour.benhaviourGraph.getModel()));</span>
+            mxCodec codec = new mxCodec();
+            String xml = mxXmlUtils.getXml(codec.encode(JTreeToGraphBehaviour.benhaviourGraph.getModel()));
 
-<span class="nc" id="L61">            File ssdBehaviourGraph = new File (String.format(&quot;%s/%s/%s/%sbehaviourGraph.xml&quot;,</span>
+            File ssdBehaviourGraph = new File (String.format(&quot;%s/%s/%s/%sbehaviourGraph.xml&quot;,
                     ODMEEditor.fileLocation, ODMEEditor.projName,  selectedScenario, projectFileNameGraph));
-<span class="nc" id="L63">            java.io.FileWriter fw = new java.io.FileWriter(ssdBehaviourGraph);</span>
-<span class="nc" id="L64">            fw.write(xml);</span>
-<span class="nc" id="L65">            fw.close();</span>
+            java.io.FileWriter fw = new java.io.FileWriter(ssdBehaviourGraph);
+            fw.write(xml);
+            fw.close();
         }
-<span class="nc" id="L67">        catch (Exception e) {</span>
-<span class="nc" id="L68">            System.out.println(&quot;Error:&quot; + e);</span>
-<span class="nc" id="L69">        }</span>
-<span class="nc" id="L70">    }</span>
+        catch (Exception e) {
+            System.out.println(&quot;Error:&quot; + e);
+        }
+    }
 
-	public static void saveModuleFromCurrentModel(Object obj) {
-<span class="nc" id="L73">        mxCell cell = (mxCell) obj;</span>
-<span class="nc" id="L74">        Object[] outgoing = graph.getOutgoingEdges(cell);</span>
+<span class="nc" id="L72">	public static void saveModuleFromCurrentModel(Object obj) {</span>
+        mxCell cell = (mxCell) obj;
+        Object[] outgoing = graph.getOutgoingEdges(cell);
         
-<span class="nc bnc" id="L76" title="All 2 branches missed.">        if (outgoing.length &gt; 0) {</span>
-<span class="nc" id="L77">            Object targetCell = graph.getModel().getTerminal(outgoing[outgoing.length - 1], false);</span>
-<span class="nc" id="L78">            mxCell targetCell2 = (mxCell) targetCell;</span>
+        if (outgoing.length &gt; 0) {
+            Object targetCell = graph.getModel().getTerminal(outgoing[outgoing.length - 1], false);
+            mxCell targetCell2 = (mxCell) targetCell;
 
-<span class="nc" id="L80">            nodeNamesForGraphSync[treeSyncNodeCount] = (String) targetCell2.getValue();</span>
-<span class="nc" id="L81">            treeSyncNodeCount++;</span>
+            nodeNamesForGraphSync[treeSyncNodeCount] = (String) targetCell2.getValue();
+            treeSyncNodeCount++;
 
-<span class="nc" id="L83">            saveModuleFromCurrentModelSecondStep(targetCell);</span>
+            saveModuleFromCurrentModelSecondStep(targetCell);
         }
-<span class="nc" id="L85">    }</span>
+    }
 
-    public static void saveModuleFromCurrentModelSecondStep(Object obj) {
-<span class="nc" id="L88">        mxCell cell = (mxCell) obj;</span>
-<span class="nc" id="L89">        Object[] outgoing = graph.getOutgoingEdges(cell);</span>
+<span class="nc" id="L87">    public static void saveModuleFromCurrentModelSecondStep(Object obj) {</span>
+        mxCell cell = (mxCell) obj;
+        Object[] outgoing = graph.getOutgoingEdges(cell);
 
-<span class="nc bnc" id="L91" title="All 2 branches missed.">        if (outgoing.length &gt; 0) {</span>
-<span class="nc bnc" id="L92" title="All 2 branches missed.">            for (int i = 0; i &lt; outgoing.length; i++) {</span>
-<span class="nc" id="L93">                Object targetCell = graph.getModel().getTerminal(outgoing[i], false);</span>
-<span class="nc" id="L94">                mxCell targetCell2 = (mxCell) targetCell;</span>
+        if (outgoing.length &gt; 0) {
+            for (int i = 0; i &lt; outgoing.length; i++) {
+                Object targetCell = graph.getModel().getTerminal(outgoing[i], false);
+                mxCell targetCell2 = (mxCell) targetCell;
 
-<span class="nc" id="L96">                Object sourceCell = graph.getModel().getTerminal(outgoing[i], true);</span>
-<span class="nc" id="L97">                mxCell sourceCell2 = (mxCell) sourceCell;</span>
+                Object sourceCell = graph.getModel().getTerminal(outgoing[i], true);
+                mxCell sourceCell2 = (mxCell) sourceCell;
 
-<span class="nc" id="L99">                nodeNamesForGraphSync[treeSyncNodeCount] =</span>
-<span class="nc" id="L100">                        targetCell2.getValue() + &quot;-&quot; + sourceCell2.getValue() + &quot;-&quot; + &quot;hasparent&quot;;</span>
-<span class="nc" id="L101">                treeSyncNodeCount++;</span>
+                nodeNamesForGraphSync[treeSyncNodeCount] =
+                        targetCell2.getValue() + &quot;-&quot; + sourceCell2.getValue() + &quot;-&quot; + &quot;hasparent&quot;;
+                treeSyncNodeCount++;
 
-<span class="nc" id="L103">                saveModuleFromCurrentModelSecondStep(targetCell);</span>
+                saveModuleFromCurrentModelSecondStep(targetCell);
             }
         }
-<span class="nc" id="L106">    }</span>
+    }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

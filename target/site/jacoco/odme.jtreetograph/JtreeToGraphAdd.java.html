@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>JtreeToGraphAdd.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SESEditor</a> &gt; <a href="index.source.html" class="el_package">odme.jtreetograph</a> &gt; <span class="el_source">JtreeToGraphAdd.java</span></div><h1>JtreeToGraphAdd.java</h1><pre class="source lang-java linenums">package odme.jtreetograph;
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>JtreeToGraphAdd.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SESEditor</a> &gt; <a href="index.source.html" class="el_package">odme.jtreetograph</a> &gt; <span class="el_source">JtreeToGraphAdd.java</span></div><h1>JtreeToGraphAdd.java</h1><pre class="source lang-java linenums"><span class="nc" id="L1">package odme.jtreetograph;</span>
 
 import static odme.jtreetograph.JtreeToGraphVariables.*;
 
@@ -113,7 +113,7 @@ import odme.odmeeditor.ODMEEditor;
 <span class="nc bnc" id="L113" title="All 2 branches missed.">                if (selectedType.equals(&quot;string&quot;)) {</span>
 <span class="nc" id="L114">                    errorLabelField.setVisible(</span>
 <span class="nc bnc" id="L115" title="All 2 branches missed.">                            !variableField.getText().trim().matches(variableFieldRegEx));</span>
-                }
+<span class="nc" id="L116">                }</span>
                 else {
 <span class="nc" id="L118">                    errorLabelField.setVisible(</span>
 <span class="nc bnc" id="L119" title="All 2 branches missed.">                            !variableField.getText().trim().matches(variableFieldRegEx));</span>
@@ -127,7 +127,7 @@ import odme.odmeeditor.ODMEEditor;
 <span class="nc" id="L127">        Object[] message = {&quot;Behaviour:&quot;, variableField};</span>
 <span class="nc" id="L128">        int option = JOptionPane</span>
 <span class="nc" id="L129">                .showConfirmDialog(Main.frame, message, &quot;Please Enter&quot;, JOptionPane.OK_CANCEL_OPTION,</span>
-                        JOptionPane.PLAIN_MESSAGE);
+<span class="nc" id="L130">                        JOptionPane.PLAIN_MESSAGE);</span>
 
 
 <span class="nc bnc" id="L133" title="All 2 branches missed.">        if (option == JOptionPane.OK_OPTION) {</span>
@@ -213,7 +213,7 @@ import odme.odmeeditor.ODMEEditor;
 <span class="nc bnc" id="L213" title="All 4 branches missed.">                    if (selectedType.equals(&quot;string&quot;) || selectedType.equals(&quot;boolean&quot;)) {</span>
 <span class="nc" id="L214">                        lowerBoundField.setEnabled(false);</span>
 <span class="nc" id="L215">                        upperBoundField.setEnabled(false);</span>
-                    } 
+<span class="nc" id="L216">                    } </span>
                     else {
 <span class="nc" id="L218">                        lowerBoundField.setEnabled(true);</span>
 <span class="nc" id="L219">                        upperBoundField.setEnabled(true);</span>
@@ -225,19 +225,19 @@ import odme.odmeeditor.ODMEEditor;
 <span class="nc bnc" id="L225" title="All 2 branches missed.">                                !variableField.getText().trim().matches(variableFieldRegEx) || (</span>
 <span class="nc bnc" id="L226" title="All 2 branches missed.">                                        !valueField.getText().trim().equals(&quot;true&quot;) &amp;&amp; !variableField</span>
 <span class="nc bnc" id="L227" title="All 2 branches missed.">                                                .getText().trim().equals(&quot;false&quot;)));</span>
-                    }
+<span class="nc" id="L228">                    }</span>
 <span class="nc bnc" id="L229" title="All 2 branches missed.">                    else if (selectedType.equals(&quot;string&quot;)) {</span>
 <span class="nc" id="L230">                        errorLabelField.setVisible(</span>
 <span class="nc bnc" id="L231" title="All 2 branches missed.">                                !variableField.getText().trim().matches(variableFieldRegEx) || !valueField</span>
 <span class="nc bnc" id="L232" title="All 2 branches missed.">                                        .getText().trim().matches(variableFieldRegEx));</span>
-                    } 
+<span class="nc" id="L233">                    } </span>
 <span class="nc bnc" id="L234" title="All 2 branches missed.">                    else if (selectedType.equals(&quot;double&quot;)) {</span>
 <span class="nc" id="L235">                        errorLabelField.setVisible(</span>
 <span class="nc bnc" id="L236" title="All 2 branches missed.">                                !valueField.getText().trim().matches(&quot;^\\d*\\.\\d+&quot;) || !variableField</span>
 <span class="nc bnc" id="L237" title="All 2 branches missed.">                                        .getText().trim().matches(variableFieldRegEx) || !lowerBoundField</span>
 <span class="nc bnc" id="L238" title="All 2 branches missed.">                                        .getText().trim().matches(&quot;^\\d*\\.\\d+&quot;) || !upperBoundField</span>
 <span class="nc bnc" id="L239" title="All 2 branches missed.">                                        .getText().trim().matches(&quot;^\\d*\\.\\d+&quot;));</span>
-                    } 
+<span class="nc" id="L240">                    } </span>
                     else {
 <span class="nc" id="L242">                        errorLabelField.setVisible(</span>
 <span class="nc bnc" id="L243" title="All 2 branches missed.">                                !variableField.getText().trim().matches(variableFieldRegEx) || !valueField</span>
@@ -274,7 +274,7 @@ import odme.odmeeditor.ODMEEditor;
 <span class="nc" id="L274">                    errorLabelField.setVisible(</span>
 <span class="nc bnc" id="L275" title="All 2 branches missed.">                            !variableField.getText().trim().matches(variableFieldRegEx) || !valueField</span>
 <span class="nc bnc" id="L276" title="All 2 branches missed.">                                    .getText().trim().matches(variableFieldRegEx));</span>
-                } 
+<span class="nc" id="L277">                } </span>
 <span class="nc bnc" id="L278" title="All 2 branches missed.">                else if (selectedType.equals(&quot;boolean&quot;)) {</span>
 
 <span class="nc" id="L280">                    errorLabelField.setVisible(</span>
@@ -282,14 +282,14 @@ import odme.odmeeditor.ODMEEditor;
 <span class="nc bnc" id="L282" title="All 2 branches missed.">                                    .equals(&quot;true&quot;)) || !variableField.getText().trim()</span>
 <span class="nc bnc" id="L283" title="All 2 branches missed.">                                    .matches(variableFieldRegEx));</span>
 
-                }
+<span class="nc" id="L285">                }</span>
 <span class="nc bnc" id="L286" title="All 2 branches missed.">                else if (selectedType.equals(&quot;double&quot;)) {</span>
 <span class="nc" id="L287">                    errorLabelField.setVisible(</span>
 <span class="nc bnc" id="L288" title="All 2 branches missed.">                            !valueField.getText().trim().matches(&quot;^\\d*\\.\\d+&quot;) || !variableField.getText()</span>
 <span class="nc bnc" id="L289" title="All 2 branches missed.">                                    .trim().matches(variableFieldRegEx) || !lowerBoundField.getText().trim()</span>
 <span class="nc bnc" id="L290" title="All 2 branches missed.">                                    .matches(&quot;^\\d*\\.\\d+&quot;) || !upperBoundField.getText().trim()</span>
 <span class="nc bnc" id="L291" title="All 2 branches missed.">                                    .matches(&quot;^\\d*\\.\\d+&quot;));</span>
-                } 
+<span class="nc" id="L292">                } </span>
                 else {
 <span class="nc" id="L294">                    errorLabelField.setVisible(</span>
 <span class="nc bnc" id="L295" title="All 2 branches missed.">                            !variableField.getText().trim().matches(variableFieldRegEx) || !valueField</span>
@@ -316,7 +316,7 @@ import odme.odmeeditor.ODMEEditor;
 <span class="nc bnc" id="L316" title="All 2 branches missed.">                                    .equals(&quot;true&quot;)) || !variableField.getText().trim()</span>
 <span class="nc bnc" id="L317" title="All 2 branches missed.">                                    .matches(variableFieldRegEx));</span>
 
-                }
+<span class="nc" id="L319">                }</span>
 <span class="nc bnc" id="L320" title="All 2 branches missed.">                else if (selectedType.equals(&quot;int&quot;)) {</span>
 <span class="nc" id="L321">                    errorLabelField.setVisible(</span>
 <span class="nc bnc" id="L322" title="All 2 branches missed.">                            !valueField.getText().trim().matches(&quot;^[0-9]+&quot;) || !variableField.getText().trim()</span>
@@ -324,7 +324,7 @@ import odme.odmeeditor.ODMEEditor;
 <span class="nc bnc" id="L324" title="All 2 branches missed.">                                    .matches(&quot;^[0-9]+&quot;) || !upperBoundField.getText().trim()</span>
 <span class="nc bnc" id="L325" title="All 2 branches missed.">                                    .matches(&quot;^[0-9]+&quot;));</span>
 
-                }
+<span class="nc" id="L327">                }</span>
 <span class="nc bnc" id="L328" title="All 2 branches missed.">                else if (selectedType.equals(&quot;float&quot;)) {</span>
 <span class="nc" id="L329">                    errorLabelField.setVisible(</span>
 <span class="nc bnc" id="L330" title="All 2 branches missed.">                            !valueField.getText().trim().matches(&quot;^\\d*\\.\\d+&quot;) || !variableField.getText()</span>
@@ -332,7 +332,7 @@ import odme.odmeeditor.ODMEEditor;
 <span class="nc bnc" id="L332" title="All 2 branches missed.">                            || !lowerBoundField.getText().trim().matches(&quot;^\\d*\\.\\d+&quot;) || !upperBoundField</span>
 <span class="nc bnc" id="L333" title="All 2 branches missed.">                                    .getText().trim().matches(&quot;^\\d*\\.\\d+&quot;));</span>
 
-                } 
+<span class="nc" id="L335">                } </span>
 <span class="nc bnc" id="L336" title="All 2 branches missed.">                else if (selectedType.equals(&quot;double&quot;)) {</span>
 <span class="nc" id="L337">                    errorLabelField.setVisible(</span>
 <span class="nc bnc" id="L338" title="All 2 branches missed.">                            !valueField.getText().trim().matches(&quot;^\\d*\\.\\d+&quot;) || !variableField.getText()</span>
@@ -340,7 +340,7 @@ import odme.odmeeditor.ODMEEditor;
 <span class="nc bnc" id="L340" title="All 2 branches missed.">                                    .matches(&quot;^\\d*\\.\\d+&quot;) || !upperBoundField.getText().trim()</span>
 <span class="nc bnc" id="L341" title="All 2 branches missed.">                                    .matches(&quot;^\\d*\\.\\d+&quot;));</span>
 
-                }
+<span class="nc" id="L343">                }</span>
 <span class="nc bnc" id="L344" title="All 2 branches missed.">                else if (selectedType.equals(&quot;string&quot;)) {</span>
 <span class="nc" id="L345">                    errorLabelField.setVisible(</span>
 <span class="nc bnc" id="L346" title="All 2 branches missed.">                            !valueField.getText().trim().matches(variableFieldRegEx) || !variableField</span>
@@ -366,14 +366,14 @@ import odme.odmeeditor.ODMEEditor;
 <span class="nc bnc" id="L366" title="All 2 branches missed.">                                    .matches(variableFieldRegEx) || !lowerBoundField.getText().trim()</span>
 <span class="nc bnc" id="L367" title="All 2 branches missed.">                                    .matches(&quot;^[0-9]+&quot;) || !upperBoundField.getText().trim()</span>
 <span class="nc bnc" id="L368" title="All 2 branches missed.">                                    .matches(&quot;^[0-9]+&quot;));</span>
-                } 
+<span class="nc" id="L369">                } </span>
 <span class="nc bnc" id="L370" title="All 2 branches missed.">                else if (selectedType.equals(&quot;int&quot;)) {</span>
 <span class="nc" id="L371">                    errorLabelField.setVisible(</span>
 <span class="nc bnc" id="L372" title="All 2 branches missed.">                            !valueField.getText().trim().matches(&quot;^[0-9]+&quot;) || !variableField.getText().trim()</span>
 <span class="nc bnc" id="L373" title="All 2 branches missed.">                                    .matches(variableFieldRegEx) || !lowerBoundField.getText().trim()</span>
 <span class="nc bnc" id="L374" title="All 2 branches missed.">                                    .matches(&quot;^[0-9]+&quot;) || !upperBoundField.getText().trim()</span>
 <span class="nc bnc" id="L375" title="All 2 branches missed.">                                    .matches(&quot;^[0-9]+&quot;));</span>
-                } 
+<span class="nc" id="L376">                } </span>
 <span class="nc bnc" id="L377" title="All 2 branches missed.">                else if (selectedType.equals(&quot;double&quot;)) {</span>
 <span class="nc" id="L378">                    errorLabelField.setVisible(</span>
 <span class="nc bnc" id="L379" title="All 2 branches missed.">                            !valueField.getText().trim().matches(&quot;^\\d*\\.\\d+&quot;) || !variableField.getText()</span>
@@ -399,14 +399,14 @@ import odme.odmeeditor.ODMEEditor;
 <span class="nc bnc" id="L399" title="All 2 branches missed.">                                    .matches(variableFieldRegEx) || !lowerBoundField.getText().trim()</span>
 <span class="nc bnc" id="L400" title="All 2 branches missed.">                                    .matches(&quot;^[0-9]+&quot;) || !upperBoundField.getText().trim()</span>
 <span class="nc bnc" id="L401" title="All 2 branches missed.">                                    .matches(&quot;^[0-9]+&quot;));</span>
-                } 
+<span class="nc" id="L402">                } </span>
 <span class="nc bnc" id="L403" title="All 2 branches missed.">                else if (selectedType.equals(&quot;int&quot;)) {</span>
 <span class="nc" id="L404">                    errorLabelField.setVisible(</span>
 <span class="nc bnc" id="L405" title="All 2 branches missed.">                            !valueField.getText().trim().matches(&quot;^[0-9]+&quot;) || !variableField.getText().trim()</span>
 <span class="nc bnc" id="L406" title="All 2 branches missed.">                                    .matches(variableFieldRegEx) || !lowerBoundField.getText().trim()</span>
 <span class="nc bnc" id="L407" title="All 2 branches missed.">                                    .matches(&quot;^[0-9]+&quot;) || !upperBoundField.getText().trim()</span>
 <span class="nc bnc" id="L408" title="All 2 branches missed.">                                    .matches(&quot;^[0-9]+&quot;));</span>
-                } 
+<span class="nc" id="L409">                } </span>
 <span class="nc bnc" id="L410" title="All 2 branches missed.">                else if (selectedType.equals(&quot;double&quot;)) {</span>
 <span class="nc" id="L411">                    errorLabelField.setVisible(</span>
 <span class="nc bnc" id="L412" title="All 2 branches missed.">                            !valueField.getText().trim().matches(&quot;^\\d*\\.\\d+&quot;) || !variableField.getText()</span>
@@ -421,13 +421,13 @@ import odme.odmeeditor.ODMEEditor;
         });
 
 <span class="nc" id="L423">        Object[] message =</span>
-                {&quot;Variable Name:&quot;, variableField, &quot;Variable Type:&quot;, variableTypeField, &quot;Default Value:&quot;,
-                        valueField, &quot;Lower Bound:&quot;, lowerBoundField, &quot;Upper Bound:&quot;, upperBoundField, &quot; &quot;,
-                        errorLabelField,&quot;Comment: &quot;,commentField};
+<span class="nc" id="L424">                {&quot;Variable Name:&quot;, variableField, &quot;Variable Type:&quot;, variableTypeField, &quot;Default Value:&quot;,</span>
+<span class="nc" id="L425">                        valueField, &quot;Lower Bound:&quot;, lowerBoundField, &quot;Upper Bound:&quot;, upperBoundField, &quot; &quot;,</span>
+<span class="nc" id="L426">                        errorLabelField,&quot;Comment: &quot;,commentField};</span>
 
 <span class="nc" id="L428">        int option = JOptionPane</span>
 <span class="nc" id="L429">                .showConfirmDialog(Main.frame, message, &quot;Please Enter&quot;, JOptionPane.OK_CANCEL_OPTION,</span>
-                        JOptionPane.PLAIN_MESSAGE);
+<span class="nc" id="L430">                        JOptionPane.PLAIN_MESSAGE);</span>
 
 <span class="nc bnc" id="L432" title="All 2 branches missed.">        if (option == JOptionPane.OK_OPTION) {</span>
 <span class="nc" id="L433">            variableName = variableField.getText();</span>
@@ -448,13 +448,13 @@ import odme.odmeeditor.ODMEEditor;
 <span class="nc bnc" id="L448" title="All 2 branches missed.">            if (variableLowerBound.equals(&quot;&quot;)) {</span>
 <span class="nc bnc" id="L449" title="All 2 branches missed.">            	if (selectedType.equals(&quot;int&quot;)){</span>
 <span class="nc" id="L450">            		variableLowerBound = Integer.toString(Integer.MIN_VALUE);</span>
-            	}
+<span class="nc" id="L451">            	}</span>
 <span class="nc bnc" id="L452" title="All 2 branches missed.">            	else if (selectedType.equals(&quot;float&quot;)){</span>
 <span class="nc" id="L453">            		variableLowerBound = Float.toString(Float.MIN_VALUE);</span>
-            	}
+<span class="nc" id="L454">            	}</span>
 <span class="nc bnc" id="L455" title="All 2 branches missed.">            	else if (selectedType.equals(&quot;double&quot;)){</span>
 <span class="nc" id="L456">            		variableLowerBound = Double.toString(Double.MIN_VALUE);</span>
-            	}
+<span class="nc" id="L457">            	}</span>
             	else
 <span class="nc" id="L459">            		variableLowerBound = &quot;none&quot;;</span>
             }
@@ -462,13 +462,13 @@ import odme.odmeeditor.ODMEEditor;
 <span class="nc bnc" id="L462" title="All 2 branches missed.">            if (variableUpperBound.equals(&quot;&quot;)) {</span>
 <span class="nc bnc" id="L463" title="All 2 branches missed.">            	if (selectedType.equals(&quot;int&quot;)){</span>
 <span class="nc" id="L464">            		variableUpperBound = Integer.toString(Integer.MAX_VALUE);</span>
-            	}
+<span class="nc" id="L465">            	}</span>
 <span class="nc bnc" id="L466" title="All 2 branches missed.">            	else if (selectedType.equals(&quot;float&quot;)){</span>
 <span class="nc" id="L467">            		variableUpperBound = Float.toString(Float.MAX_VALUE);</span>
-            	}
+<span class="nc" id="L468">            	}</span>
 <span class="nc bnc" id="L469" title="All 2 branches missed.">            	else if (selectedType.equals(&quot;double&quot;)){</span>
 <span class="nc" id="L470">            		variableUpperBound = Double.toString(Double.MAX_VALUE);</span>
-            	}
+<span class="nc" id="L471">            	}</span>
             	else
 <span class="nc" id="L473">            		variableUpperBound = &quot;none&quot;;</span>
             }
@@ -479,17 +479,17 @@ import odme.odmeeditor.ODMEEditor;
 <span class="nc bnc" id="L479" title="All 2 branches missed.">            if (variableTypeField.getSelectedItem().toString().trim().equals(&quot;string&quot;) || variableTypeField</span>
 <span class="nc bnc" id="L480" title="All 2 branches missed.">                    .getSelectedItem().toString().trim().equals(&quot;boolean&quot;)) {</span>
 <span class="nc" id="L481">                variableName = variableName + &quot;,&quot; + variableType + &quot;,&quot; + variableValue;</span>
-            } 
+<span class="nc" id="L482">            } </span>
             else {
 <span class="nc" id="L484">                variableName =</span>
-                        variableName + &quot;,&quot; + variableType + &quot;,&quot; + variableValue + &quot;,&quot; + variableLowerBound
-                        + &quot;,&quot; + variableUpperBound;
+<span class="nc" id="L485">                        variableName + &quot;,&quot; + variableType + &quot;,&quot; + variableValue + &quot;,&quot; + variableLowerBound</span>
+<span class="nc" id="L486">                        + &quot;,&quot; + variableUpperBound;</span>
             }
 
 
 <span class="nc" id="L490">            boolean validInput =</span>
-<span class="nc bnc" id="L491" title="All 4 branches missed.">                    (variableField.getText() != null) &amp;&amp; (!variableField.getText().trim().isEmpty()) &amp;&amp; (</span>
-<span class="nc bnc" id="L492" title="All 2 branches missed.">                            variableTypeField.getSelectedItem() != null) &amp;&amp; (!variableTypeField</span>
+<span class="nc bnc" id="L491" title="All 6 branches missed.">                    (variableField.getText() != null) &amp;&amp; (!variableField.getText().trim().isEmpty()) &amp;&amp; (</span>
+<span class="nc" id="L492">                            variableTypeField.getSelectedItem() != null) &amp;&amp; (!variableTypeField</span>
 <span class="nc bnc" id="L493" title="All 2 branches missed.">                            .getSelectedItem().toString().trim().isEmpty());</span>
             
 <span class="nc bnc" id="L495" title="All 2 branches missed.">            if (!validInput) {</span>
@@ -532,7 +532,7 @@ import odme.odmeeditor.ODMEEditor;
 
 <span class="nc" id="L533">        int option = JOptionPane</span>
 <span class="nc" id="L534">                .showConfirmDialog(Main.frame, message, &quot;Please Enter&quot;, JOptionPane.OK_CANCEL_OPTION,</span>
-                        JOptionPane.PLAIN_MESSAGE);
+<span class="nc" id="L535">                        JOptionPane.PLAIN_MESSAGE);</span>
 <span class="nc bnc" id="L536" title="All 2 branches missed.">        if (option == JOptionPane.OK_OPTION) {</span>
 <span class="nc" id="L537">            String constraints = constraintsField.getText();</span>
 
@@ -620,12 +620,12 @@ import odme.odmeeditor.ODMEEditor;
 <span class="nc" id="L620">            } </span>
             else /* if (DynamicTreeDemo.nodeAddDetector.equals(&quot;entity&quot;)) */ {
 <span class="nc" id="L622">                Object obj = graph.insertVertex(parent, null, nodeName, x, y, 80, 30,</span>
-                        &quot;Entityp&quot;); // &quot;Aspect;fillColor=#0759cf;strokeColor=white;&quot;);
+<span class="nc" id="L623">                        &quot;Entityp&quot;); // &quot;Aspect;fillColor=#0759cf;strokeColor=white;&quot;);</span>
 <span class="nc" id="L624">                graph.insertEdge(parent, null, &quot;&quot;, selectedCell, obj);</span>
 <span class="nc" id="L625">                lastAddedCell = null; // so that it will not cause duplicate addition in tree</span>
 <span class="nc" id="L626">                nodeNumber++;</span>
             }
-        } 
+<span class="nc" id="L628">        } </span>
         finally {
 <span class="nc" id="L630">            graph.getModel().endUpdate();</span>
         }
@@ -687,12 +687,12 @@ import odme.odmeeditor.ODMEEditor;
 <span class="nc" id="L687">                }</span>
                 else /* if (DynamicTreeDemo.nodeAddDetector.equals(&quot;entity&quot;)) */ {
 <span class="nc" id="L689">                    Object obj = graph.insertVertex(parent, null, nodeName, x, y, 80, 30,</span>
-                            &quot;Entityp&quot;); // &quot;Aspect;fillColor=#0759cf;strokeColor=white;&quot;);
+<span class="nc" id="L690">                            &quot;Entityp&quot;); // &quot;Aspect;fillColor=#0759cf;strokeColor=white;&quot;);</span>
 <span class="nc" id="L691">                    graph.insertEdge(parent, null, &quot;&quot;, selectedCell, obj);</span>
 <span class="nc" id="L692">                    lastAddedCell = null; // so that it will not cause duplicate addition in tree</span>
 <span class="nc" id="L693">                    nodeNumber++;</span>
                 }
-            } 
+<span class="nc" id="L695">            } </span>
             finally {
 <span class="nc" id="L697">                graph.getModel().endUpdate();</span>
             }
@@ -744,7 +744,7 @@ import odme.odmeeditor.ODMEEditor;
                     } 
 <span class="nc bnc" id="L745" title="All 2 branches missed.">                    else if (line.startsWith(&quot;&lt;/&quot;)) {</span>
 <span class="nc" id="L746">                        parentCount--;</span>
-                    } 
+<span class="nc" id="L747">                    } </span>
 <span class="nc bnc" id="L748" title="All 2 branches missed.">                    else if (line.startsWith(&quot;&lt;&quot;)) {</span>
 <span class="nc bnc" id="L749" title="All 2 branches missed.">                        if (line.endsWith(&quot;/&gt;&quot;)) {</span>
 <span class="nc" id="L750">                            String ln = line.replaceAll(&quot;[&lt;/&gt;]&quot;, &quot;&quot;);</span>
@@ -757,23 +757,23 @@ import odme.odmeeditor.ODMEEditor;
 <span class="nc bnc" id="L757" title="All 2 branches missed.">                            if (parentCount &gt; 0) {</span>
 <span class="nc" id="L758">                                nodeNames[nodeCount] = ln + &quot;-&quot; + parentNames[parentCount - 1] + &quot;-hasparent&quot;;</span>
 <span class="nc" id="L759">                                nodeCount++;</span>
-                            } 
+<span class="nc" id="L760">                            } </span>
                             else {
 <span class="nc" id="L762">                                nodeNames[nodeCount] = ln;</span>
 <span class="nc" id="L763">                                nodeCount++;</span>
                             }
 <span class="nc" id="L765">                            parentNames[parentCount] = ln;</span>
 <span class="nc" id="L766">                            parentCount++;</span>
-<span class="nc" id="L767">                        }</span>
+                        }
                     }
                 }
 
 <span class="nc" id="L771">                reader.close();</span>
 
-            } 
+<span class="nc" id="L773">            } </span>
 <span class="nc" id="L774">            catch (IOException e) {</span>
 <span class="nc" id="L775">                e.printStackTrace();</span>
-<span class="nc" id="L776">            }</span>
+            }
 <span class="nc bnc" id="L777" title="All 2 branches missed.">            for (int i = 0; i &lt; nodeCount; i++) {</span>
 <span class="nc" id="L778">                String nodeName = nodeNames[i];</span>
 
@@ -833,7 +833,7 @@ import odme.odmeeditor.ODMEEditor;
 <span class="nc" id="L833">                        nodeNumber++;</span>
 
 <span class="nc" id="L835">                        addNodeIntoJtreeWithNewModuleAddition(selectedCell);</span>
-                    } 
+<span class="nc" id="L836">                    } </span>
 <span class="nc bnc" id="L837" title="All 2 branches missed.">                    else if (nodeName.endsWith(&quot;MAsp&quot;)) {</span>
 
 <span class="nc" id="L839">                        obj = graph.insertVertex(parent, null, nodeName, x + 25, y, 30, 30, &quot;Multiaspectp&quot;);</span>
@@ -842,7 +842,7 @@ import odme.odmeeditor.ODMEEditor;
 <span class="nc" id="L842">                        nodeNumber++;</span>
 
 <span class="nc" id="L844">                        addNodeIntoJtreeWithNewModuleAddition(selectedCell);</span>
-                    } 
+<span class="nc" id="L845">                    } </span>
 <span class="nc bnc" id="L846" title="All 2 branches missed.">                    else if (nodeName.endsWith(&quot;Spec&quot;)) {</span>
 
 <span class="nc" id="L848">                        obj = graph.insertVertex(parent, null, nodeName, x + 25, y, 30, 30, &quot;Specializationp&quot;);</span>
@@ -851,10 +851,10 @@ import odme.odmeeditor.ODMEEditor;
 <span class="nc" id="L851">                        nodeNumber++;</span>
 
 <span class="nc" id="L853">                        addNodeIntoJtreeWithNewModuleAddition(selectedCell);</span>
-                    } 
+<span class="nc" id="L854">                    } </span>
                     else {
 <span class="nc" id="L856">                        obj = graph.insertVertex(parent, null, nodeName, x, y, 80, 30,</span>
-                                &quot;Entityp&quot;); // &quot;Aspect;fillColor=#0759cf;strokeColor=white;&quot;);
+<span class="nc" id="L857">                                &quot;Entityp&quot;); // &quot;Aspect;fillColor=#0759cf;strokeColor=white;&quot;);</span>
 <span class="nc" id="L858">                        graph.insertEdge(parent, null, &quot;&quot;, selectedCell, obj);</span>
 <span class="nc" id="L859">                        lastAddedCell = null; // so that it will not cause duplicate addition in tree</span>
 <span class="nc" id="L860">                        nodeNumber++;</span>
@@ -865,7 +865,7 @@ import odme.odmeeditor.ODMEEditor;
                     // added nodes in the array
 <span class="nc" id="L866">                    addedNodes[addedNodeCount] = obj;</span>
 <span class="nc" id="L867">                    addedNodeCount++;</span>
-                }
+<span class="nc" id="L868">                }</span>
                 finally {
 <span class="nc" id="L870">                    graph.getModel().endUpdate();</span>
                 }
@@ -958,7 +958,7 @@ import odme.odmeeditor.ODMEEditor;
 <span class="nc" id="L958">                        firstAddedCellForSubTreeDeletion = (mxCell) obj;</span>
 <span class="nc" id="L959">                        firstAddedCellForSubTree = 1;</span>
                     }
-                } 
+<span class="nc" id="L961">                } </span>
 <span class="nc bnc" id="L962" title="All 2 branches missed.">                else if (nodeName.endsWith(&quot;MAsp&quot;)) {</span>
 <span class="nc" id="L963">                    obj = graph.insertVertex(parent, null, nodeName, x + 25, y, 30, 30, &quot;Multiaspectp&quot;);</span>
 <span class="nc" id="L964">                    graph.insertEdge(parent, null, &quot;&quot;, selectedCell, obj);</span>
@@ -970,7 +970,7 @@ import odme.odmeeditor.ODMEEditor;
 <span class="nc" id="L970">                        firstAddedCellForSubTreeDeletion = (mxCell) obj;</span>
 <span class="nc" id="L971">                        firstAddedCellForSubTree = 1;</span>
                     }
-                } 
+<span class="nc" id="L973">                } </span>
 <span class="nc bnc" id="L974" title="All 2 branches missed.">                else if (nodeName.endsWith(&quot;Spec&quot;)) {</span>
 <span class="nc" id="L975">                    obj = graph.insertVertex(parent, null, nodeName, x + 25, y, 30, 30, &quot;Specializationp&quot;);</span>
 <span class="nc" id="L976">                    graph.insertEdge(parent, null, &quot;&quot;, selectedCell, obj);</span>
@@ -982,7 +982,7 @@ import odme.odmeeditor.ODMEEditor;
 <span class="nc" id="L982">                        firstAddedCellForSubTreeDeletion = (mxCell) obj;</span>
 <span class="nc" id="L983">                        firstAddedCellForSubTree = 1;</span>
                     }
-                } 
+<span class="nc" id="L985">                } </span>
                 else {
 <span class="nc" id="L987">                    obj = graph.insertVertex(parent, null, nodeName, x, y, 80, 30, &quot;Entityp&quot;);</span>
 <span class="nc" id="L988">                    graph.insertEdge(parent, null, &quot;&quot;, selectedCell, obj);</span>
@@ -1000,7 +1000,7 @@ import odme.odmeeditor.ODMEEditor;
                 // added nodes in the array
 <span class="nc" id="L1001">                addedNodes[addedNodeCount] = obj;</span>
 <span class="nc" id="L1002">                addedNodeCount++;</span>
-            } 
+<span class="nc" id="L1003">            } </span>
             finally {
 <span class="nc" id="L1005">                graph.getModel().endUpdate();</span>
             }
@@ -1096,7 +1096,7 @@ import odme.odmeeditor.ODMEEditor;
 <span class="nc" id="L1096">                    uniformityNodeNumber++;</span>
 
 <span class="nc" id="L1098">                    addNodeIntoJtreeForSubTree(selectedCell);</span>
-                } 
+<span class="nc" id="L1099">                } </span>
 <span class="nc bnc" id="L1100" title="All 2 branches missed.">                else if (nodeName.endsWith(&quot;MAsp&quot;)) {</span>
 <span class="nc" id="L1101">                    obj = graph.insertVertex(parent, nodeId, nodeName, x + 25, y, 30, 30, &quot;Multiaspectp&quot;);</span>
 <span class="nc" id="L1102">                    graph.insertEdge(parent, null, &quot;&quot;, selectedCell, obj);</span>
@@ -1105,7 +1105,7 @@ import odme.odmeeditor.ODMEEditor;
 <span class="nc" id="L1105">                    uniformityNodeNumber++;</span>
 
 <span class="nc" id="L1107">                    addNodeIntoJtreeForSubTree(selectedCell);</span>
-                } 
+<span class="nc" id="L1108">                } </span>
 <span class="nc bnc" id="L1109" title="All 2 branches missed.">                else if (nodeName.endsWith(&quot;Spec&quot;)) {</span>
 <span class="nc" id="L1110">                    obj = graph.insertVertex(parent, nodeId, nodeName, x + 25, y, 30, 30, &quot;Specializationp&quot;);</span>
 <span class="nc" id="L1111">                    graph.insertEdge(parent, null, &quot;&quot;, selectedCell, obj);</span>
@@ -1114,7 +1114,7 @@ import odme.odmeeditor.ODMEEditor;
 <span class="nc" id="L1114">                    uniformityNodeNumber++;</span>
 
 <span class="nc" id="L1116">                    addNodeIntoJtreeForSubTree(selectedCell);</span>
-                } 
+<span class="nc" id="L1117">                } </span>
                 else {
 <span class="nc" id="L1119">                    obj = graph.insertVertex(parent, nodeId, nodeName, x, y, 80, 30, &quot;Entityp&quot;);</span>
 <span class="nc" id="L1120">                    graph.insertEdge(parent, null, &quot;&quot;, selectedCell, obj);</span>
@@ -1129,7 +1129,7 @@ import odme.odmeeditor.ODMEEditor;
                 // added nodes in the array
 <span class="nc" id="L1130">                addedNodes[addedNodeCount] = obj;</span>
 <span class="nc" id="L1131">                addedNodeCount++;</span>
-            } 
+<span class="nc" id="L1132">            } </span>
             finally {
 <span class="nc" id="L1134">                graph.getModel().endUpdate();</span>
             }
@@ -1158,27 +1158,27 @@ import odme.odmeeditor.ODMEEditor;
                     }
 <span class="nc" id="L1159">                    graph.insertVertex(parent, null, variableName, x - 15, y, 30, 30, &quot;Aspect&quot;);</span>
 <span class="nc" id="L1160">                    nodeNumber++;</span>
-                } 
+<span class="nc" id="L1161">                } </span>
 <span class="nc bnc" id="L1162" title="All 2 branches missed.">                else if (node.endsWith(&quot;MAsp&quot;)) {</span>
 <span class="nc bnc" id="L1163" title="All 2 branches missed.">                    if (!variableName.endsWith(&quot;MAsp&quot;)) {</span>
 <span class="nc" id="L1164">                        variableName = variableName + &quot;MAsp&quot;;</span>
                     }
 <span class="nc" id="L1166">                    graph.insertVertex(parent, null, variableName, x - 15, y, 30, 30, &quot;Multiaspectp&quot;);</span>
 <span class="nc" id="L1167">                    nodeNumber++;</span>
-                } 
+<span class="nc" id="L1168">                } </span>
 <span class="nc bnc" id="L1169" title="All 2 branches missed.">                else if (node.endsWith(&quot;Spec&quot;)) {</span>
 <span class="nc bnc" id="L1170" title="All 2 branches missed.">                    if (!variableName.endsWith(&quot;Spec&quot;)) {</span>
 <span class="nc" id="L1171">                        variableName = variableName + &quot;Spec&quot;;</span>
                     }
 <span class="nc" id="L1173">                    graph.insertVertex(parent, null, variableName, x - 15, y, 30, 30, &quot;Specializationp&quot;);</span>
 <span class="nc" id="L1174">                    nodeNumber++;</span>
-                } 
+<span class="nc" id="L1175">                } </span>
                 else /* if (DynamicTreeDemo.nodeAddDetector.equals(&quot;entity&quot;)) */ {
 <span class="nc" id="L1177">                    graph.insertVertex(parent, null, variableName, x - 40, y, 80, 30,</span>
-                            &quot;Entityp&quot;); // &quot;Aspect;fillColor=#0759cf;strokeColor=white;&quot;);
+<span class="nc" id="L1178">                            &quot;Entityp&quot;); // &quot;Aspect;fillColor=#0759cf;strokeColor=white;&quot;);</span>
 <span class="nc" id="L1179">                    nodeNumber++;</span>
                 }
-            } 
+<span class="nc" id="L1181">            } </span>
             finally {
 <span class="nc" id="L1183">                graph.getModel().endUpdate();</span>
             }
@@ -1195,7 +1195,7 @@ import odme.odmeeditor.ODMEEditor;
 <span class="nc" id="L1195">        	graph.insertVertex(parent, &quot;hideV&quot;, &quot;End of Canvas&quot;, 0, 50000, 80, 30, &quot;Entity&quot;);</span>
 
 <span class="nc" id="L1197">        	graph.insertVertex(parent, &quot;hideH&quot;, &quot;End of Canvas&quot;, 50000, 0, 80, 30, &quot;Entity&quot;);</span>
-        } 
+<span class="nc" id="L1198">        } </span>
         finally {
 <span class="nc" id="L1200">            graph.getModel().endUpdate();</span>
         }
@@ -1210,7 +1210,7 @@ import odme.odmeeditor.ODMEEditor;
 
 <span class="nc bnc" id="L1211" title="All 2 branches missed.">        for (TreePath keyPath2 : DynamicTree.constraintsList.keySet()) {</span>
 <span class="nc" id="L1212">            keyPath = keyPath2;</span>
-<span class="nc" id="L1213">        }</span>
+        }
 
 <span class="nc bnc" id="L1215" title="All 2 branches missed.">        if (keyPath != null) {</span>
 <span class="nc" id="L1216">            DefaultMutableTreeNode currentNode = (DefaultMutableTreeNode) (keyPath.getLastPathComponent());</span>
@@ -1236,7 +1236,7 @@ import odme.odmeeditor.ODMEEditor;
 
 <span class="nc bnc" id="L1237" title="All 2 branches missed.">                            if (nodes[i].toString().equals(nodes2[i].toString())) {</span>
 <span class="nc" id="L1238">                                a = 1;</span>
-                            } 
+<span class="nc" id="L1239">                            } </span>
                             else {
 <span class="nc" id="L1241">                                a = 0;</span>
                             }
@@ -1247,8 +1247,8 @@ import odme.odmeeditor.ODMEEditor;
 <span class="nc" id="L1247">                        nodesToSelectedNode[b] = value;</span>
 <span class="nc" id="L1248">                        b++;</span>
                     }
-<span class="nc" id="L1250">                }</span>
-<span class="nc" id="L1251">            }</span>
+                }
+            }
 
 <span class="nc" id="L1253">            nodesToSelectedNode =</span>
 <span class="nc bnc" id="L1254" title="All 4 branches missed.">                    Arrays.stream(nodesToSelectedNode).filter(s -&gt; (s != null &amp;&amp; s.length() &gt; 0))</span>
@@ -1257,7 +1257,7 @@ import odme.odmeeditor.ODMEEditor;
 <span class="nc bnc" id="L1257" title="All 2 branches missed.">            for (String con : nodesToSelectedNode) {</span>
 <span class="nc bnc" id="L1258" title="All 2 branches missed.">                if (constraint.equals(&quot;&quot;)) {</span>
 <span class="nc" id="L1259">                    constraint = con;</span>
-                }
+<span class="nc" id="L1260">                }</span>
                 else {
 <span class="nc" id="L1262">                    constraint = constraint + &quot;, &quot; + con;</span>
                 }
@@ -1266,13 +1266,13 @@ import odme.odmeeditor.ODMEEditor;
 <span class="nc bnc" id="L1266" title="All 2 branches missed.">            for (int i = 0; i &lt; len; i++) {</span>
 <span class="nc bnc" id="L1267" title="All 2 branches missed.">                if (nodes[i].toString().endsWith(&quot;Dec&quot;)) {</span>
 <span class="nc" id="L1268">                    sesNodesInPath[i] = &quot;aspect&quot;;</span>
-                }
+<span class="nc" id="L1269">                }</span>
 <span class="nc bnc" id="L1270" title="All 2 branches missed.">                else if (nodes[i].toString().endsWith(&quot;MAsp&quot;)) {</span>
 <span class="nc" id="L1271">                    sesNodesInPath[i] = &quot;multiAspect&quot;;</span>
-                } 
+<span class="nc" id="L1272">                } </span>
 <span class="nc bnc" id="L1273" title="All 2 branches missed.">                else if (nodes[i].toString().endsWith(&quot;Spec&quot;)) {</span>
 <span class="nc" id="L1274">                    sesNodesInPath[i] = &quot;specialization&quot;;</span>
-                } 
+<span class="nc" id="L1275">                } </span>
                 else {
 <span class="nc" id="L1277">                    sesNodesInPath[i] = &quot;entity&quot;;</span>
                 }

@@ -28,7 +28,7 @@ import odme.odmeeditor.ODMEEditor;
 
         try {
 <span class="nc" id="L30">            FileReader reader = new FileReader(</span>
-                    (ODMEEditor.fileLocation + &quot;/&quot; + ODMEEditor.projName + &quot;/&quot; + ODMEEditor.projName + &quot;.xml&quot;));
+<span class="nc" id="L31">                    (ODMEEditor.fileLocation + &quot;/&quot; + ODMEEditor.projName + &quot;/&quot; + ODMEEditor.projName + &quot;.xml&quot;));</span>
 <span class="nc" id="L32">            BufferedReader bufferedReader = new BufferedReader(reader);</span>
 
             String line;
@@ -43,7 +43,7 @@ import odme.odmeeditor.ODMEEditor;
                 } 
 <span class="nc bnc" id="L44" title="All 2 branches missed.">                else if (line.startsWith(&quot;&lt;/&quot;)) {</span>
 <span class="nc" id="L45">                    parentCount--;</span>
-                } 
+<span class="nc" id="L46">                } </span>
 <span class="nc bnc" id="L47" title="All 2 branches missed.">                else if (line.startsWith(&quot;&lt;&quot;)) {</span>
 <span class="nc bnc" id="L48" title="All 2 branches missed.">                    if (line.endsWith(&quot;/&gt;&quot;)) {</span>
 <span class="nc" id="L49">                        String ln = line.replaceAll(&quot;[&lt;/&gt;]&quot;, &quot;&quot;);</span>
@@ -56,22 +56,22 @@ import odme.odmeeditor.ODMEEditor;
 <span class="nc bnc" id="L56" title="All 2 branches missed.">                        if (parentCount &gt; 0) {</span>
 <span class="nc" id="L57">                            nodeNames[nodeCount] = ln + &quot;-&quot; + parentNames[parentCount - 1] + &quot;-hasparent&quot;;</span>
 <span class="nc" id="L58">                            nodeCount++;</span>
-                        } 
+<span class="nc" id="L59">                        } </span>
                         else {
 <span class="nc" id="L61">                            nodeNames[nodeCount] = ln;</span>
 <span class="nc" id="L62">                            nodeCount++;</span>
                         }
 <span class="nc" id="L64">                        parentNames[parentCount] = ln;</span>
 <span class="nc" id="L65">                        parentCount++;</span>
-<span class="nc" id="L66">                    }</span>
+                    }
                 }
             }
             
 <span class="nc" id="L70">            reader.close();</span>
-        } 
+<span class="nc" id="L71">        } </span>
 <span class="nc" id="L72">        catch (IOException e) {</span>
 <span class="nc" id="L73">            e.printStackTrace();</span>
-<span class="nc" id="L74">        }</span>
+        }
 
 <span class="nc" id="L76">        String rootName = nodeNames[0];</span>
         
@@ -138,7 +138,7 @@ import odme.odmeeditor.ODMEEditor;
 <span class="nc" id="L138">                    nodeNumber++;</span>
 
 <span class="nc" id="L140">                    JtreeToGraphAdd.addNodeIntoJtreeWithNewModuleAddition(selectedCell);</span>
-                } 
+<span class="nc" id="L141">                } </span>
 <span class="nc bnc" id="L142" title="All 2 branches missed.">                else if (nodeName.endsWith(&quot;MAsp&quot;)) {</span>
 
 <span class="nc" id="L144">                    obj = graph.insertVertex(parent, null, nodeName, x + 25, y, 30, 30, &quot;Multiaspect&quot;);</span>
@@ -147,7 +147,7 @@ import odme.odmeeditor.ODMEEditor;
 <span class="nc" id="L147">                    nodeNumber++;</span>
 
 <span class="nc" id="L149">                    JtreeToGraphAdd.addNodeIntoJtreeWithNewModuleAddition(selectedCell);</span>
-                } 
+<span class="nc" id="L150">                } </span>
 <span class="nc bnc" id="L151" title="All 2 branches missed.">                else if (nodeName.endsWith(&quot;Spec&quot;)) {</span>
 
 <span class="nc" id="L153">                    obj = graph.insertVertex(parent, null, nodeName, x + 25, y, 30, 30, &quot;Specialization&quot;);</span>
@@ -156,10 +156,10 @@ import odme.odmeeditor.ODMEEditor;
 <span class="nc" id="L156">                    nodeNumber++;</span>
 
 <span class="nc" id="L158">                    JtreeToGraphAdd.addNodeIntoJtreeWithNewModuleAddition(selectedCell);</span>
-                } 
+<span class="nc" id="L159">                } </span>
                 else /* if (DynamicTreeDemo.nodeAddDetector.equals(&quot;entity&quot;)) */ {
 <span class="nc" id="L161">                    obj = graph.insertVertex(parent, null, nodeName, x, y, 80, 30,</span>
-                            &quot;Entity&quot;); // &quot;Aspect;fillColor=#0759cf;strokeColor=white;&quot;);
+<span class="nc" id="L162">                            &quot;Entity&quot;); // &quot;Aspect;fillColor=#0759cf;strokeColor=white;&quot;);</span>
 <span class="nc" id="L163">                    graph.insertEdge(parent, null, &quot;&quot;, selectedCell, obj);</span>
 <span class="nc" id="L164">                    lastAddedCell = null; // so that it will not cause duplicate addition in tree</span>
 <span class="nc" id="L165">                    nodeNumber++;</span>
@@ -170,7 +170,7 @@ import odme.odmeeditor.ODMEEditor;
                 // added nodes in the array
 <span class="nc" id="L171">                addedNodes[addedNodeCount] = obj;</span>
 <span class="nc" id="L172">                addedNodeCount++;</span>
-            } 
+<span class="nc" id="L173">            } </span>
             finally {
 <span class="nc" id="L175">                graph.getModel().endUpdate();</span>
             }

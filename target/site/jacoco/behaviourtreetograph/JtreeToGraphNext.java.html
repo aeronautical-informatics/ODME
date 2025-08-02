@@ -39,11 +39,11 @@ import static odme.jtreetograph.JtreeToGraphVariables.*;
 <span class="nc" id="L39">                        FileConvertion fileConvertion = new FileConvertion();</span>
 <span class="nc" id="L40">                        fileConvertion.addingUniformityRefNodeToXML(stringArrayRev, cellName);</span>
 <span class="nc" id="L41">                        path.clear();</span>
-<span class="nc" id="L42">                    } </span>
+                    } 
                     else {
                         continue;
                     }
-                } 
+<span class="nc" id="L46">                } </span>
                 else {
 <span class="nc" id="L48">                	JtreeToGraphConvert.rootToEndVariableAddition(targetCell2); // variable addition</span>
 <span class="nc" id="L49">                	JtreeToGraphConvert.rootToEndConstraintAddition(targetCell2); // constraint addition</span>
@@ -131,8 +131,8 @@ import static odme.jtreetograph.JtreeToGraphVariables.*;
 <span class="nc" id="L131">                mxCell targetCell2 = (mxCell) targetCell;</span>
 
 <span class="nc bnc" id="L133" title="All 2 branches missed.">                if (targetCell2.getValue().toString().equals(subtreeCheckLabel)</span>
-<span class="nc bnc" id="L134" title="All 4 branches missed.">                    &amp;&amp; targetCell2.getId() != subtreeCheckCell.getId() &amp;&amp; !(targetCell2.getId().startsWith(</span>
-                        &quot;uniformity&quot;))) {
+<span class="nc bnc" id="L134" title="All 2 branches missed.">                    &amp;&amp; targetCell2.getId() != subtreeCheckCell.getId() &amp;&amp; !(targetCell2.getId().startsWith(</span>
+<span class="nc bnc" id="L135" title="All 2 branches missed.">                        &quot;uniformity&quot;))) {</span>
 
 <span class="nc bnc" id="L137" title="All 2 branches missed.">                    if (benhaviourGraph.getOutgoingEdges(targetCell2).length &gt; 1) {</span>
 
@@ -141,7 +141,7 @@ import static odme.jtreetograph.JtreeToGraphVariables.*;
 
 //                        JtreeToGraphSave.saveModuleFromCurrentModelSecondStep(targetCell2);
 //                        JtreeToGraphAdd.addModuleFromSubgraphUniformity(subtreeCheckCell);
-                    } 
+<span class="nc" id="L144">                    } </span>
                     else {
 
 <span class="nc" id="L147">                        subtreeCheckCell.setId(&quot;uniformity&quot; + uniformityNodeNumber + &quot;RefNode&quot;);</span>
@@ -240,11 +240,11 @@ import static odme.jtreetograph.JtreeToGraphVariables.*;
 <span class="nc" id="L240">                    benhaviourGraph.getModel().beginUpdate();</span>
                     try {
 <span class="nc" id="L242">                        benhaviourGraph.getModel().setValue(targetCell2, newName);</span>
-                    } 
+<span class="nc" id="L243">                    } </span>
                     finally {
 <span class="nc" id="L245">                        benhaviourGraph.getModel().endUpdate();</span>
                     }
-<span class="nc" id="L247">                    break;</span>
+                    break;
                 } 
                 else {
 

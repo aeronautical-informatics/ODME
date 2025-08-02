@@ -1,135 +1,128 @@
 GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
-SESEditor,behaviourtreetograph,JTreeToGraphBehaviour,404,0,8,0,84,0,7,0,3,0
+SESEditor,behaviourtreetograph,JTreeToGraphBehaviour,405,0,8,0,85,0,7,0,3,0
 SESEditor,behaviourtreetograph,JTreeToGraphBehaviour.MyTreeModelListener,25,0,0,0,8,0,5,0,5,0
-SESEditor,behaviourtreetograph,JTreeToGraphBehaviour.new MouseAdapter() {...},241,0,28,0,47,0,16,0,2,0
+SESEditor,behaviourtreetograph,JTreeToGraphBehaviour.new MouseAdapter() {...},232,0,28,0,51,0,16,0,2,0
 SESEditor,behaviourtreetograph,JTreeToGraphBehaviour.new mxEventSource.mxIEventListener() {...},18,0,0,0,6,0,2,0,2,0
-SESEditor,behaviourtreetograph,JTreeToGraphBehaviour.new mxEventSource.mxIEventListener() {...},17,0,4,0,4,0,4,0,2,0
-SESEditor,behaviourtreetograph,JtreeToGraphSave,185,0,8,0,45,0,9,0,5,0
+SESEditor,behaviourtreetograph,JTreeToGraphBehaviour.new mxEventSource.mxIEventListener() {...},12,0,2,0,4,0,3,0,2,0
+SESEditor,behaviourtreetograph,JtreeToGraphSave,25,0,0,0,5,0,5,0,5,0
 SESEditor,behaviourtreetograph,test,60,0,4,0,13,0,4,0,2,0
-SESEditor,behaviourtreetograph,JtreeToGraphGeneral,824,0,120,0,212,0,74,0,14,0
-SESEditor,behaviourtreetograph,JtreeToGraphModify,181,0,14,0,62,0,9,0,2,0
-SESEditor,behaviourtreetograph,JtreeToGraphDelete,513,0,52,0,126,0,33,0,7,0
-SESEditor,behaviourtreetograph,JtreeToGraphNext,486,0,76,0,114,0,46,0,8,0
-SESEditor,behaviourtreetograph,JtreeToGraphConvert,784,0,88,0,202,0,58,0,14,0
+SESEditor,behaviourtreetograph,JtreeToGraphGeneral,70,0,0,0,14,0,14,0,14,0
+SESEditor,behaviourtreetograph,JtreeToGraphModify,181,0,14,0,60,0,9,0,2,0
+SESEditor,behaviourtreetograph,JtreeToGraphDelete,516,0,52,0,130,0,33,0,7,0
+SESEditor,behaviourtreetograph,JtreeToGraphNext,486,0,76,0,116,0,46,0,8,0
+SESEditor,behaviourtreetograph,JtreeToGraphConvert,50,0,0,0,10,0,10,0,10,0
 SESEditor,behaviourtreetograph,JtreeToGraphCheck,71,0,4,0,28,0,9,0,7,0
-SESEditor,odme.core,FindByName,72,0,10,0,18,0,7,0,2,0
-SESEditor,odme.core,CustomIconRenderer,103,0,12,0,20,0,8,0,2,0
+SESEditor,odme.core,FindByName,72,0,10,0,17,0,7,0,2,0
+SESEditor,odme.core,CustomIconRenderer,103,0,12,0,24,0,8,0,2,0
 SESEditor,odme.core,FlagVariables,3,0,0,0,1,0,1,0,1,0
-SESEditor,odme.core,UndoableTreeModel.NodeRemoveEdit,74,0,0,0,17,0,4,0,4,0
-SESEditor,odme.core,FileConvertion,1345,0,162,0,419,0,98,0,17,0
+SESEditor,odme.core,UndoableTreeModel.NodeRemoveEdit,75,0,0,0,17,0,4,0,4,0
+SESEditor,odme.core,FileConvertion,1345,0,162,0,461,0,98,0,17,0
 SESEditor,odme.core,EditorUndoableEditListener,15,0,0,0,5,0,3,0,3,0
-SESEditor,odme.core,XmlJTree,87,0,8,0,27,0,6,0,2,0
+SESEditor,odme.core,XmlJTree,10,0,0,0,2,0,2,0,2,0
 SESEditor,odme.core,UndoableTreeModel,100,0,2,0,25,0,8,0,7,0
-SESEditor,odme.core,CustomIconRendererProject,68,0,8,0,15,0,6,0,2,0
-SESEditor,odme.core,UndoableTreeModel.NodeChangeEdit,52,0,0,0,16,0,4,0,4,0
-SESEditor,odme.core,UndoableTreeModel.NodeAddEdit,76,0,0,0,17,0,4,0,4,0
-SESEditor,odme.jtreetograph,JtreeToGraphCreate.new MouseAdapter() {...},673,0,90,0,163,0,51,0,6,0
-SESEditor,odme.jtreetograph,JtreeToGraphDelete,1668,0,188,0,415,0,112,0,18,0
-SESEditor,odme.jtreetograph,JtreeToGraphCreate.new mxEventSource.mxIEventListener() {...},17,0,4,0,4,0,4,0,2,0
-SESEditor,odme.jtreetograph,JtreeToGraphCreate.new mxEventSource.mxIEventListener() {...},13,0,0,0,5,0,2,0,2,0
-SESEditor,odme.jtreetograph,JtreeToGraphImport,387,0,34,0,96,0,19,0,2,0
-SESEditor,odme.jtreetograph,JtreeToGraphAdd,2591,0,228,0,579,0,135,0,21,0
+SESEditor,odme.core,CustomIconRendererProject,68,0,8,0,16,0,6,0,2,0
+SESEditor,odme.core,UndoableTreeModel.NodeChangeEdit,53,0,0,0,16,0,4,0,4,0
+SESEditor,odme.core,UndoableTreeModel.NodeAddEdit,78,0,0,0,17,0,4,0,4,0
+SESEditor,odme.jtreetograph,JtreeToGraphDelete,1676,0,188,0,416,0,112,0,18,0
+SESEditor,odme.jtreetograph,JtreeToGraphImport,388,0,34,0,103,0,19,0,2,0
+SESEditor,odme.jtreetograph,JtreeToGraphAdd,2596,0,228,0,621,0,134,0,20,0
 SESEditor,odme.jtreetograph,JtreeToGraphPrune.new ItemListener() {...},16,0,2,0,4,0,3,0,2,0
 SESEditor,odme.jtreetograph,JtreeToGraphPrune.new ItemListener() {...},16,0,2,0,4,0,3,0,2,0
-SESEditor,odme.jtreetograph,JtreeToGraphPrune.new KeyListener() {...},35,0,4,0,12,0,6,0,4,0
-SESEditor,odme.jtreetograph,JtreeToGraphVariables,78,0,0,0,25,0,2,0,2,0
-SESEditor,odme.jtreetograph,JtreeToGraphNext,496,0,76,0,119,0,46,0,8,0
-SESEditor,odme.jtreetograph,JtreeToGraphCreate,686,0,28,0,156,0,17,0,3,0
-SESEditor,odme.jtreetograph,JtreeToGraphPrune,2276,0,230,0,503,0,145,0,30,0
-SESEditor,odme.jtreetograph,JtreeToGraphConvert,986,0,102,0,251,0,69,0,18,0
+SESEditor,odme.jtreetograph,JtreeToGraphPrune.new KeyListener() {...},35,0,4,0,11,0,6,0,4,0
+SESEditor,odme.jtreetograph,JtreeToGraphVariables,78,0,0,0,26,0,2,0,2,0
+SESEditor,odme.jtreetograph,JtreeToGraphNext,496,0,76,0,121,0,46,0,8,0
+SESEditor,odme.jtreetograph,JtreeToGraphCreate,15,0,0,0,3,0,3,0,3,0
+SESEditor,odme.jtreetograph,JtreeToGraphPrune,2261,0,230,0,509,0,139,0,24,0
+SESEditor,odme.jtreetograph,JtreeToGraphConvert,70,0,0,0,14,0,14,0,14,0
 SESEditor,odme.jtreetograph,JtreeToGraphDelete.new ItemListener() {...},13,0,0,0,3,0,2,0,2,0
-SESEditor,odme.jtreetograph,JtreeToGraphModify,515,0,46,0,169,0,29,0,6,0
+SESEditor,odme.jtreetograph,JtreeToGraphModify,515,0,46,0,166,0,29,0,6,0
 SESEditor,odme.jtreetograph,JtreeToGraphCheck,71,0,4,0,28,0,9,0,7,0
-SESEditor,odme.jtreetograph,JtreeToGraphAdd.new KeyListener() {...},143,0,30,0,22,0,19,0,4,0
-SESEditor,odme.jtreetograph,JtreeToGraphAdd.new KeyListener() {...},143,0,30,0,22,0,19,0,4,0
-SESEditor,odme.jtreetograph,JtreeToGraphAdd.new KeyListener() {...},203,0,44,0,31,0,26,0,4,0
-SESEditor,odme.jtreetograph,JtreeToGraphAdd.new KeyListener() {...},159,0,32,0,24,0,20,0,4,0
-SESEditor,odme.jtreetograph,JtreeToGraphGeneral,886,0,124,0,229,0,77,0,15,0
+SESEditor,odme.jtreetograph,JtreeToGraphAdd.new KeyListener() {...},143,0,30,0,24,0,19,0,4,0
+SESEditor,odme.jtreetograph,JtreeToGraphAdd.new KeyListener() {...},143,0,30,0,24,0,19,0,4,0
+SESEditor,odme.jtreetograph,JtreeToGraphAdd.new KeyListener() {...},203,0,44,0,35,0,26,0,4,0
+SESEditor,odme.jtreetograph,JtreeToGraphAdd.new KeyListener() {...},159,0,32,0,27,0,20,0,4,0
+SESEditor,odme.jtreetograph,JtreeToGraphGeneral,75,0,0,0,15,0,15,0,15,0
 SESEditor,odme.jtreetograph,JtreeToGraphAdd.new KeyListener() {...},37,0,4,0,7,0,6,0,4,0
-SESEditor,odme.jtreetograph,JtreeToGraphAdd.new ItemListener() {...},194,0,38,0,29,0,21,0,2,0
-SESEditor,odme.jtreetograph,JtreeToGraphAdd.new KeyListener() {...},48,0,6,0,9,0,7,0,4,0
-SESEditor,odme.jtreetograph,JtreeToGraphSave,292,0,12,0,78,0,14,0,8,0
-SESEditor,odme.contextmenus,GraphCellPopUp,174,0,22,0,40,0,13,0,2,0
-SESEditor,odme.contextmenus,TreePopup,350,0,52,0,70,0,30,0,4,0
-SESEditor,odme.contextmenus,GraphPopup.new ActionListener() {...},49,0,5,0,10,0,6,0,2,0
+SESEditor,odme.jtreetograph,JtreeToGraphAdd.new ItemListener() {...},194,0,38,0,33,0,21,0,2,0
+SESEditor,odme.jtreetograph,JtreeToGraphAdd.new KeyListener() {...},48,0,6,0,10,0,7,0,4,0
+SESEditor,odme.jtreetograph,JtreeToGraphSave,40,0,0,0,8,0,8,0,8,0
+SESEditor,odme.contextmenus,GraphCellPopUp,174,0,22,0,43,0,13,0,2,0
+SESEditor,odme.contextmenus,TreePopup,350,0,52,0,76,0,30,0,4,0
+SESEditor,odme.contextmenus,GraphPopup.new ActionListener() {...},46,0,5,0,10,0,6,0,2,0
 SESEditor,odme.contextmenus,GraphPopup,61,0,4,0,9,0,3,0,1,0
-SESEditor,odme.contextmenus,TreePopup.new ActionListener() {...},27,0,4,0,8,0,5,0,2,0
+SESEditor,odme.contextmenus,TreePopup.new ActionListener() {...},24,0,4,0,8,0,5,0,2,0
 SESEditor,odme.contextmenus,ProjectTreePopup,21,0,0,0,7,0,2,0,2,0
 SESEditor,odme.contextmenus,ProjectTreePopup.new ActionListener() {...},10,0,0,0,3,0,2,0,2,0
-SESEditor,odme.contextmenus,GraphCellPopUp.new ActionListener() {...},40,0,6,0,8,0,5,0,2,0
-SESEditor,odme.contextmenus,GraphCellPopUp.new ActionListener() {...},62,0,12,0,24,0,13,0,2,0
+SESEditor,odme.contextmenus,GraphCellPopUp.new ActionListener() {...},39,0,6,0,10,0,5,0,2,0
+SESEditor,odme.contextmenus,GraphCellPopUp.new ActionListener() {...},59,0,12,0,24,0,13,0,2,0
 SESEditor,odme.odmeeditor,ScenarioList.new ActionListener() {...},54,0,0,0,19,0,2,0,2,0
-SESEditor,odme.odmeeditor,ScenarioList.new ActionListener() {...},55,0,4,0,12,0,4,0,2,0
-SESEditor,odme.odmeeditor,BehaviourList,308,0,14,0,70,0,12,0,5,0
-SESEditor,odme.odmeeditor,DynamicTree.new MouseMotionAdapter() {...},38,0,2,0,8,0,3,0,2,0
-SESEditor,odme.odmeeditor,ODDManager,1065,0,86,0,245,0,79,0,35,0
-SESEditor,odme.odmeeditor,About,188,0,2,0,42,0,3,0,2,0
-SESEditor,odme.odmeeditor,ODMEEditor,853,0,40,0,210,0,35,0,15,0
-SESEditor,odme.odmeeditor,ImportProject,776,0,24,0,162,0,17,0,5,0
+SESEditor,odme.odmeeditor,ScenarioList.new ActionListener() {...},55,0,4,0,14,0,4,0,2,0
+SESEditor,odme.odmeeditor,BehaviourList,310,0,14,0,66,0,12,0,5,0
+SESEditor,odme.odmeeditor,DynamicTree.new MouseMotionAdapter() {...},38,0,2,0,9,0,3,0,2,0
+SESEditor,odme.odmeeditor,ODDManager,170,0,0,0,33,0,34,0,34,0
+SESEditor,odme.odmeeditor,About,188,0,2,0,43,0,3,0,2,0
+SESEditor,odme.odmeeditor,ODMEEditor,852,0,40,0,214,0,35,0,15,0
+SESEditor,odme.odmeeditor,ImportProject,775,0,24,0,175,0,17,0,5,0
 SESEditor,odme.odmeeditor,ScenarioList.new MouseAdapter() {...},47,0,2,0,9,0,3,0,2,0
-SESEditor,odme.odmeeditor,ScenarioList,632,0,28,0,143,0,21,0,7,0
+SESEditor,odme.odmeeditor,ScenarioList,635,0,28,0,139,0,21,0,7,0
 SESEditor,odme.odmeeditor,Console,150,0,10,0,44,0,8,0,3,0
-SESEditor,odme.odmeeditor,GraphWindow,8,0,0,0,2,0,1,0,1,0
+SESEditor,odme.odmeeditor,GraphWindow,8,0,0,0,5,0,1,0,1,0
 SESEditor,odme.odmeeditor,ODDListView,140,0,8,0,31,0,8,0,4,0
 SESEditor,odme.odmeeditor,XMLViewer,46,0,0,0,10,0,1,0,1,0
-SESEditor,odme.odmeeditor,ProjectTree.new MouseMotionAdapter() {...},46,0,2,0,10,0,3,0,2,0
-SESEditor,odme.odmeeditor,Variable.new KeyListener() {...},32,0,0,0,5,0,4,0,4,0
-SESEditor,odme.odmeeditor,Variable,1454,0,214,0,256,0,119,0,12,0
-SESEditor,odme.odmeeditor,ToolBar,331,0,8,0,84,0,19,0,15,0
-SESEditor,odme.odmeeditor,Variable.new KeyListener() {...},32,0,0,0,5,0,4,0,4,0
-SESEditor,odme.odmeeditor,Variable.new ItemListener() {...},39,0,2,0,4,0,3,0,2,0
-SESEditor,odme.odmeeditor,Variable.new MouseAdapter() {...},82,0,4,0,15,0,4,0,2,0
+SESEditor,odme.odmeeditor,ProjectTree.new MouseMotionAdapter() {...},46,0,2,0,11,0,3,0,2,0
+SESEditor,odme.odmeeditor,Variable.new KeyListener() {...},32,0,0,0,7,0,4,0,4,0
+SESEditor,odme.odmeeditor,Variable,1454,0,214,0,299,0,119,0,12,0
+SESEditor,odme.odmeeditor,ToolBar,333,0,8,0,86,0,19,0,15,0
+SESEditor,odme.odmeeditor,Variable.new KeyListener() {...},32,0,0,0,7,0,4,0,4,0
+SESEditor,odme.odmeeditor,Variable.new ItemListener() {...},39,0,2,0,5,0,3,0,2,0
+SESEditor,odme.odmeeditor,Variable.new MouseAdapter() {...},82,0,4,0,16,0,4,0,2,0
 SESEditor,odme.odmeeditor,PanelSplitor.new PropertyChangeListener() {...},12,0,0,0,3,0,2,0,2,0
 SESEditor,odme.odmeeditor,SplashScreen,213,0,4,0,54,0,9,0,7,0
-SESEditor,odme.odmeeditor,BehaviourList.new MouseAdapter() {...},41,0,2,0,12,0,3,0,2,0
+SESEditor,odme.odmeeditor,BehaviourList.new MouseAdapter() {...},41,0,2,0,11,0,3,0,2,0
 SESEditor,odme.odmeeditor,PanelSplitor,107,0,0,0,20,0,5,0,5,0
-SESEditor,odme.odmeeditor,ImportProject.new KeyListener() {...},42,0,4,0,10,0,6,0,4,0
-SESEditor,odme.odmeeditor,ImportProject.new ItemListener() {...},52,0,2,0,11,0,3,0,2,0
-SESEditor,odme.odmeeditor,EditableDataModel,130,0,26,0,35,0,19,0,5,0
-SESEditor,odme.odmeeditor,ODMEEditor.new ActionListener() {...},55,0,2,0,26,0,3,0,2,0
+SESEditor,odme.odmeeditor,ImportProject.new KeyListener() {...},42,0,4,0,11,0,6,0,4,0
+SESEditor,odme.odmeeditor,ImportProject.new ItemListener() {...},52,0,2,0,12,0,3,0,2,0
+SESEditor,odme.odmeeditor,EditableDataModel,130,0,26,0,41,0,19,0,5,0
+SESEditor,odme.odmeeditor,ODMEEditor.new ActionListener() {...},55,0,2,0,28,0,3,0,2,0
 SESEditor,odme.odmeeditor,Main,168,0,6,0,48,0,7,0,4,0
-SESEditor,odme.odmeeditor,ODMEEditor.new ChangeListener() {...},78,0,8,0,29,0,6,0,2,0
-SESEditor,odme.odmeeditor,MenuBar.new ActionListener() {...},80,0,15,0,32,0,16,0,2,0
-SESEditor,odme.odmeeditor,Variable.new KeyListener() {...},32,0,0,0,5,0,4,0,4,0
-SESEditor,odme.odmeeditor,Variable.new KeyListener() {...},32,0,0,0,5,0,4,0,4,0
-SESEditor,odme.odmeeditor,ProjectTree,468,0,38,0,112,0,30,0,11,0
+SESEditor,odme.odmeeditor,ODMEEditor.new ChangeListener() {...},77,0,6,0,32,0,5,0,2,0
+SESEditor,odme.odmeeditor,MenuBar.new ActionListener() {...},77,0,15,0,32,0,16,0,2,0
+SESEditor,odme.odmeeditor,Variable.new KeyListener() {...},32,0,0,0,7,0,4,0,4,0
+SESEditor,odme.odmeeditor,Variable.new KeyListener() {...},32,0,0,0,7,0,4,0,4,0
+SESEditor,odme.odmeeditor,ProjectTree,468,0,38,0,110,0,30,0,11,0
 SESEditor,odme.odmeeditor,ImportProject.new ActionListener() {...},10,0,0,0,3,0,2,0,2,0
 SESEditor,odme.odmeeditor,ImportProject.new ActionListener() {...},11,0,0,0,3,0,2,0,2,0
 SESEditor,odme.odmeeditor,ImportProject.new ActionListener() {...},52,0,2,0,12,0,3,0,2,0
 SESEditor,odme.odmeeditor,ImportProject.new ActionListener() {...},40,0,2,0,11,0,3,0,2,0
 SESEditor,odme.odmeeditor,NewProject.new ActionListener() {...},11,0,0,0,3,0,2,0,2,0
-SESEditor,odme.odmeeditor,NewProject.new KeyListener() {...},42,0,2,0,9,0,5,0,4,0
+SESEditor,odme.odmeeditor,NewProject.new KeyListener() {...},42,0,2,0,10,0,5,0,4,0
 SESEditor,odme.odmeeditor,NewProject.new ActionListener() {...},14,0,0,0,4,0,2,0,2,0
-SESEditor,odme.odmeeditor,Constraint,191,0,10,0,44,0,10,0,5,0
-SESEditor,odme.odmeeditor,NewProject.new ItemListener() {...},52,0,2,0,11,0,3,0,2,0
+SESEditor,odme.odmeeditor,Constraint,191,0,10,0,47,0,10,0,5,0
+SESEditor,odme.odmeeditor,NewProject.new ItemListener() {...},52,0,2,0,12,0,3,0,2,0
 SESEditor,odme.odmeeditor,NewProject.new ActionListener() {...},10,0,0,0,3,0,2,0,2,0
-SESEditor,odme.odmeeditor,NewProject.new KeyListener() {...},42,0,4,0,10,0,6,0,4,0
+SESEditor,odme.odmeeditor,NewProject.new KeyListener() {...},42,0,4,0,11,0,6,0,4,0
 SESEditor,odme.odmeeditor,Constraint.new MouseAdapter() {...},33,0,2,0,8,0,3,0,2,0
 SESEditor,odme.odmeeditor,PanelSplitor.1.new Runnable() {...},13,0,0,0,3,0,2,0,2,0
-SESEditor,odme.odmeeditor,NewProject,592,0,2,0,115,0,6,0,5,0
-SESEditor,odme.odmeeditor,DynamicTree,1379,0,112,0,336,0,80,0,24,0
+SESEditor,odme.odmeeditor,NewProject,592,0,2,0,121,0,6,0,5,0
+SESEditor,odme.odmeeditor,DynamicTree,1375,0,112,0,335,0,80,0,24,0
 SESEditor,odme.odmeeditor,ProjectTree.ProjectTreeModelListener,25,0,0,0,8,0,5,0,5,0
-SESEditor,odme.odmeeditor,ODDManager.new ActionListener() {...},10,0,0,0,3,0,2,0,2,0
-SESEditor,odme.odmeeditor,ODDManager.new ActionListener() {...},10,0,0,0,3,0,2,0,2,0
 SESEditor,odme.odmeeditor,DynamicTree.MyTreeModelListener,25,0,0,0,8,0,5,0,5,0
 SESEditor,odme.odmeeditor,ODDListView.new ListSelectionListener() {...},27,0,4,0,5,0,4,0,2,0
 SESEditor,odme.odmeeditor,ToolBar.new ActionListener() {...},13,0,0,0,4,0,2,0,2,0
-SESEditor,odme.odmeeditor,ToolBar.new ActionListener() {...},63,0,13,0,26,0,14,0,2,0
+SESEditor,odme.odmeeditor,ToolBar.new ActionListener() {...},60,0,13,0,26,0,14,0,2,0
 SESEditor,odme.odmeeditor,Console.new KeyListener() {...},13,0,0,0,5,0,4,0,4,0
-SESEditor,odme.odmeeditor,XmlUtils,173,0,8,0,50,0,10,0,6,0
-SESEditor,odme.odmeeditor,MenuBar,1389,0,50,0,243,0,39,0,14,0
-SESEditor,odme.odmeeditor,ODDManager.new ActionListener() {...},10,0,0,0,3,0,2,0,2,0
-SESEditor,odme.odmeeditor,ODDManager.new ActionListener() {...},10,0,0,0,3,0,2,0,2,0
-SESEditor,xml.schema,TypeInfoWriter,631,0,60,0,228,0,46,0,16,0
-SESEditor,odeme.behaviour,ToolBarBehaviour,256,0,6,0,60,0,18,0,15,0
+SESEditor,odme.odmeeditor,XmlUtils,30,0,0,0,6,0,6,0,6,0
+SESEditor,odme.odmeeditor,MenuBar,1313,0,50,0,260,0,39,0,14,0
+SESEditor,xml.schema,TypeInfoWriter,80,0,0,0,16,0,16,0,16,0
+SESEditor,odeme.behaviour,ToolBarBehaviour,258,0,6,0,60,0,18,0,15,0
 SESEditor,odeme.behaviour,MainWindow,44,0,0,0,12,0,1,0,1,0
 SESEditor,odeme.behaviour,PanelSplitor,51,0,0,0,13,0,5,0,5,0
-SESEditor,odeme.behaviour,MenuBarBehaviour,136,0,0,0,15,0,3,0,3,0
+SESEditor,odeme.behaviour,MenuBarBehaviour,112,0,0,0,15,0,3,0,3,0
 SESEditor,odeme.behaviour,BehaviourToTree.MyTreeModelListener,25,0,0,0,8,0,5,0,5,0
-SESEditor,odeme.behaviour,ToolBarBehaviour.new ActionListener() {...},68,0,13,0,27,0,14,0,2,0
+SESEditor,odeme.behaviour,ToolBarBehaviour.new ActionListener() {...},65,0,13,0,27,0,14,0,2,0
 SESEditor,odeme.behaviour,Behaviour.new MouseAdapter() {...},37,6,2,0,9,1,2,1,1,1
-SESEditor,odeme.behaviour,BehaviourToTree,408,0,24,0,91,0,25,0,13,0
-SESEditor,odeme.behaviour,Behaviour,45,170,2,8,12,34,2,8,1,4
+SESEditor,odeme.behaviour,BehaviourToTree,408,0,24,0,89,0,25,0,13,0
+SESEditor,odeme.behaviour,Behaviour,45,170,2,8,14,35,2,8,1,4
 SESEditor,odeme.behaviour,PanelSplitor.1.new Runnable() {...},13,0,0,0,3,0,2,0,2,0
 SESEditor,odeme.behaviour,PanelSplitor.new PropertyChangeListener() {...},12,0,0,0,3,0,2,0,2,0
-SESEditor,odeme.behaviour,ODMEBehaviourEditor,80,0,0,0,25,0,3,0,3,0
+SESEditor,odeme.behaviour,ODMEBehaviourEditor,80,0,0,0,26,0,3,0,3,0

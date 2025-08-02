@@ -52,7 +52,7 @@ import odeme.behaviour.MainWindow;
 
 <span class="nc" id="L53">			model.addRow(arr);</span>
 
-<span class="nc" id="L55">		}</span>
+		}
 
 <span class="nc bnc" id="L57" title="All 2 branches missed.">		if(dataList1.isEmpty()){</span>
 <span class="nc" id="L58">			model.addRow(new Object[]{&quot;You don`t have any behaviour in scenarios.&quot;});</span>
@@ -79,7 +79,7 @@ import odeme.behaviour.MainWindow;
 <span class="nc" id="L79">						i.printStackTrace();</span>
 <span class="nc" id="L80">					} catch (Exception ex){</span>
 <span class="nc" id="L81">						ex.printStackTrace();</span>
-<span class="nc" id="L82">					}</span>
+					}
 				}
 <span class="nc" id="L84">			}</span>
 		});
@@ -125,7 +125,7 @@ import odeme.behaviour.MainWindow;
 
 <span class="nc" id="L126">			} catch (org.json.simple.parser.ParseException e) {</span>
 <span class="nc" id="L127">				e.printStackTrace();</span>
-<span class="nc" id="L128">			}</span>
+			}
 			//from here check these scenario have behaviour files
 <span class="nc" id="L130">			JSONArray data = (JSONArray) obj;</span>
 
@@ -133,14 +133,14 @@ import odeme.behaviour.MainWindow;
 
 <span class="nc" id="L134">				dataList.add(parseObject((JSONObject)dtObj));</span>
 
-<span class="nc" id="L136">			}</span>
+			}
 <span class="nc" id="L137">		} catch (FileNotFoundException e) {</span>
 <span class="nc" id="L138">			e.printStackTrace();</span>
 <span class="nc" id="L139">		} catch (IOException e) {</span>
 <span class="nc" id="L140">			e.printStackTrace();</span>
 <span class="nc" id="L141">		} catch (ParseException e) {</span>
 <span class="nc" id="L142">			e.printStackTrace();</span>
-<span class="nc" id="L143">		}</span>
+		}
 <span class="nc" id="L144">		return dataList;</span>
 	}
 

@@ -68,9 +68,9 @@ import static odme.jtreetograph.JtreeToGraphVariables.*;
 <span class="nc" id="L68">							yv = 1;</span>
 <span class="nc" id="L69">							keyDel = key; // to avoid java.util.ConcurrentModificationException</span>
 						}
-<span class="nc" id="L71">					}</span>
+					}
 				}
-<span class="nc" id="L73">			}</span>
+			}
 <span class="nc bnc" id="L74" title="All 2 branches missed.">			if (yv == 1) {</span>
 <span class="nc" id="L75">				DynamicTree.behavioursList.remove(keyDel, variableName); // for removing only one values</span>
 <span class="nc" id="L76">				yv = 0;</span>
@@ -100,12 +100,12 @@ import static odme.jtreetograph.JtreeToGraphVariables.*;
 <span class="nc" id="L100">				benhaviourGraph.getModel().beginUpdate();</span>
 				try {
 <span class="nc" id="L102">					benhaviourGraph.removeCells(new Object[] {cellForAddingVariable});</span>
-				} finally {
+<span class="nc" id="L103">				} finally {</span>
 <span class="nc" id="L104">					benhaviourGraph.getModel().endUpdate();</span>
-<span class="nc" id="L105">				}</span>
+				}
 			} else {
 <span class="nc" id="L107">				JOptionPane.showMessageDialog(MainWindow.frame,</span>
-						&quot;You can not delete from here. Delete from the reference node.&quot;);
+<span class="nc" id="L108">						&quot;You can not delete from here. Delete from the reference node.&quot;);</span>
 			}
 
 <span class="nc" id="L111">		} else {</span>
@@ -146,7 +146,7 @@ import static odme.jtreetograph.JtreeToGraphVariables.*;
 <span class="nc bnc" id="L146" title="All 2 branches missed.">					if (&quot;rootnode&quot;.equals(cellForAddingVariable.getId())) {</span>
 <span class="nc" id="L147">						toolkit.beep();</span>
 
-					} else {
+<span class="nc" id="L149">					} else {</span>
 <span class="nc" id="L150">						deletableChildNodes.add(cellForAddingVariable);</span>
 <span class="nc" id="L151">						deleteAllChildNode(cellForAddingVariable);</span>
 <span class="nc" id="L152">						mxCell[] allnodes = deletableChildNodes.toArray(new mxCell[0]);</span>
@@ -156,7 +156,7 @@ import static odme.jtreetograph.JtreeToGraphVariables.*;
 <span class="nc" id="L156">							deletableChildNodes.clear();</span>
 						}
 					}
-				} finally {
+<span class="nc" id="L159">				} finally {</span>
 <span class="nc" id="L160">					benhaviourGraph.getModel().endUpdate();</span>
 				}
 			}
@@ -188,7 +188,7 @@ import static odme.jtreetograph.JtreeToGraphVariables.*;
 <span class="nc" id="L188">		benhaviourGraph.getModel().beginUpdate();</span>
 		try {
 <span class="nc" id="L190">			benhaviourGraph.removeCells(new Object[] {pos});</span>
-		} finally {
+<span class="nc" id="L191">		} finally {</span>
 <span class="nc" id="L192">			benhaviourGraph.getModel().endUpdate();</span>
 		}
 <span class="nc" id="L194">	}</span>
@@ -238,7 +238,7 @@ import static odme.jtreetograph.JtreeToGraphVariables.*;
 			try {
 <span class="nc bnc" id="L239" title="All 2 branches missed.">				if (&quot;rootnode&quot;.equals(cellForAddingVariable.getId())) {</span>
 <span class="nc" id="L240">					toolkit.beep();</span>
-				} else {
+<span class="nc" id="L241">				} else {</span>
 <span class="nc" id="L242">					deletableChildNodes.add(cellForAddingVariable);</span>
 <span class="nc" id="L243">					deleteAllChildNode(cellForAddingVariable);</span>
 <span class="nc" id="L244">					mxCell[] allnodes = deletableChildNodes.toArray(new mxCell[0]);</span>
@@ -248,7 +248,7 @@ import static odme.jtreetograph.JtreeToGraphVariables.*;
 <span class="nc" id="L248">						deletableChildNodes.clear();</span>
 					}
 				}
-			} finally {
+<span class="nc" id="L251">			} finally {</span>
 <span class="nc" id="L252">				benhaviourGraph.getModel().endUpdate();</span>
 			}
 		}

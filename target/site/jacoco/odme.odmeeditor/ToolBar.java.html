@@ -29,7 +29,7 @@ public class ToolBar {
 	
 	private JToolBar toolbar;
 <span class="nc" id="L31">	public static Map&lt;String, JButton&gt; btnItems = new HashMap&lt;&gt;();</span>
-	public static JButton btnScenario;
+<span class="nc" id="L32">	public static JButton btnScenario;</span>
 	
 <span class="nc" id="L34">	public ToolBar(JFrame frame) {</span>
 
@@ -145,7 +145,7 @@ public class ToolBar {
 <span class="nc" id="L145">    	JtreeToGraphConvert.graphToXML();</span>
 <span class="nc" id="L146">    	JtreeToGraphConvert.graphToXMLWithUniformity();</span>
 <span class="nc" id="L147">        JOptionPane.showMessageDialog(Main.frame, &quot;Saved Successfully.&quot;, &quot;Save&quot;,</span>
-                JOptionPane.INFORMATION_MESSAGE);
+<span class="nc" id="L148">                JOptionPane.INFORMATION_MESSAGE);</span>
 <span class="nc" id="L149">    }</span>
     
     private void undo(){
@@ -159,11 +159,11 @@ public class ToolBar {
 <span class="nc" id="L159">            	ODMEEditor.undoJtree.undo();</span>
 <span class="nc" id="L160">            	ODMEEditor.treePanel.expandTree();</span>
             }
-        } 
+<span class="nc" id="L162">        } </span>
 <span class="nc" id="L163">        catch (CannotUndoException ex) {</span>
 <span class="nc" id="L164">            System.out.println(&quot;Unable to undo: &quot; + ex);</span>
 <span class="nc" id="L165">            ex.printStackTrace();</span>
-<span class="nc" id="L166">        }</span>
+        }
 <span class="nc" id="L167">    }</span>
     
     private void redo(){
@@ -175,11 +175,11 @@ public class ToolBar {
 <span class="nc" id="L175">            	ODMEEditor.undoJtree.redo();</span>
 <span class="nc" id="L176">            	ODMEEditor.treePanel.expandTree();</span>
             }
-        } 
+<span class="nc" id="L178">        } </span>
 <span class="nc" id="L179">        catch (CannotRedoException ex) {</span>
 <span class="nc" id="L180">            System.out.println(&quot;Unable to redo: &quot; + ex);</span>
 <span class="nc" id="L181">            ex.printStackTrace();</span>
-<span class="nc" id="L182">        }</span>
+        }
 <span class="nc" id="L183">    }</span>
     
     private void zoomIn(){

@@ -88,7 +88,7 @@ public class Behaviour extends JPanel {
 <span class="fc bfc" id="L88" title="All 2 branches covered.">        for (String value : nodesToSelectedNode) {</span>
 <span class="fc bfc" id="L89" title="All 2 branches covered.">            if (value == null) {</span>
 <span class="fc" id="L90">                model.addRow(new Object[] {&quot;&quot;});</span>
-            } else {
+<span class="fc" id="L91">            } else {</span>
 <span class="fc" id="L92">                model.addRow(new Object[] { nodeName, value});</span>
             }
         }
@@ -107,12 +107,12 @@ public class Behaviour extends JPanel {
         
 <span class="nc" id="L108">        int option = JOptionPane</span>
 <span class="nc" id="L109">                .showConfirmDialog(Main.frame, message, &quot;Please Update&quot;, JOptionPane.OK_CANCEL_OPTION,</span>
-                        JOptionPane.PLAIN_MESSAGE);
+<span class="nc" id="L110">                        JOptionPane.PLAIN_MESSAGE);</span>
         
 <span class="nc bnc" id="L112" title="All 2 branches missed.">        if (option == JOptionPane.OK_OPTION) {</span>
 <span class="nc" id="L113">            behaviour = behavioursField.getText();</span>
 <span class="nc" id="L114">            JtreeToGraphDelete.deleteBehaviourFromScenarioTableForUpdate(</span>
-                    JtreeToGraphVariables.selectedNodeCellForVariableUpdate, behaviourOld, behaviour);
+<span class="nc" id="L115">                    JtreeToGraphVariables.selectedNodeCellForVariableUpdate, behaviourOld, behaviour);</span>
         }
 <span class="nc" id="L117">    }</span>
 

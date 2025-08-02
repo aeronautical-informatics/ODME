@@ -56,10 +56,10 @@ public class Console extends JInternalFrame {
 <span class="nc" id="L56">    	Robot robot = null;</span>
         try {
 <span class="nc" id="L58">            robot = new Robot();</span>
-        } 
+<span class="nc" id="L59">        } </span>
 <span class="nc" id="L60">        catch (AWTException e3) {</span>
 <span class="nc" id="L61">            e3.printStackTrace();</span>
-<span class="nc" id="L62">        }</span>
+        }
 
 <span class="nc bnc" id="L64" title="All 2 branches missed.">        if (e.getKeyCode() == KeyEvent.VK_ENTER) {</span>
 
@@ -94,10 +94,10 @@ public class Console extends JInternalFrame {
 <span class="nc" id="L94">                robot.keyPress(KeyEvent.VK_BACK_SPACE);</span>
 <span class="nc" id="L95">                robot.keyRelease(KeyEvent.VK_BACK_SPACE);</span>
 <span class="nc" id="L96">                robot.keyRelease(KeyEvent.VK_SHIFT);</span>
-            } 
+<span class="nc" id="L97">            } </span>
 <span class="nc" id="L98">            catch (BadLocationException e1) {</span>
 <span class="nc" id="L99">                e1.printStackTrace();</span>
-<span class="nc" id="L100">            }</span>
+            }
         }
 <span class="nc" id="L102">    }</span>
     

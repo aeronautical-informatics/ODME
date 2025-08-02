@@ -120,8 +120,8 @@ public class BehaviourToTree  extends JPanel implements MouseListener{
 <span class="nc" id="L120">				add(scrollPane);</span>
 
 <span class="nc" id="L122">			}catch(Exception e) {</span>
-<span class="nc" id="L123">			}</span>
-		} else {
+			}
+<span class="nc" id="L124">		} else {</span>
 <span class="nc" id="L125">			System.out.println(&quot;Behaviour file does not exist&quot;);</span>
 		}
 <span class="nc" id="L127">	}</span>
@@ -154,10 +154,10 @@ public class BehaviourToTree  extends JPanel implements MouseListener{
 
 <span class="nc bnc" id="L155" title="All 2 branches missed.">			for (String value : values) {</span>
 <span class="nc" id="L156">				row[index++] = value;</span>
-<span class="nc" id="L157">			}</span>
+			}
 
 <span class="nc" id="L159">			resultList.add(row);</span>
-<span class="nc" id="L160">		}</span>
+		}
 
 <span class="nc" id="L162">		return resultList.toArray(new String[0][0]);</span>
 	}
@@ -180,7 +180,7 @@ public class BehaviourToTree  extends JPanel implements MouseListener{
 //		                    System.out.println(next.getUserObject().toString());
 <span class="nc" id="L181">						break;</span>
 					}
-<span class="nc" id="L183">				}</span>
+				}
 <span class="nc bnc" id="L184" title="All 2 branches missed.">				if (next == null){</span>
 <span class="nc" id="L185">					next = new DefaultMutableTreeNode(value);</span>
 <span class="nc" id="L186">					curr.add(next);</span>
@@ -206,7 +206,7 @@ public class BehaviourToTree  extends JPanel implements MouseListener{
 <span class="nc" id="L206">            tree.setCursor(Cursor.getDefaultCursor());</span>
 <span class="nc" id="L207">            clickControl = 0;</span>
 
-        } else {
+<span class="nc" id="L209">        } else {</span>
 <span class="nc" id="L210">            tree.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));</span>
 <span class="nc" id="L211">            clickControl = 1;</span>
 <span class="nc" id="L212">            String name = path.getLastPathComponent().toString();</span>

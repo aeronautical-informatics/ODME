@@ -151,7 +151,7 @@ public class ODMEEditor extends JPanel {
         // add panelSpliter with main window's parts 
 <span class="nc" id="L152">        PanelSplitor panelSplitor = new PanelSplitor();</span>
 <span class="nc" id="L153">        splitPane = panelSplitor.addSplitor(projectPanel, treePanel, graphWindow,</span>
-        			console, scenarioVariable, scenarioBehaviour,scenarioConstraint, tabbedPane);  
+<span class="nc" id="L154">        			console, scenarioVariable, scenarioBehaviour,scenarioConstraint, tabbedPane);  </span>
        
 <span class="nc" id="L156">    }</span>
     
@@ -187,7 +187,7 @@ public class ODMEEditor extends JPanel {
 <span class="nc" id="L187">                	JtreeToGraphConvert.graphToXML();</span>
 <span class="nc" id="L188">                	JtreeToGraphConvert.graphToXMLWithUniformity();</span>
 <span class="nc" id="L189">                	switchToPes();</span>
-            	}
+<span class="nc" id="L190">            	}</span>
 
             	else {
             		//Save Current (Pes)
@@ -206,7 +206,7 @@ public class ODMEEditor extends JPanel {
 <span class="nc" id="L206">                    fileLocation = selectedFile.getParentFile().getAbsolutePath();</span>
 <span class="nc" id="L207">                    JtreeToGraphGeneral.openExistingProject(projName, oldProjectTreeProjectName);</span>
 <span class="nc" id="L208">                    JtreeToGraphVariables.</span>
-                            undoManager = new mxUndoManager();
+<span class="nc" id="L209">                            undoManager = new mxUndoManager();</span>
 
 <span class="nc" id="L211">                    sesview.textArea.setText(&quot;&quot;);</span>
 <span class="nc" id="L212">                    Console.consoleText.setText(&quot;&gt;&gt;&quot;);</span>
@@ -226,7 +226,7 @@ public class ODMEEditor extends JPanel {
 <span class="nc bnc" id="L226" title="All 2 branches missed.">		for (Map.Entry&lt;String, JButton&gt; entry : ToolBar.btnItems.entrySet()) {</span>
 <span class="nc" id="L227">			JButton btn = entry.getValue();</span>
 <span class="nc" id="L228">			btn.setVisible(true);</span>
-<span class="nc" id="L229">		}</span>
+		}
 
 		// Change MenuBar 
 <span class="nc bnc" id="L232" title="All 2 branches missed.">		for (JMenuItem item : MenuBar.fileMenuItems) {</span>
@@ -234,7 +234,7 @@ public class ODMEEditor extends JPanel {
 <span class="nc" id="L234">				item.setEnabled(false);</span>
 			else
 <span class="nc" id="L236">				item.setEnabled(true);</span>
-<span class="nc" id="L237">		}</span>
+		}
 		
 <span class="nc" id="L239">		statusLabel.setText(&quot;Current Mode: Domain Modelling&quot;);</span>
 <span class="nc" id="L240">		tabbedPane.removeAll();</span>
@@ -262,11 +262,11 @@ public class ODMEEditor extends JPanel {
 <span class="nc bnc" id="L262" title="All 2 branches missed.">		for (Map.Entry&lt;String, JButton&gt; entry : ToolBar.btnItems.entrySet()) {</span>
 <span class="nc" id="L263">			String name = entry.getKey();</span>
 <span class="nc" id="L264">			JButton btn = entry.getValue();</span>
-<span class="nc bnc" id="L265" title="All 10 branches missed.">		    if (name==&quot;Add Entity&quot; || name== &quot;Add Aspect&quot; || name==&quot;Add Specialization&quot; ||</span>
-		    		name==&quot;Add Multi-Aspect&quot; || name==&quot;Delete Node&quot;) {
+<span class="nc bnc" id="L265" title="All 6 branches missed.">		    if (name==&quot;Add Entity&quot; || name== &quot;Add Aspect&quot; || name==&quot;Add Specialization&quot; ||</span>
+<span class="nc bnc" id="L266" title="All 4 branches missed.">		    		name==&quot;Add Multi-Aspect&quot; || name==&quot;Delete Node&quot;) {</span>
 <span class="nc" id="L267">		    	btn.setVisible(false);</span>
 		    }
-<span class="nc" id="L269">		}</span>
+		}
 		
 		// Change MenuBar 
 <span class="nc bnc" id="L272" title="All 2 branches missed.">		for (JMenuItem item : MenuBar.fileMenuItems) {</span>
@@ -274,7 +274,7 @@ public class ODMEEditor extends JPanel {
 <span class="nc" id="L274">				item.setEnabled(false);</span>
 			else
 <span class="nc" id="L276">				item.setEnabled(true);</span>
-<span class="nc" id="L277">    	}</span>
+    	}
     	
     	//Save as to create Pes version
 <span class="nc" id="L280">        fileLocation = fileLocation+&quot;/&quot;+projName;</span>
@@ -282,19 +282,19 @@ public class ODMEEditor extends JPanel {
 <span class="nc" id="L282">        JtreeToGraphVariables.projectFileNameGraph = currentScenario;</span>
   
 <span class="nc" id="L284">        JtreeToGraphVariables.ssdFileGraph = new File(String.format(&quot;%s/%s/%sGraph.xml&quot;,</span>
-    			fileLocation, currentScenario, projName));
+<span class="nc" id="L285">    			fileLocation, currentScenario, projName));</span>
 <span class="nc" id="L286">        treePanel.ssdFile = new File(String.format(&quot;%s/%s/%s.xml&quot;,</span>
-        		fileLocation, currentScenario, projName));
+<span class="nc" id="L287">        		fileLocation, currentScenario, projName));</span>
 <span class="nc" id="L288">        treePanel.ssdFileVar = new File(String.format(&quot;%s/%s/%s.ssdvar&quot;,</span>
-        		fileLocation, currentScenario, projName));
+<span class="nc" id="L289">        		fileLocation, currentScenario, projName));</span>
 <span class="nc" id="L290">        treePanel.ssdFileCon = new File(String.format(&quot;%s/%s/%s.ssdcon&quot;,</span>
-        		fileLocation, currentScenario, projName));
+<span class="nc" id="L291">        		fileLocation, currentScenario, projName));</span>
 
 <span class="nc" id="L293">        treePanel.ssdFileBeh = new File(String.format(&quot;%s/%s/%s.ssdbeh&quot;,</span>
-        		fileLocation, currentScenario, projName));
+<span class="nc" id="L294">        		fileLocation, currentScenario, projName));</span>
         
 <span class="nc" id="L296">        treePanel.ssdFileFlag = new File(String.format(&quot;%s/%s/%s.ssdflag&quot;,</span>
-        		fileLocation, currentScenario, projName));
+<span class="nc" id="L297">        		fileLocation, currentScenario, projName));</span>
 
 <span class="nc" id="L299">        File f = new File(fileLocation + &quot;/&quot; + currentScenario);</span>
 <span class="nc" id="L300">        f.mkdirs();</span>
@@ -345,7 +345,7 @@ public class ODMEEditor extends JPanel {
 <span class="nc" id="L345">        					JtreeToGraphVariables.graph.setCellStyle(&quot;Entityp&quot;, temp);</span>
 <span class="nc" id="L346">        					break;</span>
         				}
-<span class="nc" id="L348">        			}</span>
+        			}
         		}	
         	}
         	else { //is not a vertex, so u can get source and target 
@@ -394,7 +394,7 @@ public class ODMEEditor extends JPanel {
 
 <span class="nc bnc" id="L395" title="All 2 branches missed.">        if(showMessage)</span>
 <span class="nc" id="L396">            JOptionPane.showMessageDialog(Main.frame, &quot;Saved Successfully.&quot;, &quot;Save&quot;,</span>
-                    JOptionPane.INFORMATION_MESSAGE);
+<span class="nc" id="L397">                    JOptionPane.INFORMATION_MESSAGE);</span>
 <span class="nc" id="L398">    }</span>
 
     /**
@@ -451,7 +451,7 @@ public class ODMEEditor extends JPanel {
 <span class="nc" id="L451">                		sesview.setTitle(&quot;Ontology&quot;);</span>
 <span class="nc" id="L452">                		fileConversion.createSES(fileLocation + &quot;/&quot; + projName + &quot;/ses.xsd&quot;);</span>
 <span class="nc" id="L453">                		XmlUtils.showViewer(fileLocation, projName, &quot;ses.xsd&quot;, XmlUtils.ontologyview);</span>
-                	}
+<span class="nc" id="L454">                	}</span>
                 	else {
 <span class="nc" id="L456">                		sesview.setTitle(&quot;XML&quot;);</span>
 <span class="nc" id="L457">                        saveChanges();</span>
@@ -486,7 +486,7 @@ public class ODMEEditor extends JPanel {
 //                		fileConversion.createSES(fileLocation + &quot;/&quot; + currentScenario + &quot;/ses.xsd&quot;);
 //                    
 //                    XmlUtils.showViewer(fileLocation, projName, &quot;ses.xsd&quot;, XmlUtils.ontologyview);
-                } 
+<span class="nc" id="L489">                } </span>
 <span class="nc bnc" id="L490" title="All 2 branches missed.">                else if (tabbedPane.getSelectedIndex() == 1) {</span>
 <span class="nc" id="L491">                	XmlUtils.schemaview.setTitle(&quot;Schema&quot;); // SES Ontology / Schema Viewer</span>
 <span class="nc" id="L492">                    saveChanges();</span>
@@ -498,8 +498,8 @@ public class ODMEEditor extends JPanel {
 <span class="nc" id="L498">                    fileConversion.xmlToXSDConversion();</span>
 <span class="nc" id="L499">                    fileConversion.placeAssertInRightPosition();</span>
 <span class="nc" id="L500">                    XmlUtils.showViewer(fileLocation, projName, &quot;xsdfromxml.xsd&quot;, XmlUtils.schemaview);</span>
-                } 
-<span class="nc bnc" id="L502" title="All 2 branches missed.">                else if (tabbedPane.getSelectedIndex() == 2) {</span>
+<span class="nc" id="L501">                } </span>
+<span class="nc" id="L502">                else if (tabbedPane.getSelectedIndex() == 2) {</span>
                     
                 }
 <span class="nc" id="L505">            }</span>

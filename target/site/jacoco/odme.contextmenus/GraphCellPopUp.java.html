@@ -93,7 +93,7 @@ public class GraphCellPopUp extends JPopupMenu {
 <span class="nc" id="L93">    				}</span>
     			});
     		}
-    	}
+<span class="nc" id="L96">    	}</span>
     	
     	else {
 <span class="nc" id="L99">    		JMenuItem itemPrune = new JMenuItem(&quot;Prune It&quot;);</span>
@@ -111,10 +111,10 @@ public class GraphCellPopUp extends JPopupMenu {
 <span class="nc bnc" id="L111" title="All 2 branches missed.">    				else if (cellName.endsWith(&quot;MAsp&quot;)) {</span>
 
 <span class="nc" id="L113">    					JtreeToGraphPrune.pruneMAspNodeFromGraphPopup(pos);</span>
-    				} 
+<span class="nc" id="L114">    				} </span>
 <span class="nc bnc" id="L115" title="All 2 branches missed.">    				else if (cellName.endsWith(&quot;Spec&quot;)) {</span>
 <span class="nc" id="L116">    					JtreeToGraphPrune.pruneNodeFromGraphPopup(pos);</span>
-    				}
+<span class="nc" id="L117">    				}</span>
     				else {
 <span class="nc" id="L119">    					JtreeToGraphPrune.pruneSiblingsFromGraphPopup(pos);</span>
     				}
@@ -136,7 +136,7 @@ public class GraphCellPopUp extends JPopupMenu {
 <span class="nc bnc" id="L136" title="All 4 branches missed.">    		if (cell.getId().startsWith(&quot;uniformity&quot;) &amp;&amp; connected) {</span>
 <span class="nc bnc" id="L137" title="All 2 branches missed.">    			if (cell.getId().endsWith(&quot;RefNode&quot;))</span>
 <span class="nc" id="L138">    				items[0] = &quot;Delete&quot;;</span>
-    		}
+<span class="nc" id="L139">    		}</span>
     		else {
 <span class="nc" id="L141">    			items[0] = &quot;Add Variable&quot;;</span>
 <span class="nc" id="L142">    			items[1] = &quot;Rename&quot;;</span>
@@ -152,7 +152,7 @@ public class GraphCellPopUp extends JPopupMenu {
 <span class="nc" id="L152">        			items[9] = &quot;Delete All Constraint&quot;;</span>
     			}
     		}
-    	}
+<span class="nc" id="L155">    	}</span>
     	else 
 <span class="nc" id="L157">    		items[0] = &quot;Delete Edge&quot;;</span>
 

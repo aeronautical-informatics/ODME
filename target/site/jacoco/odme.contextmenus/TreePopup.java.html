@@ -101,7 +101,7 @@ public class TreePopup extends JPopupMenu {
 <span class="nc" id="L101">                	ODMEEditor.treePanel.addObject(ODMEEditor.nodeName);</span>
 <span class="nc" id="L102">                	JtreeToGraphAdd.addNodeWithJtreeAddition(ODMEEditor.nodeName, nodesToSelectedNode);</span>
 
-                } else {
+<span class="nc" id="L104">                } else {</span>
 <span class="nc" id="L105">                	ODMEEditor.treePanel.addObject(ODMEEditor.nodeName);</span>
 <span class="nc" id="L106">                	JtreeToGraphAdd.addNodeWithJtreeAddition(ODMEEditor.nodeName, nodesToSelectedNode);</span>
                 }
@@ -123,12 +123,12 @@ public class TreePopup extends JPopupMenu {
 <span class="nc" id="L123">        commentField=new JTextField();</span>
 
 <span class="nc" id="L125">        Object[] message =</span>
-                {&quot;Variable Name:&quot;, variableField, &quot;Variable Type:&quot;, variableTypeField, &quot;Value:&quot;, valueField,
-                        &quot;Lower Bound:&quot;, lowerBoundField, &quot;Upper Bound:&quot;, upperBoundField,&quot;Comment:&quot;,commentField};
+<span class="nc" id="L126">                {&quot;Variable Name:&quot;, variableField, &quot;Variable Type:&quot;, variableTypeField, &quot;Value:&quot;, valueField,</span>
+<span class="nc" id="L127">                        &quot;Lower Bound:&quot;, lowerBoundField, &quot;Upper Bound:&quot;, upperBoundField,&quot;Comment:&quot;,commentField};</span>
 
 <span class="nc" id="L129">        int option = JOptionPane</span>
 <span class="nc" id="L130">                .showConfirmDialog(Main.frame, message, &quot;Please Enter&quot;, JOptionPane.OK_CANCEL_OPTION,</span>
-                        JOptionPane.PLAIN_MESSAGE);
+<span class="nc" id="L131">                        JOptionPane.PLAIN_MESSAGE);</span>
 <span class="nc bnc" id="L132" title="All 2 branches missed.">        if (option == JOptionPane.OK_OPTION) {</span>
 <span class="nc" id="L133">            variableName = variableField.getText();</span>
 <span class="nc" id="L134">            variableType = variableTypeField.getText();</span>
@@ -140,14 +140,14 @@ public class TreePopup extends JPopupMenu {
             // added inside IF block so that if variable window closed without adding then
             // nothing will happen.
 <span class="nc" id="L142">            variableName =</span>
-                    variableName + &quot;,&quot; + variableType + &quot;,&quot; + variableValue + &quot;,&quot; + variableLowerBound + &quot;,&quot;
-                    + variableUpperBound+&quot;,&quot;+variableComment;
+<span class="nc" id="L143">                    variableName + &quot;,&quot; + variableType + &quot;,&quot; + variableValue + &quot;,&quot; + variableLowerBound + &quot;,&quot;</span>
+<span class="nc" id="L144">                    + variableUpperBound+&quot;,&quot;+variableComment;</span>
 
 <span class="nc" id="L146">            TreePath currentSelection = ODMEEditor.treePanel.tree.getSelectionPath();</span>
 
 <span class="nc" id="L148">            boolean validInput =</span>
-<span class="nc bnc" id="L149" title="All 4 branches missed.">                    (variableField.getText() != null) &amp;&amp; (!variableField.getText().trim().isEmpty()) &amp;&amp; (</span>
-<span class="nc bnc" id="L150" title="All 2 branches missed.">                            variableTypeField.getText() != null) &amp;&amp; (!variableTypeField.getText().trim()</span>
+<span class="nc bnc" id="L149" title="All 6 branches missed.">                    (variableField.getText() != null) &amp;&amp; (!variableField.getText().trim().isEmpty()) &amp;&amp; (</span>
+<span class="nc" id="L150">                            variableTypeField.getText() != null) &amp;&amp; (!variableTypeField.getText().trim()</span>
 <span class="nc bnc" id="L151" title="All 4 branches missed.">                            .isEmpty()) &amp;&amp; (valueField.getText() != null) &amp;&amp; (!valueField.getText().trim()</span>
 <span class="nc bnc" id="L152" title="All 4 branches missed.">                            .isEmpty()) &amp;&amp; (lowerBoundField.getText() != null) &amp;&amp; (!lowerBoundField.getText()</span>
 <span class="nc bnc" id="L153" title="All 4 branches missed.">                            .trim().isEmpty()) &amp;&amp; (upperBoundField.getText() != null) &amp;&amp; (!upperBoundField</span>

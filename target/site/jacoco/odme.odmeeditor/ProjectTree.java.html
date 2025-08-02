@@ -65,7 +65,7 @@ public class ProjectTree extends JPanel implements MouseListener {
 <span class="nc bnc" id="L65" title="All 2 branches missed.">        if (ssdFileProject.exists()) {</span>
             // restoring jtree from xml
 <span class="nc" id="L67">            XmlJTree myTree =</span>
-                    new XmlJTree(ODMEEditor.projName + &quot;/&quot; + JtreeToGraphVariables.newFileName + &quot;Project.xml&quot;);
+<span class="nc" id="L68">                    new XmlJTree(ODMEEditor.projName + &quot;/&quot; + JtreeToGraphVariables.newFileName + &quot;Project.xml&quot;);</span>
 <span class="nc" id="L69">            projectTreeModel = myTree.dtModel;</span>
 <span class="nc" id="L70">            projectTreeModel.addTreeModelListener(new ProjectTreeModelListener());</span>
 <span class="nc" id="L71">            projectTree = new JTree(projectTreeModel);</span>
@@ -78,7 +78,7 @@ public class ProjectTree extends JPanel implements MouseListener {
 <span class="nc bnc" id="L78" title="All 2 branches missed.">                if (&quot;AddedModule&quot;.equals(node.getUserObject().toString())) {</span>
 <span class="nc" id="L79">                    addedModule = node;</span>
                 }
-<span class="nc" id="L81">            }</span>
+            }
 
 <span class="nc" id="L83">        } else {</span>
 <span class="nc" id="L84">            projectName = JtreeToGraphVariables.newFileName + &quot;.xml&quot;;</span>
@@ -109,7 +109,7 @@ public class ProjectTree extends JPanel implements MouseListener {
 <span class="nc bnc" id="L109" title="All 2 branches missed.">                if (path == null) {</span>
 <span class="nc" id="L110">                    projectTree.setCursor(Cursor.getDefaultCursor());</span>
 <span class="nc" id="L111">                    clickControl = 0;</span>
-                } 
+<span class="nc" id="L112">                } </span>
                 else {
 <span class="nc" id="L114">                    projectTree.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));</span>
 <span class="nc" id="L115">                    clickControl = 1;</span>
@@ -132,7 +132,7 @@ public class ProjectTree extends JPanel implements MouseListener {
         try {
 <span class="nc" id="L133">        	System.out.println(ODMEEditor.projName + &quot;/&quot; + fileName);</span>
 <span class="nc" id="L134">            in = new Scanner(new File(ODMEEditor.projName + &quot;/&quot; + fileName));</span>
-        } 
+<span class="nc" id="L135">        } </span>
 <span class="nc" id="L136">        catch (FileNotFoundException e) {</span>
 <span class="nc" id="L137">        	return;</span>
             
@@ -140,7 +140,7 @@ public class ProjectTree extends JPanel implements MouseListener {
 <span class="nc" id="L140">        catch (NullPointerException e) {</span>
 <span class="nc" id="L141">        	return;</span>
             
-<span class="nc" id="L143">        }</span>
+        }
 
 <span class="nc" id="L145">        StringBuilder xmlcontent = new StringBuilder();</span>
 
@@ -150,7 +150,7 @@ public class ProjectTree extends JPanel implements MouseListener {
 
 <span class="nc" id="L151">            xmlcontent.append(line);</span>
 <span class="nc" id="L152">            xmlcontent.append(&quot;\n&quot;);</span>
-<span class="nc" id="L153">        }</span>
+        }
 
 <span class="nc" id="L155">        in.close();</span>
 <span class="nc" id="L156">    }</span>
@@ -180,7 +180,7 @@ public class ProjectTree extends JPanel implements MouseListener {
 <span class="nc bnc" id="L180" title="All 2 branches missed.">                        .equals(&quot;AddedModule&quot;) || currentNode.toString()</span>
 <span class="nc bnc" id="L181" title="All 2 branches missed.">                            .equals(ODMEEditor.projName + &quot;.xml&quot;)) {</span>
 <span class="nc" id="L182">                    toolkit.beep();</span>
-                } else {
+<span class="nc" id="L183">                } else {</span>
 <span class="nc" id="L184">                    projectTreeModel.removeNodeFromParent(currentNode);</span>
                 }
 
@@ -200,7 +200,7 @@ public class ProjectTree extends JPanel implements MouseListener {
 <span class="nc bnc" id="L200" title="All 2 branches missed.">            if ((oldProjectTreeProjectName + &quot;.xml&quot;).equals(node.getUserObject().toString())) {</span>
 <span class="nc" id="L201">                projectTreeModel.removeNodeFromParent(node);</span>
             }
-<span class="nc" id="L203">        }</span>
+        }
 
 <span class="nc" id="L205">        projectRoot = (DefaultMutableTreeNode) projectTree.getModel().getRoot();</span>
 <span class="nc" id="L206">        enumeration = projectRoot.breadthFirstEnumeration();</span>
@@ -211,7 +211,7 @@ public class ProjectTree extends JPanel implements MouseListener {
 <span class="nc bnc" id="L211" title="All 2 branches missed.">            if (&quot;MainModule&quot;.equals(node.getUserObject().toString())) {</span>
 <span class="nc" id="L212">                mainModule = node;</span>
             }
-<span class="nc" id="L214">        }</span>
+        }
 
 <span class="nc" id="L216">        projectXmlFile = new DefaultMutableTreeNode(fileName + &quot;.xml&quot;);</span>
 <span class="nc" id="L217">        projectTreeModel.insertNodeInto(projectXmlFile, mainModule, mainModule.getChildCount());</span>

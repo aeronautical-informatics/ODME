@@ -8,7 +8,7 @@ import odme.jtreetograph.JtreeToGraphSave;
 import odme.odmeeditor.DynamicTree;
 import odme.odmeeditor.Main;
 import odme.odmeeditor.ODMEEditor;
-import org.w3c.dom.Document;
+<span class="nc" id="L11">import org.w3c.dom.Document;</span>
 import org.w3c.dom.Element;
 
 import javax.swing.*;
@@ -22,101 +22,101 @@ import java.util.Scanner;
 import static behaviourtreetograph.JTreeToGraphBehaviour.benhaviourGraph;
 import static odme.jtreetograph.JtreeToGraphVariables.*;
 
-<span class="nc" id="L25">public class JtreeToGraphGeneral {</span>
+public class JtreeToGraphGeneral {
 
-    public static String rootNodeName() {
-<span class="nc" id="L28">        Object[] cells = benhaviourGraph.getChildVertices(benhaviourGraph.getDefaultParent());</span>
-<span class="nc" id="L29">        mxCell rootcell = null;</span>
+<span class="nc" id="L27">    public static String rootNodeName() {</span>
+        Object[] cells = benhaviourGraph.getChildVertices(benhaviourGraph.getDefaultParent());
+        mxCell rootcell = null;
 
-<span class="nc bnc" id="L31" title="All 2 branches missed.">        for (Object c : cells) {</span>
-<span class="nc" id="L32">            mxCell cell2 = (mxCell) c; // casting</span>
-<span class="nc bnc" id="L33" title="All 2 branches missed.">            if (cell2.isVertex()) {</span>
-<span class="nc" id="L34">                String val = cell2.getId();</span>
-<span class="nc bnc" id="L35" title="All 2 branches missed.">                if (val.equals(&quot;rootnode&quot;)) {</span>
-<span class="nc" id="L36">                    rootcell = cell2;</span>
+        for (Object c : cells) {
+            mxCell cell2 = (mxCell) c; // casting
+            if (cell2.isVertex()) {
+                String val = cell2.getId();
+                if (val.equals(&quot;rootnode&quot;)) {
+                    rootcell = cell2;
                 }
             }
         } // end of for
-<span class="nc" id="L40">        return rootcell.getValue().toString();</span>
+        return rootcell.getValue().toString();
     }
 
-    public static void zoomIn() {
-<span class="nc" id="L44">        behaviourGraphComponent.zoomIn();</span>
-<span class="nc" id="L45">    }</span>
+<span class="nc" id="L43">    public static void zoomIn() {</span>
+        behaviourGraphComponent.zoomIn();
+    }
     
-    public static void zoomOut() {
-<span class="nc" id="L48">        behaviourGraphComponent.zoomOut();</span>
-<span class="nc" id="L49">    }</span>
+<span class="nc" id="L47">    public static void zoomOut() {</span>
+        behaviourGraphComponent.zoomOut();
+    }
 
-    public static void redo() {
-<span class="nc bnc" id="L52" title="All 2 branches missed.">        if (undoManager.canRedo())</span>
+<span class="nc" id="L51">    public static void redo() {</span>
+        if (undoManager.canRedo())
         {
-<span class="nc" id="L54">            undoManager.redo();</span>
+            undoManager.redo();
         }else {
-<span class="nc" id="L56">            System.out.println(&quot;Cannot redo &quot;);</span>
+            System.out.println(&quot;Cannot redo &quot;);
         }
-<span class="nc" id="L58">    }</span>
+    }
     
-    public static void undo() {
-<span class="nc bnc" id="L61" title="All 2 branches missed.">        if (undoManager.canUndo())</span>
-<span class="nc" id="L62">            undoManager.undo();</span>
-<span class="nc" id="L63">    }</span>
+<span class="nc" id="L60">    public static void undo() {</span>
+        if (undoManager.canUndo())
+            undoManager.undo();
+    }
     
-    public static Element childNodes(Document thisDoc, mxCell cell) {
-<span class="nc" id="L66">        Element thisElement = null;</span>
+<span class="nc" id="L65">    public static Element childNodes(Document thisDoc, mxCell cell) {</span>
+        Element thisElement = null;
 
-<span class="nc" id="L68">        String nodeName = benhaviourGraph.getModel().getValue(cell).toString();</span>
-<span class="nc" id="L69">        thisElement = thisDoc.createElement(nodeName);</span>
+        String nodeName = benhaviourGraph.getModel().getValue(cell).toString();
+        thisElement = thisDoc.createElement(nodeName);
 
-<span class="nc" id="L71">        Object[] outgoing = benhaviourGraph.getOutgoingEdges(cell);</span>
+        Object[] outgoing = benhaviourGraph.getOutgoingEdges(cell);
 
-<span class="nc bnc" id="L73" title="All 2 branches missed.">        if (outgoing.length &gt; 0) {</span>
-<span class="nc bnc" id="L74" title="All 2 branches missed.">            for (int i = 0; i &lt; outgoing.length; i++) {</span>
-<span class="nc" id="L75">                Object targetCell = benhaviourGraph.getModel().getTerminal(outgoing[i], false);</span>
+        if (outgoing.length &gt; 0) {
+            for (int i = 0; i &lt; outgoing.length; i++) {
+                Object targetCell = benhaviourGraph.getModel().getTerminal(outgoing[i], false);
                 // for next call
-<span class="nc" id="L77">                mxCell targetCell2 = (mxCell) targetCell;</span>
-<span class="nc" id="L78">                thisElement.appendChild(childNodes(thisDoc, targetCell2));</span>
+                mxCell targetCell2 = (mxCell) targetCell;
+                thisElement.appendChild(childNodes(thisDoc, targetCell2));
             }
         }
-<span class="nc" id="L81">        return thisElement;</span>
+        return thisElement;
     }
 
-    public static Element behaviourChildNodes(Document thisDoc, mxCell cell) {
-<span class="nc" id="L85">        Element thisElement = null;</span>
+<span class="nc" id="L84">    public static Element behaviourChildNodes(Document thisDoc, mxCell cell) {</span>
+        Element thisElement = null;
 
-<span class="nc" id="L87">        String nodeName = benhaviourGraph.getModel().getValue(cell).toString();</span>
-<span class="nc" id="L88">        thisElement = thisDoc.createElement(nodeName);</span>
+        String nodeName = benhaviourGraph.getModel().getValue(cell).toString();
+        thisElement = thisDoc.createElement(nodeName);
 
-<span class="nc" id="L90">        Object[] outgoing = benhaviourGraph.getOutgoingEdges(cell);</span>
+        Object[] outgoing = benhaviourGraph.getOutgoingEdges(cell);
 
-<span class="nc bnc" id="L92" title="All 2 branches missed.">        if (outgoing.length &gt; 0) {</span>
-<span class="nc bnc" id="L93" title="All 2 branches missed.">            for (int i = 0; i &lt; outgoing.length; i++) {</span>
-<span class="nc" id="L94">                Object targetCell = benhaviourGraph.getModel().getTerminal(outgoing[i], false);</span>
+        if (outgoing.length &gt; 0) {
+            for (int i = 0; i &lt; outgoing.length; i++) {
+                Object targetCell = benhaviourGraph.getModel().getTerminal(outgoing[i], false);
                 // for next call
-<span class="nc" id="L96">                mxCell targetCell2 = (mxCell) targetCell;</span>
-<span class="nc" id="L97">                thisElement.appendChild(behaviourChildNodes(thisDoc, targetCell2));</span>
+                mxCell targetCell2 = (mxCell) targetCell;
+                thisElement.appendChild(behaviourChildNodes(thisDoc, targetCell2));
             }
         }
-<span class="nc" id="L100">        return thisElement;</span>
+        return thisElement;
     }
 
 
 
-    public static Element childNodesWithUniformity(Document thisDoc, mxCell cell) {
-<span class="nc" id="L106">        Element thisElement = null;</span>
+<span class="nc" id="L105">    public static Element childNodesWithUniformity(Document thisDoc, mxCell cell) {</span>
+        Element thisElement = null;
 
-<span class="nc" id="L108">        String nodeName = benhaviourGraph.getModel().getValue(cell).toString();</span>
-<span class="nc" id="L109">        thisElement = thisDoc.createElement(nodeName);</span>
+        String nodeName = benhaviourGraph.getModel().getValue(cell).toString();
+        thisElement = thisDoc.createElement(nodeName);
 
-<span class="nc" id="L111">        Object[] outgoing = benhaviourGraph.getOutgoingEdges(cell);</span>
+        Object[] outgoing = benhaviourGraph.getOutgoingEdges(cell);
 
-<span class="nc bnc" id="L113" title="All 2 branches missed.">        if (outgoing.length &gt; 0) {</span>
-<span class="nc bnc" id="L114" title="All 2 branches missed.">            for (int i = 0; i &lt; outgoing.length; i++) {</span>
-<span class="nc" id="L115">                Object targetCell = benhaviourGraph.getModel().getTerminal(outgoing[i], false);</span>
-<span class="nc" id="L116">                mxCell targetCell2 = (mxCell) targetCell;</span>
+        if (outgoing.length &gt; 0) {
+            for (int i = 0; i &lt; outgoing.length; i++) {
+                Object targetCell = benhaviourGraph.getModel().getTerminal(outgoing[i], false);
+                mxCell targetCell2 = (mxCell) targetCell;
 
-<span class="nc bnc" id="L118" title="All 2 branches missed.">                if (targetCell2.getId().startsWith(&quot;uniformity&quot;)) {</span>
-<span class="nc bnc" id="L119" title="All 2 branches missed.">                    if (targetCell2.getId().endsWith(&quot;RefNode&quot;)) {</span>
+                if (targetCell2.getId().startsWith(&quot;uniformity&quot;)) {
+                    if (targetCell2.getId().endsWith(&quot;RefNode&quot;)) {
 
                     }
                     else {
@@ -124,195 +124,195 @@ import static odme.jtreetograph.JtreeToGraphVariables.*;
                     }
                 } 
                 else {
-<span class="nc" id="L127">                    thisElement.appendChild(childNodesWithUniformity(thisDoc, targetCell2));</span>
+                    thisElement.appendChild(childNodesWithUniformity(thisDoc, targetCell2));
                 }
             }
         }
-<span class="nc" id="L131">        return thisElement;</span>
+        return thisElement;
     }
     
  // for modifying the generated xml output
-    public static void xmlOutputForXSD() {
-<span class="nc" id="L136">        PrintWriter f0 = null;</span>
+<span class="nc" id="L135">    public static void xmlOutputForXSD() {</span>
+        PrintWriter f0 = null;
         try {
-<span class="nc" id="L138">            String path = new String();</span>
-<span class="nc bnc" id="L139" title="All 2 branches missed.">            if (ODMEEditor.toolMode == &quot;ses&quot;)</span>
-<span class="nc" id="L140">                path = ODMEEditor.fileLocation + &quot;/&quot; + ODMEEditor.projName + &quot;/xmlforxsd.xml&quot;;</span>
+            String path = new String();
+            if (ODMEEditor.toolMode == &quot;ses&quot;)
+                path = ODMEEditor.fileLocation + &quot;/&quot; + ODMEEditor.projName + &quot;/xmlforxsd.xml&quot;;
             else
-<span class="nc" id="L142">                path = ODMEEditor.fileLocation + &quot;/&quot; + ODMEEditor.currentScenario + &quot;/xmlforxsd.xml&quot;;</span>
+                path = ODMEEditor.fileLocation + &quot;/&quot; + ODMEEditor.currentScenario + &quot;/xmlforxsd.xml&quot;;
 
-<span class="nc" id="L144">            f0 = new PrintWriter(</span>
+            f0 = new PrintWriter(
                     new FileWriter(path));
         } 
-<span class="nc" id="L147">        catch (IOException e1) {</span>
-<span class="nc" id="L148">            e1.printStackTrace();</span>
-<span class="nc" id="L149">        }</span>
+        catch (IOException e1) {
+            e1.printStackTrace();
+        }
 
-<span class="nc" id="L151">        Scanner in = null;</span>
+        Scanner in = null;
         try {
-<span class="nc" id="L153">            String path = new String();</span>
-<span class="nc bnc" id="L154" title="All 2 branches missed.">            if (ODMEEditor.toolMode == &quot;ses&quot;)</span>
-<span class="nc" id="L155">                path = ODMEEditor.fileLocation + &quot;/&quot; + ODMEEditor.projName + &quot;/outputgraphxmlforxsd.xml&quot;;</span>
+            String path = new String();
+            if (ODMEEditor.toolMode == &quot;ses&quot;)
+                path = ODMEEditor.fileLocation + &quot;/&quot; + ODMEEditor.projName + &quot;/outputgraphxmlforxsd.xml&quot;;
             else
-<span class="nc" id="L157">                path = ODMEEditor.fileLocation + &quot;/&quot; + ODMEEditor.currentScenario + &quot;/outputgraphxmlforxsd.xml&quot;;</span>
+                path = ODMEEditor.fileLocation + &quot;/&quot; + ODMEEditor.currentScenario + &quot;/outputgraphxmlforxsd.xml&quot;;
 
-<span class="nc" id="L159">            in = new Scanner(new File(path));</span>
+            in = new Scanner(new File(path));
 
         } 
-<span class="nc" id="L162">        catch (FileNotFoundException e) {</span>
-<span class="nc" id="L163">            e.printStackTrace();</span>
-<span class="nc" id="L164">        }</span>
+        catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
 
-<span class="nc" id="L166">        int first = 0;</span>
+        int first = 0;
 
-<span class="nc bnc" id="L168" title="All 2 branches missed.">        while (in.hasNext()) { // Iterates each line in the file</span>
-<span class="nc" id="L169">            String mod = null;</span>
-<span class="nc" id="L170">            String line = in.nextLine();</span>
+        while (in.hasNext()) { // Iterates each line in the file
+            String mod = null;
+            String line = in.nextLine();
 
-<span class="nc bnc" id="L172" title="All 2 branches missed.">            if (line.startsWith(&quot;&lt;?&quot;)) { // have to solve space problem for this line</span>
-<span class="nc" id="L173">                f0.println(&quot;&lt;?xml version=\&quot;1.0\&quot; encoding=\&quot;UTF-8\&quot; standalone=\&quot;no\&quot;?&gt;&quot;);</span>
+            if (line.startsWith(&quot;&lt;?&quot;)) { // have to solve space problem for this line
+                f0.println(&quot;&lt;?xml version=\&quot;1.0\&quot; encoding=\&quot;UTF-8\&quot; standalone=\&quot;no\&quot;?&gt;&quot;);
 
             }
-<span class="nc bnc" id="L176" title="All 2 branches missed.">            else if (line.startsWith(&quot;&lt;/&quot;)) {</span>
-<span class="nc" id="L177">                String result = line.replaceAll(&quot;[&lt;/&gt;]&quot;, &quot;&quot;);</span>
+            else if (line.startsWith(&quot;&lt;/&quot;)) {
+                String result = line.replaceAll(&quot;[&lt;/&gt;]&quot;, &quot;&quot;);
 
-<span class="nc bnc" id="L179" title="All 2 branches missed.">                if (result.endsWith(&quot;Dec&quot;)) {</span>
-<span class="nc" id="L180">                    mod = &quot;&lt;/aspect&gt;&quot;;</span>
+                if (result.endsWith(&quot;Dec&quot;)) {
+                    mod = &quot;&lt;/aspect&gt;&quot;;
                 }
-<span class="nc bnc" id="L182" title="All 2 branches missed.">                else if (result.endsWith(&quot;MAsp&quot;)) {</span>
-<span class="nc" id="L183">                    mod = &quot;&lt;/multiAspect&gt;&quot;;</span>
+                else if (result.endsWith(&quot;MAsp&quot;)) {
+                    mod = &quot;&lt;/multiAspect&gt;&quot;;
                 } 
-<span class="nc bnc" id="L185" title="All 2 branches missed.">                else if (result.endsWith(&quot;Spec&quot;)) {</span>
-<span class="nc" id="L186">                    mod = &quot;&lt;/specialization&gt;&quot;;</span>
+                else if (result.endsWith(&quot;Spec&quot;)) {
+                    mod = &quot;&lt;/specialization&gt;&quot;;
                 } 
                 else {
-<span class="nc bnc" id="L189" title="All 2 branches missed.">                    if (result.endsWith(&quot;Seq&quot;)) {</span>
-<span class="nc" id="L190">                        continue;</span>
+                    if (result.endsWith(&quot;Seq&quot;)) {
+                        continue;
                     }
-<span class="nc" id="L192">                    mod = &quot;&lt;/entity&gt;&quot;;</span>
+                    mod = &quot;&lt;/entity&gt;&quot;;
                 }
-<span class="nc" id="L194">                f0.println(mod);</span>
-<span class="nc" id="L195">            } </span>
-<span class="nc bnc" id="L196" title="All 2 branches missed.">            else if (line.startsWith(&quot;&lt;&quot;)) {</span>
-<span class="nc bnc" id="L197" title="All 2 branches missed.">                if (line.endsWith(&quot;/&gt;&quot;)) {</span>
-<span class="nc" id="L198">                    String result = line.replaceAll(&quot;[&lt;/&gt;]&quot;, &quot;&quot;);</span>
+                f0.println(mod);
+            } 
+            else if (line.startsWith(&quot;&lt;&quot;)) {
+                if (line.endsWith(&quot;/&gt;&quot;)) {
+                    String result = line.replaceAll(&quot;[&lt;/&gt;]&quot;, &quot;&quot;);
 
-<span class="nc bnc" id="L200" title="All 2 branches missed.">                    if (result.endsWith(&quot;Var&quot;)) {</span>
-<span class="nc" id="L201">                        String novarresult = result.replace(&quot;Var&quot;, &quot;&quot;);</span>
+                    if (result.endsWith(&quot;Var&quot;)) {
+                        String novarresult = result.replace(&quot;Var&quot;, &quot;&quot;);
                         
-<span class="nc" id="L203">                        String[] properties = novarresult.split(&quot;,&quot;);</span>
-<span class="nc bnc" id="L204" title="All 4 branches missed.">                        if (properties[1].equals(&quot;string&quot;) || properties[1].equals(&quot;boolean&quot;)) {</span>
+                        String[] properties = novarresult.split(&quot;,&quot;);
+                        if (properties[1].equals(&quot;string&quot;) || properties[1].equals(&quot;boolean&quot;)) {
 
-<span class="nc" id="L206">                            f0.println(&quot;&lt;var name=\&quot;&quot; + properties[0] + &quot;\&quot; &quot; + &quot;default=\&quot;&quot; + properties[2]</span>
+                            f0.println(&quot;&lt;var name=\&quot;&quot; + properties[0] + &quot;\&quot; &quot; + &quot;default=\&quot;&quot; + properties[2]
                                        + &quot;\&quot;&gt;&lt;/var&gt;&quot;);
                         }
                         else {
 
-<span class="nc" id="L211">                            f0.println(&quot;&lt;var name=\&quot;&quot; + properties[0] + &quot;\&quot; &quot; + &quot;default=\&quot;&quot; + properties[2]</span>
+                            f0.println(&quot;&lt;var name=\&quot;&quot; + properties[0] + &quot;\&quot; &quot; + &quot;default=\&quot;&quot; + properties[2]
                                        + &quot;\&quot; &quot; + &quot;lower=\&quot;&quot; + properties[3] + &quot;\&quot; &quot; + &quot;upper=\&quot;&quot;
                                        + properties[4] + &quot;\&quot; &quot; + &quot;&gt;&lt;/var&gt;&quot;);
                         }
 
-<span class="nc" id="L216">                    } </span>
-<span class="nc bnc" id="L217" title="All 2 branches missed.">                    else if (result.endsWith(&quot;RefNode&quot;)) {</span>
-<span class="nc" id="L218">                        String noRefNoderesult = result.replace(&quot;RefNode&quot;, &quot;&quot;);</span>
+                    } 
+                    else if (result.endsWith(&quot;RefNode&quot;)) {
+                        String noRefNoderesult = result.replace(&quot;RefNode&quot;, &quot;&quot;);
 
-<span class="nc bnc" id="L220" title="All 2 branches missed.">                        if (noRefNoderesult.endsWith(&quot;Dec&quot;)) {</span>
-<span class="nc" id="L221">                            f0.println(&quot;&lt;aspect name=\&quot;&quot; + noRefNoderesult + &quot;\&quot; ref=\&quot;&quot; + noRefNoderesult</span>
+                        if (noRefNoderesult.endsWith(&quot;Dec&quot;)) {
+                            f0.println(&quot;&lt;aspect name=\&quot;&quot; + noRefNoderesult + &quot;\&quot; ref=\&quot;&quot; + noRefNoderesult
                                        + &quot;\&quot;/&gt;&quot;);
                         }
-<span class="nc bnc" id="L224" title="All 2 branches missed.">                        else if (noRefNoderesult.endsWith(&quot;MAsp&quot;)) {</span>
-<span class="nc" id="L225">                            f0.println(</span>
+                        else if (noRefNoderesult.endsWith(&quot;MAsp&quot;)) {
+                            f0.println(
                                     &quot;&lt;multiAspect name=\&quot;&quot; + noRefNoderesult + &quot;\&quot; ref=\&quot;&quot; + noRefNoderesult
                                     + &quot;\&quot;/&gt;&quot;);
                         } 
-<span class="nc bnc" id="L229" title="All 2 branches missed.">                        else if (noRefNoderesult.endsWith(&quot;Spec&quot;)) {</span>
-<span class="nc" id="L230">                            f0.println(&quot;&lt;specialization name=\&quot;&quot; + noRefNoderesult + &quot;\&quot; ref=\&quot;&quot;</span>
+                        else if (noRefNoderesult.endsWith(&quot;Spec&quot;)) {
+                            f0.println(&quot;&lt;specialization name=\&quot;&quot; + noRefNoderesult + &quot;\&quot; ref=\&quot;&quot;
                                        + noRefNoderesult + &quot;\&quot;/&gt;&quot;);
                         }
                         else {
-<span class="nc" id="L234">                            f0.println(&quot;&lt;entity name=\&quot;&quot; + noRefNoderesult + &quot;\&quot; ref=\&quot;&quot; + noRefNoderesult</span>
+                            f0.println(&quot;&lt;entity name=\&quot;&quot; + noRefNoderesult + &quot;\&quot; ref=\&quot;&quot; + noRefNoderesult
                                        + &quot;\&quot;/&gt;&quot;);
                         }
                     } else {}
-<span class="nc" id="L238">                } </span>
+                } 
                 else {
-<span class="nc" id="L240">                    String result = line.replaceAll(&quot;[&lt;/&gt;]&quot;, &quot;&quot;);</span>
+                    String result = line.replaceAll(&quot;[&lt;/&gt;]&quot;, &quot;&quot;);
 
-<span class="nc bnc" id="L242" title="All 2 branches missed.">                    if (result.endsWith(&quot;Dec&quot;)) {</span>
-<span class="nc" id="L243">                        mod = &quot;&lt;aspect name=\&quot;&quot; + result + &quot;\&quot;&gt;&quot;;</span>
+                    if (result.endsWith(&quot;Dec&quot;)) {
+                        mod = &quot;&lt;aspect name=\&quot;&quot; + result + &quot;\&quot;&gt;&quot;;
                     } 
-<span class="nc bnc" id="L245" title="All 2 branches missed.">                    else if (result.endsWith(&quot;MAsp&quot;)) {</span>
-<span class="nc" id="L246">                        mod = &quot;&lt;multiAspect name=\&quot;&quot; + result + &quot;\&quot;&gt;&quot;;</span>
+                    else if (result.endsWith(&quot;MAsp&quot;)) {
+                        mod = &quot;&lt;multiAspect name=\&quot;&quot; + result + &quot;\&quot;&gt;&quot;;
                     } 
-<span class="nc bnc" id="L248" title="All 2 branches missed.">                    else if (result.endsWith(&quot;Spec&quot;)) {</span>
-<span class="nc" id="L249">                        mod = &quot;&lt;specialization name=\&quot;&quot; + result + &quot;\&quot;&gt;&quot;;</span>
+                    else if (result.endsWith(&quot;Spec&quot;)) {
+                        mod = &quot;&lt;specialization name=\&quot;&quot; + result + &quot;\&quot;&gt;&quot;;
                     } 
                     else {
-<span class="nc bnc" id="L252" title="All 2 branches missed.">                        if (first == 0) {</span>
-<span class="nc" id="L253">                            mod = &quot;&lt;entity xmlns:vc=\&quot;http://www.w3.org/2007/XMLSchema-versioning\&quot;&quot;</span>
+                        if (first == 0) {
+                            mod = &quot;&lt;entity xmlns:vc=\&quot;http://www.w3.org/2007/XMLSchema-versioning\&quot;&quot;
                                   + &quot; xmlns:xsi=\&quot;http://www.w3.org/2001/XMLSchema-instance\&quot;&quot;
                                   //+ &quot; xmlns:xsi=\&quot;http://www.w3.org/2001/XMLSchema\&quot;&quot;
                                   + &quot; xsi:noNamespaceSchemaLocation=\&quot;ses.xsd\&quot; name=\&quot;&quot; + result + &quot;\&quot;&gt;&quot;;
-<span class="nc" id="L257">                            first = 1;</span>
+                            first = 1;
                         }
                         else {
-<span class="nc bnc" id="L260" title="All 2 branches missed.">                            if (result.endsWith(&quot;Seq&quot;)) {</span>
-<span class="nc" id="L261">                                continue;</span>
+                            if (result.endsWith(&quot;Seq&quot;)) {
+                                continue;
                             }
-<span class="nc" id="L263">                            mod = &quot;&lt;entity name=\&quot;&quot; + result + &quot;\&quot;&gt;&quot;;</span>
+                            mod = &quot;&lt;entity name=\&quot;&quot; + result + &quot;\&quot;&gt;&quot;;
                         }
                     }
-<span class="nc" id="L266">                    f0.println(mod);</span>
-                }
-            }
-<span class="nc" id="L269">        }</span>
-<span class="nc" id="L270">        in.close();</span>
-<span class="nc" id="L271">        f0.close();</span>
-<span class="nc" id="L272">    }</span>
-    
-    public static void writeSaveModuleToFileAsXML(Object obj) {
-<span class="nc" id="L275">        mxCell cell = (mxCell) obj;</span>
-<span class="nc" id="L276">        String fileName = cell.getValue().toString();</span>
-
-<span class="nc" id="L278">        JFileChooser fileChooser = new JFileChooser();</span>
-<span class="nc" id="L279">        FileNameExtensionFilter xmlfilter = new FileNameExtensionFilter(&quot;xml files (*.xml)&quot;, &quot;xml&quot;);</span>
-<span class="nc" id="L280">        fileChooser.setFileFilter(xmlfilter);</span>
-<span class="nc" id="L281">        fileChooser.setSelectedFile(new File(fileName));</span>
-<span class="nc" id="L282">        fileChooser.setCurrentDirectory(new File(ODMEEditor.fileLocation + &quot;/&quot; + ODMEEditor.projName));</span>
-<span class="nc" id="L283">        int result = fileChooser.showSaveDialog(Main.frame);</span>
-<span class="nc bnc" id="L284" title="All 2 branches missed.">        if (result == JFileChooser.APPROVE_OPTION) {</span>
-<span class="nc" id="L285">            File selectedFile = fileChooser.getSelectedFile();</span>
-
-<span class="nc" id="L287">            JtreeToGraphSave.saveModuleFromCurrentModelAsXML(obj, selectedFile.getAbsolutePath());</span>
-        }
-<span class="nc" id="L289">    }</span>
-    
-    public static mxCell getRootNode() {
-<span class="nc" id="L292">        Object[] cells = benhaviourGraph.getChildVertices(benhaviourGraph.getDefaultParent()); // getSelectionCells();</span>
-
-<span class="nc" id="L294">        mxCell rootcell = null;</span>
-
-<span class="nc bnc" id="L296" title="All 2 branches missed.">        for (Object c : cells) {</span>
-<span class="nc" id="L297">            mxCell cell2 = (mxCell) c;</span>
-<span class="nc bnc" id="L298" title="All 2 branches missed.">            if (cell2.isVertex()) {</span>
-<span class="nc" id="L299">                String val = cell2.getId();</span>
-<span class="nc bnc" id="L300" title="All 2 branches missed.">                if (val.equals(&quot;rootnode&quot;)) {</span>
-<span class="nc" id="L301">                    rootcell = cell2;</span>
+                    f0.println(mod);
                 }
             }
         }
-<span class="nc" id="L305">        return rootcell;</span>
+        in.close();
+        f0.close();
+    }
+    
+<span class="nc" id="L274">    public static void writeSaveModuleToFileAsXML(Object obj) {</span>
+        mxCell cell = (mxCell) obj;
+        String fileName = cell.getValue().toString();
+
+        JFileChooser fileChooser = new JFileChooser();
+        FileNameExtensionFilter xmlfilter = new FileNameExtensionFilter(&quot;xml files (*.xml)&quot;, &quot;xml&quot;);
+        fileChooser.setFileFilter(xmlfilter);
+        fileChooser.setSelectedFile(new File(fileName));
+        fileChooser.setCurrentDirectory(new File(ODMEEditor.fileLocation + &quot;/&quot; + ODMEEditor.projName));
+        int result = fileChooser.showSaveDialog(Main.frame);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            File selectedFile = fileChooser.getSelectedFile();
+
+            JtreeToGraphSave.saveModuleFromCurrentModelAsXML(obj, selectedFile.getAbsolutePath());
+        }
+    }
+    
+<span class="nc" id="L291">    public static mxCell getRootNode() {</span>
+        Object[] cells = benhaviourGraph.getChildVertices(benhaviourGraph.getDefaultParent()); // getSelectionCells();
+
+        mxCell rootcell = null;
+
+        for (Object c : cells) {
+            mxCell cell2 = (mxCell) c;
+            if (cell2.isVertex()) {
+                String val = cell2.getId();
+                if (val.equals(&quot;rootnode&quot;)) {
+                    rootcell = cell2;
+                }
+            }
+        }
+        return rootcell;
     }
 
     /**
      * Receives a array of string and return the TreePath of the specific node.
      */
-    public static TreePath getTreeNodePath(String[] nodePath) {
+<span class="nc" id="L311">    public static TreePath getTreeNodePath(String[] nodePath) {</span>
         TreePath parentPath;
-<span class="nc" id="L313">        new FindByName(ODMEEditor.treePanel.tree, nodePath);</span>
-<span class="nc" id="L314">        parentPath = FindByName.path;</span>
-<span class="nc" id="L315">        return parentPath;</span>
+        new FindByName(ODMEEditor.treePanel.tree, nodePath);
+        parentPath = FindByName.path;
+        return parentPath;
     }
     
     /**
@@ -322,85 +322,85 @@ import static odme.jtreetograph.JtreeToGraphVariables.*;
      *
      * @param pos
      */
-    public static void renameCell(Object pos) {
-<span class="nc" id="L326">        mxCell cell = (mxCell) pos;</span>
+<span class="nc" id="L325">    public static void renameCell(Object pos) {</span>
+        mxCell cell = (mxCell) pos;
        
-<span class="nc bnc" id="L328" title="All 2 branches missed.">        if (cell.getId().equals(&quot;rootnode&quot;)) {</span>
-<span class="nc" id="L329">            Object[] outgoing = graph.getOutgoingEdges(cell);</span>
-<span class="nc bnc" id="L330" title="All 2 branches missed.">            if (outgoing.length == 0) {</span>
-<span class="nc" id="L331">                String newName = JOptionPane.showInputDialog(Main.frame, &quot;New Name&quot;, &quot;Rename Node&quot;,</span>
+        if (cell.getId().equals(&quot;rootnode&quot;)) {
+            Object[] outgoing = graph.getOutgoingEdges(cell);
+            if (outgoing.length == 0) {
+                String newName = JOptionPane.showInputDialog(Main.frame, &quot;New Name&quot;, &quot;Rename Node&quot;,
                         JOptionPane.PLAIN_MESSAGE);
                 
-<span class="nc bnc" id="L334" title="All 2 branches missed.">                if (newName == null)</span>
-<span class="nc" id="L335">                    return;</span>
+                if (newName == null)
+                    return;
                 
-<span class="nc bnc" id="L337" title="All 2 branches missed.">                else if (Character.isDigit(newName.trim().charAt(0))) {</span>
-<span class="nc" id="L338">                    JOptionPane.showMessageDialog(Main.frame,</span>
+                else if (Character.isDigit(newName.trim().charAt(0))) {
+                    JOptionPane.showMessageDialog(Main.frame,
                             &quot;Node's name should not start with a number!&quot;, &quot;Name Error&quot;, JOptionPane.ERROR_MESSAGE);
-<span class="nc" id="L340">                    return;</span>
+                    return;
                 }
 
-<span class="nc" id="L343">                newName = newName.replaceAll(&quot;\\s+&quot;, &quot;&quot;);</span>
+                newName = newName.replaceAll(&quot;\\s+&quot;, &quot;&quot;);
 
-<span class="nc bnc" id="L345" title="All 4 branches missed.">                if ((newName != null) &amp;&amp; (!newName.trim().isEmpty())) {</span>
+                if ((newName != null) &amp;&amp; (!newName.trim().isEmpty())) {
                     // jtree
-<span class="nc bnc" id="L347" title="All 2 branches missed.">                    if (cell.getId().equals(&quot;rootnode&quot;)) {</span>
+                    if (cell.getId().equals(&quot;rootnode&quot;)) {
                         // assigning new projectname and root to tree
-<span class="nc" id="L349">                        DefaultMutableTreeNode rootNode2 = new DefaultMutableTreeNode(newName);</span>
-<span class="nc" id="L350">                        DynamicTree.treeModel.setRoot(rootNode2);</span>
-<span class="nc" id="L351">                        DynamicTree.treeModel.reload();</span>
+                        DefaultMutableTreeNode rootNode2 = new DefaultMutableTreeNode(newName);
+                        DynamicTree.treeModel.setRoot(rootNode2);
+                        DynamicTree.treeModel.reload();
                     }
                     // for graph
-<span class="nc" id="L354">                    graph.getModel().beginUpdate();</span>
+                    graph.getModel().beginUpdate();
                     try {
-<span class="nc" id="L356">                        graph.getModel().setValue(cell, newName);</span>
+                        graph.getModel().setValue(cell, newName);
                     } 
                     finally {
-<span class="nc" id="L359">                        graph.getModel().endUpdate();</span>
+                        graph.getModel().endUpdate();
                     }
                 }
-<span class="nc" id="L362">                odme.jtreetograph.JtreeToGraphCheck.checkSubtreeNodeForSyncRename(cell, newName);</span>
-<span class="nc" id="L363">            }</span>
+                odme.jtreetograph.JtreeToGraphCheck.checkSubtreeNodeForSyncRename(cell, newName);
+            }
             else {
-<span class="nc" id="L365">                JOptionPane.showMessageDialog(Main.frame,</span>
+                JOptionPane.showMessageDialog(Main.frame,
                         &quot;You can't rename a root node having child node.&quot;);
             }
-<span class="nc" id="L368">        } </span>
+        } 
         else {
 
-<span class="nc" id="L371">            String newName = JOptionPane</span>
-<span class="nc" id="L372">                    .showInputDialog(Main.frame, &quot;New Name&quot;, &quot;Rename Node&quot;, JOptionPane.PLAIN_MESSAGE);</span>
+            String newName = JOptionPane
+                    .showInputDialog(Main.frame, &quot;New Name&quot;, &quot;Rename Node&quot;, JOptionPane.PLAIN_MESSAGE);
             
-<span class="nc bnc" id="L374" title="All 2 branches missed.">            if (newName == null)</span>
-<span class="nc" id="L375">                return;</span>
+            if (newName == null)
+                return;
             
-<span class="nc bnc" id="L377" title="All 2 branches missed.">            else if (Character.isDigit(newName.trim().charAt(0))) {</span>
-<span class="nc" id="L378">                JOptionPane.showMessageDialog(Main.frame,</span>
+            else if (Character.isDigit(newName.trim().charAt(0))) {
+                JOptionPane.showMessageDialog(Main.frame,
                             &quot;Node's name should not start with a number!&quot;, &quot;Name Error&quot;, JOptionPane.ERROR_MESSAGE);
-<span class="nc" id="L380">                return;</span>
+                return;
             }
 
-<span class="nc bnc" id="L383" title="All 2 branches missed.">            if (newName != null) {</span>
-<span class="nc" id="L384">                newName = newName.replaceAll(&quot;\\s+&quot;, &quot;&quot;);</span>
+            if (newName != null) {
+                newName = newName.replaceAll(&quot;\\s+&quot;, &quot;&quot;);
             }
 
-<span class="nc bnc" id="L387" title="All 4 branches missed.">            if ((newName != null) &amp;&amp; (!newName.trim().isEmpty())) {</span>
+            if ((newName != null) &amp;&amp; (!newName.trim().isEmpty())) {
                 // if the new name is not correct then change it according to cell type.
-<span class="nc" id="L389">                String currentName = (String) cell.getValue();</span>
+                String currentName = (String) cell.getValue();
 
-<span class="nc bnc" id="L391" title="All 2 branches missed.">                if (currentName.endsWith(&quot;Dec&quot;)) {</span>
-<span class="nc bnc" id="L392" title="All 2 branches missed.">                    if (!newName.endsWith(&quot;Dec&quot;)) {</span>
-<span class="nc" id="L393">                        newName = newName + &quot;Dec&quot;;</span>
+                if (currentName.endsWith(&quot;Dec&quot;)) {
+                    if (!newName.endsWith(&quot;Dec&quot;)) {
+                        newName = newName + &quot;Dec&quot;;
                     }
                 } 
-<span class="nc bnc" id="L396" title="All 2 branches missed.">                else if (currentName.endsWith(&quot;Spec&quot;)) {</span>
-<span class="nc bnc" id="L397" title="All 2 branches missed.">                    if (!newName.endsWith(&quot;Spec&quot;)) {</span>
-<span class="nc" id="L398">                        newName = newName + &quot;Spec&quot;;</span>
+                else if (currentName.endsWith(&quot;Spec&quot;)) {
+                    if (!newName.endsWith(&quot;Spec&quot;)) {
+                        newName = newName + &quot;Spec&quot;;
                     }
                 } 
-<span class="nc bnc" id="L401" title="All 2 branches missed.">                else if (currentName.endsWith(&quot;MAsp&quot;)) {</span>
-<span class="nc bnc" id="L402" title="All 2 branches missed.">                    if (!newName.endsWith(&quot;MAsp&quot;)) {</span>
-<span class="nc" id="L403">                        newName = newName + &quot;MAsp&quot;;</span>
+                else if (currentName.endsWith(&quot;MAsp&quot;)) {
+                    if (!newName.endsWith(&quot;MAsp&quot;)) {
+                        newName = newName + &quot;MAsp&quot;;
                     }
                 }
 
@@ -408,41 +408,41 @@ import static odme.jtreetograph.JtreeToGraphVariables.*;
 
                 // if a node is not connected to root then it will not try to change
                 // corresponding node name from tree
-<span class="nc" id="L411">                JtreeToGraphCheck.checkRootConnectivity(cell);</span>
+                JtreeToGraphCheck.checkRootConnectivity(cell);
 
-<span class="nc bnc" id="L413" title="All 2 branches missed.">                if (connectedToRoot) {</span>
-<span class="nc" id="L414">                    pathToRoot.add((String) cell.getValue());</span>
-<span class="nc" id="L415">                    JtreeToGraphConvert.nodeToRootPathVar(cell);</span>
+                if (connectedToRoot) {
+                    pathToRoot.add((String) cell.getValue());
+                    JtreeToGraphConvert.nodeToRootPathVar(cell);
 
-<span class="nc" id="L417">                    String[] stringArray = pathToRoot.toArray(new String[0]);</span>
-<span class="nc" id="L418">                    ArrayList&lt;String&gt; pathToRootRev = new ArrayList&lt;String&gt;();</span>
+                    String[] stringArray = pathToRoot.toArray(new String[0]);
+                    ArrayList&lt;String&gt; pathToRootRev = new ArrayList&lt;String&gt;();
 
-<span class="nc bnc" id="L420" title="All 2 branches missed.">                    for (int i = stringArray.length - 1; i &gt;= 0; i--) {</span>
-<span class="nc" id="L421">                        pathToRootRev.add(stringArray[i]);</span>
+                    for (int i = stringArray.length - 1; i &gt;= 0; i--) {
+                        pathToRootRev.add(stringArray[i]);
                     }
 
-<span class="nc" id="L424">                    String[] stringArrayRev = pathToRootRev.toArray(new String[0]);</span>
+                    String[] stringArrayRev = pathToRootRev.toArray(new String[0]);
 
-<span class="nc" id="L426">                    TreePath treePathForRename = getTreeNodePath(stringArrayRev);</span>
+                    TreePath treePathForRename = getTreeNodePath(stringArrayRev);
 
-<span class="nc" id="L428">                    DynamicTree.treeModel.valueForPathChanged(treePathForRename, newName);</span>
+                    DynamicTree.treeModel.valueForPathChanged(treePathForRename, newName);
 
-<span class="nc" id="L430">                    pathToRoot.clear();</span>
+                    pathToRoot.clear();
                 }
 
-<span class="nc" id="L433">                connectedToRoot = false;</span>
+                connectedToRoot = false;
 
                 // for graph
-<span class="nc" id="L436">                graph.getModel().beginUpdate();</span>
+                graph.getModel().beginUpdate();
                 try {
-<span class="nc" id="L438">                    graph.getModel().setValue(cell, newName);</span>
+                    graph.getModel().setValue(cell, newName);
 
                 } 
                 finally {
-<span class="nc" id="L442">                    graph.getModel().endUpdate();</span>
+                    graph.getModel().endUpdate();
                 }
             }
         }
-<span class="nc" id="L446">    }</span>
+    }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

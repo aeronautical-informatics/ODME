@@ -129,14 +129,14 @@ public class ToolBarBehaviour {
 <span class="nc" id="L129">		ODMEBehaviourEditor.treePanel.saveTreeModel();</span>
 <span class="nc" id="L130">		JtreeToGraphConvert.behaviourGraphToXML();</span>
 <span class="nc" id="L131">		JOptionPane.showMessageDialog(MainWindow.frame, &quot;Saved Successfully.&quot;, &quot;Save&quot;,</span>
-				JOptionPane.INFORMATION_MESSAGE);
+<span class="nc" id="L132">				JOptionPane.INFORMATION_MESSAGE);</span>
 <span class="nc" id="L133">	}</span>
 
 
 	private void mergeXML(){
 <span class="nc" id="L137">		JtreeToGraphConvert.mergeBehaviourWithXSD();</span>
 <span class="nc" id="L138">		JOptionPane.showMessageDialog(MainWindow.frame, &quot;Merged Successfully.&quot;, &quot;Merge Behaviour with XSD File&quot;,</span>
-				JOptionPane.INFORMATION_MESSAGE);
+<span class="nc" id="L139">				JOptionPane.INFORMATION_MESSAGE);</span>
 <span class="nc" id="L140">	}</span>
 	private void undo(){
 <span class="nc" id="L142">		JtreeToGraphGeneral.undo();</span>
@@ -149,7 +149,7 @@ public class ToolBarBehaviour {
 <span class="nc" id="L149">		} catch (CannotUndoException ex) {</span>
 <span class="nc" id="L150">			System.out.println(&quot;Unable to undo: &quot; + ex);</span>
 <span class="nc" id="L151">			ex.printStackTrace();</span>
-<span class="nc" id="L152">		}</span>
+		}
 <span class="nc" id="L153">	}</span>
 
 	private void redo(){
@@ -164,7 +164,7 @@ public class ToolBarBehaviour {
 <span class="nc" id="L164">		} catch (CannotRedoException ex) {</span>
 <span class="nc" id="L165">			System.out.println(&quot;Unable to redo: &quot; + ex);</span>
 <span class="nc" id="L166">			ex.printStackTrace();</span>
-<span class="nc" id="L167">		}</span>
+		}
 <span class="nc" id="L168">	}</span>
 
 	private void zoomIn(){

@@ -131,7 +131,7 @@ public class JTreeToGraphBehaviour {
 <span class="nc" id="L131">			benhaviourGraph.insertVertex(behaviourParent, &quot;rootnode&quot;, &quot;Events&quot;, 515, 20, 80, 30, &quot;Entity&quot;);</span>
 <span class="nc" id="L132">			benhaviourGraph.insertVertex(behaviourParent, &quot;hideV&quot;, &quot;End of Canvas&quot;, 0, 50000, 80, 30, &quot;Entity&quot;);</span>
 <span class="nc" id="L133">			benhaviourGraph.insertVertex(behaviourParent, &quot;hideH&quot;, &quot;End of Canvas&quot;, 50000, 0, 80, 30, &quot;Entity&quot;);</span>
-		} finally {
+<span class="nc" id="L134">		} finally {</span>
 <span class="nc" id="L135">			benhaviourGraph.getModel().endUpdate();</span>
 		}
 
@@ -144,7 +144,7 @@ public class JTreeToGraphBehaviour {
 			@Override
 			public void invoke(Object sender, mxEventObject evt) {
 				// this condition is added to control subtree undo addition
-<span class="nc bnc" id="L147" title="All 4 branches missed.">				if (!ODMEBehaviourEditor.undoControlForSubTree == true) {</span>
+<span class="nc bnc" id="L147" title="All 2 branches missed.">				if (!ODMEBehaviourEditor.undoControlForSubTree == true) {</span>
 <span class="nc" id="L148">					undoManager.undoableEditHappened((mxUndoableEdit) evt.getProperty(&quot;edit&quot;));</span>
 				}
 <span class="nc" id="L150">			}</span>
@@ -187,7 +187,7 @@ public class JTreeToGraphBehaviour {
 
 <span class="nc bnc" id="L188" title="All 2 branches missed.">							if (ODMEBehaviourEditor.nodeAddDecorator.equals(&quot;entity&quot;)) {</span>
 <span class="nc" id="L189">								benhaviourGraph.insertVertex(behaviourParent, null, nodeName, e.getX() - 40, e.getY(),</span>
-										80, 30, &quot;Entity&quot;);
+<span class="nc" id="L190">										80, 30, &quot;Entity&quot;);</span>
 <span class="nc" id="L191">								behaviourNodeNumber++;</span>
 <span class="nc bnc" id="L192" title="All 2 branches missed.">							} else if (ODMEBehaviourEditor.nodeAddDecorator.equals(&quot;Decorator&quot;)) {</span>
 <span class="nc" id="L193">								benhaviourGraph.insertVertex(behaviourParent, &quot;Loop repeat &quot;,  &quot;Loop&quot;, e.getX() - 40,</span>
@@ -213,13 +213,13 @@ public class JTreeToGraphBehaviour {
 <span class="nc bnc" id="L213" title="All 2 branches missed.">									if (ODMEBehaviourEditor.nodeBehaviour.contains(&quot;Spec&quot;)) {}</span>
 									else {
 <span class="nc" id="L215">									benhaviourGraph.insertVertex(behaviourParent, ODMEBehaviourEditor.nodeBehaviour, ODMEBehaviourEditor.nodeBehaviour, e.getX() - 40, e.getY(),</span>
-											80, 30, &quot;Entity&quot;);
+<span class="nc" id="L216">											80, 30, &quot;Entity&quot;);</span>
 <span class="nc" id="L217">									behaviourNodeNumber++;</span>
 <span class="nc" id="L218">									ODMEBehaviourEditor.nodeBehaviour = &quot;&quot;;</span>
 								}
 							}
 
-						} finally {
+<span class="nc" id="L222">						} finally {</span>
 <span class="nc" id="L223">							benhaviourGraph.getModel().endUpdate();</span>
 							// De-Selecting mouse selection from menu items
 <span class="nc" id="L225">							ODMEBehaviourEditor.nodeAddDecorator = &quot;&quot;;</span>
@@ -242,7 +242,7 @@ public class JTreeToGraphBehaviour {
 
 <span class="nc bnc" id="L243" title="All 2 branches missed.">								if (deleteCell.isEdge()) {</span>
 <span class="nc" id="L244">									JtreeToGraphDelete.deleteEdgeFromGraphPopup(delcell);</span>
-								} else {
+<span class="nc" id="L245">								} else {</span>
 <span class="nc" id="L246">									JtreeToGraphDelete.deleteNodeFromGraphPopup(delcell);</span>
 								}
 							}
@@ -288,13 +288,13 @@ public class JTreeToGraphBehaviour {
 <span class="nc bnc" id="L288" title="All 2 branches missed.">			if (lastEdge.isEdge()) {</span>
 				try {
 <span class="nc" id="L290">					lastEdge.getTarget().getValue();</span>
-				}
+<span class="nc" id="L291">				}</span>
 <span class="nc" id="L292">				catch (Exception e) {</span>
 <span class="nc" id="L293">					benhaviourGraph.removeCells(new Object[] {outgoing[outgoing.length - 1]});</span>
 <span class="nc" id="L294">					addedCell = null;</span>
 <span class="nc" id="L295">					lastAddedCell = null;</span>
 <span class="nc" id="L296">					return;</span>
-<span class="nc" id="L297">				}</span>
+				}
 			}
 
 //			if (lastAddedCell.getId().startsWith(&quot;uniformity&quot;)) {

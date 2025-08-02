@@ -21,7 +21,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
 import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.xml.parsers.DocumentBuilder;
+<span class="nc" id="L24">import javax.xml.parsers.DocumentBuilder;</span>
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -59,7 +59,7 @@ public class ODDManager extends JPanel{
 	static final long serialVersionUID=1l;
 	
 	// table headers
-<span class="nc" id="L62">	private final static String[] nodeHeaders = {</span>
+	private final static String[] nodeHeaders = {
 		&quot;Component Name&quot;,
 		&quot;Type&quot;,
 		&quot;Data-Type&quot;,
@@ -68,16 +68,16 @@ public class ODDManager extends JPanel{
 		&quot;Comments&quot;
 	};
 	
-	private static String getStateXsdFilePath() {
-<span class="nc" id="L72">		return ODMEEditor.fileLocation+System.getProperty(&quot;file.separator&quot;)+</span>
+<span class="nc" id="L71">	private static String getStateXsdFilePath() {</span>
+		return ODMEEditor.fileLocation+System.getProperty(&quot;file.separator&quot;)+
 			ODMEEditor.projName+
-<span class="nc" id="L74">			System.getProperty(&quot;file.separator&quot;)+</span>
+			System.getProperty(&quot;file.separator&quot;)+
 			&quot;xsdfromxml.xsd&quot;;
 	}
 	
-	public static final String getODDsPath() {
-<span class="nc" id="L79">		return ODMEEditor.fileLocation</span>
-<span class="nc" id="L80">			+System.getProperty(&quot;file.separator&quot;)</span>
+<span class="nc" id="L78">	public static final String getODDsPath() {</span>
+		return ODMEEditor.fileLocation
+			+System.getProperty(&quot;file.separator&quot;)
 			+&quot;odd&quot;;
 	}
 	
@@ -104,54 +104,54 @@ public class ODDManager extends JPanel{
 	// private JButton openBtn;
 	
 	public ODDManager() {
-<span class="nc" id="L107">		this(&quot;Generate OD&quot;);</span>
-<span class="nc" id="L108">		this.currentProjName=ODMEEditor.projName;</span>
-<span class="nc" id="L109">		this.mode=mode;</span>
-<span class="nc" id="L110">	}</span>
+		this(&quot;Generate OD&quot;);
+		this.currentProjName=ODMEEditor.projName;
+		this.mode=mode;
+	}
 	
 	public ODDManager(String mode){
-<span class="nc" id="L113">		super();</span>
-<span class="nc" id="L114">		File f=new File(getODDsPath());</span>
-<span class="nc bnc" id="L115" title="All 2 branches missed.">		if(!f.exists())</span>
-<span class="nc" id="L116">			f.mkdirs();</span>
-<span class="nc" id="L117">		this.setLayout(new FlowLayout());</span>
-<span class="nc bnc" id="L118" title="All 4 branches missed.">		if (!mode.equals(&quot;Generate OD&quot;) &amp;&amp; !mode.equals(&quot;ODD Manager&quot;))</span>
-<span class="nc" id="L119">			throw new IllegalArgumentException(&quot;Only Allowed modes for ODD Manager are 'ODD Manager' and 'Generate OD'&quot;);</span>
-<span class="nc" id="L120">		init(mode);</span>
-<span class="nc" id="L121">	}</span>
+		super();
+		File f=new File(getODDsPath());
+		if(!f.exists())
+			f.mkdirs();
+		this.setLayout(new FlowLayout());
+		if (!mode.equals(&quot;Generate OD&quot;) &amp;&amp; !mode.equals(&quot;ODD Manager&quot;))
+			throw new IllegalArgumentException(&quot;Only Allowed modes for ODD Manager are 'ODD Manager' and 'Generate OD'&quot;);
+		init(mode);
+	}
 	
-	private void init(String mode){
-<span class="nc" id="L124">		this.currentODDLabel=new JLabel();</span>
-<span class="nc" id="L125">		this.currentODDLabel.setFont(new Font(&quot;Serif&quot;, Font.BOLD, 20));</span>
+<span class="nc" id="L123">	private void init(String mode){</span>
+		this.currentODDLabel=new JLabel();
+		this.currentODDLabel.setFont(new Font(&quot;Serif&quot;, Font.BOLD, 20));
 		
-<span class="nc" id="L127">		this.jt=new JTable();</span>
-<span class="nc" id="L128">		this.jtPanel=new JPanel();</span>
-<span class="nc" id="L129">		this.oddsPanel=new JPanel();</span>
+		this.jt=new JTable();
+		this.jtPanel=new JPanel();
+		this.oddsPanel=new JPanel();
 		
 		// making the table scrollable
-<span class="nc" id="L132">		jsp=new JScrollPane(jt);</span>
-<span class="nc" id="L133">		this.add(jsp);</span>
-<span class="nc" id="L134">		jtPanel.add(this.jsp);</span>
-<span class="nc" id="L135">		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));</span>
+		jsp=new JScrollPane(jt);
+		this.add(jsp);
+		jtPanel.add(this.jsp);
+		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		
-<span class="nc" id="L137">		initBtnsPanel(mode);</span>
-<span class="nc" id="L138">		this.add(btnsPanel);</span>
-<span class="nc" id="L139">		this.add(currentODDLabel);</span>
+		initBtnsPanel(mode);
+		this.add(btnsPanel);
+		this.add(currentODDLabel);
 		
 		// CAVEAT: if the mode is &quot;Generate ODD&quot; this still gets generated, but only
 		// for the purpose of backwards-compatibility and preventing future 'null'-issues
-<span class="nc" id="L143">		this.oddListView=new ODDListView(this);</span>
-<span class="nc bnc" id="L144" title="All 2 branches missed.">		if (mode.equals(&quot;ODD Manager&quot;)) {</span>
+		this.oddListView=new ODDListView(this);
+		if (mode.equals(&quot;ODD Manager&quot;)) {
 			// initOpenBtn(); // deprecated
-<span class="nc" id="L146">			this.oddsPanel.add(this.oddListView);</span>
-<span class="nc" id="L147">			this.oddsPanel.add(jtPanel);</span>
-<span class="nc" id="L148">			this.add(oddsPanel);</span>
+			this.oddsPanel.add(this.oddListView);
+			this.oddsPanel.add(jtPanel);
+			this.add(oddsPanel);
 		}
-<span class="nc" id="L150">		else this.add(jtPanel);</span>
-<span class="nc" id="L151">		populateInitialTable(); // out of the current xsd open</span>
-<span class="nc" id="L152">		reDoTableInitials();</span>
-<span class="nc" id="L153">		updateCurrentODD(ODMEEditor.projName);</span>
-<span class="nc" id="L154">	}</span>
+		else this.add(jtPanel);
+		populateInitialTable(); // out of the current xsd open
+		reDoTableInitials();
+		updateCurrentODD(ODMEEditor.projName);
+	}
 	
 	/**
 	 * @author Roy
@@ -159,26 +159,26 @@ public class ODDManager extends JPanel{
 	 * which in turn will initialize that button and assing a listnere to it
 	 * (so it can act on clicks) and adds it to the panel
 	 * */
-	private void initBtnsPanel(String mode) {
-<span class="nc" id="L163">		this.btnsPanel=new JPanel();</span>
-<span class="nc" id="L164">		btnsPanel.add(currentODDLabel);</span>
-<span class="nc" id="L165">		initSaveBtn();</span>
-<span class="nc bnc" id="L166" title="All 2 branches missed.">		if (mode.equals(&quot;ODD Manager&quot;)) {</span>
-<span class="nc" id="L167">			initExportXmlBtn();</span>
-<span class="nc" id="L168">			initExportYamlBtn();</span>
-<span class="nc" id="L169">			initDeleteBtn();</span>
+<span class="nc" id="L162">	private void initBtnsPanel(String mode) {</span>
+		this.btnsPanel=new JPanel();
+		btnsPanel.add(currentODDLabel);
+		initSaveBtn();
+		if (mode.equals(&quot;ODD Manager&quot;)) {
+			initExportXmlBtn();
+			initExportYamlBtn();
+			initDeleteBtn();
 		}
-<span class="nc" id="L171">		btnsPanel.setLayout(new FlowLayout(FlowLayout.LEFT));</span>
-<span class="nc" id="L172">	}</span>
+		btnsPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+	}
 	
 	/**
 	 * @author Roy
 	 * update the name of currently open ODD
 	 * */
-	private void updateCurrentODD(String newODD) {
-<span class="nc" id="L179">		this.currentODDLabel.setText(newODD);</span>
-<span class="nc" id="L180">		this.currentProjName=newODD;</span>
-<span class="nc" id="L181">	}</span>
+<span class="nc" id="L178">	private void updateCurrentODD(String newODD) {</span>
+		this.currentODDLabel.setText(newODD);
+		this.currentProjName=newODD;
+	}
 	
 
 	// ======================================================= FUNCTIONALITIES
@@ -188,150 +188,150 @@ public class ODDManager extends JPanel{
 	 * Use JavaSE's classes to serialize the table's data model and write it to 
 	 * a file
 	 * */
-	private void exportSerialized(File f) throws IOException{
-<span class="nc" id="L192">		FileOutputStream fos=new FileOutputStream(f);</span>
-<span class="nc" id="L193">		ObjectOutputStream oos=new ObjectOutputStream(fos);</span>
-<span class="nc" id="L194">		EditableDataModel edm=(EditableDataModel)jt.getModel();</span>
-<span class="nc" id="L195">		oos.writeObject(edm);</span>
-<span class="nc" id="L196">		oos.close();</span>
-<span class="nc" id="L197">		fos.close();</span>
-<span class="nc" id="L198">	}</span>
+<span class="nc" id="L191">	private void exportSerialized(File f) throws IOException{</span>
+		FileOutputStream fos=new FileOutputStream(f);
+		ObjectOutputStream oos=new ObjectOutputStream(fos);
+		EditableDataModel edm=(EditableDataModel)jt.getModel();
+		oos.writeObject(edm);
+		oos.close();
+		fos.close();
+	}
 	
 	/**
 	 * @author Roy
 	 * Use JavaSE's classes to deserialize a file (specified by the path) into JTable's 
 	 * data model and return it so it can be assigned to JTable
 	 * */
-	private EditableDataModel importSerialized(String path) throws IOException, ClassNotFoundException{
-<span class="nc" id="L206">		EditableDataModel dtm=null;</span>
-<span class="nc" id="L207">		FileInputStream fis=new FileInputStream(path);</span>
-<span class="nc" id="L208">        ObjectInputStream in=new ObjectInputStream(fis);</span>
-<span class="nc" id="L209">        dtm=(EditableDataModel) in.readObject();</span>
-<span class="nc" id="L210">        in.close();</span>
-<span class="nc" id="L211">        fis.close();</span>
-<span class="nc" id="L212">        return dtm;</span>
+<span class="nc" id="L205">	private EditableDataModel importSerialized(String path) throws IOException, ClassNotFoundException{</span>
+		EditableDataModel dtm=null;
+		FileInputStream fis=new FileInputStream(path);
+        ObjectInputStream in=new ObjectInputStream(fis);
+        dtm=(EditableDataModel) in.readObject();
+        in.close();
+        fis.close();
+        return dtm;
 	}
 	
 	/**
 	 * @author Roy
 	 * used by ODDListView in order to inform ODDManager when a new file is selected
 	 * */
-	public void readODD(String oddName){
+<span class="nc" id="L219">	public void readODD(String oddName){</span>
 		
-<span class="nc bnc" id="L221" title="All 2 branches missed.">		if(oddName==currentProjName)return; // it's the same file - don't read again</span>
+		if(oddName==currentProjName)return; // it's the same file - don't read again
 		
-<span class="nc" id="L223">		String oddPath=getODDsPath()+System.getProperty(&quot;file.separator&quot;)+oddName+&quot;.ser&quot;;</span>
-<span class="nc" id="L224">		EditableDataModel dtm=null;</span>
+		String oddPath=getODDsPath()+System.getProperty(&quot;file.separator&quot;)+oddName+&quot;.ser&quot;;
+		EditableDataModel dtm=null;
 		try {
 			
 			// there's most likely a permission problem if this error happens
-<span class="nc bnc" id="L228" title="All 2 branches missed.">			if(!new File(oddPath).exists())</span>
-<span class="nc" id="L229">				throw new IOException(&quot;'&quot;+oddPath+&quot;' does not exist!&quot;);</span>
-<span class="nc" id="L230">			updateCurrentODD(oddName); // remember which file is being read</span>
+			if(!new File(oddPath).exists())
+				throw new IOException(&quot;'&quot;+oddPath+&quot;' does not exist!&quot;);
+			updateCurrentODD(oddName); // remember which file is being read
 			
-<span class="nc" id="L232">			dtm=importSerialized(oddPath);</span>
-<span class="nc bnc" id="L233" title="All 2 branches missed.">			if(dtm == null) {</span>
-<span class="nc" id="L234">				JOptionPane.showMessageDialog(</span>
+			dtm=importSerialized(oddPath);
+			if(dtm == null) {
+				JOptionPane.showMessageDialog(
 					null,&quot;Unable to Read ODD File&quot;,
 					&quot;Error&quot;,JOptionPane.ERROR_MESSAGE);
-<span class="nc" id="L237">				return;</span>
+				return;
 			}
-<span class="nc" id="L239">			jt.setModel(dtm);</span>
-<span class="nc" id="L240">			reDoTableInitials(); // gui stuff</span>
-<span class="nc" id="L241">		} catch (ClassNotFoundException | IOException e) { </span>
-<span class="nc" id="L242">			JOptionPane.showMessageDialog(</span>
+			jt.setModel(dtm);
+			reDoTableInitials(); // gui stuff
+		} catch (ClassNotFoundException | IOException e) { 
+			JOptionPane.showMessageDialog(
 				null, &quot;Unable to Read ODD File&quot;,&quot;Error&quot;
 				,JOptionPane.ERROR_MESSAGE);
-<span class="nc" id="L245">			e.printStackTrace();</span>
-<span class="nc" id="L246">		}</span>
-<span class="nc" id="L247">	}</span>
+			e.printStackTrace();
+		}
+	}
 	
 	/**
 	 * save the current table's DataModel as a serialized object in a file 
 	 * with a custom name (asked from user)
 	 * @author Roy
 	 * */
-	private void saveSer() {
-<span class="nc" id="L255">		File fOut=null;</span>
-<span class="nc" id="L256">		String filename=JOptionPane.showInputDialog(null, &quot;enter ODD's name (without the '.ser' part):&quot;,this.currentProjName);</span>
-<span class="nc bnc" id="L257" title="All 2 branches missed.">		if(filename==null) return; // canceled</span>
-<span class="nc" id="L258">		String outPath=getODDsPath()+System.getProperty(&quot;file.separator&quot;)+filename+&quot;.ser&quot;;</span>
+<span class="nc" id="L254">	private void saveSer() {</span>
+		File fOut=null;
+		String filename=JOptionPane.showInputDialog(null, &quot;enter ODD's name (without the '.ser' part):&quot;,this.currentProjName);
+		if(filename==null) return; // canceled
+		String outPath=getODDsPath()+System.getProperty(&quot;file.separator&quot;)+filename+&quot;.ser&quot;;
 		try{
 			
-<span class="nc" id="L261">			fOut=new File(outPath);</span>
-<span class="nc bnc" id="L262" title="All 2 branches missed.">			if(fOut.exists()) { // bug fix - DO NOT REMOVE (I forgot what the bug was tho)</span>
-<span class="nc" id="L263">				fOut.delete();</span>
-<span class="nc" id="L264">				fOut.createNewFile();</span>
+			fOut=new File(outPath);
+			if(fOut.exists()) { // bug fix - DO NOT REMOVE (I forgot what the bug was tho)
+				fOut.delete();
+				fOut.createNewFile();
 			}
 			
-<span class="nc" id="L267">			exportSerialized(fOut);</span>
-<span class="nc" id="L268">			reDoTableInitials();</span>
-<span class="nc" id="L269">			this.updateCurrentODD(filename);</span>
-<span class="nc" id="L270">			oddListView.updateNames(); // tell the listview to re-read the filenames</span>
+			exportSerialized(fOut);
+			reDoTableInitials();
+			this.updateCurrentODD(filename);
+			oddListView.updateNames(); // tell the listview to re-read the filenames
 			
-<span class="nc bnc" id="L272" title="All 2 branches missed.">			if(mode==&quot;Generate OD&quot;)javax.swing.JOptionPane.showMessageDialog(null,filename+&quot; saved.&quot;);</span>
-<span class="nc" id="L273">		}catch(IOException ioe) {</span>
-<span class="nc" id="L274">			ioe.printStackTrace();</span>
+			if(mode==&quot;Generate OD&quot;)javax.swing.JOptionPane.showMessageDialog(null,filename+&quot; saved.&quot;);
+		}catch(IOException ioe) {
+			ioe.printStackTrace();
 			// javax.swing.JOptionPane.showMessageDialog(null,&quot;Could not write the serialized Object&quot;);
-<span class="nc" id="L276">		}</span>
-<span class="nc" id="L277">	}</span>
+		}
+	}
 	
-	private void deleteCurrentODD() {
-<span class="nc" id="L280">		File fdel=null;</span>
-<span class="nc" id="L281">		String delPath=getODDsPath()+System.getProperty(&quot;file.separator&quot;)+currentProjName+&quot;.ser&quot;;</span>
-<span class="nc" id="L282">		fdel=new File(delPath);</span>
-<span class="nc" id="L283">		fdel.delete(); // if the file doesn't exist - this method causes no errors</span>
-<span class="nc" id="L284">		javax.swing.JOptionPane.showMessageDialog(null,currentProjName+&quot; Deleted&quot;);</span>
-<span class="nc" id="L285">		this.oddListView.updateNames();</span>
+<span class="nc" id="L279">	private void deleteCurrentODD() {</span>
+		File fdel=null;
+		String delPath=getODDsPath()+System.getProperty(&quot;file.separator&quot;)+currentProjName+&quot;.ser&quot;;
+		fdel=new File(delPath);
+		fdel.delete(); // if the file doesn't exist - this method causes no errors
+		javax.swing.JOptionPane.showMessageDialog(null,currentProjName+&quot; Deleted&quot;);
+		this.oddListView.updateNames();
 		
-<span class="nc" id="L287">	}</span>
+	}
 
 	// ======================================================= BTNs
 	
-	private void initExportXmlBtn() {
-<span class="nc" id="L292">		this.exportXmlBtn=new JButton(&quot;Export XML&quot;);</span>
-<span class="nc" id="L293">		btnsPanel.add(exportXmlBtn);</span>
-<span class="nc" id="L294">		exportXmlBtn.addActionListener(new ActionListener() {</span>
+<span class="nc" id="L291">	private void initExportXmlBtn() {</span>
+		this.exportXmlBtn=new JButton(&quot;Export XML&quot;);
+		btnsPanel.add(exportXmlBtn);
+		exportXmlBtn.addActionListener(new ActionListener() {
 			@Override public void actionPerformed(ActionEvent ae) {
-<span class="nc" id="L296">				exportMachineReadable();</span>
-<span class="nc" id="L297">			}</span>
+				exportMachineReadable();
+			}
 		});
-<span class="nc" id="L299">	}</span>
+	}
 	
-	private void initExportYamlBtn() {
-<span class="nc" id="L302">		this.exportYamlBtn=new JButton(&quot;Export YAML&quot;);</span>
-<span class="nc" id="L303">		btnsPanel.add(exportYamlBtn);</span>
-<span class="nc" id="L304">		exportYamlBtn.addActionListener(new ActionListener() {</span>
+<span class="nc" id="L301">	private void initExportYamlBtn() {</span>
+		this.exportYamlBtn=new JButton(&quot;Export YAML&quot;);
+		btnsPanel.add(exportYamlBtn);
+		exportYamlBtn.addActionListener(new ActionListener() {
 			@Override public void actionPerformed(ActionEvent ae) {
-<span class="nc" id="L306">				exportYaml();</span>
-<span class="nc" id="L307">			}</span>
+				exportYaml();
+			}
 		});
-<span class="nc" id="L309">	}</span>
+	}
 	
-	private void initSaveBtn() {
-<span class="nc" id="L312">		this.saveBtn=new JButton(&quot;Save&quot;);</span>
-<span class="nc" id="L313">		btnsPanel.add(saveBtn);</span>
-<span class="nc" id="L314">		saveBtn.addActionListener(new ActionListener() {</span>
+<span class="nc" id="L311">	private void initSaveBtn() {</span>
+		this.saveBtn=new JButton(&quot;Save&quot;);
+		btnsPanel.add(saveBtn);
+		saveBtn.addActionListener(new ActionListener() {
 			@Override public void actionPerformed(ActionEvent ae) {
-<span class="nc" id="L316">				saveSer();</span>
-<span class="nc" id="L317">			}</span>
+				saveSer();
+			}
 		});
-<span class="nc" id="L319">	}</span>
+	}
 	
-	private void initDeleteBtn() {
-<span class="nc" id="L322">		this.deleteBtn=new JButton(&quot;Delete&quot;);</span>
-<span class="nc" id="L323">		btnsPanel.add(deleteBtn);</span>
-<span class="nc" id="L324">		deleteBtn.addActionListener(new ActionListener() {</span>
+<span class="nc" id="L321">	private void initDeleteBtn() {</span>
+		this.deleteBtn=new JButton(&quot;Delete&quot;);
+		btnsPanel.add(deleteBtn);
+		deleteBtn.addActionListener(new ActionListener() {
 			@Override public void actionPerformed(ActionEvent ae) {
-<span class="nc" id="L326">				deleteCurrentODD();</span>
-<span class="nc" id="L327">			}</span>
+				deleteCurrentODD();
+			}
 		});
-<span class="nc" id="L329">	}</span>
+	}
 	
 	// ======================================================= LEGACY - WORKS FINE, DON'T MODIFY UNLESS NECESSARY!
 	
-	public static String currentXsdToYaml() {
-<span class="nc" id="L334">		return xsdToYaml(getStateXsdFilePath());</span>
+<span class="nc" id="L333">	public static String currentXsdToYaml() {</span>
+		return xsdToYaml(getStateXsdFilePath());
 	}
 	
 	/**
@@ -339,69 +339,69 @@ public class ODDManager extends JPanel{
 	 * the current xsd has the state of the program
 	 * */
 	public static String xsdToYaml(String path) {
-<span class="nc" id="L342">		String curr=&quot;&quot;;</span>
-<span class="nc" id="L343">		List&lt;String[]&gt; xsd=null;</span>
+		String curr=&quot;&quot;;
+		List&lt;String[]&gt; xsd=null;
 		try {
 <span class="nc" id="L345">			xsd=readXsd(path);</span>
-<span class="nc bnc" id="L346" title="All 2 branches missed.">			for (String[] row:xsd) {</span>
-<span class="nc bnc" id="L347" title="All 2 branches missed.">				if(row[1].equals(&quot;variable&quot;))curr+=&quot;\t&quot;; // for the type &quot;node&quot; it's not supposed to be tabbed</span>
-<span class="nc" id="L348">				curr+=row[0]+&quot;:&quot;; // adding the main node/var</span>
-<span class="nc bnc" id="L349" title="All 6 branches missed.">				if(row.length&gt;3 &amp;&amp; row[2]!=null &amp;&amp; !row[2].isEmpty())curr+=&quot;\n\t\ttype: &quot;+row[2]+&quot;\n&quot;; // type</span>
-<span class="nc bnc" id="L350" title="All 6 branches missed.">				if(row.length&gt;=4 &amp;&amp; row[3]!=null &amp;&amp; !row[3].isEmpty())curr+=&quot;\t\tmin: &quot;+row[3]+&quot;\n&quot;; // min </span>
-<span class="nc bnc" id="L351" title="All 6 branches missed.">				if(row.length&gt;=5 &amp;&amp; row[4]!=null &amp;&amp; !row[4].isEmpty())curr+=&quot;\t\tmax: &quot;+row[4]; // max</span>
-<span class="nc bnc" id="L352" title="All 6 branches missed.">				if(row.length&gt;=6 &amp;&amp; row[5]!=null &amp;&amp; !row[5].isEmpty())curr+=&quot;\t\tcomment: &quot;+row[5]; // max</span>
-<span class="nc" id="L353">				curr+=&quot;\n&quot;;</span>
-<span class="nc" id="L354">			}</span>
-<span class="nc" id="L355">		}catch(Exception e) {e.printStackTrace();}</span>
-<span class="nc" id="L356">		return curr;</span>
+			for (String[] row:xsd) {
+				if(row[1].equals(&quot;variable&quot;))curr+=&quot;\t&quot;; // for the type &quot;node&quot; it's not supposed to be tabbed
+				curr+=row[0]+&quot;:&quot;; // adding the main node/var
+				if(row.length&gt;3 &amp;&amp; row[2]!=null &amp;&amp; !row[2].isEmpty())curr+=&quot;\n\t\ttype: &quot;+row[2]+&quot;\n&quot;; // type
+				if(row.length&gt;=4 &amp;&amp; row[3]!=null &amp;&amp; !row[3].isEmpty())curr+=&quot;\t\tmin: &quot;+row[3]+&quot;\n&quot;; // min 
+				if(row.length&gt;=5 &amp;&amp; row[4]!=null &amp;&amp; !row[4].isEmpty())curr+=&quot;\t\tmax: &quot;+row[4]; // max
+				if(row.length&gt;=6 &amp;&amp; row[5]!=null &amp;&amp; !row[5].isEmpty())curr+=&quot;\t\tcomment: &quot;+row[5]; // max
+				curr+=&quot;\n&quot;;
+			}
+		}catch(Exception e) {e.printStackTrace();}
+		return curr;
 	}
 
 	 /**
      * @author Roy
      * #ROY - adding new Functionality
      * */
-	private void exportMachineReadable() {
+<span class="nc" id="L363">	private void exportMachineReadable() {</span>
 		
-<span class="nc" id="L365">		ODMEEditor.saveFunc(false);</span>
-<span class="nc" id="L366">		ODMEEditor.updateState();</span>
-<span class="nc" id="L367">		JtreeToGraphConvert.convertTreeToXML();</span>
-<span class="nc" id="L368">		String xmlContent=XmlUtils.readFile(</span>
+		ODMEEditor.saveFunc(false);
+		ODMEEditor.updateState();
+		JtreeToGraphConvert.convertTreeToXML();
+		String xmlContent=XmlUtils.readFile(
 			ODMEEditor.fileLocation, 
 			ODMEEditor.projName,
 			&quot;xmlforxsd.xml&quot;
 		);
-<span class="nc" id="L373">		ODMEEditor.chooseAndSaveFile(xmlContent,ODMEEditor.projName+&quot;.xml&quot;, null); // uncomment for production</span>
-<span class="nc" id="L374">	}</span>
-
-	public static void chooseAndSaveFile(String content,String suggestedPath,String ext) {
-<span class="nc" id="L377">		FileWriter fw=null;</span>
-		try{
-<span class="nc" id="L379">			fw=new FileWriter(getOpenedFile(suggestedPath));</span>
-<span class="nc" id="L380">			fw.write(content);</span>
-<span class="nc" id="L381">			javax.swing.JOptionPane.showMessageDialog(null,&quot;File Saved Successfully.&quot;);</span>
-<span class="nc" id="L382">		}catch(IOException ioe) {ioe.printStackTrace();}</span>
-
-		// handle leakage and canceling
-<span class="nc bnc" id="L385" title="All 2 branches missed.">		try { if(fw!=null) fw.close(); }</span>
-<span class="nc" id="L386">		catch(IOException ioe1) { ioe1.printStackTrace(); }</span>
-<span class="nc" id="L387">	}</span>
-
-	public static File getOpenedFile(String path) {
-<span class="nc" id="L390">		return getOpenedFile(path,null);</span>
+		ODMEEditor.chooseAndSaveFile(xmlContent,ODMEEditor.projName+&quot;.xml&quot;, null); // uncomment for production
 	}
 
-	public static File getOpenedFile(String path,String ext) {
-<span class="nc" id="L394">		JFileChooser jfc=new JFileChooser();</span>
+<span class="nc" id="L376">	public static void chooseAndSaveFile(String content,String suggestedPath,String ext) {</span>
+		FileWriter fw=null;
+		try{
+			fw=new FileWriter(getOpenedFile(suggestedPath));
+			fw.write(content);
+			javax.swing.JOptionPane.showMessageDialog(null,&quot;File Saved Successfully.&quot;);
+		}catch(IOException ioe) {ioe.printStackTrace();}
+
+		// handle leakage and canceling
+		try { if(fw!=null) fw.close(); }
+		catch(IOException ioe1) { ioe1.printStackTrace(); }
+	}
+
+<span class="nc" id="L389">	public static File getOpenedFile(String path) {</span>
+		return getOpenedFile(path,null);
+	}
+
+<span class="nc" id="L393">	public static File getOpenedFile(String path,String ext) {</span>
+		JFileChooser jfc=new JFileChooser();
 
 		// XXX making ext ineffective for now (due to BUGS)
-<span class="nc bnc" id="L397" title="All 2 branches missed.">		if (ext!=null)</span>
-<span class="nc" id="L398">			jfc.setFileFilter(new FileNameExtensionFilter(ext,ext));</span>
+		if (ext!=null)
+			jfc.setFileFilter(new FileNameExtensionFilter(ext,ext));
 
-<span class="nc" id="L400">		jfc.setSelectedFile(new File(path));</span>
-<span class="nc" id="L401">		int res=jfc.showOpenDialog(null);</span>
-<span class="nc bnc" id="L402" title="All 2 branches missed.">		if(res==JFileChooser.APPROVE_OPTION)</span>
-<span class="nc" id="L403">			return jfc.getSelectedFile();</span>
-<span class="nc" id="L404">		return null;</span>
+		jfc.setSelectedFile(new File(path));
+		int res=jfc.showOpenDialog(null);
+		if(res==JFileChooser.APPROVE_OPTION)
+			return jfc.getSelectedFile();
+		return null;
 	}
 
 	/**
@@ -409,27 +409,27 @@ public class ODDManager extends JPanel{
      * #ROY - adding new Functionality : use it for a Human Readable Yaml, which is NOT
      * convertable to xsd/xml
      **/
-	private void exportYaml() {
+<span class="nc" id="L412">	private void exportYaml() {</span>
 		// javax.swing.JOptionPane.showMessageDialog(null,ODDManager.getODDsPath());
-<span class="nc" id="L414">		ODMEEditor.saveFunc(false);</span>
-<span class="nc" id="L415">		ODMEEditor.updateState();</span>
-<span class="nc" id="L416">		JtreeToGraphConvert.convertTreeToXML();</span>
-<span class="nc" id="L417">		String yamlContent=currentXsdToYaml();</span>
-<span class="nc" id="L418">		ODMEEditor.chooseAndSaveFile(yamlContent,ODMEEditor.projName+&quot;.yaml&quot;, null); // uncomment for production</span>
-<span class="nc" id="L419">	}</span>
+		ODMEEditor.saveFunc(false);
+		ODMEEditor.updateState();
+		JtreeToGraphConvert.convertTreeToXML();
+		String yamlContent=currentXsdToYaml();
+		ODMEEditor.chooseAndSaveFile(yamlContent,ODMEEditor.projName+&quot;.yaml&quot;, null); // uncomment for production
+	}
 	
-	private void reDoTableInitials() { // this method just does some bugfix (don't ask)
+<span class="nc" id="L421">	private void reDoTableInitials() { // this method just does some bugfix (don't ask)</span>
 		
-<span class="nc" id="L423">		jt.setPreferredScrollableViewportSize(new Dimension(1024,600));</span>
-<span class="nc" id="L424">		jt.getColumnModel().getColumn(0).setPreferredWidth(200);</span>
+		jt.setPreferredScrollableViewportSize(new Dimension(1024,600));
+		jt.getColumnModel().getColumn(0).setPreferredWidth(200);
 		// getColumnModel().getColumn(1).setPreferredWidth();
-<span class="nc" id="L426">		jt.setFillsViewportHeight(true);</span>
-<span class="nc" id="L427">		jt.setFont(new Font(&quot;Arial&quot;, Font.PLAIN, 20));</span>
-<span class="nc" id="L428">		jt.setRowHeight(30);</span>
-<span class="nc" id="L429">		jt.setShowVerticalLines(true);</span>
-<span class="nc" id="L430">		jt.setSelectionBackground(new Color(217, 237, 146));</span>
-<span class="nc" id="L431">		jt.setSelectionForeground(new Color(188, 71, 73));</span>
-<span class="nc" id="L432">	}</span>
+		jt.setFillsViewportHeight(true);
+		jt.setFont(new Font(&quot;Arial&quot;, Font.PLAIN, 20));
+		jt.setRowHeight(30);
+		jt.setShowVerticalLines(true);
+		jt.setSelectionBackground(new Color(217, 237, 146));
+		jt.setSelectionForeground(new Color(188, 71, 73));
+	}
 	
 	/**
 	 * use readCurrentXsd to read the current xsd and turn it into 
@@ -437,27 +437,27 @@ public class ODDManager extends JPanel{
 	 * */
 	private void populateInitialTable() {
 		
-<span class="nc" id="L440">		EditableDataModel dtm=new EditableDataModel(nodeHeaders,0);</span>
-<span class="nc" id="L441">		List&lt;String[]&gt; data=null;</span>
+		EditableDataModel dtm=new EditableDataModel(nodeHeaders,0);
+		List&lt;String[]&gt; data=null;
 		try{
 <span class="nc" id="L443">			data=readCurrentXsd();</span>
 			
 			// caveat: if user hasn't saved the whole
 			// progress yet, &quot;data&quot; may be null
-<span class="nc bnc" id="L447" title="All 2 branches missed.">			for(int i=0;i&lt;data.size();i++) </span>
-<span class="nc" id="L448">				dtm.insertRow(dtm.getRowCount(),data.get(i));</span>
+			for(int i=0;i&lt;data.size();i++) 
+				dtm.insertRow(dtm.getRowCount(),data.get(i));
 			
 			// adjusting table size and font etc.
-<span class="nc" id="L451">			jt.setModel(dtm);</span>
-<span class="nc" id="L452">		}catch(Exception e) {</span>
-<span class="nc" id="L453">			e.printStackTrace();</span>
-<span class="nc" id="L454">		}</span>
-<span class="nc" id="L455">	}</span>
+			jt.setModel(dtm);
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
 	
 	// ======================================================= Reading inital xsd - new format with indents
 	
-	private static List&lt;String[]&gt; readCurrentXsd() throws SAXException, IOException, ParserConfigurationException{
-<span class="nc" id="L460">		return readXsd(getStateXsdFilePath());</span>
+<span class="nc" id="L459">	private static List&lt;String[]&gt; readCurrentXsd() throws SAXException, IOException, ParserConfigurationException{</span>
+		return readXsd(getStateXsdFilePath());
 	}
 
 	/**
@@ -466,23 +466,23 @@ public class ODDManager extends JPanel{
 	 * columns like lowerBound upperBound etc.) and return a String[] list (list of arrays) so it can 
 	 * be assigned to JTable 
 	 */
-	private static List&lt;String[]&gt; readXsd(String tablePath) throws SAXException, IOException, ParserConfigurationException {
+<span class="nc" id="L469">	private static List&lt;String[]&gt; readXsd(String tablePath) throws SAXException, IOException, ParserConfigurationException {</span>
 		
 		// preparing the Document Object Model (DOM)
-<span class="nc" id="L472">		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();</span>
-<span class="nc" id="L473">	    DocumentBuilder db = dbf.newDocumentBuilder();</span>
-<span class="nc" id="L474">	    org.w3c.dom.Document doc = db.parse(new File(tablePath));</span>
-<span class="nc" id="L475">	    doc.getDocumentElement().normalize();</span>
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+	    DocumentBuilder db = dbf.newDocumentBuilder();
+	    org.w3c.dom.Document doc = db.parse(new File(tablePath));
+	    doc.getDocumentElement().normalize();
 
 	    // source of data for later consumption by the JTable
-<span class="nc" id="L478">	    List&lt;String[]&gt; dataSource=new ArrayList&lt;String[]&gt;();</span>
-<span class="nc" id="L479">	    List&lt;Element&gt; processed=new ArrayList&lt;Element&gt;();</span>
+	    List&lt;String[]&gt; dataSource=new ArrayList&lt;String[]&gt;();
+	    List&lt;Element&gt; processed=new ArrayList&lt;Element&gt;();
 	    
 	    // kick start processing in a recursive manner (xsd in and of itself is recursive!)
-<span class="nc" id="L482">	    NodeList nodes=doc.getElementsByTagName(&quot;xs:element&quot;);</span>
-<span class="nc" id="L483">	    processNodeList(nodes,dataSource,processed,0);</span>
+	    NodeList nodes=doc.getElementsByTagName(&quot;xs:element&quot;);
+	    processNodeList(nodes,dataSource,processed,0);
 	    
-<span class="nc" id="L485">	    return dataSource;</span>
+	    return dataSource;
 	}
 
 	/**
@@ -490,108 +490,108 @@ public class ODDManager extends JPanel{
 	 * processes xs:element tags at one specific level of depth and recursively calls itself
 	 * if that tag has xs:element child tags, until all xs:element tags are processed
 	 * */
-	private static void processNodeList(NodeList nodes,List&lt;String[]&gt; src,List&lt;Element&gt; processed,int indent) {
-<span class="nc" id="L494">		Element curr=null;</span>
-<span class="nc" id="L495">		NodeList kids=null;</span>
-<span class="nc bnc" id="L496" title="All 2 branches missed.">		for (int i=0;i&lt;nodes.getLength();i++) {</span>
-<span class="nc" id="L497">			curr=(Element)nodes.item(i);</span>
-<span class="nc bnc" id="L498" title="All 2 branches missed.">			if(!processed.contains(curr)) {</span>
-<span class="nc" id="L499">				processElementTag(curr, src, indent);</span>
-<span class="nc" id="L500">				kids=curr.getElementsByTagName(&quot;xs:element&quot;);</span>
-<span class="nc bnc" id="L501" title="All 2 branches missed.">				if(kids.getLength()&gt;0)</span>
-<span class="nc" id="L502">					processNodeList(kids, src,processed,indent+1);</span>
-<span class="nc" id="L503">				processed.add(curr);</span>
+<span class="nc" id="L493">	private static void processNodeList(NodeList nodes,List&lt;String[]&gt; src,List&lt;Element&gt; processed,int indent) {</span>
+		Element curr=null;
+		NodeList kids=null;
+		for (int i=0;i&lt;nodes.getLength();i++) {
+			curr=(Element)nodes.item(i);
+			if(!processed.contains(curr)) {
+				processElementTag(curr, src, indent);
+				kids=curr.getElementsByTagName(&quot;xs:element&quot;);
+				if(kids.getLength()&gt;0)
+					processNodeList(kids, src,processed,indent+1);
+				processed.add(curr);
 			}
 		}
-<span class="nc" id="L506">	}</span>
+	}
 
 	 	
 	/**
 	 * @author Roy
 	 * process one Element Tag, without touching it's children
 	 * */
-	private static void processElementTag(Element e,List&lt;String[]&gt; src,int indent) {
-<span class="nc" id="L514">		src.add(getNodeHeaders(e,indent)); // adding headers</span>
+<span class="nc" id="L513">	private static void processElementTag(Element e,List&lt;String[]&gt; src,int indent) {</span>
+		src.add(getNodeHeaders(e,indent)); // adding headers
 		
 		// processing xs:attribute tags under the current xs:element tag (which is e)
-<span class="nc" id="L517">		NodeList attrs=e.getElementsByTagName(&quot;xs:attribute&quot;);</span>
-<span class="nc" id="L518">		indent+=2;</span>
-<span class="nc" id="L519">		Element curr=null;</span>
-<span class="nc" id="L520">		String firstParentName=null;</span>
-<span class="nc bnc" id="L521" title="All 2 branches missed.">		for(int i=0;i&lt;attrs.getLength();i++) {</span>
-<span class="nc" id="L522">			curr=(Element)attrs.item(i);</span>
-<span class="nc" id="L523">			firstParentName=findFirstParent(curr, &quot;xs:element&quot;);</span>
-<span class="nc bnc" id="L524" title="All 2 branches missed.">			if(firstParentName.equals(e.getAttribute(&quot;name&quot;)) &amp;&amp;</span>
-<span class="nc bnc" id="L525" title="All 4 branches missed.">			(!curr.hasAttribute(&quot;use&quot;) || !curr.getAttribute(&quot;use&quot;).equals(&quot;optional&quot;))</span>
-<span class="nc" id="L526">			)src.add(processAttributeTag(curr, indent));</span>
+		NodeList attrs=e.getElementsByTagName(&quot;xs:attribute&quot;);
+		indent+=2;
+		Element curr=null;
+		String firstParentName=null;
+		for(int i=0;i&lt;attrs.getLength();i++) {
+			curr=(Element)attrs.item(i);
+			firstParentName=findFirstParent(curr, &quot;xs:element&quot;);
+			if(firstParentName.equals(e.getAttribute(&quot;name&quot;)) &amp;&amp;
+			(!curr.hasAttribute(&quot;use&quot;) || !curr.getAttribute(&quot;use&quot;).equals(&quot;optional&quot;))
+			)src.add(processAttributeTag(curr, indent));
 		}
-<span class="nc" id="L528">	}</span>
+	}
 	
 	/**
 	 * @author Roy
 	 * find the first parent tag of Element e, that has the tagName as its...well, tag name!
 	 * */
-	private static String findFirstParent(Element e,String tagName) {
-<span class="nc" id="L535">		Node curr=(Node)e;</span>
-<span class="nc" id="L536">		Node n=null;</span>
+<span class="nc" id="L534">	private static String findFirstParent(Element e,String tagName) {</span>
+		Node curr=(Node)e;
+		Node n=null;
 		do {
-<span class="nc" id="L538">			n=curr.getParentNode();</span>
-<span class="nc" id="L539">			curr=n;</span>
-<span class="nc bnc" id="L540" title="All 4 branches missed.">		}while(n!=null &amp;&amp; !n.getNodeName().equals(tagName));</span>
-<span class="nc bnc" id="L541" title="All 2 branches missed.">		if(n==null)return &quot;[NO_PARENT]&quot;;</span>
-<span class="nc" id="L542">		return ((Element)n).getAttribute(&quot;name&quot;);</span>
+			n=curr.getParentNode();
+			curr=n;
+		}while(n!=null &amp;&amp; !n.getNodeName().equals(tagName));
+		if(n==null)return &quot;[NO_PARENT]&quot;;
+		return ((Element)n).getAttribute(&quot;name&quot;);
 	}
 	
 	/**
 	 * @author Roy
 	 * get a node's attributes in a consumable form (based on the child tags)
 	 * */
-	private static String[] processAttributeTag(Element e,int indent) {
+<span class="nc" id="L549">	private static String[] processAttributeTag(Element e,int indent) {</span>
 		
-<span class="nc" id="L551">		String[] r=new String[6];</span>
-<span class="nc" id="L552">		r[0]=indentStr(&quot;-&quot;+e.getAttribute(&quot;name&quot;),indent);</span>
-<span class="nc" id="L553">		r[1]=&quot;Variable&quot;;</span>
-<span class="nc" id="L554">		NodeList nl=e.getElementsByTagName(&quot;*&quot;);</span>
+		String[] r=new String[6];
+		r[0]=indentStr(&quot;-&quot;+e.getAttribute(&quot;name&quot;),indent);
+		r[1]=&quot;Variable&quot;;
+		NodeList nl=e.getElementsByTagName(&quot;*&quot;);
 		Element temp;
-<span class="nc bnc" id="L556" title="All 2 branches missed.">		for(int i=0;i&lt;nl.getLength();i++) {</span>
-<span class="nc" id="L557">			temp=(Element)nl.item(i);</span>
-<span class="nc bnc" id="L558" title="All 4 branches missed.">			switch(temp.getNodeName()) {</span>
-<span class="nc" id="L559">				case &quot;xs:restriction&quot;:r[2]=temp.getAttribute(&quot;base&quot;).replace(&quot;xs:&quot;, &quot;&quot;);break;</span>
-<span class="nc" id="L560">				case &quot;xs:minInclusive&quot;:r[3]=temp.getAttribute(&quot;value&quot;);break;</span>
-<span class="nc" id="L561">				case &quot;xs:maxInclusive&quot;:r[4]=temp.getAttribute(&quot;value&quot;);break;</span>
+		for(int i=0;i&lt;nl.getLength();i++) {
+			temp=(Element)nl.item(i);
+			switch(temp.getNodeName()) {
+				case &quot;xs:restriction&quot;:r[2]=temp.getAttribute(&quot;base&quot;).replace(&quot;xs:&quot;, &quot;&quot;);break;
+				case &quot;xs:minInclusive&quot;:r[3]=temp.getAttribute(&quot;value&quot;);break;
+				case &quot;xs:maxInclusive&quot;:r[4]=temp.getAttribute(&quot;value&quot;);break;
 				default:break;
 			}
 		}
-<span class="nc" id="L565">		return r;</span>
+		return r;
 	}
 	
 	/**
 	 * @author Roy
 	 * get node name and the fact that it is a node
 	 * */
-	private static String[] getNodeHeaders(Element e,int indent) {
-<span class="nc" id="L573">		String[] r=new String[5];</span>
-<span class="nc" id="L574">		r[0]=indentStr(e.getAttribute(&quot;name&quot;),indent,&quot;  &quot;);</span>
-<span class="nc" id="L575">		r[1]=&quot;Node&quot;;</span>
-<span class="nc" id="L576">		return r;</span>
+<span class="nc" id="L572">	private static String[] getNodeHeaders(Element e,int indent) {</span>
+		String[] r=new String[5];
+		r[0]=indentStr(e.getAttribute(&quot;name&quot;),indent,&quot;  &quot;);
+		r[1]=&quot;Node&quot;;
+		return r;
 	}
 	
 	/**
 	 * @author Roy
 	 * puts whitespaces at the start of a String
 	 * */
-	private static String indentStr(String s,int level) {
-<span class="nc" id="L584">		return indentStr(s,level,&quot; &quot;);</span>
+<span class="nc" id="L583">	private static String indentStr(String s,int level) {</span>
+		return indentStr(s,level,&quot; &quot;);
 	}
 	
 	/**
 	 * @author Roy
 	 * puts whitespaces at the start of a String
 	 * */
-	private static String indentStr(String s,int level,String indentStr) {
-<span class="nc bnc" id="L592" title="All 2 branches missed.">		for (int i=0;i&lt;level;i++)</span>
-<span class="nc" id="L593">			s=indentStr+s;</span>
-<span class="nc" id="L594">		return s;</span>
+<span class="nc" id="L591">	private static String indentStr(String s,int level,String indentStr) {</span>
+		for (int i=0;i&lt;level;i++)
+			s=indentStr+s;
+		return s;
 	}
 	
 }
