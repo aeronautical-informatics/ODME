@@ -1,35 +1,53 @@
-
-/Main/
-### IntelliJ IDEA ###
-.idea/
+### Java ###
+*.class
+*.jar
+*.war
+*.ear
 
 ### Maven ###
-/target/
-*.log
+target/
+!.mvn/wrapper/maven-wrapper.jar
+**/target/
 
-### JaCoCo Coverage Reports ###
-jacoco.exec
-target/site/jacoco/
-jacoco-report/
+### IntelliJ IDEA ###
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
 
 ### OS-specific ###
+# macOS
 .DS_Store
-Thumbs.db
 
-### Editor temp files ###
-*.swp
-*.swo
-*.tmp
-*.bak
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
 *~
 
-### Docker ###
-*.jar
+### Logs and Reports ###
+*.log
+*.tmp
+*.swp
+*.swo
 
-### GUI-generated files (from app usage, not source-controlled) ###
-Main/*.ssdbeh
-Main/*.ssdcon
-Main/*.ssdflag
-Main/*.ssdvar
-Main/*.xml
-Main/*.xsd
+### Test and Coverage Reports ###
+# JaCoCo
+jacoco.exec
+target/site/jacoco/
+# Surefire
+target/surefire-reports/
+
+### Build Tools ###
+*.class
+*.jar
+*.war
+*.ear
+*.log
+
+### Project-specific ###
+Main/
