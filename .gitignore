@@ -1,2 +1,33 @@
 ### IntelliJ IDEA ###
 .idea/
+
+### Maven ###
+/target/
+*.log
+
+### JaCoCo Coverage Reports ###
+jacoco.exec
+target/site/jacoco/
+jacoco-report/
+
+### OS-specific ###
+.DS_Store
+Thumbs.db
+
+### Editor temp files ###
+*.swp
+*.swo
+*.tmp
+*.bak
+*~
+
+### Docker ###
+*.jar
+
+### GUI-generated files (from app usage, not source-controlled) ###
+Main/*.ssdbeh
+Main/*.ssdcon
+Main/*.ssdflag
+Main/*.ssdvar
+Main/*.xml
+Main/*.xsd
