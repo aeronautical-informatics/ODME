@@ -205,30 +205,23 @@ public class JtreeToGraphGeneral {
                 if (line.endsWith("/>")) {
                     String result = line.replaceAll("[</>]", "");
 
-                    if (result.endsWith("Var")) { // Author : Vadece Kamdem--> modified so that it can print the variable type
+                    if (result.endsWith("Var")) {
                         String novarresult = result.replace("Var", "");
                         
                         String[] properties = novarresult.split(",");
                         if (properties[1].equals("string") || properties[1].equals("boolean")) {
 
-                            f0.println("<var name=\"" + properties[0] + "\" type=\"" + properties[1]
-                                    + "\" default=\"" + properties[2]
-                                       + "\"> </var>");
+                            f0.println("<var name=\"" + properties[0] + "\" " + "default=\"" + properties[2]
+                                       + "\"></var>");
                         }
                         else {
 
-                            f0.println("<var name=\"" + properties[0] + "\" type=\"" + properties[1]
-                                    + "\" default=\"" + properties[2]
-                                       + "\" lower=\"" + properties[3] + "\" " + "upper=\""
-                                       + properties[4] + "\"> </var>");
+                            f0.println("<var name=\"" + properties[0] + "\" " + "default=\"" + properties[2]
+                                       + "\" " + "lower=\"" + properties[3] + "\" " + "upper=\""
+                                       + properties[4] + "\" " + "></var>");
                         }
 
-                    }
-                    else if (result.endsWith("Behaviour")) { // Author : Vadece Kamdem
-                        String novarresult = result.replace("Behaviour", "");
-                        String[] properties = novarresult.split(",");
-                        f0.println("<behaviour name=\"" + properties[0] + "\"> </behaviour>");
-                    }
+                    } 
                     else if (result.endsWith("RefNode")) {
                         String noRefNoderesult = result.replace("RefNode", "");
 

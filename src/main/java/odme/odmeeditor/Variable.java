@@ -68,7 +68,6 @@ public class Variable extends JPanel {
 
         table.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
-                // Double click
                 if (e.getClickCount() == 2) {
                     JTable target = (JTable) e.getSource();
                     
@@ -81,11 +80,11 @@ public class Variable extends JPanel {
                     String variableValue = (String) target.getModel().getValueAt(row, 3);
                     String lowerBound = (String) target.getModel().getValueAt(row, 4);
                     String uperBound = (String) target.getModel().getValueAt(row, 5);
-//                    String comment = (String) target.getModel().getValueAt(row, 6);
+                    String comment = (String) target.getModel().getValueAt(row, 6);
                     
                     if (variableName != "")
                     	updateTableData(nodeName, variableName, variableType, variableValue, lowerBound,
-                    			uperBound,"comment");
+                    			uperBound,comment);
                 }
             }
         });
