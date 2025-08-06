@@ -25,16 +25,16 @@ The **Operation Domain Modeling Environment (ODME)** is a powerful modeling tool
 
 **Import Operational Design Domain Plugin** has been developed to import Operational scenarios from Cameo and transform them to operational domain model into ODME. *This mode is a work in progress*
 
-**Scripting Add-On** has been developed to bridge the gap between scenario modeling and simulation execution within ODME. It allows users to seamlessly translate XML and YAML-based scenarios into executable Python scripts, enabling real-time validation and integration with external simulation environments.  *This mode is a work in progress*
+**Scripting Add-On** has been developed to bridge the gap between scenario modeling and simulation execution within ODME. It allows users to seamlessly translate XML and YAML-based scenarios into executable Python scripts, enabling real-time validation and integration with external simulation environments.  *This mode is a work in progresss*
+
 
 
 ## [Workflow](#workflow)
 
 This repository uses GitHub Actions to automate the build, testing, packaging, and release of the ODME project. The workflow consists of several jobs that run whenever changes are pushed or pull requests are made to the **"main"** branch. Here's an overview of the workflow steps:
-1. **Build and Test** : The build_test job compiles the Java code using Maven and runs tests to ensure code integrity.
 
+1. **Build and Test** : The build\_test job compiles the Java code using Maven and runs tests to ensure code integrity.
 2. **Publish Artifact** : The publish-job job verifies the project, stages the built artifact, and uploads it as a package.
-
 3. **Automate Release** : The automate-release job creates a GitHub release based on the uploaded artifact, providing a versioned snapshot of the project.
 
 This workflow streamlines the development process, ensuring code quality, artifact packaging, and release management.
@@ -51,7 +51,8 @@ To get started with ODME, follow these steps:
 ## [Usage](#usage)
 
 1. Download the package from Release and extract the contents
-2. Execute the *SESEditor-1.0-SNAPSHOT-jar-with-dependencies* 
+2. Execute the *SESEditor-1.0-SNAPSHOT-jar-with-dependencies*
+
 
 
 ## [Contributing](#contributing)
@@ -61,3 +62,4 @@ Contributions to ODME are welcome!
 ## [License](#license)
 
 ODME is released under the **MIT License**.
+
