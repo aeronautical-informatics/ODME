@@ -108,7 +108,7 @@ public class DynamicTree extends JPanel implements MouseListener {
                         constraintsList = (Multimap<TreePath, String>) oiscon.readObject();
                         oiscon.close();
 
-                        //it is read behaviours from the file
+                        //it reads behaviours from the file
                         ObjectInputStream oisbeh = new ObjectInputStream(new FileInputStream(ssdFileBeh));
                         behavioursList = (Multimap<TreePath , String>) oisbeh.readObject();
                         oisbeh.close();
@@ -235,7 +235,17 @@ public class DynamicTree extends JPanel implements MouseListener {
             ObjectInputStream oisvar;
             oisvar = new ObjectInputStream(new FileInputStream(path));
             varMap = (Multimap<TreePath, String>) oisvar.readObject();
-            oisvar.close();  
+            oisvar.close();
+
+            if (ODMEEditor.toolMode == "ses")  // Author:Vadece Kamdem
+                path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + newProjectName + ".ssdbeh";
+            else
+                path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/" + newProjectName + ".ssdbeh";
+
+            ObjectInputStream oisbehaviour;
+            oisbehaviour = new ObjectInputStream(new FileInputStream(path));
+            behavioursList = (Multimap<TreePath, String>) oisbehaviour.readObject();
+            oisbehaviour.close();
             
             
             if (ODMEEditor.toolMode == "ses")
@@ -533,6 +543,40 @@ public class DynamicTree extends JPanel implements MouseListener {
 
                 ODMEEditor.scenarioVariable
                         .showNodeValuesInTable(currentNode.toString(), nodesToSelectedNode);
+
+                /*
+                * Autor: Lionce Vadece
+                * This is to refresh the behavior table
+                */
+                String[] nodesToSelectedNode2 = new String[100];
+
+                int bb = 0;
+                for (TreePath key : DynamicTree.behavioursList.keySet()) {
+                    int a = 0;
+                    for (String value : DynamicTree.behavioursList.get(key)) {
+                        DefaultMutableTreeNode currentNode3 =
+                                (DefaultMutableTreeNode) (key.getLastPathComponent());
+                        TreeNode[] nodes3 = currentNode3.getPath();
+                        if (nodes.length == nodes3.length) {
+                            int aa = 1;
+                            for (int i = 0; i < nodes.length; i++) {
+                                if (!nodes[i].toString().equals(nodes3[i].toString())) {
+                                    aa = 0;
+                                    break;
+                                }
+                            }
+                            a = aa;
+                        }
+
+                        if (a == 1) {
+
+                            nodesToSelectedNode2[bb] = value;
+                            bb++;
+                        }
+                    }
+                }
+                ODMEEditor.scenarioBehaviour.showBehaviourInTable(currentNode.getUserObject().toString(),nodesToSelectedNode2);
+
             }
 
         } else if ( (e.getButton() == MouseEvent.BUTTON3)
@@ -581,7 +625,44 @@ public class DynamicTree extends JPanel implements MouseListener {
         }
         
         ODMEEditor.scenarioVariable
-                .showNodeValuesInTable(currentNode.toString(), nodesToSelectedNode); 
+                .showNodeValuesInTable(currentNode.toString(), nodesToSelectedNode);
+
+
+
+        DefaultMutableTreeNode currentNode2 =
+                (DefaultMutableTreeNode) (treePathForVariable.getLastPathComponent());
+
+        // -------------------------------------------------------
+        TreeNode[] nodes2 = currentNode.getPath();
+        String[] nodesToSelectedNode2 = new String[2];
+
+        int bb = 0;
+        for (TreePath key : DynamicTree.behavioursList.keySet()) {
+            int a = 0;
+            for (String value : DynamicTree.behavioursList.get(key)) {
+                DefaultMutableTreeNode currentNode3 =
+                        (DefaultMutableTreeNode) (key.getLastPathComponent());
+                TreeNode[] nodes3 = currentNode3.getPath();
+                if (nodes2.length == nodes3.length) {
+                    int aa = 1;
+                    for (int i = 0; i < nodes2.length; i++) {
+                        if (!nodes2[i].toString().equals(nodes3[i].toString())) {
+                            aa = 0;
+                            break;
+                        }
+                    }
+                    a = aa;
+                }
+
+                if (a == 1) {
+
+                    nodesToSelectedNode2[bb] = value;
+                    bb++;
+                }
+            }
+        }
+        ODMEEditor.scenarioBehaviour.showBehaviourInTable(currentNode2.getUserObject().toString(),nodesToSelectedNode2);
+
     }
 
     public void showConstraintsInTable(TreePath treePathForVariable) {
@@ -658,7 +739,7 @@ public class DynamicTree extends JPanel implements MouseListener {
                     nodesToSelectedNode[b] = value;
                     nodeName = currentNode2.getUserObject().toString();
                     b++;
-                    ODMEEditor.scenarioBehaviour.showBehavioursInTable(currentNode2.getUserObject().toString(),nodesToSelectedNode);
+                    ODMEEditor.scenarioBehaviour.showBehaviourInTable(currentNode2.getUserObject().toString(),nodesToSelectedNode);
                 }
             }
         }
