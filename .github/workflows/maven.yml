@@ -1,5 +1,10 @@
 name: Github Actions CI/CD Workflow for ODME
 
+permissions:
+  contents: write     # ✅ Needed for creating releases and uploading assets
+  packages: write     # Optional: for Docker/Java packages
+  actions: read
+
 on:
   push:
     branches: [ "main" ]
