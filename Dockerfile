@@ -1,25 +1,14 @@
-FROM maven:3.9.6-eclipse-temurin-17 AS build
+FROM ubuntu:latest
+LABEL authors="adeutou"
 
-LABEL maintainer="adeutou"
-
-# Set working directory inside container
+# Set the working directory inside the container
 WORKDIR /app
 
-# Copy source code
-COPY . .
+# Copy the JAR file from the current working directory (GitHub Actions workspace) to the container
+COPY *.jar app.jar
 
-# Package the application using Maven
-RUN mvn clean install
-
-# Stage 2 - runtime image
-FROM eclipse-temurin:17-jdk
-
-WORKDIR /app
-
-# Copy built jar from build stage
-COPY --from=build /app/target/*-jar-with-dependencies.jar app.jar
-
-
+# Expose the port your application will listen on (if applicable)
 EXPOSE 8080
 
+# Run the Java application
 CMD ["java", "-jar", "app.jar"]
