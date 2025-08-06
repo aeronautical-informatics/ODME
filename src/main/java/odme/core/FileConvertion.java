@@ -116,18 +116,16 @@ public class FileConvertion {
                         String[] properties = novarresult.split(",");
                         if (properties[1].equals("string") || properties[1].equals("boolean")) {
                             f0.println(
-                                    "<xs:attribute name=\"" + properties[0] + "\" type=\"" + properties[1]
-                                            + "\" default=\"" + properties[2]
-                                    + "\">"); // Author: Vadece Kamdem--> I added "\" type=\"" + properties[1] + so that the type should be seen
+                                    "<xs:attribute name=\"" + properties[0] + "\" default=\"" + properties[2]
+                                    + "\">");
                             f0.println("</xs:attribute>");
                         } 
                         else {
                             f0.println(
-                                    "<xs:attribute name=\"" + properties[0] + "\" type=\"" + properties[1] + "\" default=\"" + properties[2]
+                                    "<xs:attribute name=\"" + properties[0] + "\" default=\"" + properties[2]
                                     + "\">");
                             f0.println("<xs:simpleType>");
                             f0.println("<xs:restriction base=\"xs:" + properties[1] + "\">");
-                            f0.println("<xs:type  value=\"" + properties[1] + "\"/>");
                             f0.println("<xs:minInclusive  value=\"" + properties[3] + "\"/>");
                             f0.println("<xs:maxInclusive value=\"" + properties[4] + "\"/>");
                             f0.println("</xs:restriction>");
@@ -135,16 +133,7 @@ public class FileConvertion {
                             f0.println("</xs:attribute>");
                         }
 
-                    }
-                    else if (result.endsWith("Behaviour")) {
-                        String nobresult = result.replace("Behaviour", "");
-
-                        // behaviour with proper style
-                        String[] properties = nobresult.split(",");
-                        f0.println("<xs:attribute name=\"" + properties[0] + "\">");
-                        f0.println("</xs:attribute>");
-
-                    }
+                    } 
                     else if (result.endsWith("Con")) {
                         String resultCon =
                                 backConstraints.replaceAll("[<>]", ""); // to keep the space backConstraints
@@ -220,88 +209,6 @@ public class FileConvertion {
         f0.println("</xs:schema>");
         in.close();
         f0.close();
-    }
-
-    public void behaviourAdditionToNode(TreePath key, String variableName) { // Author: Vadece Kamdem
-        Object[] stringArrayRev = key.getPath();
-
-        int len = stringArrayRev.length;
-        int count = 0;
-
-        Scanner in = null;
-        try {
-            String path = new String();
-            if (ODMEEditor.toolMode == "ses")
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/outputgraphxmlforxsd.xml";
-            else
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/outputgraphxmlforxsd.xml";
-
-            in = new Scanner(new File(path));
-        }
-        catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        PrintWriter f0 = null;
-        try {
-            String path = new String();
-            if (ODMEEditor.toolMode == "ses")
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/outputgraphxmlforxsdvar.xml";
-            else
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/outputgraphxmlforxsdvar.xml";
-
-            f0 = new PrintWriter(new FileWriter(path));
-        }
-        catch (IOException e1) {
-            e1.printStackTrace();
-        }
-
-        while (in.hasNext()) {
-            String line = in.nextLine();
-            String backLine = line;
-
-            if (line.startsWith("<?")) { // have to solve space problem for this line
-                f0.println("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>");
-            }
-            else if (line.startsWith("<if(")) {
-                f0.println(backLine);
-            }
-            else if (line.startsWith("<")) {
-                String result = line.replaceAll("[</>]", "");
-
-                if (count < len) {
-                    if (result.equals(stringArrayRev[count].toString())) {
-                        count++;
-                    }
-                    if (count == len) {
-                        if (line.endsWith("/>")) {
-                            f0.println("<" + result + ">");
-                            f0.println(variableName + "Behaviour");
-                            f0.println("</" + result + ">");
-                        }
-                        else if (line.startsWith("<")) {
-                            f0.println("<" + result + ">");
-                            f0.println(variableName + "Behaviour");
-                        }
-                        else {
-                            f0.println(line);
-                        }
-                    }
-                    else {
-                        f0.println(line);
-                    }
-                }
-                else {
-                    f0.println(line);
-                }
-            }
-            else {
-                f0.println(line);
-            }
-        }
-        in.close();
-        f0.close();
-        copyFileToExistingOne();
     }
 
     public void variableAdditionToNode(TreePath key, String variableName) {
@@ -865,19 +772,13 @@ public class FileConvertion {
                      + "        <xs:attribute name=\"default\" use=\"optional\"/>\r\n"
                      + "        <xs:attribute name=\"lower\" use=\"optional\"/>\r\n"
                      + "        <xs:attribute name=\"upper\" use=\"optional\"/>\r\n" + "        \r\n"
-                     + "    </xs:complexType>\r\n" + "\r\n" + "\r\n"
-                     + "    <xs:complexType name=\"behaviourType\"> \r\n" + "        <xs:sequence>\r\n"
-                     + "            <xs:element minOccurs=\"0\" maxOccurs=\"unbounded\" ref=\"entity\"/>\r\n"
-                     + "        </xs:sequence>\r\n"
-                     + "        <xs:attribute name=\"name\" use=\"required\"/>\r\n" + "        \r\n"
                      + "    </xs:complexType>\r\n" + "\r\n" + "\r\n" + "    <xs:element name=\"entity\">\r\n"
                      + "        <xs:complexType>\r\n" + "            <xs:sequence>\r\n"
                      + "                <xs:choice minOccurs=\"0\" maxOccurs=\"unbounded\">\r\n"
                      + "                    <xs:element ref=\"aspect\"/>\r\n"
                      + "                    <xs:element ref=\"specialization\"/>\r\n"
                      + "                    <xs:element ref=\"multiAspect\"/>\r\n"
-                     + "                    <xs:element ref=\"var\"/>\r\n"
-                     + "                    <xs:element ref=\"behaviour\"/>\r\n" + "                    \r\n"
+                     + "                    <xs:element ref=\"var\"/>\r\n" + "                    \r\n"
                      + "                </xs:choice>            \r\n" + "                \r\n"
                      + "            </xs:sequence>\r\n" + "\r\n"
                      + "            <xs:attribute name=\"name\" use=\"required\"/>\r\n"
@@ -890,8 +791,7 @@ public class FileConvertion {
                      + "    <xs:element name=\"aspect\" type=\"aspectType\"/>\r\n"
                      + "    <xs:element name=\"multiAspect\" type=\"multiAspectType\"/>\r\n"
                      + "    <xs:element name=\"specialization\" type=\"specializationType\"/>\r\n"
-                     + "    <xs:element name=\"var\" type=\"varType\"/>\r\n"
-                     + "    <xs:element name=\"behaviour\" type=\"behaviourType\"/>   \r\n" + "\r\n" + "     \r\n"
+                     + "    <xs:element name=\"var\" type=\"varType\"/>   \r\n" + "\r\n" + "     \r\n"
                      + "</xs:schema>\r\n" + "";
 
         f0.println(ses);

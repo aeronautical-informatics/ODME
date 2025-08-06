@@ -218,10 +218,7 @@ public class JtreeToGraphModify {
                 }
                 else if (result.endsWith("Var")) {
                     f0.println(line);
-                }
-                else if (result.endsWith("Behaviour")) { // Author: Vadece Kamdem
-                    f0.println(line);
-                }
+                } 
                 else if (result.endsWith("Con")) {
                     f0.println(line);
                 } 

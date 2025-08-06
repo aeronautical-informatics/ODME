@@ -7,9 +7,8 @@
     <groupId>dlr.ses</groupId>
     <artifactId>SESEditor</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <dependencies>
 
-        <!-- https://mvnrepository.com/artifact/org.json/json -->
+    <dependencies>
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
@@ -17,10 +16,11 @@
         </dependency>
 
         <dependency>
-			<groupId>com.googlecode.json-simple</groupId>
-			<artifactId>json-simple</artifactId>
-			<version>1.1.1</version>
-		</dependency>
+            <groupId>com.googlecode.json-simple</groupId>
+            <artifactId>json-simple</artifactId>
+            <version>1.1.1</version>
+        </dependency>
+
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
@@ -32,19 +32,18 @@
             <artifactId>jackson-databind</artifactId>
             <version>2.2.2</version>
         </dependency>
+
         <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-yaml</artifactId>
             <version>2.12.3</version>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.dataformat/jackson-dataformat-xml -->
         <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-xml</artifactId>
             <version>2.12.3</version>
         </dependency>
-
 
         <dependency>
             <groupId>com.fasterxml.woodstox</groupId>
@@ -63,88 +62,67 @@
             <artifactId>xercesImpl</artifactId>
             <version>2.12.0-alfresco-patched-20191004</version>
         </dependency>
+
         <dependency>
             <groupId>com.github.vbmacher</groupId>
             <artifactId>java-cup-runtime</artifactId>
             <version>11b</version>
         </dependency>
+
         <dependency>
             <groupId>com.ibm.icu</groupId>
             <artifactId>icu4j</artifactId>
             <version>65.1</version>
         </dependency>
+
         <dependency>
             <groupId>edu.princeton.cup</groupId>
             <artifactId>java-cup</artifactId>
             <version>10k</version>
         </dependency>
-        <!--dependency>
-            <groupId>com.github.vlsi.mxgraph</groupId>
-            <artifactId>jgraphx</artifactId>
-            <version>4.0.5</version>
-        </dependency-->
-        <!-- https://mvnrepository.com/artifact/com.mxgraph/jgraphx -->
+
         <dependency>
             <groupId>com.mxgraph</groupId>
             <artifactId>jgraphx</artifactId>
             <version>1.10.4.2</version>
         </dependency>
+
         <dependency>
             <groupId>com.fifesoft</groupId>
             <artifactId>rsyntaxtextarea</artifactId>
             <version>3.0.8</version>
         </dependency>
 
-        <!-- TEST -->
-        <!-- dependency>
-            <groupId>org.assertj</groupId>
-            <artifactId>assertj-core</artifactId>
-            <version>3.11.1</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.assertj</groupId>
-            <artifactId>assertj-swing-junit</artifactId>
-            <version>3.9.2</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.syncthemall</groupId>
-            <artifactId>boilerpipe</artifactId>
-            <version>1.2.1</version>
-        </dependency-->
         <dependency>
             <groupId>edu.cnu.cs</groupId>
             <artifactId>gooey</artifactId>
             <version>1.8.0</version>
         </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.13.1</version>
-            <scope>test</scope>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api -->
+
         <dependency>
             <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
-            <version>5.6.0</version>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.10.0</version>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
             <version>2.11.0</version>
         </dependency>
     </dependencies>
+
     <repositories>
         <repository>
             <id>alfresco-public</id>
             <url>https://artifacts.alfresco.com/nexus/content/repositories/public/</url>
         </repository>
     </repositories>
+
     <build>
         <plugins>
+            <!-- Compiler plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -154,39 +132,63 @@
                     <target>11</target>
                 </configuration>
             </plugin>
+
+            <!-- Surefire plugin for running tests -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.22.0</version>
+                <version>3.0.0-M9</version>
             </plugin>
+
+            <!-- JaCoCo for code coverage -->
             <plugin>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <version>3.3.0</version>
-                <configuration>
-                    <archive>
-                        <manifest>
-                            <mainClass>odme.odmeeditor.Main</mainClass>
-                        </manifest>
-                    </archive>
-                    <descriptorRefs>
-                        <descriptorRef>jar-with-dependencies</descriptorRef>
-                    </descriptorRefs>
-                </configuration>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.11</version>
                 <executions>
                     <execution>
-                        <id>make-assembly</id> <!-- this is used for inheritance merges -->
-                        <phase>package</phase> <!-- bind to the packaging phase -->
                         <goals>
-                            <goal>single</goal>
+                            <goal>prepare-agent</goal>
                         </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Shade plugin to generate fat JAR with dependencies -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.4.1</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>odme.odmeeditor.Main</mainClass>
+                                </transformer>
+                            </transformers>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
         </plugins>
     </build>
+
     <properties>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 </project>
