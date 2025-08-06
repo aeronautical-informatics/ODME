@@ -73,6 +73,8 @@ public class Behaviour extends JPanel {
         }
     }
 
+
+    // writing test2 for this method
     public static void setNullToAllRows() {
         DefaultTableModel dtm = (DefaultTableModel) table.getModel();
         dtm.setRowCount(0); // for deleting previous table content
@@ -81,7 +83,8 @@ public class Behaviour extends JPanel {
         }
        
     }
-
+ 
+    //writing test3 for this method
     public void showBehavioursInTable(String nodeName , String[] nodesToSelectedNode) {
         DefaultTableModel dtm = (DefaultTableModel) table.getModel();
         dtm.setRowCount(0); // for deleting previous table content
