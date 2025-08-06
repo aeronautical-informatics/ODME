@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<entity xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ses.xsd" name="Thing">
+</entity>

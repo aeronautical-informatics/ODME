@@ -45,16 +45,19 @@ public class Behaviour extends JPanel {
         
         // row listener
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+
         table.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
                 // Double click
                 if (e.getClickCount() == 2) {
                     JTable target = (JTable) e.getSource();
+
                     Point point = e.getPoint();
                     int row = table.rowAtPoint(point);
                     
                     String behaviour = (String) target.getModel().getValueAt(row, 1);
-                    String nodeName = (String) target.getModel().getValueAt(row,0);
+                    String nodeName = (String) target.getModel().getValueAt(0,0);
                     System.out.println(nodeName);
                     updateTableData(behaviour);
                 }
@@ -92,6 +95,47 @@ public class Behaviour extends JPanel {
                 model.addRow(new Object[] { nodeName, value});
             }
         }
+        setNullRowsToVariableTable();
+    }
+
+
+    /*
+      * Autor: Lionce Vadece
+      * This is to fill the behavior table
+     */
+    public void showBehaviourInTable(String selectedNode, String[] nodeVariables) {
+        DefaultTableModel dtm = (DefaultTableModel) table.getModel();
+        dtm.setRowCount(0); // for deleting previous table content
+        String[] properties = null;
+        int a = 0; // what is this??
+
+        for (String value : nodeVariables) {
+            if (a == 0) {
+                if (value == null) {
+                    model.addRow(new Object[] {""});
+                }
+                else {
+                    properties = value.split(",");
+
+                    model.addRow(new Object[] {selectedNode, properties[0]});
+                }
+                a = 1;
+            }
+        }
+
+        for (String value : nodeVariables) {
+            if (a == 1) {
+                a = 0;
+                continue;
+            }
+
+            if (value != null) {
+                properties = value.split(",");
+
+                model.addRow(new Object[] {selectedNode, properties[0]});
+            }
+        }
+
         setNullRowsToVariableTable();
     }
     
