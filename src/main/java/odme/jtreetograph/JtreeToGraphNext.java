@@ -46,11 +46,53 @@ public class JtreeToGraphNext {
                 else {
                 	JtreeToGraphConvert.rootToEndVariableAddition(targetCell2); // variable addition
                 	JtreeToGraphConvert.rootToEndConstraintAddition(targetCell2); // constraint addition
+                    JtreeToGraphConvert.rootToEndBehaviourAddition(targetCell2); // behaviour addition Author: Vadece Kamdem
                     nextChildNodeForVariable(targetCell2);
                 }
             }
         }
     }
+
+//    public static void nextChildNodeForBehaviour(mxCell cell) {  // Author: Vadece Kamdem
+//        Object[] outgoing = graph.getOutgoingEdges(cell);
+//
+//        if (outgoing.length > 0) {
+//            for (int i = 0; i < outgoing.length; i++) {
+//                Object targetCell = graph.getModel().getTerminal(outgoing[i], false);
+//
+//                // for next call
+//                mxCell targetCell2 = (mxCell) targetCell;
+//
+//                if (targetCell2.getId().startsWith("uniformity")) {
+//                    if (targetCell2.getId().endsWith("RefNode")) {
+//                        // finding and saving root to this node path
+//                        JtreeToGraphConvert.nodeToRootPath(targetCell2);
+//
+//                        String[] stringArray = path.toArray(new String[0]);
+//                        ArrayList<String> pathRev = new ArrayList<String>();
+//
+//                        for (int j = stringArray.length - 1; j >= 0; j--) {
+//                            pathRev.add(stringArray[j]);
+//                        }
+//
+//                        String[] stringArrayRev = pathRev.toArray(new String[0]);
+//
+//                        String cellName = targetCell2.getValue().toString();
+//                        FileConvertion fileConvertion = new FileConvertion();
+//                        fileConvertion.addingUniformityRefNodeToXML(stringArrayRev, cellName);
+//                        path.clear();
+//                    }
+//                    else {
+//                        continue;
+//                    }
+//                }
+//                else {
+//                    JtreeToGraphConvert.rootToEndBehaviourAddition(targetCell2);
+//                    nextChildNodeForBehaviour(targetCell2);
+//                }
+//            }
+//        }
+//    }
 	
 	// if i want to create less xml file i can store data in buffer an write only
     // one xml
