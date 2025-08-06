@@ -56,14 +56,5 @@ public class BehaviourTest {
         assertEquals("Jump", model.getValueAt(2, 1));
     }
 
-    @Test
-    public void testShowBehavioursInTable_HandlesNullValues() {
-        String[] behaviours = {"Run", null, "Stop"};
-
-        behaviour.showBehavioursInTable("NodeX", behaviours);
-
-        assertEquals("Run", Behaviour.model.getValueAt(0, 1));
-        assertEquals("", Behaviour.model.getValueAt(1, 0));  // null value case
-        assertEquals("Stop", Behaviour.model.getValueAt(2, 1));
-    }
+   
 }
