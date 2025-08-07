@@ -1,0 +1,1 @@
+{"StaticEntities": {"Airspace": {},"Trees": {},"Buildings": {},"FlightArea": {},"LandingPad": {},"Geofencing": {}},"DynamicEntities": {"SubjectDrone": {},"IntruderDrone": {}},"DomainEnvironment": {"Weather": {"Wind": {},"Rainfall": {},"Snowfall": {}},"Particulates": {},"Connectivity": {},"Illumination": {}}}

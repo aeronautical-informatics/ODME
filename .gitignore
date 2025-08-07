@@ -1,53 +1,28 @@
-### Java ###
-*.class
-*.jar
-*.war
-*.ear
-
-### Maven ###
-target/
-!.mvn/wrapper/maven-wrapper.jar
-**/target/
-
-### IntelliJ IDEA ###
+# IDEs
 .idea/
-*.iws
 *.iml
-*.ipr
-out/
+.vscode/
+.project
+.classpath
+.settings/
 
-### OS-specific ###
-# macOS
-.DS_Store
+# Maven build
+target/
+dependency-reduced-pom.xml
 
-# Windows
-Thumbs.db
-ehthumbs.db
-Desktop.ini
-$RECYCLE.BIN/
-
-# Linux
-*~
-
-### Logs and Reports ###
-*.log
-*.tmp
-*.swp
-*.swo
-
-### Test and Coverage Reports ###
-# JaCoCo
-jacoco.exec
-target/site/jacoco/
-# Surefire
-target/surefire-reports/
-
-### Build Tools ###
+# Java
 *.class
-*.jar
-*.war
-*.ear
+
+# Logs
 *.log
 
-### Project-specific ###
-Main/
+# OS
+.DS_Store
+Thumbs.db
+
+# Python
+__pycache__/
+*.pyc
+
+#xsd
+Main/ses.xsd
