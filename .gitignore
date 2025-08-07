@@ -1,2 +1,28 @@
-### IntelliJ IDEA ###
+# IDEs
 .idea/
+*.iml
+.vscode/
+.project
+.classpath
+.settings/
+
+# Maven build
+target/
+dependency-reduced-pom.xml
+
+# Java
+*.class
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Python
+__pycache__/
+*.pyc
+
+#xsd
+Main/ses.xsd
