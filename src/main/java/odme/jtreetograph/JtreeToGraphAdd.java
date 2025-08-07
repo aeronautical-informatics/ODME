@@ -172,6 +172,37 @@ public class JtreeToGraphAdd {
 
     }
 
+    public static void addBehaviourFromImport(String behaviourName, Object positionBehaviour) {
+        mxCell varCell = (mxCell) positionBehaviour;
+        selectedNodeCellForVariableUpdate = varCell;
+
+        mxCell cellForAddingBehaviour = (mxCell) positionBehaviour;
+        pathToRoot.add((String) cellForAddingBehaviour.getValue());
+        JtreeToGraphConvert.nodeToRootPathVar(cellForAddingBehaviour);
+
+        String[] stringArray = pathToRoot.toArray(new String[0]);
+        ArrayList<String> pathToRootRev = new ArrayList<String>();
+
+        for (int i = stringArray.length - 1; i >= 0; i--) {
+            pathToRootRev.add(stringArray[i]);
+            System.out.println(" " + stringArray[i]);
+        }
+
+        String[] stringArrayRev = pathToRootRev.toArray(new String[0]);
+
+        TreePath treePathForVariable = JtreeToGraphGeneral.getTreeNodePath(stringArrayRev);
+         System.out.println("Tree path " + treePathForVariable );
+
+
+         DynamicTree.behavioursList.put(treePathForVariable, behaviourName);
+
+         pathToRoot.clear();
+
+         // have to call a function to refresh the table view
+//        ODMEEditor.treePanel.showBehavioursInTable(treePathForVariable);
+
+    }
+
     public static void addVariableFromGraphPopup(Object pos) {
         mxCell varCell = (mxCell) pos;
         selectedNodeCellForVariableUpdate = varCell;
@@ -199,7 +230,7 @@ public class JtreeToGraphAdd {
         upperBoundField.setEnabled(false);
         commentField.setEnabled(true);
 
-        String[] typeList = {"Select Type:", "boolean", "int", "float", "double", "string"};
+        String[] typeList = {" ", "boolean", "int", "float", "double", "string"};
 
         String variableFieldRegEx = "[a-zA-Z_][a-zA-Z0-9_]*"; // alphanumeric but not start with number
 
@@ -521,6 +552,38 @@ public class JtreeToGraphAdd {
                 ODMEEditor.treePanel.refreshVariableTable(treePathForVariable);
             }
         }
+    }
+
+    public static void addVariableFromImport(String variableParams, Object positionVariable) {
+        mxCell varCell = (mxCell) positionVariable;
+        selectedNodeCellForVariableUpdate = varCell;
+
+        mxCell cellForAddingVariable = (mxCell) positionVariable;
+        pathToRoot.add((String) cellForAddingVariable.getValue());
+        JtreeToGraphConvert.nodeToRootPathVar(cellForAddingVariable);
+
+        String[] stringArray = pathToRoot.toArray(new String[0]);
+        ArrayList<String> pathToRootRev = new ArrayList<String>();
+
+        for (int i = stringArray.length - 1; i >= 0; i--) {
+            pathToRootRev.add(stringArray[i]);
+            System.out.println(" " + stringArray[i]);
+        }
+
+        String[] stringArrayRev = pathToRootRev.toArray(new String[0]);
+
+        TreePath treePathForVariable = JtreeToGraphGeneral.getTreeNodePath(stringArrayRev);
+        System.out.println("Tree path " + treePathForVariable );
+
+
+        DynamicTree.varMap.put(treePathForVariable, variableParams);
+
+        pathToRoot.clear();
+
+        // have to call a function to refresh the table view
+//        ODMEEditor.treePanel.showBehavioursInTable(treePathForVariable);
+
+
     }
 
 	public static void addConstraintFromGraphPopup(Object pos) {

@@ -1,8 +1,6 @@
 package odme.odmeeditor;
 
-import java.awt.Color;
-import java.awt.Desktop;
-import java.awt.Dimension;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -14,6 +12,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -31,6 +30,8 @@ import javax.swing.KeyStroke;
 import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import odme.module.importFromCameo.FileImporter;
+import odme.module.importFromCameo.ImportFromCameo;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -52,10 +53,13 @@ public class MenuBar {
 	
 	private JMenuBar menuBar;
 	public static List<JMenuItem> fileMenuItems= new ArrayList<>();
+
+	private static JFrame mainFrame = null;
 	
 	public MenuBar(JFrame frame) {
 		menuBar = new JMenuBar();
         frame.setJMenuBar(menuBar);
+		mainFrame = frame;
     }
 	
 	public void show() {
@@ -68,10 +72,10 @@ public class MenuBar {
 		addMenu("File", KeyEvent.VK_F, items_file, keyevents_file, keys_file, images_file);
 
 		// Domain Modelling Menu
-		final String[] items_domain_modelling =  {"New Project", "Open"       , "Import Template", "Save as Template"};
-		final int[] keyevents_domain_modelling = {KeyEvent.VK_N, KeyEvent.VK_O, KeyEvent.VK_I    , KeyEvent.VK_E     };
-		final String[] keys_domain_modelling =   {"control N"  , "control O"  , "control I"      , "control E"       };
-		final String[] images_domain_modelling = {"new_icon"   , "open_icon"  , "import_icon"    , "export_icon"     };
+		final String[] items_domain_modelling =  {"New Project", "Open"       , "Import Template", "Save as Template", "Import From Cameo"};
+		final int[] keyevents_domain_modelling = {KeyEvent.VK_N, KeyEvent.VK_O, KeyEvent.VK_I    , KeyEvent.VK_E    , KeyEvent.VK_C     };
+		final String[] keys_domain_modelling =   {"control N"  , "control O"  , "control I"      , "control E"      , "control C"       };
+		final String[] images_domain_modelling = {"new_icon"   , "open_icon"  , "import_icon"    , "export_icon"    , "cimport_icon"     };
 				
 		addMenu("Domain Modelling", 0, items_domain_modelling, keyevents_domain_modelling, keys_domain_modelling, images_domain_modelling);
 		
@@ -103,10 +107,10 @@ public class MenuBar {
 		addMenu("Operation Design Domain", 0, items_operation_design_domain, keyevents_operation_design_domain, keys_operation_design_domain, images_operation_design_domain);
 		
 		// Scenario Manager Menu
-		final String[] items_scenario_manager =  {"Scenarios List", "Excution", "Feedback Loop"};
+		final String[] items_scenario_manager =  {"Scenarios List", "Execution", "Feedback Loop"};
 		final int[] keyevents_scenario_manager = {0               , 0         ,  0             };
 		final String[] keys_scenario_manager =   {null            , null      ,  null          };
-		final String[] images_scenario_manager = {"list"          , null      ,  null          };
+		final String[] images_scenario_manager = {"list"          ,"executionIcon"      ,"feedbackLoopIcon"          };
 										
 		addMenu("Scenario Manager", 0, items_scenario_manager, keyevents_scenario_manager, keys_scenario_manager, images_scenario_manager);
 		
@@ -121,98 +125,118 @@ public class MenuBar {
 
 	}
 
-    private void addMenu(String name, int key_event, String[] items, int[] keyevents, String[] keys, String[] images) {
-    	
-    	JMenu menu = new JMenu(name);
-    	menu.setMnemonic(key_event);
-    	menu.setBorder( new EmptyBorder(10,20,10,20));
-    	
-    	final int itemLength=40, itemWidth=200; 
-		
-		for(int i=0; i<items.length; i++) {
-			if (items[i]==null) {
+	private void addMenu(String name, int key_event, String[] items, int[] keyevents, String[] keys, String[] images) {
+		JMenu menu = new JMenu(name);
+		menu.setMnemonic(key_event);
+		menu.setBorder(new EmptyBorder(10, 20, 10, 20));
+
+		final int itemLength = 40, itemWidth = 200;
+		final int iconWidth = 20; // Set the width of the icon
+		final int iconHeight = 20; // Set the height of the icon
+
+		for (int i = 0; i < items.length; i++) {
+			if (items[i] == null) {
 				menu.addSeparator();
 				continue;
 			}
-			
-			JMenuItem menuItem;
-			
-			menuItem = new JMenuItem(items[i], keyevents[i]);
-		    KeyStroke ctrlSKeyStrokeNew = KeyStroke.getKeyStroke(keys[i]);
-		    menuItem.setAccelerator(ctrlSKeyStrokeNew);
-		    menuItem.setPreferredSize(new Dimension(itemWidth, itemLength));
-		    if (images[i] != null) {
-		    	ImageIcon newIcon = new ImageIcon(ODMEEditor.class.getClassLoader().getResource("images/"+images[i]+".png"));
-		    	menuItem.setIcon(newIcon);
-		    }
-		    
-		    if (items[i]=="Save Scenario" || items[i]=="Scenarios List" || items[i]=="Excution" || items[i]=="Feedback Loop")
-		    	menuItem.setEnabled(false);
-		    
-		    if (items[i]=="New Project" || items[i]=="Import Template" || items[i]=="Save Scenario" ||
-		    		items[i]=="Open" || items[i]=="Save as Template" || items[i]=="Scenarios List" ||
-		    		items[i]=="Excution" || items[i]=="Feedback Loop" || items[i]=="Export XML" ||
-		    		items[i]=="Export Yaml") {
-		    	fileMenuItems.add(menuItem);
-		    }
-		    
-		    menuItem.addActionListener(new ActionListener() {
-		        @Override
-		        public void actionPerformed(ActionEvent e) {
-		            switch (e.getActionCommand()) {
-		            	case "Save Scenario":
-		            		saveScenario();
-		            		break;
-		            	case "Scenarios List":
-		            		ScenarioList scenarioList = new ScenarioList();
-		                	scenarioList.createScenarioListWindow();
-		            	  	break;
-		            	case "New Project":
-		            	  	newFunc();
-		            	  	break;
-		            	case "Open":
-		            	  	openFunc();
-		            	  	break;
-		            	case "Save As":
-		            	  	saveAsFunc();
-			                break;
-		            	case "Save as PNG":
-		            	  	saveAsPNGFunc();
-			                break;
-		            	case "Import Template":
-		            	  	importFunc();
-			                break;
+
+			JMenuItem menuItem = new JMenuItem(items[i], keyevents[i]);
+			KeyStroke ctrlSKeyStroke = KeyStroke.getKeyStroke(keys[i]);
+			menuItem.setAccelerator(ctrlSKeyStroke);
+			menuItem.setPreferredSize(new Dimension(itemWidth, itemLength));
+
+			if (images[i] != null) {
+				URL imageUrl = ODMEEditor.class.getResource("/images/" + images[i] + ".png");
+				if (imageUrl != null) {
+					ImageIcon originalIcon = new ImageIcon(imageUrl);
+					Image image = originalIcon.getImage();
+					Image newimg = image.getScaledInstance(iconWidth, iconHeight, java.awt.Image.SCALE_SMOOTH);
+					ImageIcon newIcon = new ImageIcon(newimg);
+					menuItem.setIcon(newIcon);
+				} else {
+					System.out.println("Image not found: " + images[i]);
+				}
+			}
+
+			if (items[i]=="Save Scenario" || items[i]=="Scenarios List" || items[i]=="Execution" || items[i]=="Feedback Loop")
+				menuItem.setEnabled(false);
+
+			if (items[i]=="New Project" || items[i]=="Import Template" || items[i]=="Save Scenario" ||
+					items[i]=="Open" || items[i]=="Save as Template" || items[i]=="Scenarios List" ||
+					items[i]=="Execution" || items[i]=="Feedback Loop" || items[i]=="Export XML" ||
+					items[i]=="Export Yaml") {
+				fileMenuItems.add(menuItem);
+			}
+
+			menuItem.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					switch (e.getActionCommand()) {
+						case "Save Scenario":
+							saveScenario();
+							break;
+						case "Scenarios List":
+							ScenarioList scenarioList = new ScenarioList();
+							scenarioList.createScenarioListWindow();
+							break;
+						case "Execution":
+							openExecutionWindow();
+							break;
+						case "New Project":
+							newFunc();
+							break;
+						case "Open":
+							openFunc();
+							break;
+						case "Save As":
+							saveAsFunc();
+							break;
+						case "Save as PNG":
+							saveAsPNGFunc();
+							break;
+						case "Import Template":
+							importFunc();
+							break;
 						case "Sync Behaviour":
 							BehaviourList b = new BehaviourList();
 							b.createScenarioListWindow();
 						case "Save as Template":
-		            	  	exportFunc();
-			                break;
-		            	case "Exit":
-		            	  	System.exit(1);
-			                break;
-		            	case "Manual":
-		            	  	manualFunc();
-			                break;
-		            	case "About":
-		            	  	About about = new About();
-		            	  	about.aboutGUI();
-		            	  	break;
-		            	case "Generate OD":
-		            		openODDManager("Generate OD");
-		            		break;
-		            	case "ODD Manager":
-		            		openODDManager("ODD Manager");
-		            		break;
-		        	}
-		        }
-		    });
-		    menu.add(menuItem);
+							exportFunc();
+							break;
+						case "Import From Cameo":
+							cImportFunc();
+							break;
+						case "Exit":
+							System.exit(1);
+							break;
+						case "Manual":
+							manualFunc();
+							break;
+						case "About":
+							About about = new About();
+							about.aboutGUI();
+							break;
+						case "Generate OD":
+							openODDManager("Generate OD");
+							break;
+						case "ODD Manager":
+							openODDManager("ODD Manager");
+							break;
+					}
+				}
+			});
+			menu.add(menuItem);
 		}
-    	menuBar.add(menu);
-    }
-    
-    /**
+		menuBar.add(menu);
+	}
+
+
+	private void cImportFunc() {
+		FileImporter fileImporter = new FileImporter();
+		fileImporter.showImportDialog(mainFrame);
+	}
+
+	/**
      * @author Roy
      * #ROY - adding new Functionality to see all the nodes 
      * */
@@ -501,4 +525,9 @@ public class MenuBar {
             }
         }
     }
+
+	private void openExecutionWindow() {
+		Execution executionWindow = new Execution();
+		executionWindow.setVisible(true);
+	}
 }
