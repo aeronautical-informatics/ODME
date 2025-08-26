@@ -1,0 +1,13 @@
+# Ignore build artifacts
+target
+*.log
+
+# IDE & OS files
+.idea
+*.iml
+*.class
+*.DS_Store
+
+# Git
+.git
+.gitignore
