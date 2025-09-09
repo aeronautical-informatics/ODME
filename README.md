@@ -47,6 +47,7 @@ To get started with ODME, follow these steps:
 2. Install the required dependencies, including Java and Maven.
 3. Use the provided editors to create and refine domain models.
 4. Leverage the workflow for automated build, testing, packaging, and release (The provided GitHub Actions workflow automates the development process. It builds the project, packages artifacts, and releases new versions based on changes to the main branch.)
+5. Also please read [Developer Guide](./DEVELOPER_GUIDE.md) before starting
 
 ## [Usage](#usage)
 
