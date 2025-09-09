@@ -8,26 +8,30 @@ It explains how to set up the project, follow safe workflows, and ensure the CI/
 ## Getting Started
 
 ### 1. Clone the Repository
->> git clone https://github.com/aeronautical-informatics/ODME.git
->> cd ODME
+git clone https://github.com/aeronautical-informatics/ODME.git
+
+cd ODME
 
 ### 2. Build the Project
 We use Maven:
->> mvn clean install
+
+mvn clean install
 
 This creates a runnable JAR file inside the target/ folder.
 
 ### 3. Run the Application
->> java -jar target/SESEditor-1.0-SNAPSHOT-shaded.jar
+java -jar target/SESEditor-1.0-SNAPSHOT-shaded.jar
 
 if it doesnt work, run following command
->> mvn clean package shade:shade
+
+mvn clean package shade:shade
+
 this will run explicitly shade plugin
 
 ## Working with the Repository
 Always Sync Before Starting Work
->> git checkout main
->> git pull origin main
+git checkout main
+git pull origin main
 
 ## Create a Feature Branch
 git checkout -b feature/my-update
@@ -35,22 +39,23 @@ git checkout -b feature/my-update
 Never commit directly to main. Work in a separate branch(your own issue specific branch).
 
 ## Commit Changes
->> git add . OR specific files that you want to add
->> git commit -m "Describe your changes clearly"
+git add . OR specific files that you want to add
+git commit -m "Describe your changes clearly"
 
 ## Merge Latest Main Before Pushing
->> git fetch origin
->> git merge origin/main
+git fetch origin
+git merge origin/main
 
 
 # Very Important: Fix any conflicts locally before pushing.
 after analyzing and fixing of any new update related issues
 
->> Push Your Branch
->> git push origin Your_branch
+Push Your Branch
+git push origin Your_branch
 
 
 Then create a Pull Request (PR) on GitHub.
+
 CI/CD will run automatically on your PR
 
 ## Protecting the CI/CD Pipeline
