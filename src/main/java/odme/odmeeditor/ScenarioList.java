@@ -231,7 +231,8 @@ public class ScenarioList extends JPanel {
 		for (String[] arr: newDataList)
     		model.addRow(arr);
     }
-    
+
+
     private List<String[]> getJsonData() {
     	JSONParser jsonParser = new JSONParser();
     	List<String[]> dataList = new ArrayList<String[]>();
