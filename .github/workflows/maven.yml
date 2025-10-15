@@ -13,78 +13,109 @@ on:
 
 jobs:
   build_test:
+    name: Build and Test
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Set up JDK 17
-      uses: actions/setup-java@v3
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-        cache: maven
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
 
-    - name: Build and Test with Maven (includes JaCoCo)
-      run: mvn clean verify
+      - name: Build and Test with Maven (includes JaCoCo)
+        run: mvn clean verify
 
-    - name: Upload JaCoCo HTML Report
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: jacoco-report
-        path: target/site/jacoco/
+      - name: Upload JaCoCo HTML Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-report
+          path: target/site/jacoco/
 
   publish-job:
+    name: Package Build Artifact
     runs-on: ubuntu-latest
     needs: build_test
     steps:
-    - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - uses: actions/setup-java@v3
-      with:
-        java-version: '17'
-        distribution: 'temurin'
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
 
-    - run: mvn --batch-mode --update-snapshots verify
+      - name: Verify and package project
+        run: mvn --batch-mode --update-snapshots verify
 
-    - run: mkdir staging && cp target/*.jar staging
+      - name: Prepare artifact for upload
+        run: mkdir staging && cp target/*.jar staging
 
-    - uses: actions/upload-artifact@v4
-      with:
-        name: Package
-        path: staging
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Package
+          path: staging
 
   automate-release:
     name: Automate GitHub Release
-    needs: publish-job
     runs-on: ubuntu-latest
+    needs: publish-job
+
     steps:
-    - name: Download artifact
-      uses: actions/download-artifact@v4
-      with:
-        name: Package
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: Package
 
-    - name: Archive app content
-      uses: thedoctor0/zip-release@master
-      with:
-        filename: package.zip
+      - name: Archive app content
+        uses: thedoctor0/zip-release@master
+        with:
+          filename: package.zip
 
-    - name: create Github release
-      id: create-new-release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: v${{ github.run_number }}
-        release_name: Release ${{ github.run_number }}
-        body: This is a release of the ODME project.
+      # Detect whether workflow runs from forked repository
+      - name: Check if this is a forked PR
+        id: forkcheck
+        run: |
+          if [[ "${{ github.event.pull_request.head.repo.full_name }}" != "${{ github.repository }}" ]]; then
+            echo "is_fork=true" >> $GITHUB_OUTPUT
+            echo "🔸 Fork detected — release will be simulated."
+          else
+            echo "is_fork=false" >> $GITHUB_OUTPUT
+            echo " Main repository detected — real release will run."
+          fi
 
-    - name: Upload release asset
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create-new-release.outputs.upload_url }}
-        asset_path: ./package.zip
-        asset_name: package-v${{ github.run_number }}.zip
-        asset_content_type: application/zip
+      # Real release for maintainers (non-forked)
+      - name: Create GitHub release (maintainers only)
+        if: steps.forkcheck.outputs.is_fork == 'false'
+        id: create-new-release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ github.run_number }}
+          release_name: Release ${{ github.run_number }}
+          body: This is a release of the ODME project.
+
+      - name: Upload release asset
+        if: steps.forkcheck.outputs.is_fork == 'false'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create-new-release.outputs.upload_url }}
+          asset_path: ./package.zip
+          asset_name: package-v${{ github.run_number }}.zip
+          asset_content_type: application/zip
+
+      # Simulated release for forked PRs (so pipeline doesn’t fail)
+      - name: Simulate successful release (for forks)
+        if: steps.forkcheck.outputs.is_fork == 'true'
+        run: |
+          echo " Skipping real release because this is a forked repository."
+          echo " Simulated release success to keep CI/CD passing."
