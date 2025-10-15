@@ -118,4 +118,4 @@ jobs:
         if: steps.forkcheck.outputs.is_fork == 'true'
         run: |
           echo " Skipping real release because this is a forked repository."
-          echo " Simulated release success to keep CI/CD passing."
+          echo " Simulated release success to keep CI/CD passing testing workflow."
