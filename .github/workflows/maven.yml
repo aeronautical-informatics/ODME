@@ -77,7 +77,7 @@ jobs:
           filename: package.zip
 
       # Detect repository (works for PRs, merges, and pushes)
-      - name: Detect repository context
+      - name: Detect repository context(forked or original)
         id: check_repo
         run: |
           REPO_NAME="${GITHUB_REPOSITORY:-${{ github.repository }}}"
