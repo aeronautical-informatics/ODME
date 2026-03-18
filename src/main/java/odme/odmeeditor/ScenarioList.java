@@ -24,7 +24,8 @@ import javax.swing.*;
 import javax.swing.border.EtchedBorder;
 import javax.swing.table.DefaultTableModel;
 
-import odeme.behaviour.Behaviour;
+import odme.behaviour.Behaviour;
+import odme.core.EditorContext;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -91,10 +92,10 @@ public class ScenarioList extends JPanel {
             		String fileName = (String) table.getModel().getValueAt(row, 0);
 
             		System.out.println("Selected file: " + fileName);
-            		ODMEEditor.currentScenario = fileName;
+            		EditorContext.getInstance().setCurrentScenario(fileName);
 
             		nodeNumber = 1;
-            		JtreeToGraphGeneral.openExistingProject(ODMEEditor.projName, ODMEEditor.projName);
+            		JtreeToGraphGeneral.openExistingProject(EditorContext.getInstance().getProjName(), EditorContext.getInstance().getProjName());
 
             		undoManager = new mxUndoManager();
 
@@ -120,7 +121,7 @@ public class ScenarioList extends JPanel {
             public void actionPerformed(ActionEvent e) {
             	int row = table.getSelectedRow();
             	String fileName = (String) table.getModel().getValueAt(row, 0);
-            	if (fileName.equals(ODMEEditor.currentScenario)) {
+            	if (fileName.equals(EditorContext.getInstance().getCurrentScenario())) {
             		JOptionPane.showMessageDialog(Main.frame, "The Scenario is currently opened!", "Error",
                             JOptionPane.ERROR_MESSAGE);
             		return;
@@ -130,7 +131,7 @@ public class ScenarioList extends JPanel {
             	dialogResult = JOptionPane.showConfirmDialog (null,
         				"Do you want to delete "+fileName+"?","Delete Scenario",JOptionPane.YES_NO_OPTION);
         		if(dialogResult == JOptionPane.YES_OPTION){
-        			deleteFolder(new File(ODMEEditor.fileLocation + "/" +  fileName));  
+        			deleteFolder(new File(EditorContext.getInstance().getFileLocation() + "/" +  fileName));  
         			deleteFromJson(fileName);
         		}
             }
@@ -227,11 +228,13 @@ public class ScenarioList extends JPanel {
 		}
 		
 		try {
-	         FileWriter file = new FileWriter(ODMEEditor.fileLocation  + "/scenarios.json");
+	         FileWriter file = new FileWriter(EditorContext.getInstance().getFileLocation()  + "/scenarios.json");
 	         file.write(ja.toJSONString());
 	         file.close();
 	      } catch (IOException e) {
 	         e.printStackTrace();
+             JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+             return;
 	      }
 		
 		DefaultTableModel dm = (DefaultTableModel)table.getModel();
@@ -250,7 +253,7 @@ public class ScenarioList extends JPanel {
 
 		List<String[]> dataList = getScenarioJsonData();
 
-		String path = ODMEEditor.fileLocation  + "/graphxml.xml";
+		String path = EditorContext.getInstance().getFileLocation()  + "/graphxml.xml";
 
 		SpecialisationNodeTest specialisationNodeTest = new SpecialisationNodeTest(path);
 		Map c = specialisationNodeTest.getSpecialisationNodes();
@@ -346,14 +349,15 @@ public class ScenarioList extends JPanel {
 	public List<String[]> getScenarioJsonData() {
 		JSONParser jsonParser = new JSONParser();
 		List<String[]> dataList = new ArrayList<String[]>();
-		System.out.println("ODMEEditor.fileLocation  = " + ODMEEditor.fileLocation );
-//		System.out.println(" ODMEEditor.projName  = " +  ODMEEditor.projName );
-		try (FileReader reader = new FileReader(ODMEEditor.fileLocation +  "/scenarios.json")){
+		System.out.println("fileLocation = " + EditorContext.getInstance().getFileLocation());
+		try (FileReader reader = new FileReader(EditorContext.getInstance().getFileLocation() +  "/scenarios.json")){
 			Object obj = null;
 			try {
 				obj = jsonParser.parse(reader);
 			} catch (org.json.simple.parser.ParseException e) {
 				e.printStackTrace();
+                JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                return dataList;
 			}
 
 			JSONArray data = (JSONArray) obj;
@@ -363,10 +367,13 @@ public class ScenarioList extends JPanel {
 			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 		} catch (IOException e) {
 			e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 		} catch (ParseException e) {
 			e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 		}
 
 		return dataList;
@@ -377,7 +384,7 @@ public class ScenarioList extends JPanel {
     	JSONParser jsonParser = new JSONParser();
     	List<String[]> dataList = new ArrayList<String[]>();
     	
-        try (FileReader reader = new FileReader(ODMEEditor.fileLocation + "/scenarios.json")){
+        try (FileReader reader = new FileReader(EditorContext.getInstance().getFileLocation() + "/scenarios.json")){
 
             Object obj = null;
 			try {
@@ -385,6 +392,8 @@ public class ScenarioList extends JPanel {
 			} 
 			catch (org.json.simple.parser.ParseException e) {
 				e.printStackTrace();
+                JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                return dataList;
 			}
 			
             JSONArray data = (JSONArray) obj;
@@ -395,12 +404,15 @@ public class ScenarioList extends JPanel {
         } 
         catch (FileNotFoundException e) {
             e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         } 
         catch (IOException e) {
             e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         } 
         catch (ParseException e) {
             e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     	
     	return dataList;

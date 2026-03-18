@@ -1,7 +1,9 @@
 package odme.jtreetograph;
 
+import odme.core.EditorContext;
+import javax.swing.JOptionPane;
 import static odme.jtreetograph.JtreeToGraphVariables.*;
-import static odeme.behaviour.BehaviourToTree.selectedScenario;
+import static odme.behaviour.BehaviourToTree.selectedScenario;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -22,11 +24,13 @@ public class JtreeToGraphModify {
         try
         {
             String path = new String();
-            path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName +  "/" + selectedScenario   + "/OutputBehaviourxml.xml";
+            path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() +  "/" + selectedScenario   + "/OutputBehaviourxml.xml";
             f0 = new PrintWriter(new FileWriter(path));
 
         }catch (IOException e1){
             e1.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + e1.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
 
         Scanner in = null;
@@ -34,7 +38,7 @@ public class JtreeToGraphModify {
 
             String path = new String();
 
-            path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName +  "/" + selectedScenario   + "/behaviourxml.xml";
+            path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() +  "/" + selectedScenario   + "/behaviourxml.xml";
             File file = new File (path);
             if (!file.exists()) {
                 file.createNewFile();
@@ -58,8 +62,12 @@ public class JtreeToGraphModify {
         }
         catch (FileNotFoundException e) {
             e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         } catch (IOException e) {
             e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
 
     }
@@ -72,29 +80,33 @@ public class JtreeToGraphModify {
         PrintWriter f0 = null;
         try {
             String path = new String();
-            if (ODMEEditor.toolMode == "ses")
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + projectFileNameGraph + ".xml";
+            if ("ses".equals(EditorContext.getInstance().getToolMode()))
+                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/" + EditorContext.getInstance().getNewFileName() + ".xml";
             else
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/" + ODMEEditor.projName + ".xml";
+                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + "/" + EditorContext.getInstance().getProjName() + ".xml";
 
             f0 = new PrintWriter(new FileWriter(path));
         } 
         catch (IOException e1) {
             e1.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + e1.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
 
         Scanner in = null;
         try {
             String path = new String();
-            if (ODMEEditor.toolMode == "ses")
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/graphxml.xml";
+            if ("ses".equals(EditorContext.getInstance().getToolMode()))
+                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/graphxml.xml";
             else
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/graphxml.xml";
+                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + "/graphxml.xml";
 
             in = new Scanner(new File(path));
         } 
         catch (FileNotFoundException e) {
             e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
 
         while (in.hasNext()) { // Iterates each line in the file
@@ -127,33 +139,38 @@ public class JtreeToGraphModify {
         try {
 
             String path = new String();
-            if (ODMEEditor.toolMode == "ses")
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + newFileName + "Project.xml";
+            if ("ses".equals(EditorContext.getInstance().getToolMode()))
+                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/" + EditorContext.getInstance().getNewFileName() + "Project.xml";
             else
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/" + ODMEEditor.projName + "Project.xml";
+                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + "/" + EditorContext.getInstance().getProjName() + "Project.xml";
 
             f0 = new PrintWriter(new FileWriter(path));
 
         } 
         catch (IOException e1) {
             e1.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + e1.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
 
         Scanner in = null;
         try {
             String path = new String();
-            if (ODMEEditor.toolMode == "ses")
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/projectTree.xml";
+            if ("ses".equals(EditorContext.getInstance().getToolMode()))
+                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/projectTree.xml";
             else
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/projectTree.xml";
+                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + "/projectTree.xml";
 
             in = new Scanner(new File(path));
         } 
         catch (FileNotFoundException e) {
             e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
         
-        while (in.hasNext()) { // Iterates each line in the file
+        if (in != null) {
+            while (in.hasNext()) { // Iterates each line in the file
             String line = in.nextLine();
 
             if (line.endsWith("start>")) {
@@ -167,12 +184,10 @@ public class JtreeToGraphModify {
                 f0.println(line1);
                 f0.println(line2);
             }
-            else {
-                f0.println(line);
             }
         }
-        in.close();
-        f0.close();
+        if (in != null) in.close();
+        if (f0 != null) f0.close();
     }
     
     /**
@@ -183,29 +198,33 @@ public class JtreeToGraphModify {
         PrintWriter f0 = null;
         try {
             String path = new String();
-            if (ODMEEditor.toolMode == "ses")
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/outputgraphxmlforxsdvar.xml";
+            if ("ses".equals(EditorContext.getInstance().getToolMode()))
+                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/outputgraphxmlforxsdvar.xml";
             else
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/outputgraphxmlforxsdvar.xml";
+                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + "/outputgraphxmlforxsdvar.xml";
 
             f0 = new PrintWriter(new FileWriter(path));
         } 
         catch (IOException e1) {
             e1.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + e1.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
 
         Scanner in = null;
         try {
             String path = new String();
-            if (ODMEEditor.toolMode == "ses")
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/outputgraphxmlforxsd.xml";
+            if ("ses".equals(EditorContext.getInstance().getToolMode()))
+                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/outputgraphxmlforxsd.xml";
             else
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/outputgraphxmlforxsd.xml";
+                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + "/outputgraphxmlforxsd.xml";
 
             in = new Scanner(new File(path));
         } 
         catch (FileNotFoundException e) {
             e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
 
         while (in.hasNext()) { // Iterates each line in the file
@@ -248,29 +267,33 @@ public class JtreeToGraphModify {
         PrintWriter f0 = null;
         try {
             String path = new String();
-            if (ODMEEditor.toolMode == "ses")
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/outputgraphxmlforxsd.xml";
+            if ("ses".equals(EditorContext.getInstance().getToolMode()))
+                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/outputgraphxmlforxsd.xml";
             else
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/outputgraphxmlforxsd.xml";
+                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + "/outputgraphxmlforxsd.xml";
 
             f0 = new PrintWriter(new FileWriter(path));
         } 
         catch (IOException e1) {
             e1.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + e1.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
 
         Scanner in = null;
         try {
             String path = new String();
-            if (ODMEEditor.toolMode == "ses")
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/outputgraphxmlforxsdvar.xml";
+            if ("ses".equals(EditorContext.getInstance().getToolMode()))
+                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/outputgraphxmlforxsdvar.xml";
             else
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/outputgraphxmlforxsdvar.xml";
+                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + "/outputgraphxmlforxsdvar.xml";
 
             in = new Scanner(new File(path));
         } 
         catch (FileNotFoundException e) {
             e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
 
         while (in.hasNext()) { // Iterates each line in the file

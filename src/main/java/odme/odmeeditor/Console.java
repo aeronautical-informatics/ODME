@@ -1,6 +1,7 @@
 package odme.odmeeditor;
 
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
+import javax.swing.JOptionPane;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rtextarea.RTextScrollPane;
 
@@ -59,6 +60,8 @@ public class Console extends JInternalFrame {
         } 
         catch (AWTException e3) {
             e3.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + e3.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
 
         if (e.getKeyCode() == KeyEvent.VK_ENTER) {
@@ -97,6 +100,8 @@ public class Console extends JInternalFrame {
             } 
             catch (BadLocationException e1) {
                 e1.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + e1.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
             }
         }
     }

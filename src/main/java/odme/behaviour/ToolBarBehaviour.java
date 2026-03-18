@@ -1,4 +1,4 @@
-package odeme.behaviour;
+package odme.behaviour;
 
 import java.awt.BorderLayout;
 import java.awt.Font;
@@ -149,6 +149,8 @@ public class ToolBarBehaviour {
 		} catch (CannotUndoException ex) {
 			System.out.println("Unable to undo: " + ex);
 			ex.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
 		}
 	}
 
@@ -164,6 +166,8 @@ public class ToolBarBehaviour {
 		} catch (CannotRedoException ex) {
 			System.out.println("Unable to redo: " + ex);
 			ex.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
 		}
 	}
 

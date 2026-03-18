@@ -1,0 +1,48 @@
+package odme.core;
+
+import java.io.File;
+
+public class EditorContext {
+    private static EditorContext instance = new EditorContext();
+
+    public static EditorContext getInstance() {
+        return instance;
+    }
+
+    private String fileLocation = "";
+    private String projName = "Main";
+    private String currentScenario = "InitScenario";
+    private String toolMode = "ses";
+    private String importFileLocation = "";
+    private String importFileName = "";
+    private String newFileName = "Main";
+    
+    public String getFileLocation() { return fileLocation; }
+    public void setFileLocation(String fileLocation) { this.fileLocation = fileLocation; }
+
+    public String getProjName() { return projName; }
+    public void setProjName(String projName) { this.projName = projName; }
+
+    public String getCurrentScenario() { return currentScenario; }
+    public void setCurrentScenario(String currentScenario) { this.currentScenario = currentScenario; }
+
+    public String getToolMode() { return toolMode; }
+    public void setToolMode(String toolMode) { this.toolMode = toolMode; }
+
+    public String getImportFileLocation() { return importFileLocation; }
+    public void setImportFileLocation(String importFileLocation) { this.importFileLocation = importFileLocation; }
+
+    public String getImportFileName() { return importFileName; }
+    public void setImportFileName(String importFileName) { this.importFileName = importFileName; }
+
+    public String getNewFileName() { return newFileName; }
+    public void setNewFileName(String newFileName) { this.newFileName = newFileName; }
+
+    public File getSsdFileGraph() {
+        if ("ses".equals(toolMode)) {
+            return new File(String.format("%s/%s/%sGraph.xml", fileLocation, projName, newFileName));
+        } else {
+            return new File(String.format("%s/%s/%sGraph.xml", fileLocation, currentScenario, newFileName));
+        }
+    }
+}

@@ -1,5 +1,7 @@
 package behaviourtreetograph;
 
+import odme.core.EditorContext;
+import javax.swing.JOptionPane;
 import com.mxgraph.model.mxCell;
 import odme.core.FindByName;
 import odme.jtreetograph.JtreeToGraphCheck;
@@ -136,31 +138,35 @@ public class JtreeToGraphGeneral {
         PrintWriter f0 = null;
         try {
             String path = new String();
-            if (ODMEEditor.toolMode == "ses")
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/xmlforxsd.xml";
+            if ("ses".equals(EditorContext.getInstance().getToolMode()))
+                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/xmlforxsd.xml";
             else
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/xmlforxsd.xml";
+                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + "/xmlforxsd.xml";
 
             f0 = new PrintWriter(
                     new FileWriter(path));
         } 
         catch (IOException e1) {
             e1.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + e1.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
 
         Scanner in = null;
         try {
             String path = new String();
-            if (ODMEEditor.toolMode == "ses")
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/outputgraphxmlforxsd.xml";
+            if ("ses".equals(EditorContext.getInstance().getToolMode()))
+                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/outputgraphxmlforxsd.xml";
             else
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/outputgraphxmlforxsd.xml";
+                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + "/outputgraphxmlforxsd.xml";
 
             in = new Scanner(new File(path));
 
         } 
         catch (FileNotFoundException e) {
             e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
 
         int first = 0;
@@ -279,7 +285,7 @@ public class JtreeToGraphGeneral {
         FileNameExtensionFilter xmlfilter = new FileNameExtensionFilter("xml files (*.xml)", "xml");
         fileChooser.setFileFilter(xmlfilter);
         fileChooser.setSelectedFile(new File(fileName));
-        fileChooser.setCurrentDirectory(new File(ODMEEditor.fileLocation + "/" + ODMEEditor.projName));
+        fileChooser.setCurrentDirectory(new File(EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName()));
         int result = fileChooser.showSaveDialog(Main.frame);
         if (result == JFileChooser.APPROVE_OPTION) {
             File selectedFile = fileChooser.getSelectedFile();

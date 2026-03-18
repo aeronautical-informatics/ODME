@@ -19,10 +19,12 @@ import com.google.common.collect.ArrayListMultimap;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.util.mxUndoManager;
 
-import odeme.behaviour.Behaviour;
+import odme.behaviour.Behaviour;
 import odme.core.EditorUndoableEditListener;
 import odme.core.FileConvertion;
 import odme.jtreetograph.*;
+
+import odme.core.EditorContext;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -93,7 +95,7 @@ public class ODMEEditor extends JPanel {
     public ODMEEditor() {
         super(new BorderLayout());
 //      -------------------------------------
-        DynamicTree.projectFileName = JtreeToGraphVariables.newFileName;
+        DynamicTree.projectFileName = EditorContext.getInstance().getNewFileName();
         
         //
         tabbedPane =  new JTabbedPane();
@@ -179,7 +181,7 @@ public class ODMEEditor extends JPanel {
         btnMode.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) { 
-            	if (ODMEEditor.toolMode == "ses") {
+            	if ("ses".equals(EditorContext.getInstance().getToolMode())) {
             		//Save Current
             		ODMEEditor.treePanel.saveTreeModel();
 
@@ -255,7 +257,7 @@ public class ODMEEditor extends JPanel {
     private static void switchToPes() {
     	btnMode.setText("Scenario Modelling");
     	statusLabel.setText("Current Mode: Scenario Modelling");
-		ODMEEditor.toolMode = "pes";
+		EditorContext.getInstance().setToolMode("pes");
 		currentScenario = "InitScenario";
 		
 		// Change Toollbar
@@ -278,11 +280,8 @@ public class ODMEEditor extends JPanel {
     	
     	//Save as to create Pes version
         fileLocation = fileLocation+"/"+projName;
-        JtreeToGraphVariables.newFileName = currentScenario;
-        JtreeToGraphVariables.projectFileNameGraph = currentScenario;
+        EditorContext.getInstance().setNewFileName(currentScenario);
   
-        JtreeToGraphVariables.ssdFileGraph = new File(String.format("%s/%s/%sGraph.xml",
-    			fileLocation, currentScenario, projName));
         treePanel.ssdFile = new File(String.format("%s/%s/%s.xml",
         		fileLocation, currentScenario, projName));
         treePanel.ssdFileVar = new File(String.format("%s/%s/%s.ssdvar",
@@ -408,7 +407,7 @@ public class ODMEEditor extends JPanel {
         JtreeToGraphConvert.convertTreeToXML();
         JtreeToGraphConvert.graphToXML();
         JtreeToGraphConvert.graphToXMLWithUniformity();
-        ODMEEditor.graphWindow.setTitle( ODMEEditor.currentScenario);
+        ODMEEditor.graphWindow.setTitle( EditorContext.getInstance().getCurrentScenario());
 
         ODMEEditor.saveChanges();
         ODMEEditor.fileConversion.modifyXmlOutputForXSD();
@@ -433,11 +432,15 @@ public class ODMEEditor extends JPanel {
             fw=new FileWriter(getOpenedFile(suggestedPath));
             fw.write(content);
             javax.swing.JOptionPane.showMessageDialog(null,"File Saved Successfully.");
-        }catch(IOException ioe) {ioe.printStackTrace();}
+        }catch(IOException ioe) {ioe.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + ioe.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;}
 
         // handle leakage and canceling
         try { if(fw!=null) fw.close(); }
-        catch(IOException ioe1) { ioe1.printStackTrace(); }
+        catch(IOException ioe1) { ioe1.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + ioe1.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return; }
     }
 
     private void tabbedPaneChange() {
@@ -447,7 +450,7 @@ public class ODMEEditor extends JPanel {
             public void stateChanged(ChangeEvent arg0) {
                 if (tabbedPane.getSelectedIndex() == 0) {
                 	
-                	if (ODMEEditor.toolMode == "ses") {
+                	if ("ses".equals(EditorContext.getInstance().getToolMode())) {
                 		sesview.setTitle("Ontology");
                 		fileConversion.createSES(fileLocation + "/" + projName + "/ses.xsd");
                 		XmlUtils.showViewer(fileLocation, projName, "ses.xsd", XmlUtils.ontologyview);

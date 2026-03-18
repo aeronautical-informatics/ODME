@@ -1,6 +1,7 @@
 package odme.odmeeditor;
 
 import java.awt.Dimension;
+import odme.core.EditorContext;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -54,10 +55,10 @@ public class XmlUtils {
     	
     	// make the path string
     	String path = new String();
-    	if (ODMEEditor.toolMode == "ses")
-    		path = fileLocation + "/" + projName + "/"+fileName;
+    	if ("ses".equals(EditorContext.getInstance().getToolMode()))
+    		path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/"+fileName;
     	else 
-    		path = fileLocation + "/" + ODMEEditor.currentScenario + "/"+fileName; 
+    		path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + "/"+fileName; 
     	
         ObjectMapper xmlMapper = new XmlMapper();
         ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
@@ -77,6 +78,7 @@ public class XmlUtils {
 	        // System.out.println(yamlString);
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
+            javax.swing.JOptionPane.showMessageDialog(null, "An error occurred: " + ioe.getMessage(), "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
 		}
 		
 		return yamlString;
@@ -90,13 +92,15 @@ public class XmlUtils {
     	Scanner in = null;
         try {
         	String path = new String();
-        	if (ODMEEditor.toolMode == "ses")
-        		path = fileLocation + "/" + projName + "/"+fileName;
+        	if ("ses".equals(EditorContext.getInstance().getToolMode()))
+        		path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/"+fileName;
         	else 
-        		path = fileLocation + "/" + ODMEEditor.currentScenario + "/"+fileName; 
+        		path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + "/"+fileName; 
             in = new Scanner(new File(path));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
+            javax.swing.JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+            return "";
         }
         StringBuilder xmlcontent = new StringBuilder(); // lighter more efficient to use StringBuilder for stream of text
         while (in.hasNext()) {

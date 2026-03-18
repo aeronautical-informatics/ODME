@@ -1,6 +1,6 @@
 package odme.odmeeditor;
 
-import odeme.behaviour.Behaviour;
+import odme.behaviour.Behaviour;
 
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;

@@ -1,5 +1,7 @@
 package structuretest;
 
+import odme.core.EditorContext;
+import javax.swing.JOptionPane;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -10,7 +12,7 @@ import java.io.File;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static odme.odmeeditor.ODMEEditor.fileLocation;
+
 
 public class SpecialisationNodeTest {
 
@@ -64,6 +66,8 @@ public class SpecialisationNodeTest {
 
         } catch (Exception e) {
             e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
     }
 
@@ -110,7 +114,7 @@ public class SpecialisationNodeTest {
             Scanner in = null;
             try
             {
-                String path = fileLocation +"/" + scenario[0] + "/graphxml.xml";
+                String path = EditorContext.getInstance().getFileLocation() +"/" + scenario[0] + "/graphxml.xml";
 
                 File file = new File(path);
                 if (file.exists()) {
@@ -147,6 +151,8 @@ public class SpecialisationNodeTest {
 
             }catch (Exception e){
                 e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
             }
         });
 

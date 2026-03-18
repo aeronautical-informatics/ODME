@@ -1,8 +1,9 @@
 package odme.jtreetograph;
 
+import odme.core.EditorContext;
 import com.mxgraph.model.mxCell;
 
-import odeme.behaviour.ODMEBehaviourEditor;
+import odme.behaviour.ODMEBehaviourEditor;
 import odme.core.FileConvertion;
 import odme.odmeeditor.DynamicTree;
 import odme.odmeeditor.ODMEEditor;
@@ -10,7 +11,7 @@ import odme.odmeeditor.ODMEEditor;
 import static behaviourtreetograph.JTreeToGraphBehaviour.benhaviourGraph;
 import static odme.jtreetograph.JtreeToGraphGeneral.childNodes;
 import static odme.jtreetograph.JtreeToGraphVariables.*;
-import static odeme.behaviour.BehaviourToTree.selectedScenario;
+import static odme.behaviour.BehaviourToTree.selectedScenario;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -410,10 +411,10 @@ public class JtreeToGraphConvert {
 
         try {
             String path = new String();
-            if (ODMEEditor.toolMode == "ses")
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/graphxml.xml";
+            if ("ses".equals(EditorContext.getInstance().getToolMode()))
+                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/graphxml.xml";
             else
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/graphxml.xml";
+                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + "/graphxml.xml";
 
             JtreeToGraphSave.saveToXMLFile(calendarDOMDoc, path);
         } 
@@ -465,7 +466,7 @@ public class JtreeToGraphConvert {
         try {
             String path = new String();
 
-            path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName +  "/" + selectedScenario   + "/behaviourxml.xml";
+            path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() +  "/" + selectedScenario   + "/behaviourxml.xml";
 
             JtreeToGraphSave.saveToXMLFile(calendarDOMDoc, path);
         }
@@ -512,10 +513,10 @@ public class JtreeToGraphConvert {
 
         try {
             String path = new String();
-            if (ODMEEditor.toolMode == "ses")
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/graphxmluniformity.xml";
+            if ("ses".equals(EditorContext.getInstance().getToolMode()))
+                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/graphxmluniformity.xml";
             else
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/graphxmluniformity.xml";
+                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + "/graphxmluniformity.xml";
             JtreeToGraphSave.saveToXMLFile(calendarDOMDoc, path);
         } 
         catch (TransformerException ex) {
@@ -543,10 +544,10 @@ public class JtreeToGraphConvert {
         }
         calendarDOMDoc.getDocumentElement().appendChild(JtreeToGraphSave.saveAllTreeNodes(calendarDOMDoc, thisTreeNode));
         try {
-            if (ODMEEditor.toolMode == "ses")
-                JtreeToGraphSave.saveToXMLFile(calendarDOMDoc, ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/projectTree.xml");
+            if ("ses".equals(EditorContext.getInstance().getToolMode()) || "ses".equals(EditorContext.getInstance().getToolMode()))
+                JtreeToGraphSave.saveToXMLFile(calendarDOMDoc, EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/projectTree.xml");
             else
-                JtreeToGraphSave.saveToXMLFile(calendarDOMDoc, ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/projectTree.xml");
+                JtreeToGraphSave.saveToXMLFile(calendarDOMDoc, EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + "/projectTree.xml");
 
         } 
         catch (TransformerException ex) {
@@ -575,10 +576,10 @@ public class JtreeToGraphConvert {
         }
         calendarDOMDoc.getDocumentElement().appendChild(JtreeToGraphSave.saveAllTreeNodes(calendarDOMDoc, thisTreeNode));
         try {
-            if (ODMEEditor.toolMode == "ses")
-                JtreeToGraphSave.saveToXMLFile(calendarDOMDoc, ODMEEditor.fileLocation + "/"+ ODMEEditor.projName +"/"+ selectedScenario + "/Tree.xml");
+            if ("ses".equals(EditorContext.getInstance().getToolMode()))
+                JtreeToGraphSave.saveToXMLFile(calendarDOMDoc, EditorContext.getInstance().getFileLocation() + "/"+ EditorContext.getInstance().getProjName() +"/"+ selectedScenario + "/Tree.xml");
             else
-                JtreeToGraphSave.saveToXMLFile(calendarDOMDoc, ODMEEditor.fileLocation + "/"+ ODMEEditor.projName +"/"+ selectedScenario + "/Tree.xml");
+                JtreeToGraphSave.saveToXMLFile(calendarDOMDoc, EditorContext.getInstance().getFileLocation() + "/"+ EditorContext.getInstance().getProjName() +"/"+ selectedScenario + "/Tree.xml");
 
         }
         catch (TransformerException ex) {

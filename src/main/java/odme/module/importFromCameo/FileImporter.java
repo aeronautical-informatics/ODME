@@ -1,5 +1,6 @@
 package odme.module.importFromCameo;
 
+import odme.core.EditorContext;
 import odme.odmeeditor.ODMEEditor;
 
 import javax.swing.*;
@@ -18,7 +19,7 @@ import static odme.module.importFromCameo.ImportFromCameo.addValueToArray;
 public class FileImporter {
 
     private static final String[] requiredFileNames = {"DomainRelations", "OperationLinking", "InstanceRelations","Enums"};
-    private static String defaultProjectLocation = ODMEEditor.fileLocation;
+    private static String defaultProjectLocation = EditorContext.getInstance().getFileLocation();
 
     public void showImportDialog(Frame parentFrame) {
         JDialog dialog = new JDialog(parentFrame, "Import Files", true);
@@ -136,7 +137,7 @@ public class FileImporter {
             public void actionPerformed(ActionEvent e) {
                 JFileChooser fileChooser = new JFileChooser();
                 // Set the initial directory to the specific location
-                fileChooser.setCurrentDirectory(new File(ODMEEditor.fileLocation));
+                fileChooser.setCurrentDirectory(new File(EditorContext.getInstance().getFileLocation()));
                 fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
                 fileChooser.setFileFilter(new javax.swing.filechooser.FileFilter() {
                     public boolean accept(File f) {

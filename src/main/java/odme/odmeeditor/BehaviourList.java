@@ -21,12 +21,14 @@ import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.EtchedBorder;
 import javax.swing.table.DefaultTableModel;
-import odeme.behaviour.BehaviourToTree;
+import odme.behaviour.BehaviourToTree;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import com.mxgraph.util.svg.ParseException;
-import odeme.behaviour.MainWindow;
+import odme.behaviour.MainWindow;
+import odme.core.EditorContext;
+import javax.swing.JOptionPane;
 
 public class BehaviourList extends JPanel{
 
@@ -117,7 +119,7 @@ public class BehaviourList extends JPanel{
 		try {
 
 			Path path = Path.of("").toAbsolutePath();
-			FileReader reader = new FileReader(path+ "\\"+ ODMEEditor.projName + "\\scenarios.json");
+			FileReader reader = new FileReader(EditorContext.getInstance().getFileLocation() + "/scenarios.json");
 
 			Object obj = null;
 			try {
@@ -125,6 +127,8 @@ public class BehaviourList extends JPanel{
 
 			} catch (org.json.simple.parser.ParseException e) {
 				e.printStackTrace();
+                JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                return dataList;
 			}
 			//from here check these scenario have behaviour files
 			JSONArray data = (JSONArray) obj;
@@ -136,10 +140,13 @@ public class BehaviourList extends JPanel{
 			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 		} catch (IOException e) {
 			e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 		} catch (ParseException e) {
 			e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 		}
 		return dataList;
 	}
@@ -154,7 +161,7 @@ public class BehaviourList extends JPanel{
 		String s = null;
 		Path path = Path.of("").toAbsolutePath();
 		for(String folder: scenaiorsList) {
-			File f =  new File(path + "\\"+ ODMEEditor.projName + "\\" + folder + "\\" + ODMEEditor.projName+".ssdbeh" );
+			File f =  new File(EditorContext.getInstance().getFileLocation() + "/" + folder + "/" + EditorContext.getInstance().getProjName() + ".ssdbeh" );
 			if(f.exists()) {
 				s = folder;
 			}

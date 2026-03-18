@@ -10,10 +10,12 @@ import javax.swing.JTextField;
 import javax.swing.border.EtchedBorder;
 import javax.swing.tree.DefaultMutableTreeNode;
 
-import odeme.behaviour.Behaviour;
+import odme.behaviour.Behaviour;
 import odme.jtreetograph.JtreeToGraphAdd;
 import odme.jtreetograph.JtreeToGraphDelete;
 import odme.jtreetograph.JtreeToGraphVariables;
+
+import odme.core.EditorContext;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -88,7 +90,7 @@ public class NewProject extends JPanel {
         projectLocationField = new JTextField();
         projectLocationField.setBounds(20, 150, 430, 30);
         projectLocationField.setEnabled(false);
-        projectLocationField.setText(ODMEEditor.fileLocation);
+        projectLocationField.setText(EditorContext.getInstance().getFileLocation());
         
         selectProjectLocation = new JButton("Browse...");
         selectProjectLocation.setBounds(460, 150, 100, 30);
@@ -179,7 +181,7 @@ public class NewProject extends JPanel {
             @Override
             public void itemStateChanged(ItemEvent e) {
                 if (e.getStateChange() == ItemEvent.SELECTED) {
-                    projectLocationField.setText(ODMEEditor.fileLocation);
+                    projectLocationField.setText(EditorContext.getInstance().getFileLocation());
                     projectLocationField.setEnabled(false);
                     projectLocationLabel.setEnabled(false);
                     selectProjectLocation.setEnabled(false);
@@ -250,8 +252,8 @@ public class NewProject extends JPanel {
         int result = fileChooser.showOpenDialog(Main.frame);
         if (result == JFileChooser.APPROVE_OPTION) {
             File selectedFile = fileChooser.getSelectedFile();
-            ODMEEditor.fileLocation = selectedFile.getAbsolutePath();
-            projectLocationField.setText(ODMEEditor.fileLocation);
+            EditorContext.getInstance().setFileLocation(selectedFile.getAbsolutePath());
+            projectLocationField.setText(EditorContext.getInstance().getFileLocation());
         }
     }
     
@@ -259,25 +261,21 @@ public class NewProject extends JPanel {
         System.out.println("Create project ");
         String newProjectName = newProjectNameField.getText();
         String newRootName = newRootNameField.getText();
-        String oldProjectTreeProjectName = ODMEEditor.projName;
+        String oldProjectTreeProjectName = EditorContext.getInstance().getProjName();
 
-        ODMEEditor.projName = newProjectName;
-        JtreeToGraphVariables.newFileName = newProjectName;
-        JtreeToGraphVariables.projectFileNameGraph = newProjectName;
+        EditorContext.getInstance().setProjName(newProjectName);
+        EditorContext.getInstance().setNewFileName(newProjectName);
         JtreeToGraphVariables.nodeNumber = 1;
-
-        JtreeToGraphVariables.ssdFileGraph = new File(String.format("%s/%s/%sGraph.xml",
-                ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
         ODMEEditor.treePanel.ssdFile = new File(String.format("%s/%s/%s.xml",
-                ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
+                EditorContext.getInstance().getFileLocation(), EditorContext.getInstance().getProjName(), newProjectName));
         ODMEEditor.treePanel.ssdFileVar = new File(String.format("%s/%s/%s.ssdvar",
-                ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
+                EditorContext.getInstance().getFileLocation(), EditorContext.getInstance().getProjName(), newProjectName));
         ODMEEditor.treePanel.ssdFileCon = new File(String.format("%s/%s/%s.ssdcon",
-                ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
+                EditorContext.getInstance().getFileLocation(), EditorContext.getInstance().getProjName(), newProjectName));
         ODMEEditor.treePanel.ssdFileBeh = new File(String.format("%s/%s/%s.ssdbeh",
-                ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
+                EditorContext.getInstance().getFileLocation(), EditorContext.getInstance().getProjName(), newProjectName));
         ODMEEditor.treePanel.ssdFileFlag = new File(String.format("%s/%s/%s.ssdflag",
-                ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
+                EditorContext.getInstance().getFileLocation(), EditorContext.getInstance().getProjName(), newProjectName));
         
         ProjectTree.projectName = newProjectName;
 

@@ -1,5 +1,8 @@
 package odme.odmeeditor;
 
+import odme.core.EditorContext;
+import javax.swing.JOptionPane;
+
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
@@ -81,11 +84,11 @@ public class DynamicTree extends JPanel implements MouseListener {
         
         toolkit = Toolkit.getDefaultToolkit();
         
-        ssdFile = new File(String.format("%s/%s/%s.xml", ODMEEditor.fileLocation,ODMEEditor.projName, projectFileName));
-        ssdFileVar = new File(String.format("%s/%s/%s.ssdvar", ODMEEditor.fileLocation,ODMEEditor.projName, projectFileName));
-        ssdFileCon = new File(String.format("%s/%s/%s.ssdcon", ODMEEditor.fileLocation,ODMEEditor.projName, projectFileName));
-        ssdFileFlag = new File(String.format("%s/%s/%s.ssdflag", ODMEEditor.fileLocation,ODMEEditor.projName, projectFileName));
-        ssdFileBeh = new File(String.format("%s/%s/%s.ssdbeh", ODMEEditor.fileLocation,ODMEEditor.projName, projectFileName));
+        ssdFile = new File(String.format("%s/%s/%s.xml", EditorContext.getInstance().getFileLocation(),EditorContext.getInstance().getProjName(), projectFileName));
+        ssdFileVar = new File(String.format("%s/%s/%s.ssdvar", EditorContext.getInstance().getFileLocation(),EditorContext.getInstance().getProjName(), projectFileName));
+        ssdFileCon = new File(String.format("%s/%s/%s.ssdcon", EditorContext.getInstance().getFileLocation(),EditorContext.getInstance().getProjName(), projectFileName));
+        ssdFileFlag = new File(String.format("%s/%s/%s.ssdflag", EditorContext.getInstance().getFileLocation(),EditorContext.getInstance().getProjName(), projectFileName));
+        ssdFileBeh = new File(String.format("%s/%s/%s.ssdbeh", EditorContext.getInstance().getFileLocation(),EditorContext.getInstance().getProjName(), projectFileName));
 
         System.out.println("projectFileName: " + projectFileName);
 
@@ -125,7 +128,7 @@ public class DynamicTree extends JPanel implements MouseListener {
 
                     // restoring jtree from xml
                     XmlJTree myTree = new XmlJTree(
-                            ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + projectFileName
+                            EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/" + projectFileName
                             + ".xml");
                     treeModel = myTree.dtModel;
                     treeModel.addTreeModelListener(new MyTreeModelListener());
@@ -133,9 +136,13 @@ public class DynamicTree extends JPanel implements MouseListener {
             } 
             catch (IOException err) {
                 err.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + err.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
             } 
             catch (ClassNotFoundException err) {
                 err.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + err.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
             }
         } 
         else {
@@ -192,10 +199,10 @@ public class DynamicTree extends JPanel implements MouseListener {
         // restoring jtree from xml
     	
     	String path = new String();
-    	if (ODMEEditor.toolMode == "ses")
-    		path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + filename + ".xml";
+    	if ("ses".equals(EditorContext.getInstance().getToolMode()))
+    		path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/" + filename + ".xml";
     	else
-    		path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/" + filename + ".xml";
+    		path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + "/" + filename + ".xml";
     	
         XmlJTree myTree =
                 new XmlJTree(path);
@@ -212,35 +219,27 @@ public class DynamicTree extends JPanel implements MouseListener {
             tree.expandRow(i);
         }
         String newProjectName = filename;
-        // this is similar to new-------------------------------------------------
-        ODMEEditor.projName = newProjectName;
-        JtreeToGraphVariables.newFileName = newProjectName;
-        JtreeToGraphVariables.projectFileNameGraph = newProjectName;
-        
-        if (ODMEEditor.toolMode == "ses")
-    		path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + newProjectName + "Graph.xml";
-    	else
-    		path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/" + newProjectName + "Graph.xml";
+        EditorContext.getInstance().setProjName(newProjectName);
+        EditorContext.getInstance().setNewFileName(newProjectName);
 
-        JtreeToGraphVariables.ssdFileGraph = new File(path);
         ODMEEditor.treePanel.ssdFile =
-                new File(ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + newProjectName + ".xml");
+                new File(EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/" + newProjectName + ".xml");
         try {
         	
-        	if (ODMEEditor.toolMode == "ses")
-        		path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + newProjectName + ".ssdvar";
+        	if ("ses".equals(EditorContext.getInstance().getToolMode()))
+        		path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/" + newProjectName + ".ssdvar";
         	else
-        		path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/" + newProjectName + ".ssdvar";
+        		path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + "/" + newProjectName + ".ssdvar";
         	
             ObjectInputStream oisvar;
             oisvar = new ObjectInputStream(new FileInputStream(path));
             varMap = (Multimap<TreePath, String>) oisvar.readObject();
             oisvar.close();
 
-            if (ODMEEditor.toolMode == "ses")  // Author:Vadece Kamdem
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + newProjectName + ".ssdbeh";
+            if ("ses".equals(EditorContext.getInstance().getToolMode()))  // Author:Vadece Kamdem
+                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/" + newProjectName + ".ssdbeh";
             else
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/" + newProjectName + ".ssdbeh";
+                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + "/" + newProjectName + ".ssdbeh";
 
             ObjectInputStream oisbehaviour;
             oisbehaviour = new ObjectInputStream(new FileInputStream(path));
@@ -248,10 +247,10 @@ public class DynamicTree extends JPanel implements MouseListener {
             oisbehaviour.close();
             
             
-            if (ODMEEditor.toolMode == "ses")
-        		path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + newProjectName + ".ssdcon";
+            if ("ses".equals(EditorContext.getInstance().getToolMode()))
+        		path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/" + newProjectName + ".ssdcon";
         	else
-        		path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/" + newProjectName + ".ssdcon";
+        		path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + "/" + newProjectName + ".ssdcon";
 
             ObjectInputStream oiscon = new ObjectInputStream(new FileInputStream(path));
             constraintsList = (Multimap<TreePath, String>) oiscon.readObject();
@@ -259,10 +258,10 @@ public class DynamicTree extends JPanel implements MouseListener {
 
             if (ssdFileFlag.exists()) {
             	
-            	if (ODMEEditor.toolMode == "ses")
-            		path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName +  "/" + newProjectName + ".ssdflag";
+            	if ("ses".equals(EditorContext.getInstance().getToolMode()))
+            		path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() +  "/" + newProjectName + ".ssdflag";
             	else
-            		path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario +  "/" + newProjectName + ".ssdflag";
+            		path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() +  "/" + newProjectName + ".ssdflag";
             	
                 ObjectInputStream oisflag = new ObjectInputStream(new FileInputStream(path));
                 FlagVariables flags = new FlagVariables();
@@ -275,12 +274,18 @@ public class DynamicTree extends JPanel implements MouseListener {
         } 
         catch (FileNotFoundException e) {
             e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         } 
         catch (IOException e) {
             e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         } 
         catch (ClassNotFoundException e) {
             e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
 
         ProjectTree.projectName = newProjectName;
@@ -424,10 +429,10 @@ public class DynamicTree extends JPanel implements MouseListener {
             // for variable
         	
         	String path = new String();
-        	if (ODMEEditor.toolMode == "ses")
-        		path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + ODMEEditor.projName;
+        	if ("ses".equals(EditorContext.getInstance().getToolMode()))
+        		path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/" + EditorContext.getInstance().getProjName();
         	else
-        		path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/" + ODMEEditor.projName;
+        		path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + "/" + EditorContext.getInstance().getProjName();
         	
         	ssdFileVar = new File(String.format("%s.ssdvar", path));
             ObjectOutputStream oosvar = new ObjectOutputStream(new FileOutputStream(ssdFileVar));
@@ -460,6 +465,8 @@ public class DynamicTree extends JPanel implements MouseListener {
         } 
         catch (IOException err) {
             err.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + err.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
     }
 
@@ -475,6 +482,8 @@ public class DynamicTree extends JPanel implements MouseListener {
         } 
         catch (IOException err) {
             err.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + err.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
     }
 
@@ -486,6 +495,8 @@ public class DynamicTree extends JPanel implements MouseListener {
                 ois.close();
             } catch (IOException err) {
                 err.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + err.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
             }
         }
     }
@@ -498,7 +509,7 @@ public class DynamicTree extends JPanel implements MouseListener {
         // throw new UnsupportedOperationException("Not supported yet."); //To
         // change body of generated methods, choose Tools | Templates.
     	
-    	if (ODMEEditor.toolMode == "pes")
+    	if ("pes".equals(EditorContext.getInstance().getToolMode()))
     		return;
     	
         final TreePopup treePopup = new TreePopup(tree);

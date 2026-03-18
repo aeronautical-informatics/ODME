@@ -1,7 +1,7 @@
 package behaviourtreetograph;
 
 import com.mxgraph.model.mxCell;
-import odeme.behaviour.MainWindow;
+import odme.behaviour.MainWindow;
 
 import odme.odmeeditor.DynamicTree;
 

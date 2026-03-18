@@ -1,6 +1,8 @@
 package odme.module.importFromCameo;
 
-import odeme.behaviour.Behaviour;
+import odme.core.EditorContext;
+import javax.swing.JOptionPane;
+import odme.behaviour.Behaviour;
 import odme.jtreetograph.JtreeToGraphImport;
 import odme.jtreetograph.JtreeToGraphVariables;
 import odme.odmeeditor.*;
@@ -45,16 +47,16 @@ public class ImportFromCameo {
 
 //        System.out.printf("%-10s \n %-10s \n %-10s \n %-10s", projectName,domainRelationsValue,operationLinkingValue,defaultProjectLocation);
 
-//        String xmlFileLocation = ODMEEditor.fileLocation + "cameoTemp.xml";
+//        String xmlFileLocation = EditorContext.getInstance().getFileLocation() + "cameoTemp.xml";
 
-        ODMEEditor.importFileName = "cameoTemp.xml";
-        ODMEEditor.importFileLocation = ODMEEditor.fileLocation;
-        ODMEEditor.fileLocation = defaultProjectLocation;
+        EditorContext.getInstance().setImportFileName("cameoTemp.xml");
+        EditorContext.getInstance().setImportFileLocation(EditorContext.getInstance().getFileLocation());
+        EditorContext.getInstance().setFileLocation(defaultProjectLocation);
 
         createFunc(projectName);
 
         //Deleting the cameoTemp.xml file created in the function JsonToXml
-        File file = new File(ODMEEditor.fileLocation + "/cameoTemp.xml");
+        File file = new File(EditorContext.getInstance().getFileLocation() + "/cameoTemp.xml");
         file.delete();
     }
 
@@ -81,6 +83,8 @@ public class ImportFromCameo {
 
         } catch(Exception e) {
             e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
         finally {
             try {
@@ -141,6 +145,8 @@ public class ImportFromCameo {
 
         } catch(Exception e) {
             e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
         finally {
             try {
@@ -185,6 +191,8 @@ public class ImportFromCameo {
 
         } catch(Exception e) {
             e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
         finally {
             try {
@@ -239,6 +247,8 @@ public class ImportFromCameo {
 
         } catch(Exception e) {
             e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
         finally {
             try {
@@ -289,26 +299,25 @@ public class ImportFromCameo {
         DynamicTree.varMap.clear();
         DynamicTree.behavioursList.clear();
         DynamicTree.constraintsList.clear();
-        String oldProjectTreeProjectName = ODMEEditor.projName;
+        String oldProjectTreeProjectName = EditorContext.getInstance().getProjName();
 
-        ODMEEditor.projName = newProjectName;
-        JtreeToGraphVariables.newFileName = newProjectName;
-        JtreeToGraphVariables.projectFileNameGraph = newProjectName;
+        EditorContext.getInstance().setProjName(newProjectName);
+        EditorContext.getInstance().setNewFileName(newProjectName);
+        EditorContext.getInstance().setNewFileName(newProjectName);
 
-        JtreeToGraphVariables.ssdFileGraph = new File(String.format("%s/%s/%sGraph.xml",
-                ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
+        // ssdFileGraph is computed dynamically based on EditorContext variables
 
         ODMEEditor.treePanel.ssdFile = new File(String.format("%s/%s/%s.xml",
-                ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
+                EditorContext.getInstance().getFileLocation(), EditorContext.getInstance().getProjName(), newProjectName));
         ODMEEditor.treePanel.ssdFileVar = new File(String.format("%s/%s/%s.ssdvar",
-                ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
+                EditorContext.getInstance().getFileLocation(), EditorContext.getInstance().getProjName(), newProjectName));
         ODMEEditor.treePanel.ssdFileCon = new File(String.format("%s/%s/%s.ssdcon",
-                ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
+                EditorContext.getInstance().getFileLocation(), EditorContext.getInstance().getProjName(), newProjectName));
         ODMEEditor.treePanel.ssdFileBeh = new File(String.format("%s/%s/%s.ssdbeh",
-                ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
+                EditorContext.getInstance().getFileLocation(), EditorContext.getInstance().getProjName(), newProjectName));
 
         ODMEEditor.treePanel.ssdFileFlag = new File(String.format("%s/%s/%s.ssdflag",
-                ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
+                EditorContext.getInstance().getFileLocation(), EditorContext.getInstance().getProjName(), newProjectName));
 
         ProjectTree.projectName = newProjectName;
 
@@ -331,7 +340,7 @@ public class ImportFromCameo {
     private static void importProjectStart() {
         Scanner in = null;
         try {
-            in = new Scanner(new File(ODMEEditor.importFileLocation + "/" + ODMEEditor.importFileName));
+            in = new Scanner(new File(EditorContext.getInstance().getImportFileLocation() + "/" + EditorContext.getInstance().getImportFileName()));
         }
         catch (FileNotFoundException e1) {
             JOptionPane.showMessageDialog(Main.frame, "Import error!", "Import Error!",
@@ -342,7 +351,7 @@ public class ImportFromCameo {
         PrintWriter f0 = null;
         try {
             f0 = new PrintWriter(new FileWriter(
-                    ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + ODMEEditor.projName + ".xml"));
+                    EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/" + EditorContext.getInstance().getProjName() + ".xml"));
             f0.println("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>");
         }
         catch (IOException e1) {
@@ -512,7 +521,7 @@ public class ImportFromCameo {
     private static void rest_importProjectStart() {
         Scanner in = null;
         try {
-            in = new Scanner(new File(ODMEEditor.importFileLocation + "/" + ODMEEditor.importFileName));
+            in = new Scanner(new File(EditorContext.getInstance().getImportFileLocation() + "/" + EditorContext.getInstance().getImportFileName()));
         }
         catch (FileNotFoundException e1) {
             JOptionPane.showMessageDialog(Main.frame, "Import error!", "Import Error!",
@@ -523,7 +532,7 @@ public class ImportFromCameo {
         PrintWriter f0 = null;
         try {
             f0 = new PrintWriter(new FileWriter(
-                    ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + ODMEEditor.projName + ".xml"));
+                    EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/" + EditorContext.getInstance().getProjName() + ".xml"));
             f0.println("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>");
         }
         catch (IOException e1) {
@@ -587,7 +596,7 @@ public class ImportFromCameo {
         f0.close();
 
         //Deleting the cameoTemp.xml file created in the function JsonToXml
-        File file = new File(ODMEEditor.fileLocation + "/cameoTemp.xml");
+        File file = new File(EditorContext.getInstance().getFileLocation() + "/cameoTemp.xml");
 //        file.delete();
 
 
@@ -601,7 +610,7 @@ public class ImportFromCameo {
      * a CSV file and print in the console
      **/
     public static void importFromCSVSample() {
-        String file = ODMEEditor.fileLocation+"\\ODME-main\\src\\DomainRelations.csv";
+        String file = EditorContext.getInstance().getFileLocation()+"\\ODME-main\\src\\DomainRelations.csv";
         BufferedReader reader = null;
         String line = "";
         Integer num = 0;
@@ -619,6 +628,8 @@ public class ImportFromCameo {
             }
         } catch(Exception e) {
             e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
         finally {
             try {

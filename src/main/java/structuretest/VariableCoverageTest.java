@@ -1,6 +1,7 @@
 package structuretest;
 
 
+import odme.core.EditorContext;
 import com.google.common.collect.Multimap;
 import odme.odmeeditor.DynamicTree;
 import odme.odmeeditor.ODMEEditor;
@@ -48,7 +49,7 @@ public class VariableCoverageTest {
 
         for (String[] scenario : scenariosList) {
             try {
-                String path = ODMEEditor.fileLocation + "/" + scenario[0] + "/" + ODMEEditor.projName + ".ssdvar";
+                String path = EditorContext.getInstance().getFileLocation() + "/" + scenario[0] + "/" + EditorContext.getInstance().getProjName() + ".ssdvar";
                 File file = new File(path);
 
                 if (!file.exists()) {

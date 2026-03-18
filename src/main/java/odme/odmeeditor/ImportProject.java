@@ -15,11 +15,12 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import com.mxgraph.model.mxCell;
-import odeme.behaviour.Behaviour;
+import odme.behaviour.Behaviour;
 import odme.jtreetograph.JtreeToGraphAdd;
 import odme.jtreetograph.JtreeToGraphConvert;
 import odme.jtreetograph.JtreeToGraphImport;
 import odme.jtreetograph.JtreeToGraphVariables;
+import odme.core.EditorContext;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -108,7 +109,7 @@ public class ImportProject extends JPanel {
         projectLocationField = new JTextField();
         projectLocationField.setBounds(20, 150, 430, 30);
         projectLocationField.setEnabled(false);
-        projectLocationField.setText(ODMEEditor.fileLocation);
+        projectLocationField.setText(EditorContext.getInstance().getFileLocation());
         selectProjectLocation = new JButton("Browse...");
         selectProjectLocation.setBounds(460, 150, 100, 30);
         selectProjectLocation.setEnabled(false);
@@ -194,7 +195,7 @@ public class ImportProject extends JPanel {
             @Override
             public void itemStateChanged(ItemEvent e) {
                 if (e.getStateChange() == ItemEvent.SELECTED) {
-                    projectLocationField.setText(ODMEEditor.fileLocation);
+                    projectLocationField.setText(EditorContext.getInstance().getFileLocation());
                     projectLocationField.setEnabled(false);
                     projectLocationLabel.setEnabled(false);
                     selectProjectLocation.setEnabled(false);
@@ -219,9 +220,9 @@ public class ImportProject extends JPanel {
 
                 if (result == JFileChooser.APPROVE_OPTION) {
                     File selectedFile = fileChooser.getSelectedFile();
-                    ODMEEditor.importFileName = selectedFile.getName();
-                    ODMEEditor.importFileLocation = selectedFile.getParentFile().getAbsolutePath();
-                    newRootNameField.setText(ODMEEditor.importFileLocation);
+                    EditorContext.getInstance().setImportFileName(selectedFile.getName());
+                    EditorContext.getInstance().setImportFileLocation(selectedFile.getParentFile().getAbsolutePath());
+                    newRootNameField.setText(EditorContext.getInstance().getImportFileLocation());
                 }
             }
         });
@@ -238,8 +239,8 @@ public class ImportProject extends JPanel {
                 int result = fileChooser.showOpenDialog(Main.frame);
                 if (result == JFileChooser.APPROVE_OPTION) {
                     File selectedFile = fileChooser.getSelectedFile();
-                    ODMEEditor.fileLocation = selectedFile.getAbsolutePath();
-                    projectLocationField.setText(ODMEEditor.fileLocation);
+                    EditorContext.getInstance().setFileLocation(selectedFile.getAbsolutePath());
+                    projectLocationField.setText(EditorContext.getInstance().getFileLocation());
                 }
             }
         });
@@ -275,24 +276,20 @@ public class ImportProject extends JPanel {
     	
         //String newRootName = null;
 
-        String oldProjectTreeProjectName = ODMEEditor.projName;
+        String oldProjectTreeProjectName = EditorContext.getInstance().getProjName();
 
-        ODMEEditor.projName = newProjectName;
-        JtreeToGraphVariables.newFileName = newProjectName;
-        JtreeToGraphVariables.projectFileNameGraph = newProjectName;
-        
-        JtreeToGraphVariables.ssdFileGraph = new File(String.format("%s/%s/%sGraph.xml",
-        		ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
+        EditorContext.getInstance().setProjName(newProjectName);
+        EditorContext.getInstance().setNewFileName(newProjectName);
         ODMEEditor.treePanel.ssdFile = new File(String.format("%s/%s/%s.xml",
-        		ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
+        		EditorContext.getInstance().getFileLocation(), EditorContext.getInstance().getProjName(), newProjectName));
         ODMEEditor.treePanel.ssdFileVar = new File(String.format("%s/%s/%s.ssdvar",
-        		ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
+        		EditorContext.getInstance().getFileLocation(), EditorContext.getInstance().getProjName(), newProjectName));
         ODMEEditor.treePanel.ssdFileCon = new File(String.format("%s/%s/%s.ssdcon",
-        		ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
+        		EditorContext.getInstance().getFileLocation(), EditorContext.getInstance().getProjName(), newProjectName));
         ODMEEditor.treePanel.ssdFileBeh = new File(String.format("%s/%s/%s.ssdbeh",
-        		ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
+        		EditorContext.getInstance().getFileLocation(), EditorContext.getInstance().getProjName(), newProjectName));
         ODMEEditor.treePanel.ssdFileFlag = new File(String.format("%s/%s/%s.ssdflag",
-        		ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
+        		EditorContext.getInstance().getFileLocation(), EditorContext.getInstance().getProjName(), newProjectName));
 
         ProjectTree.projectName = newProjectName;
 
@@ -316,7 +313,7 @@ public class ImportProject extends JPanel {
     private static void importProjectStart() {
         Scanner in = null;
         try {
-            in = new Scanner(new File(ODMEEditor.importFileLocation + "/" + ODMEEditor.importFileName));
+            in = new Scanner(new File(EditorContext.getInstance().getImportFileLocation() + "/" + EditorContext.getInstance().getImportFileName()));
         } 
         catch (FileNotFoundException e1) {
         	JOptionPane.showMessageDialog(Main.frame, "Import error!", "Import Error!",
@@ -327,7 +324,7 @@ public class ImportProject extends JPanel {
         PrintWriter f0 = null;
         try {
             f0 = new PrintWriter(new FileWriter(
-                    ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + ODMEEditor.projName + ".xml"));
+                    EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/" + EditorContext.getInstance().getProjName() + ".xml"));
             f0.println("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>");
         }
         catch (IOException e1) {
@@ -469,7 +466,7 @@ public class ImportProject extends JPanel {
     // Author:Vadece Kamdem
     public static void importBehaviour(Object positionBehaviour, String nodeName) {
             try {
-                String filePath = ODMEEditor.importFileLocation + "/" + ODMEEditor.importFileName;
+                String filePath = EditorContext.getInstance().getImportFileLocation() + "/" + EditorContext.getInstance().getImportFileName();
                 // Parse the XML file
                 DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
                 DocumentBuilder builder = factory.newDocumentBuilder();
@@ -494,6 +491,8 @@ public class ImportProject extends JPanel {
 
             } catch (Exception e) {
                 e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
             }
     }
 
@@ -525,7 +524,7 @@ public class ImportProject extends JPanel {
     // Author:Vadece Kamdem
     public static void importVariable(Object positionVariable, String nodeNameAndParams) {
         try {
-            String filePath = ODMEEditor.importFileLocation + "/" + ODMEEditor.importFileName;
+            String filePath = EditorContext.getInstance().getImportFileLocation() + "/" + EditorContext.getInstance().getImportFileName();
             // Parse the XML file
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
@@ -564,6 +563,8 @@ public class ImportProject extends JPanel {
 
         } catch (Exception e) {
             e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
 //        System.out.println("FINISHED");
 //        System.out.println();

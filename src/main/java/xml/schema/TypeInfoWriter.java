@@ -17,6 +17,7 @@
 //jdk8x2r jaxp.TypeInfoWriter -xsd11 -i xsd11_datatype_test.xml
 package xml.schema;
 
+import odme.core.EditorContext;
 import org.w3c.dom.TypeInfo;
 import org.xml.sax.Attributes;
 import org.xml.sax.DTDHandler;
@@ -152,10 +153,10 @@ public class TypeInfoWriter extends DefaultHandler {
 
         if (ODMEEditor.sesValidationControl == 1) {
         	String path = new String();
-        	if (ODMEEditor.toolMode == "ses")
-        		path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/xmlforxsd.xml";
+        	if ("ses".equals(EditorContext.getInstance().getToolMode()))
+        		path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/xmlforxsd.xml";
         	else
-        		path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/xmlforxsd.xml";
+        		path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + "/xmlforxsd.xml";
         	
             instances.add(path);
             ODMEEditor.sesValidationControl = 0;
@@ -163,10 +164,10 @@ public class TypeInfoWriter extends DefaultHandler {
             String rootNodeName = JtreeToGraphGeneral.rootNodeName();
             
             String path = new String();
-        	if (ODMEEditor.toolMode == "ses")
-        		path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + rootNodeName + ".xml";
+        	if ("ses".equals(EditorContext.getInstance().getToolMode()))
+        		path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/" + rootNodeName + ".xml";
         	else
-        		path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/" + rootNodeName + ".xml";
+        		path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + "/" + rootNodeName + ".xml";
         	
             instances.add(path);
         }

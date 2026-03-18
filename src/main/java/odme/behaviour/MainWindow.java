@@ -1,4 +1,4 @@
-package odeme.behaviour;
+package odme.behaviour;
 
 import java.awt.BorderLayout;
 

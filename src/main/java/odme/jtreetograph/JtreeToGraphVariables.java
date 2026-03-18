@@ -16,8 +16,6 @@ public class JtreeToGraphVariables {
 	public static int behaviourNodeNumber = 1;
     public static mxGraph graph;
     // ProjectPane Related
-    public static String newFileName = ODMEEditor.projName;
-    public static String projectFileNameGraph = newFileName;
     public static mxCell selectedNodeCellForVariableUpdate = null;
     /**
      * To add node automatically from console window using text command (add node
@@ -37,8 +35,6 @@ public class JtreeToGraphVariables {
     public static mxCell subtreeCheckCell = null;
     public static mxCell subtreeSyncCell = null;
     public static String addedCellNameSync = null;
-    public static File ssdFileGraph = new File(String.format("%s/%s/%sGraph.xml",
-    		ODMEEditor.fileLocation, ODMEEditor.projName, projectFileNameGraph));
 
     public static mxGraphComponent graphComponent = null;
 

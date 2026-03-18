@@ -1,5 +1,6 @@
 package odme.odmeeditor;
 
+import odme.core.EditorContext;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -242,7 +243,7 @@ public class Variable extends JPanel {
                     + variableUpperBound;
         }
         
-        if (ODMEEditor.toolMode == "pes") {
+        if ("pes".equals(EditorContext.getInstance().getToolMode())) {
         	nodeNameleField.setEnabled(false);
         	variableField.setEnabled(false);
         	lowerBoundField.setEnabled(false);
@@ -538,7 +539,7 @@ public class Variable extends JPanel {
                 lowerBoundField.setEnabled(false);
                 upperBoundField.setEnabled(false);
             } 
-            else if (ODMEEditor.toolMode == "ses"){
+            else if ("ses".equals(EditorContext.getInstance().getToolMode())){
                 lowerBoundField.setEnabled(true);
                 upperBoundField.setEnabled(true);
             }

@@ -1,6 +1,7 @@
 package odme.odmeeditor;
 
 // import static odme.odmeeditor.XmlUtils.sesview;
+import odme.core.EditorContext;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -69,14 +70,14 @@ public class ODDManager extends JPanel{
 	};
 
 	private static String getStateXsdFilePath() {
-		return ODMEEditor.fileLocation+System.getProperty("file.separator")+
-				ODMEEditor.projName+
+		return EditorContext.getInstance().getFileLocation()+System.getProperty("file.separator")+
+				EditorContext.getInstance().getProjName()+
 				System.getProperty("file.separator")+
 				"xsdfromxml.xsd";
 	}
 
 	public static final String getODDsPath() {
-		return ODMEEditor.fileLocation
+		return EditorContext.getInstance().getFileLocation()
 				+System.getProperty("file.separator")
 				+"odd";
 	}
@@ -105,7 +106,7 @@ public class ODDManager extends JPanel{
 
 	public ODDManager() {
 		this("Generate OD");
-		this.currentProjName=ODMEEditor.projName;
+		this.currentProjName=EditorContext.getInstance().getProjName();
 		this.mode=mode;
 	}
 
@@ -150,7 +151,7 @@ public class ODDManager extends JPanel{
 		else this.add(jtPanel);
 		populateInitialTable(); // out of the current xsd open
 		reDoTableInitials();
-		updateCurrentODD(ODMEEditor.projName);
+		updateCurrentODD(EditorContext.getInstance().getProjName());
 	}
 
 	/**
@@ -272,7 +273,7 @@ public class ODDManager extends JPanel{
 			if(mode=="Generate OD")javax.swing.JOptionPane.showMessageDialog(null,filename+" saved.");
 		}catch(IOException ioe) {
 			ioe.printStackTrace();
-			// javax.swing.JOptionPane.showMessageDialog(null,"Could not write the serialized Object");
+			javax.swing.JOptionPane.showMessageDialog(null,"Could not write the serialized Object: " + ioe.getMessage(), "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
 		}
 	}
 
@@ -406,11 +407,11 @@ public class ODDManager extends JPanel{
 		ODMEEditor.updateState();
 		JtreeToGraphConvert.convertTreeToXML();
 		String xmlContent=XmlUtils.readFile(
-				ODMEEditor.fileLocation,
-				ODMEEditor.projName,
+				EditorContext.getInstance().getFileLocation(),
+				EditorContext.getInstance().getProjName(),
 				"xmlforxsd.xml"
 		);
-		ODMEEditor.chooseAndSaveFile(xmlContent,ODMEEditor.projName+".xml", null); // uncomment for production
+		ODMEEditor.chooseAndSaveFile(xmlContent,EditorContext.getInstance().getProjName()+".xml", null); // uncomment for production
 	}
 
 	public static void chooseAndSaveFile(String content,String suggestedPath,String ext) {
@@ -455,7 +456,7 @@ public class ODDManager extends JPanel{
 		ODMEEditor.updateState();
 		JtreeToGraphConvert.convertTreeToXML();
 		String yamlContent=currentXsdToYaml();
-		ODMEEditor.chooseAndSaveFile(yamlContent,ODMEEditor.projName+".yaml", null); // uncomment for production
+		ODMEEditor.chooseAndSaveFile(yamlContent,EditorContext.getInstance().getProjName()+".yaml", null); // uncomment for production
 	}
 
 	private void reDoTableInitials() { // this method just does some bugfix (don't ask)

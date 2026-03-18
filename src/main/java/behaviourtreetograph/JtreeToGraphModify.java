@@ -1,10 +1,12 @@
 package behaviourtreetograph;
 
+import odme.core.EditorContext;
+import javax.swing.JOptionPane;
 import odme.odmeeditor.ODMEEditor;
 import java.io.*;
 import java.util.Scanner;
-import static odeme.behaviour.BehaviourToTree.selectedScenario;
-import static odme.odmeeditor.ODMEEditor.fileLocation;
+import static odme.behaviour.BehaviourToTree.selectedScenario;
+
 
 
 public class JtreeToGraphModify {
@@ -16,13 +18,15 @@ public class JtreeToGraphModify {
         try {
             String path = new String();
 
-            path = fileLocation + "/" + ODMEEditor.projName +  "/" +selectedScenario+ "/OutputBehaviourxml.xml";
+            path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() +  "/" +selectedScenario+ "/OutputBehaviourxml.xml";
 
             f0 = new PrintWriter(new FileWriter(path));
         }
 
         catch (IOException e1) {
             e1.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + e1.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
 
         Scanner in = null;
@@ -31,7 +35,7 @@ public class JtreeToGraphModify {
 
             String path = new String();
 
-            path = fileLocation +"/" + ODMEEditor.projName +  "/" +selectedScenario+"/behaviourxml.xml";
+            path = EditorContext.getInstance().getFileLocation() +"/" + EditorContext.getInstance().getProjName() +  "/" +selectedScenario+"/behaviourxml.xml";
             File file = new File (path);
             if (!file.exists()) {
                 file.createNewFile();
@@ -90,8 +94,12 @@ public class JtreeToGraphModify {
             f0.close();
         }catch (FileNotFoundException e) {
             e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         } catch (IOException e) {
             e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
     }
 }

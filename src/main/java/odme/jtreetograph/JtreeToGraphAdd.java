@@ -1,5 +1,6 @@
 package odme.jtreetograph;
 
+import odme.core.EditorContext;
 import static odme.jtreetograph.JtreeToGraphVariables.*;
 
 import java.awt.Color;
@@ -776,7 +777,7 @@ public class JtreeToGraphAdd {
         FileNameExtensionFilter xmlfilter = new FileNameExtensionFilter("xml files (*.xml)", "xml");
         fileChooser.setFileFilter(xmlfilter);
 
-        fileChooser.setCurrentDirectory(new File(ODMEEditor.fileLocation + "/" + ODMEEditor.projName));
+        fileChooser.setCurrentDirectory(new File(EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName()));
         int result = fileChooser.showOpenDialog(Main.frame);
         if (result == JFileChooser.APPROVE_OPTION) {
             File selectedFile = fileChooser.getSelectedFile();
@@ -836,6 +837,8 @@ public class JtreeToGraphAdd {
             } 
             catch (IOException e) {
                 e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
             }
             for (int i = 0; i < nodeCount; i++) {
                 String nodeName = nodeNames[i];

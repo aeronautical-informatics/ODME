@@ -1,5 +1,6 @@
 package odme.odmeeditor;
 
+import odme.core.EditorContext;
 import java.awt.BorderLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
@@ -163,6 +164,8 @@ public class ToolBar {
         catch (CannotUndoException ex) {
             System.out.println("Unable to undo: " + ex);
             ex.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
     }
     
@@ -179,6 +182,8 @@ public class ToolBar {
         catch (CannotRedoException ex) {
             System.out.println("Unable to redo: " + ex);
             ex.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
     }
     
@@ -198,10 +203,10 @@ public class ToolBar {
         ODMEEditor.saveChanges();
         
         String path = new String();
-    	if (ODMEEditor.toolMode == "ses")
-    		path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName  + "/ses.xsd";
+    	if ("ses".equals(EditorContext.getInstance().getToolMode()))
+    		path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName()  + "/ses.xsd";
     	else
-    		path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario  + "/ses.xsd";
+    		path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario()  + "/ses.xsd";
     	
         fileConversion.createSES(path);
         
@@ -227,7 +232,7 @@ public class ToolBar {
 //            Console.addConsoleOutput(ODMEEditor.errorMessageInSES);
 //        } 
 //        else {
-            XmlUtils.showViewer(ODMEEditor.fileLocation, ODMEEditor.projName, "xmlforxsd.xml", XmlUtils.sesview);
+            XmlUtils.showViewer(EditorContext.getInstance().getFileLocation(), EditorContext.getInstance().getProjName(), "xmlforxsd.xml", XmlUtils.sesview);
 //        }
     }
 }

@@ -1,6 +1,7 @@
 package odme.odmeeditor;
 
 import java.awt.Color;
+import javax.swing.JOptionPane;
 import java.awt.Font;
 
 import javax.swing.BorderFactory;
@@ -88,6 +89,8 @@ public class SplashScreen {
                 }
             catch(Exception e){
                 e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
             }
         }
     }

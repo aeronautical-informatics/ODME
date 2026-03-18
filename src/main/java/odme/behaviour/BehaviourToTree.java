@@ -1,5 +1,6 @@
-package odeme.behaviour;
+package odme.behaviour;
 
+import odme.core.EditorContext;
 import java.awt.Cursor;
 import java.awt.GridLayout;
 import java.awt.event.MouseEvent;
@@ -38,7 +39,7 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
 
-import odeme.behaviour.ODMEBehaviourEditor;
+import odme.behaviour.ODMEBehaviourEditor;
 import odme.core.CustomIconRenderer;
 
 import odme.core.UndoableTreeModel;
@@ -62,9 +63,9 @@ public class BehaviourToTree  extends JPanel implements MouseListener{
 		super(new GridLayout(1, 0));
 
 		//now construct tree of behaviours
-		ssdFileBeh = new File(ODMEEditor.fileLocation + "/"+ ODMEEditor.projName +"/"+ selectedScenario + "/"+ ODMEEditor.projName+".ssdbeh" );
+		ssdFileBeh = new File(EditorContext.getInstance().getFileLocation() + "/"+ EditorContext.getInstance().getProjName() +"/"+ selectedScenario + "/"+ EditorContext.getInstance().getProjName()+".ssdbeh" );
 
-//		System.out.println("Path  = "+ODMEEditor.fileLocation + "/"+ ODMEEditor.projName +"/"+ selectedScenario + "/"+ ODMEEditor.projName+".ssdbeh");
+//		System.out.println("Path  = "+EditorContext.getInstance().getFileLocation() + "/"+ EditorContext.getInstance().getProjName() +"/"+ selectedScenario + "/"+ EditorContext.getInstance().getProjName()+".ssdbeh");
 		behavioursList = ArrayListMultimap.create();
 
 		if(ssdFileBeh.exists()) {

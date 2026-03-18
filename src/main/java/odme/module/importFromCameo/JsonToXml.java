@@ -194,7 +194,8 @@ public class JsonToXml {
     }
 
     private static void processJsonObject(Document doc, Element parent, JSONObject jsonObject) {
-        for (String key : jsonObject.keySet()) {
+        for (Object k : jsonObject.keySet()) {
+            String key = (String) k;
 
             /*
              * Check if it is an entity, a behaviour or a variable
@@ -236,10 +237,10 @@ public class JsonToXml {
             }
 
             JSONObject childObject = jsonObject.optJSONObject(key);
-            if (childObject != null && !childObject.isEmpty()) {
+            if (childObject != null && childObject.length() > 0) {
 
                 //for the behaviour
-                String nextKey = childObject.keys().next();
+                String nextKey = (String) childObject.keys().next();
                 if(nextKey.endsWith("()")) {
                     String newKey = nextKey.substring(0, nextKey.length() - 2);
                     behaviour.setAttribute("name", newKey);

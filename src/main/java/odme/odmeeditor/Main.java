@@ -1,4 +1,6 @@
 package odme.odmeeditor;
+import odme.core.EditorContext;
+import javax.swing.JOptionPane;
 import javax.swing.*;
 import javax.swing.UIManager.LookAndFeelInfo;
 import java.awt.*;
@@ -28,7 +30,7 @@ public class Main {
       File f = new File("Main");
       f.mkdirs(); 
       
-      File scenarioFile = new File(ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/scenarios.json");
+      File scenarioFile = new File(EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/scenarios.json");
       if(!scenarioFile.exists()){ 
     	  createScenariosJson();
       }
@@ -100,12 +102,14 @@ public class Main {
 		data.add(jom);
     	
     	try {
-	         FileWriter file = new FileWriter(ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/scenarios.json");
+	         FileWriter file = new FileWriter(EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/scenarios.json");
 	         file.write(data.toJSONString());
 	         file.close();
 	    } 
     	catch (IOException e) {
 	         e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
 	    }
     }
 }

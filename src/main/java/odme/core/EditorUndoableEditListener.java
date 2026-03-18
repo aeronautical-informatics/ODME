@@ -3,7 +3,7 @@ package odme.core;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
 
-import odeme.behaviour.ODMEBehaviourEditor;
+import odme.behaviour.ODMEBehaviourEditor;
 import odme.odmeeditor.ODMEEditor;
 
 /**

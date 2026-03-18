@@ -1,5 +1,7 @@
 package odme.jtreetograph;
 
+import odme.core.EditorContext;
+import javax.swing.JOptionPane;
 import static odme.jtreetograph.JtreeToGraphVariables.*;
 
 import java.io.BufferedReader;
@@ -30,7 +32,7 @@ public class JtreeToGraphImport {
 
         try {
             FileReader reader = new FileReader(
-                    (ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + ODMEEditor.projName + ".xml"));
+                    (EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/" + EditorContext.getInstance().getProjName() + ".xml"));
             BufferedReader bufferedReader = new BufferedReader(reader);
 
             String line;
@@ -73,6 +75,8 @@ public class JtreeToGraphImport {
         } 
         catch (IOException e) {
             e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
 
         String rootName = nodeNames[0];

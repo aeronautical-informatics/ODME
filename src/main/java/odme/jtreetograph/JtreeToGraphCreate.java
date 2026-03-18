@@ -1,6 +1,7 @@
 package odme.jtreetograph;
 
 import static odme.jtreetograph.JtreeToGraphVariables.*;
+import odme.core.EditorContext;
 
 import java.awt.Color;
 import java.awt.MouseInfo;
@@ -141,13 +142,11 @@ public class JtreeToGraphCreate {
 
         parent = graph.getDefaultParent();
 
-        if (ssdFileGraph.exists()) {
+        if (EditorContext.getInstance().getSsdFileGraph().exists()) {
             graph.getModel().beginUpdate();
             try {
                 // use "org.w3c.dom.Document" not swing Document
-                Document xml = mxXmlUtils.parseXml(mxUtils.readFile(
-                        ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + projectFileNameGraph
-                        + "Graph.xml"));
+                Document xml = mxXmlUtils.parseXml(mxUtils.readFile(EditorContext.getInstance().getSsdFileGraph().getAbsolutePath()));
 
                 mxCodec codec = new mxCodec(xml);
                 codec.decode(xml.getDocumentElement(), graph.getModel());

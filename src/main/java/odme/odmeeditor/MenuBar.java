@@ -47,6 +47,8 @@ import odme.jtreetograph.JtreeToGraphModify;
 import odme.jtreetograph.JtreeToGraphSave;
 import odme.jtreetograph.JtreeToGraphVariables;
 
+import odme.core.EditorContext;
+
 import static odme.odmeeditor.XmlUtils.sesview;
 
 public class MenuBar {
@@ -260,13 +262,15 @@ public class MenuBar {
 	private void saveScenario() {
     	JSONParser jsonParser = new JSONParser();
         
-        try (FileReader reader = new FileReader(ODMEEditor.fileLocation + "/scenarios.json")){
+        try (FileReader reader = new FileReader(EditorContext.getInstance().getFileLocation() + "/scenarios.json")){
             Object obj = null;
 			try {
 				obj = jsonParser.parse(reader);
 			} 
 			catch (org.json.simple.parser.ParseException e) {
 				e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
 			}
 			
             JSONArray data = (JSONArray) obj;
@@ -297,45 +301,50 @@ public class MenuBar {
         		return;
         	
         	try {
-		         FileWriter file = new FileWriter(ODMEEditor.fileLocation + "/scenarios.json");
+		         FileWriter file = new FileWriter(EditorContext.getInstance().getFileLocation() + "/scenarios.json");
 		         file.write(data.toJSONString());
 		         file.close();
 		         ODMEEditor.graphWindow.setTitle(nameField.getText());
 		      }
         	catch (IOException e) {
 		         e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
 		      }
 
         } 
         catch (FileNotFoundException e) {
             e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         } 
         catch (IOException e) {
             e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         } 
         catch (ParseException e) {
             e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         } 
     }
     
     private void createScenario(String ScenarioName) {
-        ODMEEditor.currentScenario = ScenarioName;
-        
-        JtreeToGraphVariables.ssdFileGraph = new File(String.format("%s/%s/%sGraph.xml",
-    			 ODMEEditor.fileLocation, ScenarioName, ODMEEditor.projName));
+        EditorContext.getInstance().setCurrentScenario(ScenarioName);
     	 ODMEEditor.treePanel.ssdFile = new File(String.format("%s/%s/%s.xml",
-    			 ODMEEditor.fileLocation,  ScenarioName, ODMEEditor.projName));
+    			 EditorContext.getInstance().getFileLocation(),  ScenarioName, EditorContext.getInstance().getProjName()));
     	 ODMEEditor.treePanel.ssdFileVar = new File(String.format("%s/%s/%s.ssdvar",
-    			 ODMEEditor.fileLocation,  ScenarioName, ODMEEditor.projName));
+    			 EditorContext.getInstance().getFileLocation(),  ScenarioName, EditorContext.getInstance().getProjName()));
     	 ODMEEditor.treePanel.ssdFileCon = new File(String.format("%s/%s/%s.ssdcon",
-    			 ODMEEditor.fileLocation,  ScenarioName, ODMEEditor.projName));
+    			 EditorContext.getInstance().getFileLocation(),  ScenarioName, EditorContext.getInstance().getProjName()));
     	 ODMEEditor.treePanel.ssdFileFlag = new File(String.format("%s/%s/%s.ssdflag",
-    			 ODMEEditor.fileLocation,  ScenarioName, ODMEEditor.projName));
+    			 EditorContext.getInstance().getFileLocation(),  ScenarioName, EditorContext.getInstance().getProjName()));
 
 		ODMEEditor.treePanel.ssdFileBeh = new File(String.format("%s/%s/%s.ssdbeh",
-				ODMEEditor.fileLocation,  ScenarioName, ODMEEditor.projName));
+				EditorContext.getInstance().getFileLocation(),  ScenarioName, EditorContext.getInstance().getProjName()));
 
-        File f = new File(ODMEEditor.fileLocation + "/" +  ScenarioName);
+        File f = new File(EditorContext.getInstance().getFileLocation() + "/" +  ScenarioName);
         f.mkdirs();
         
         ODMEEditor.updateState();
@@ -370,9 +379,9 @@ public class MenuBar {
             String fileName = selectedFile.getName();
             System.out.println("Selected file: " + selectedFile.getName());
 
-            String oldProjectTreeProjectName = ODMEEditor.projName;
-            ODMEEditor.projName = fileName;
-            ODMEEditor.fileLocation = selectedFile.getParentFile().getAbsolutePath();
+            String oldProjectTreeProjectName = EditorContext.getInstance().getProjName();
+            EditorContext.getInstance().setProjName(fileName);
+            EditorContext.getInstance().setFileLocation(selectedFile.getParentFile().getAbsolutePath());
             JtreeToGraphGeneral.openExistingProject(fileName, oldProjectTreeProjectName);
 
             JtreeToGraphVariables.undoManager = new mxUndoManager();
@@ -381,37 +390,33 @@ public class MenuBar {
             Variable.setNullToAllRows();
             Constraint.setNullToAllRows();
             
-            if (ODMEEditor.toolMode == "pes")
+            if ("pes".equals(EditorContext.getInstance().getToolMode()))
             	ODMEEditor.applyGuiSES();
         }
     }
     
     private void saveAsFunc() {
     	JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setCurrentDirectory(new File(ODMEEditor.fileLocation));
+        fileChooser.setCurrentDirectory(new File(EditorContext.getInstance().getFileLocation()));
         int result = fileChooser.showSaveDialog(Main.frame);
         if (result == JFileChooser.APPROVE_OPTION) {
             File selectedFile = fileChooser.getSelectedFile();
             
-            ODMEEditor.fileLocation = selectedFile.getParentFile().getAbsolutePath();
+            EditorContext.getInstance().setFileLocation(selectedFile.getParentFile().getAbsolutePath());
 
             String newProjectName = selectedFile.getName();
-            String oldProjectTreeProjectName = ODMEEditor.projName;
+            String oldProjectTreeProjectName = EditorContext.getInstance().getProjName();
 
-            ODMEEditor.projName = newProjectName;
-            JtreeToGraphVariables.newFileName = newProjectName;
-            JtreeToGraphVariables.projectFileNameGraph = newProjectName;
-
-            JtreeToGraphVariables.ssdFileGraph = new File(String.format("%s/%s/%sGraph.xml",
-            		ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
+            EditorContext.getInstance().setProjName(newProjectName);
+            EditorContext.getInstance().setNewFileName(newProjectName);
             ODMEEditor.treePanel.ssdFile = new File(String.format("%s/%s/%s.xml",
-            		ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
+            		EditorContext.getInstance().getFileLocation(), EditorContext.getInstance().getProjName(), newProjectName));
             ODMEEditor.treePanel.ssdFileVar = new File(String.format("%s/%s/%s.ssdvar",
-            		ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
+            		EditorContext.getInstance().getFileLocation(), EditorContext.getInstance().getProjName(), newProjectName));
             ODMEEditor.treePanel.ssdFileCon = new File(String.format("%s/%s/%s.ssdcon",
-            		ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
+            		EditorContext.getInstance().getFileLocation(), EditorContext.getInstance().getProjName(), newProjectName));
             ODMEEditor.treePanel.ssdFileFlag = new File(String.format("%s/%s/%s.ssdflag",
-            		ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
+            		EditorContext.getInstance().getFileLocation(), EditorContext.getInstance().getProjName(), newProjectName));
 
             ProjectTree.projectName = newProjectName;
             ODMEEditor.projectPanel.changeCurrentProjectFileName(newProjectName, oldProjectTreeProjectName);
@@ -443,10 +448,10 @@ public class MenuBar {
     	try{
     		BufferedImage image = mxCellRenderer.createBufferedImage(JtreeToGraphVariables.graph, null, 1, Color.WHITE, true, null);
     		String path = new String();
-        	if (ODMEEditor.toolMode == "ses")
-        		path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName  + "/graph.png";
+        	if ("ses".equals(EditorContext.getInstance().getToolMode()))
+        		path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName()  + "/graph.png";
         	else
-        		path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/graph.png";
+        		path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + "/graph.png";
         		
             ImageIO.write(image, "PNG", new File(path));
             JOptionPane.showMessageDialog(Main.frame, "Saved Successfully.", "Save PNG",
@@ -472,12 +477,12 @@ public class MenuBar {
 
     private void exportFunc() {
     	ToolBar.validation();
-        String fileName = ODMEEditor.projName; // don't know why not fetching the file name here
+        String fileName = EditorContext.getInstance().getProjName(); // don't know why not fetching the file name here
         JFileChooser fileChooser = new JFileChooser();
         FileNameExtensionFilter xmlfilter = new FileNameExtensionFilter("xml files (*.xml)", "xml");
         fileChooser.setFileFilter(xmlfilter);
         fileChooser.setSelectedFile(new File(fileName)); // not working because filename is null
-        fileChooser.setCurrentDirectory(new File(ODMEEditor.fileLocation + "/" + ODMEEditor.projName));
+        fileChooser.setCurrentDirectory(new File(EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName()));
         int result = fileChooser.showSaveDialog(Main.frame);
         if (result == JFileChooser.APPROVE_OPTION) {
             File selectedFile = fileChooser.getSelectedFile();
@@ -489,13 +494,17 @@ public class MenuBar {
             }
             catch (IOException e1) {
                 e1.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + e1.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
             }
             Scanner in = null;
             try {
                 in = new Scanner(new File(
-                        ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/xmlforxsd.xml"));
+                        EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/xmlforxsd.xml"));
             } catch (FileNotFoundException e2) {
                 e2.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + e2.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
             }
             while (in.hasNext()) { // Iterates each line in the file
                 String line = in.nextLine();
@@ -516,6 +525,8 @@ public class MenuBar {
 					pdfTemp = new File(resource.toURI());
 				} catch (URISyntaxException e) {
 					e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
 				}
                 // Open the PDF
                 Desktop.getDesktop().open(pdfTemp);
