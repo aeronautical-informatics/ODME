@@ -110,6 +110,13 @@
             <artifactId>commons-io</artifactId>
             <version>2.11.0</version>
         </dependency>
+
+        <!-- UI Modernization via FlatLaf -->
+        <dependency>
+            <groupId>com.formdev</groupId>
+            <artifactId>flatlaf</artifactId>
+            <version>3.4.1</version>
+        </dependency>
     </dependencies>
     <repositories>
         <repository>

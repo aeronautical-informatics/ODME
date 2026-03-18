@@ -37,7 +37,7 @@ public class Main {
       
       //-------------------------------------
     	
-    	// look and feel
+    	// look and feel (Modern FlatLaf UI)
         setLookAndFeel();
         
         // show splash screen
@@ -77,15 +77,12 @@ public class Main {
     
     private static void setLookAndFeel() {
         try {
-            for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
+            // Deploy the macOS native Flat theme integration natively out-of-the-box
+            com.formdev.flatlaf.themes.FlatMacLightLaf.setup();
         } 
         catch (Exception e) {
-            // If Nimbus is not available, then have to set another look and feel.
+            // Fallback gracefully to default if unsupported
+            System.err.println("Failed to initialize FlatLaf");
         }
     }
     
