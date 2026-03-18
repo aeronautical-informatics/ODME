@@ -9,7 +9,7 @@ public class EditorContext {
         return instance;
     }
 
-    private String fileLocation = "";
+    private String fileLocation = java.nio.file.Paths.get("").toAbsolutePath().toString().replace("\\", "/");
     private String projName = "Main";
     private String currentScenario = "InitScenario";
     private String toolMode = "ses";

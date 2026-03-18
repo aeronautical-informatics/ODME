@@ -228,7 +228,7 @@ public class ScenarioList extends JPanel {
 		}
 		
 		try {
-	         FileWriter file = new FileWriter(EditorContext.getInstance().getFileLocation()  + "/scenarios.json");
+	         FileWriter file = new FileWriter(EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/scenarios.json");
 	         file.write(ja.toJSONString());
 	         file.close();
 	      } catch (IOException e) {
@@ -350,7 +350,7 @@ public class ScenarioList extends JPanel {
 		JSONParser jsonParser = new JSONParser();
 		List<String[]> dataList = new ArrayList<String[]>();
 		System.out.println("fileLocation = " + EditorContext.getInstance().getFileLocation());
-		try (FileReader reader = new FileReader(EditorContext.getInstance().getFileLocation() +  "/scenarios.json")){
+		try (FileReader reader = new FileReader(EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() +  "/scenarios.json")){
 			Object obj = null;
 			try {
 				obj = jsonParser.parse(reader);
@@ -384,7 +384,7 @@ public class ScenarioList extends JPanel {
     	JSONParser jsonParser = new JSONParser();
     	List<String[]> dataList = new ArrayList<String[]>();
     	
-        try (FileReader reader = new FileReader(EditorContext.getInstance().getFileLocation() + "/scenarios.json")){
+        try (FileReader reader = new FileReader(EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/scenarios.json")){
 
             Object obj = null;
 			try {
@@ -480,7 +480,7 @@ public class ScenarioList extends JPanel {
     			}
     			
     			try {
-    		         FileWriter file = new FileWriter(ODMEEditor.fileLocation  + "/scenarios.json");
+    		         FileWriter file = new FileWriter(EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/scenarios.json");
     		         file.write(ja.toJSONString());
     		         file.close();
     		      } catch (IOException e) {

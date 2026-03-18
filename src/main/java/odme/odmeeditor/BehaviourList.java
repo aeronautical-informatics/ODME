@@ -119,7 +119,7 @@ public class BehaviourList extends JPanel{
 		try {
 
 			Path path = Path.of("").toAbsolutePath();
-			FileReader reader = new FileReader(EditorContext.getInstance().getFileLocation() + "/scenarios.json");
+			FileReader reader = new FileReader(EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/scenarios.json");
 
 			Object obj = null;
 			try {

@@ -262,7 +262,7 @@ public class MenuBar {
 	private void saveScenario() {
     	JSONParser jsonParser = new JSONParser();
         
-        try (FileReader reader = new FileReader(EditorContext.getInstance().getFileLocation() + "/scenarios.json")){
+        try (FileReader reader = new FileReader(EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/scenarios.json")){
             Object obj = null;
 			try {
 				obj = jsonParser.parse(reader);
@@ -301,7 +301,7 @@ public class MenuBar {
         		return;
         	
         	try {
-		         FileWriter file = new FileWriter(EditorContext.getInstance().getFileLocation() + "/scenarios.json");
+		         FileWriter file = new FileWriter(EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/scenarios.json");
 		         file.write(data.toJSONString());
 		         file.close();
 		         ODMEEditor.graphWindow.setTitle(nameField.getText());
