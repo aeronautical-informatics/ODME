@@ -547,37 +547,24 @@ public class JtreeToGraphCreate {
                   //------------------------------
        	
                     // for fixing popup window while page is more thant monitor height
-                    Point p = MouseInfo.getPointerInfo().getLocation();
-                    int y = p.y;
-                    int x = p.x;
-                    int screenWidth = java.awt.Toolkit.getDefaultToolkit().getScreenSize().width;
-
-                    if (x > screenWidth) {
-                        x = x - PanelSplitor.dividerLocation - 10 - screenWidth;
-                    } 
-                    else {
-                        x = x - PanelSplitor.dividerLocation - 10;
-                    }
-                    // end of that
-
                     // here position will be edge or vertex on that place
                     Object position = graphComponent.getCellAt(e.getX(), e.getY());
 
                     // checking if there is any vertex or edge
                     if (position != null) {
-                    	if (!((mxCell) position).isVertex() && ODMEEditor.toolMode == "pes") {}
+                    	if (!((mxCell) position).isVertex() && "pes".equals(EditorContext.getInstance().getToolMode())) {}
                     	else {
                     		GraphCellPopUp graphCellPopup = new GraphCellPopUp(position);
                     		// #ROY - removed "isPoppupTrigger" to solve contextMenu bug
-                			graphCellPopup.show(graphComponent, x, y - 104);
+                			graphCellPopup.show(graphComponent, e.getX(), e.getY());
                     	}
                         
                     }
                     else {
-                    	if (ODMEEditor.toolMode == "ses") {	
+                    	if ("ses".equals(EditorContext.getInstance().getToolMode())) {	
                     		GraphPopup graphPopup = new GraphPopup(e.getX(), e.getY());
                     		// #ROY - removed "isPoppupTrigger" to solve contextMenu bug
-                			graphPopup.show(graphComponent, x, y - 104);
+                			graphPopup.show(graphComponent, e.getX(), e.getY());
                     	}
                     }
                 }
