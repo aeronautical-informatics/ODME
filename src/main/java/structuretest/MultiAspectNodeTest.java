@@ -103,6 +103,7 @@ public class MultiAspectNodeTest {
     }
 
 
+    @SuppressWarnings("unchecked")
     public void checkCodeCoverageMultiAspect(List<String[]> scenariosList) {
 
         // Define the file location for the MultiAspect limits file

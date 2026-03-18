@@ -132,6 +132,7 @@ public class ParamterCoverage {
                     System.out.println("File does not exist");
                 } else {
                     ObjectInputStream oisvar = new ObjectInputStream(new FileInputStream(file));
+                    @SuppressWarnings("unchecked")
                     Multimap<TreePath, String> scenarioMap = (Multimap<TreePath, String>) oisvar.readObject();
                     oisvar.close();
 

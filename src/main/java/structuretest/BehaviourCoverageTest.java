@@ -24,6 +24,7 @@ public class BehaviourCoverageTest {
         behaviourValuesList = new ArrayList<>();
     }
 
+    @SuppressWarnings("unchecked")
     public void checkCodeCoverageForBehaviours(List<String[]> scenariosList) {
 
         // Now get list of all behaviours saved in project.ssdbeh file.

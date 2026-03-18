@@ -176,7 +176,7 @@ public class TypeInfoWriter extends DefaultHandler {
         if (parser == null) {
             // create parser
             try {
-                parser = XMLReaderFactory.createXMLReader(DEFAULT_PARSER_NAME);
+                parser = javax.xml.parsers.SAXParserFactory.newInstance().newSAXParser().getXMLReader();
             } 
             catch (Exception e) {
                 Console.addConsoleOutput("error: Unable to instantiate parser (" + DEFAULT_PARSER_NAME + ")");

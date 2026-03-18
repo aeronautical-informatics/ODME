@@ -29,6 +29,7 @@ public class VariableCoverageTest {
     // Class-level variable to store the coverage summary
     private final Map<String, Map<String, Object>> coverageSummary = new HashMap<>();
 
+    @SuppressWarnings("unchecked")
     public VariableCoverageTest(List<String[]> scenariosList) {
         String input = JOptionPane.showInputDialog(null, "Enter step size (positive decimal):",
                 "Step Size Input", JOptionPane.QUESTION_MESSAGE);
@@ -86,8 +87,8 @@ public class VariableCoverageTest {
                     String[] matchedNodesValuesDynamicVar = fetchNodeValues(dynamicKey,dynamicMap);
 
                     //No use List<Strings>
-                    List s = NodeValues(scenarioKey,scenarioMap);
-                    List d = NodeValues(dynamicKey,dynamicMap);
+                    List<String> s = NodeValues(scenarioKey,scenarioMap);
+                    List<String> d = NodeValues(dynamicKey,dynamicMap);
 
                     System.out.println("Scenario Key = " + scenarioKey);
                     System.out.println("List Scenario values" + s);
