@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<!DOCTYPE suppressions PUBLIC
+    "-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"
+    "https://checkstyle.org/dtds/suppressions_1_2.dtd">
+<suppressions>
+    <!-- Suppress all checks on legacy code - only new domain/* code is enforced -->
+    <suppress checks=".*" files="odme/odmeeditor/.*"/>
+    <suppress checks=".*" files="odme/jtreetograph/.*"/>
+    <suppress checks=".*" files="odme/core/.*"/>
+    <suppress checks=".*" files="odme/behaviour/.*"/>
+    <suppress checks=".*" files="odme/contextmenus/.*"/>
+    <suppress checks=".*" files="odme/controller/.*"/>
+    <suppress checks=".*" files="odme/module/.*"/>
+    <suppress checks="FileLength" files=".*"/>
+</suppressions>
