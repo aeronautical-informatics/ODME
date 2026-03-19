@@ -79,6 +79,18 @@ public class Main {
         try {
             // Deploy the macOS native Flat theme integration natively out-of-the-box
             com.formdev.flatlaf.themes.FlatMacLightLaf.setup();
+            
+            // Apply professional UX refinements
+            UIManager.put("Button.arc", 10);
+            UIManager.put("Component.arc", 8);
+            UIManager.put("ProgressBar.arc", 8);
+            UIManager.put("TextComponent.arc", 8);
+            UIManager.put("ScrollBar.thumbArc", 10);
+            UIManager.put("ScrollBar.thumbInsets", new java.awt.Insets(2, 2, 2, 2));
+            UIManager.put("TabbedPane.showTabSeparators", true);
+            UIManager.put("TabbedPane.tabSeparatorsFullHeight", true);
+            UIManager.put("SplitPane.dividerSize", 5);
+            UIManager.put("defaultFont", new Font("Helvetica Neue", Font.PLAIN, 13));
         } 
         catch (Exception e) {
             // Fallback gracefully to default if unsupported

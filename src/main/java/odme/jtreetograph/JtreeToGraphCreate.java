@@ -217,22 +217,22 @@ public class JtreeToGraphCreate {
                         graph.getModel().beginUpdate();
 
                         try {
-                            if (ODMEEditor.nodeAddDetector.equals("entity")) {
+                            if (odme.core.EditorContext.getInstance().getNodeAddDetector().equals("entity")) {
                                 graph.insertVertex(parent, null, nodeName, e.getX() - 40, e.getY(),
                                                 80, 30, "Entity");
                                 nodeNumber++;
                             } 
-                            else if (ODMEEditor.nodeAddDetector.equals("aspect")) {
+                            else if (odme.core.EditorContext.getInstance().getNodeAddDetector().equals("aspect")) {
                                 graph.insertVertex(parent, null, nodeName + "Dec", e.getX() - 15,
                                         e.getY(), 30, 30, "Aspect");
                                 nodeNumber++;
                             } 
-                            else if (ODMEEditor.nodeAddDetector.equals("multiaspect")) {
+                            else if (odme.core.EditorContext.getInstance().getNodeAddDetector().equals("multiaspect")) {
                                 graph.insertVertex(parent, null, nodeName + "MAsp", e.getX() - 15,
                                                 e.getY(), 30, 30, "Multiaspect");
                                 nodeNumber++;
                             } 
-                            else if (ODMEEditor.nodeAddDetector.equals("specialization")) {
+                            else if (odme.core.EditorContext.getInstance().getNodeAddDetector().equals("specialization")) {
                                 graph.insertVertex(parent, null, nodeName + "Spec", e.getX() - 15,
                                                 e.getY(), 30, 30, "Specialization");
                                 nodeNumber++;
@@ -241,14 +241,14 @@ public class JtreeToGraphCreate {
                         finally {
                             graph.getModel().endUpdate();
                             // De-Selecting mouse selection from menu items
-                            ODMEEditor.nodeAddDetector = "";
+                            odme.core.EditorContext.getInstance().setNodeAddDetector("");
                             return;
                         }
                     } 
                     else {
                         // this section is for showing variables of the selected node to the variable
                         // table
-                        if (!ODMEEditor.nodeAddDetector.equals("delete")) {
+                        if (!odme.core.EditorContext.getInstance().getNodeAddDetector().equals("delete")) {
                         	
                             Object showvar = graphComponent.getCellAt(e.getX(), e.getY());
                             mxCell varCell = (mxCell) showvar;
@@ -260,7 +260,7 @@ public class JtreeToGraphCreate {
                                 if (e.getClickCount() == 2) {
                                     mxCell clikedCell = (mxCell) cell;
                                     if (clikedCell.isVertex()) {
-                                    	if (ODMEEditor.toolMode == "ses") {
+                                    	if ("ses".equals(odme.core.EditorContext.getInstance().getToolMode())) {
                                     		Object position = graphComponent.getCellAt(e.getX(), e.getY());
                                     		JtreeToGraphGeneral.renameCell(position);
                                     	}
@@ -434,7 +434,7 @@ public class JtreeToGraphCreate {
                                 }
                             }
                             // De-Selecting mouse selection from menu items
-                            ODMEEditor.nodeAddDetector = "";
+                            odme.core.EditorContext.getInstance().setNodeAddDetector("");
                         }
 
                         
@@ -464,7 +464,7 @@ public class JtreeToGraphCreate {
                         if (e.getClickCount() == 2) {
                             mxCell clikedCell = (mxCell) cell;
                             if (clikedCell.isVertex()) {
-                            	if (ODMEEditor.toolMode == "ses") {
+                            	if ("ses".equals(odme.core.EditorContext.getInstance().getToolMode())) {
                             		Object position = graphComponent.getCellAt(e.getX(), e.getY());
                             		JtreeToGraphGeneral.renameCell(position);
                             	}

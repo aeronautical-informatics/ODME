@@ -45,4 +45,14 @@ public class EditorContext {
             return new File(String.format("%s/%s/%sGraph.xml", fileLocation, currentScenario, newFileName));
         }
     }
+
+    private String nodeAddDetector = "";
+
+    public String getNodeAddDetector() {
+        return nodeAddDetector;
+    }
+
+    public void setNodeAddDetector(String nodeAddDetector) {
+        this.nodeAddDetector = nodeAddDetector;
+    }
 }
