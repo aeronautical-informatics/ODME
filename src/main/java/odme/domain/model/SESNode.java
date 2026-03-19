@@ -98,12 +98,12 @@ public class SESNode {
         return parent.getPath() + "/" + name;
     }
 
-    void addChild(SESNode child) {
+    public void addChild(SESNode child) {
         children.add(child);
         child.setParent(this);
     }
 
-    void removeChild(SESNode child) {
+    public void removeChild(SESNode child) {
         children.remove(child);
         child.setParent(null);
     }
