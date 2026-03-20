@@ -24,8 +24,11 @@ Thumbs.db
 __pycache__/
 *.pyc
 
-#xsd
-Main/ses.xsd
+# Runtime-generated project directories
+Main/
+odd/
+
+# Research papers (local only)
 papers/
 .claude/
 
