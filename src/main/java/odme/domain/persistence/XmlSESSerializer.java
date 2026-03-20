@@ -98,6 +98,7 @@ public class XmlSESSerializer implements SESSerializer {
         element.setAttribute("name", node.getName());
         element.setAttribute("type", node.getType().name());
 
+        // Variables
         node.getVariables().forEach((k, v) -> {
             Element varEl = doc.createElement("variable");
             varEl.setAttribute("name", k);
@@ -105,6 +106,29 @@ public class XmlSESSerializer implements SESSerializer {
             element.appendChild(varEl);
         });
 
+        // Behaviours
+        for (String b : node.getBehaviours()) {
+            Element behEl = doc.createElement("behaviour");
+            behEl.setTextContent(b);
+            element.appendChild(behEl);
+        }
+
+        // Constraints
+        for (String c : node.getConstraints()) {
+            Element conEl = doc.createElement("constraint");
+            conEl.setTextContent(c);
+            element.appendChild(conEl);
+        }
+
+        // Flags
+        node.getFlags().forEach((k, v) -> {
+            Element flagEl = doc.createElement("flag");
+            flagEl.setAttribute("key", k);
+            flagEl.setAttribute("value", v);
+            element.appendChild(flagEl);
+        });
+
+        // Children
         for (SESNode child : node.getChildren()) {
             element.appendChild(writeNode(doc, child));
         }
@@ -123,10 +147,14 @@ public class XmlSESSerializer implements SESSerializer {
         NodeList children = element.getChildNodes();
         for (int i = 0; i < children.getLength(); i++) {
             if (children.item(i) instanceof Element child) {
-                if ("node".equals(child.getTagName())) {
-                    node.addChild(readNode(child));
-                } else if ("variable".equals(child.getTagName())) {
-                    node.putVariable(child.getAttribute("name"), child.getAttribute("value"));
+                switch (child.getTagName()) {
+                    case "node" -> node.addChild(readNode(child));
+                    case "variable" -> node.putVariable(
+                        child.getAttribute("name"), child.getAttribute("value"));
+                    case "behaviour" -> node.addBehaviour(child.getTextContent());
+                    case "constraint" -> node.addConstraint(child.getTextContent());
+                    case "flag" -> node.putFlag(
+                        child.getAttribute("key"), child.getAttribute("value"));
                 }
             }
         }
