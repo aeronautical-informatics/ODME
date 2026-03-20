@@ -152,23 +152,13 @@ public class TypeInfoWriter extends DefaultHandler {
         }
 
         if (ODMEEditor.sesValidationControl == 1) {
-        	String path = new String();
-        	if ("ses".equals(EditorContext.getInstance().getToolMode()))
-        		path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/xmlforxsd.xml";
-        	else
-        		path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + "/xmlforxsd.xml";
-        	
+        	String path = EditorContext.getInstance().getWorkingDir() + "/xmlforxsd.xml";
             instances.add(path);
             ODMEEditor.sesValidationControl = 0;
         } else {
             String rootNodeName = JtreeToGraphGeneral.rootNodeName();
             
-            String path = new String();
-        	if ("ses".equals(EditorContext.getInstance().getToolMode()))
-        		path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/" + rootNodeName + ".xml";
-        	else
-        		path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + "/" + rootNodeName + ".xml";
-        	
+            String path = EditorContext.getInstance().getWorkingDir() + "/" + rootNodeName + ".xml";
             instances.add(path);
         }
 

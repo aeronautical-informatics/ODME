@@ -81,12 +81,12 @@ public class JtreeToGraphModify {
         try {
             String path = new String();
             if ("ses".equals(EditorContext.getInstance().getToolMode()))
-                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/" + EditorContext.getInstance().getNewFileName() + ".xml";
+                path = EditorContext.getInstance().getWorkingDir() + "/" + EditorContext.getInstance().getNewFileName() + ".xml";
             else
-                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + "/" + EditorContext.getInstance().getProjName() + ".xml";
+                path = EditorContext.getInstance().getWorkingDir() + "/" + EditorContext.getInstance().getProjName() + ".xml";
 
             f0 = new PrintWriter(new FileWriter(path));
-        } 
+        }
         catch (IOException e1) {
             e1.printStackTrace();
             JOptionPane.showMessageDialog(null, "An error occurred: " + e1.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -95,11 +95,7 @@ public class JtreeToGraphModify {
 
         Scanner in = null;
         try {
-            String path = new String();
-            if ("ses".equals(EditorContext.getInstance().getToolMode()))
-                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/graphxml.xml";
-            else
-                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + "/graphxml.xml";
+            String path = EditorContext.getInstance().getWorkingDir() + "/graphxml.xml";
 
             in = new Scanner(new File(path));
         } 
@@ -140,13 +136,13 @@ public class JtreeToGraphModify {
 
             String path = new String();
             if ("ses".equals(EditorContext.getInstance().getToolMode()))
-                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/" + EditorContext.getInstance().getNewFileName() + "Project.xml";
+                path = EditorContext.getInstance().getWorkingDir() + "/" + EditorContext.getInstance().getNewFileName() + "Project.xml";
             else
-                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + "/" + EditorContext.getInstance().getProjName() + "Project.xml";
+                path = EditorContext.getInstance().getWorkingDir() + "/" + EditorContext.getInstance().getProjName() + "Project.xml";
 
             f0 = new PrintWriter(new FileWriter(path));
 
-        } 
+        }
         catch (IOException e1) {
             e1.printStackTrace();
             JOptionPane.showMessageDialog(null, "An error occurred: " + e1.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -155,11 +151,7 @@ public class JtreeToGraphModify {
 
         Scanner in = null;
         try {
-            String path = new String();
-            if ("ses".equals(EditorContext.getInstance().getToolMode()))
-                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/projectTree.xml";
-            else
-                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + "/projectTree.xml";
+            String path = EditorContext.getInstance().getWorkingDir() + "/projectTree.xml";
 
             in = new Scanner(new File(path));
         } 
@@ -197,14 +189,10 @@ public class JtreeToGraphModify {
     public static void modifyXmlOutputFixForSameNameNode() {
         PrintWriter f0 = null;
         try {
-            String path = new String();
-            if ("ses".equals(EditorContext.getInstance().getToolMode()))
-                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/outputgraphxmlforxsdvar.xml";
-            else
-                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + "/outputgraphxmlforxsdvar.xml";
+            String path = EditorContext.getInstance().getWorkingDir() + "/outputgraphxmlforxsdvar.xml";
 
             f0 = new PrintWriter(new FileWriter(path));
-        } 
+        }
         catch (IOException e1) {
             e1.printStackTrace();
             JOptionPane.showMessageDialog(null, "An error occurred: " + e1.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -213,11 +201,7 @@ public class JtreeToGraphModify {
 
         Scanner in = null;
         try {
-            String path = new String();
-            if ("ses".equals(EditorContext.getInstance().getToolMode()))
-                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/outputgraphxmlforxsd.xml";
-            else
-                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + "/outputgraphxmlforxsd.xml";
+            String path = EditorContext.getInstance().getWorkingDir() + "/outputgraphxmlforxsd.xml";
 
             in = new Scanner(new File(path));
         } 
@@ -266,14 +250,10 @@ public class JtreeToGraphModify {
     private static void copyFixForSameNameNodeToOther() {
         PrintWriter f0 = null;
         try {
-            String path = new String();
-            if ("ses".equals(EditorContext.getInstance().getToolMode()))
-                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/outputgraphxmlforxsd.xml";
-            else
-                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + "/outputgraphxmlforxsd.xml";
+            String path = EditorContext.getInstance().getWorkingDir() + "/outputgraphxmlforxsd.xml";
 
             f0 = new PrintWriter(new FileWriter(path));
-        } 
+        }
         catch (IOException e1) {
             e1.printStackTrace();
             JOptionPane.showMessageDialog(null, "An error occurred: " + e1.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -282,11 +262,7 @@ public class JtreeToGraphModify {
 
         Scanner in = null;
         try {
-            String path = new String();
-            if ("ses".equals(EditorContext.getInstance().getToolMode()))
-                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/outputgraphxmlforxsdvar.xml";
-            else
-                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + "/outputgraphxmlforxsdvar.xml";
+            String path = EditorContext.getInstance().getWorkingDir() + "/outputgraphxmlforxsdvar.xml";
 
             in = new Scanner(new File(path));
         } 

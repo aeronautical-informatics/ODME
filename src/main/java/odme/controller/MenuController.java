@@ -289,11 +289,7 @@ public class MenuController {
 
         try{
             BufferedImage image = mxCellRenderer.createBufferedImage(JtreeToGraphVariables.graph, null, 1, Color.WHITE, true, null);
-            String path = new String();
-            if ("ses".equals(EditorContext.getInstance().getToolMode()))
-                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName()  + "/graph.png";
-            else
-                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + "/graph.png";
+            String path = EditorContext.getInstance().getWorkingDir() + "/graph.png";
                 
             ImageIO.write(image, "PNG", new File(path));
             JOptionPane.showMessageDialog(Main.frame, "Saved Successfully.", "Save PNG", JOptionPane.INFORMATION_MESSAGE);

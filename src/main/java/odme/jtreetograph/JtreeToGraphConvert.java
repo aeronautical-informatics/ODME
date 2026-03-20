@@ -410,11 +410,7 @@ public class JtreeToGraphConvert {
         calendarDOMDoc.getDocumentElement().appendChild(childNodes(calendarDOMDoc, rootcell));
 
         try {
-            String path = new String();
-            if ("ses".equals(EditorContext.getInstance().getToolMode()))
-                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/graphxml.xml";
-            else
-                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + "/graphxml.xml";
+            String path = EditorContext.getInstance().getWorkingDir() + "/graphxml.xml";
 
             JtreeToGraphSave.saveToXMLFile(calendarDOMDoc, path);
         } 
@@ -512,11 +508,7 @@ public class JtreeToGraphConvert {
         calendarDOMDoc.getDocumentElement().appendChild(JtreeToGraphGeneral.childNodesWithUniformity(calendarDOMDoc, rootcell));
 
         try {
-            String path = new String();
-            if ("ses".equals(EditorContext.getInstance().getToolMode()))
-                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/graphxmluniformity.xml";
-            else
-                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + "/graphxmluniformity.xml";
+            String path = EditorContext.getInstance().getWorkingDir() + "/graphxmluniformity.xml";
             JtreeToGraphSave.saveToXMLFile(calendarDOMDoc, path);
         } 
         catch (TransformerException ex) {
@@ -544,10 +536,7 @@ public class JtreeToGraphConvert {
         }
         calendarDOMDoc.getDocumentElement().appendChild(JtreeToGraphSave.saveAllTreeNodes(calendarDOMDoc, thisTreeNode));
         try {
-            if ("ses".equals(EditorContext.getInstance().getToolMode()) || "ses".equals(EditorContext.getInstance().getToolMode()))
-                JtreeToGraphSave.saveToXMLFile(calendarDOMDoc, EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/projectTree.xml");
-            else
-                JtreeToGraphSave.saveToXMLFile(calendarDOMDoc, EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + "/projectTree.xml");
+            JtreeToGraphSave.saveToXMLFile(calendarDOMDoc, EditorContext.getInstance().getWorkingDir() + "/projectTree.xml");
 
         } 
         catch (TransformerException ex) {

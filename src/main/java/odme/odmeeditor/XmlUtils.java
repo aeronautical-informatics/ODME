@@ -54,12 +54,8 @@ public class XmlUtils {
     public static String xsdToYaml(String fileLocation, String projName, String fileName) {
     	
     	// make the path string
-    	String path = new String();
-    	if ("ses".equals(EditorContext.getInstance().getToolMode()))
-    		path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/"+fileName;
-    	else 
-    		path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + "/"+fileName; 
-    	
+    	String path = EditorContext.getInstance().getWorkingDir() + "/"+fileName;
+
         ObjectMapper xmlMapper = new XmlMapper();
         ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
 
@@ -91,11 +87,7 @@ public class XmlUtils {
     public static String readFile(String fileLocation, String projName, String fileName) {
     	Scanner in = null;
         try {
-        	String path = new String();
-        	if ("ses".equals(EditorContext.getInstance().getToolMode()))
-        		path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/"+fileName;
-        	else 
-        		path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + "/"+fileName; 
+        	String path = EditorContext.getInstance().getWorkingDir() + "/"+fileName;
             in = new Scanner(new File(path));
         } catch (FileNotFoundException e) {
             e.printStackTrace();

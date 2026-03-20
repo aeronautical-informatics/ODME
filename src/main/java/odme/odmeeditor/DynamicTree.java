@@ -198,12 +198,8 @@ public class DynamicTree extends JPanel implements MouseListener {
 	public void openExistingProject(String filename, String oldProjectTreeProjectName) {
         // restoring jtree from xml
     	
-    	String path = new String();
-    	if ("ses".equals(EditorContext.getInstance().getToolMode()))
-    		path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/" + filename + ".xml";
-    	else
-    		path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + "/" + filename + ".xml";
-    	
+    	String path = EditorContext.getInstance().getWorkingDir() + "/" + filename + ".xml";
+
         XmlJTree myTree =
                 new XmlJTree(path);
         treeModel = myTree.dtModel;
@@ -226,20 +222,14 @@ public class DynamicTree extends JPanel implements MouseListener {
                 new File(EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/" + newProjectName + ".xml");
         try {
         	
-        	if ("ses".equals(EditorContext.getInstance().getToolMode()))
-        		path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/" + newProjectName + ".ssdvar";
-        	else
-        		path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + "/" + newProjectName + ".ssdvar";
+        	path = EditorContext.getInstance().getWorkingDir() + "/" + newProjectName + ".ssdvar";
         	
             ObjectInputStream oisvar;
             oisvar = new ObjectInputStream(new FileInputStream(path));
             varMap = (Multimap<TreePath, String>) oisvar.readObject();
             oisvar.close();
 
-            if ("ses".equals(EditorContext.getInstance().getToolMode()))  // Author:Vadece Kamdem
-                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/" + newProjectName + ".ssdbeh";
-            else
-                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + "/" + newProjectName + ".ssdbeh";
+            path = EditorContext.getInstance().getWorkingDir() + "/" + newProjectName + ".ssdbeh";
 
             ObjectInputStream oisbehaviour;
             oisbehaviour = new ObjectInputStream(new FileInputStream(path));
@@ -247,10 +237,7 @@ public class DynamicTree extends JPanel implements MouseListener {
             oisbehaviour.close();
             
             
-            if ("ses".equals(EditorContext.getInstance().getToolMode()))
-        		path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/" + newProjectName + ".ssdcon";
-        	else
-        		path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + "/" + newProjectName + ".ssdcon";
+            path = EditorContext.getInstance().getWorkingDir() + "/" + newProjectName + ".ssdcon";
 
             ObjectInputStream oiscon = new ObjectInputStream(new FileInputStream(path));
             constraintsList = (Multimap<TreePath, String>) oiscon.readObject();
@@ -258,10 +245,7 @@ public class DynamicTree extends JPanel implements MouseListener {
 
             if (ssdFileFlag.exists()) {
             	
-            	if ("ses".equals(EditorContext.getInstance().getToolMode()))
-            		path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() +  "/" + newProjectName + ".ssdflag";
-            	else
-            		path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() +  "/" + newProjectName + ".ssdflag";
+            	path = EditorContext.getInstance().getWorkingDir() + "/" + newProjectName + ".ssdflag";
             	
                 ObjectInputStream oisflag = new ObjectInputStream(new FileInputStream(path));
                 FlagVariables flags = new FlagVariables();
@@ -428,13 +412,10 @@ public class DynamicTree extends JPanel implements MouseListener {
         try {
             // for variable
         	
-        	String path = new String();
-        	if ("ses".equals(EditorContext.getInstance().getToolMode()))
-        		path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/" + EditorContext.getInstance().getProjName();
-        	else
-        		path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + "/" + EditorContext.getInstance().getProjName();
+        	String path = EditorContext.getInstance().getWorkingDir() + "/" + EditorContext.getInstance().getProjName();
         	
         	ssdFileVar = new File(String.format("%s.ssdvar", path));
+            ssdFileVar.getParentFile().mkdirs();
             ObjectOutputStream oosvar = new ObjectOutputStream(new FileOutputStream(ssdFileVar));
             oosvar.writeObject(varMap);
             oosvar.close();

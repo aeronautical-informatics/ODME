@@ -38,12 +38,21 @@ public class EditorContext {
     public String getNewFileName() { return newFileName; }
     public void setNewFileName(String newFileName) { this.newFileName = newFileName; }
 
-    public File getSsdFileGraph() {
+    /**
+     * Returns the working directory for the current mode.
+     * SES mode: fileLocation/projName
+     * PES mode: fileLocation/projName/currentScenario
+     */
+    public String getWorkingDir() {
         if ("ses".equals(toolMode)) {
-            return new File(String.format("%s/%s/%sGraph.xml", fileLocation, projName, newFileName));
+            return fileLocation + "/" + projName;
         } else {
-            return new File(String.format("%s/%s/%sGraph.xml", fileLocation, currentScenario, newFileName));
+            return fileLocation + "/" + projName + "/" + currentScenario;
         }
+    }
+
+    public File getSsdFileGraph() {
+        return new File(String.format("%s/%sGraph.xml", getWorkingDir(), newFileName));
     }
 
     private String nodeAddDetector = "";

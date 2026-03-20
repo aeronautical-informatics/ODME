@@ -33,12 +33,8 @@ public class FileConvertion {
         PrintWriter f0 = null;
         try {
         	
-        	String path = new String();
-        	if ("ses".equals(EditorContext.getInstance().getToolMode()))
-        		path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/xsdfromxml.xsd";
-        	else
-        		path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + "/xsdfromxml.xsd";
-        	
+        	String path = EditorContext.getInstance().getWorkingDir() + "/xsdfromxml.xsd";
+
             f0 = new PrintWriter(
                     new FileWriter(path));
         } 
@@ -51,13 +47,8 @@ public class FileConvertion {
         Scanner in = null;
         try {
         	
-        	String path = new String();
-        	if ("ses".equals(EditorContext.getInstance().getToolMode()))
-        		path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/outputgraphxmlforxsd.xml";
-        	else
-        		path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + "/outputgraphxmlforxsd.xml";
-        	
-        	
+        	String path = EditorContext.getInstance().getWorkingDir() + "/outputgraphxmlforxsd.xml";
+
             in = new Scanner(new File(path));
         } 
         catch (FileNotFoundException e) {
@@ -235,11 +226,7 @@ public class FileConvertion {
 
         Scanner in = null;
         try {
-            String path = new String();
-            if ("ses".equals(EditorContext.getInstance().getToolMode()))
-                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/outputgraphxmlforxsd.xml";
-            else
-                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + "/outputgraphxmlforxsd.xml";
+            String path = EditorContext.getInstance().getWorkingDir() + "/outputgraphxmlforxsd.xml";
 
             in = new Scanner(new File(path));
         }
@@ -251,11 +238,7 @@ public class FileConvertion {
 
         PrintWriter f0 = null;
         try {
-            String path = new String();
-            if ("ses".equals(EditorContext.getInstance().getToolMode()))
-                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/outputgraphxmlforxsdvar.xml";
-            else
-                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + "/outputgraphxmlforxsdvar.xml";
+            String path = EditorContext.getInstance().getWorkingDir() + "/outputgraphxmlforxsdvar.xml";
 
             f0 = new PrintWriter(new FileWriter(path));
         }
@@ -321,14 +304,10 @@ public class FileConvertion {
 
         Scanner in = null;
         try {
-        	String path = new String();
-        	if ("ses".equals(EditorContext.getInstance().getToolMode()))
-        		path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/outputgraphxmlforxsd.xml";
-        	else
-        		path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + "/outputgraphxmlforxsd.xml";
-        	
+        	String path = EditorContext.getInstance().getWorkingDir() + "/outputgraphxmlforxsd.xml";
+
             in = new Scanner(new File(path));
-        } 
+        }
         catch (FileNotFoundException e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -337,11 +316,7 @@ public class FileConvertion {
 
         PrintWriter f0 = null;
         try {
-        	String path = new String();
-        	if ("ses".equals(EditorContext.getInstance().getToolMode()))
-        		path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/outputgraphxmlforxsdvar.xml";
-        	else
-        		path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + "/outputgraphxmlforxsdvar.xml";
+        	String path = EditorContext.getInstance().getWorkingDir() + "/outputgraphxmlforxsdvar.xml";
         	
             f0 = new PrintWriter(new FileWriter(path));
         } 
@@ -826,27 +801,19 @@ public class FileConvertion {
     private void copyModifyHelper(String file1, String file2, String modify) {
         PrintWriter f0 = null;
         try {
-        	String path = new String();
-        	if ("ses".equals(EditorContext.getInstance().getToolMode()))
-        		path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + file1;
-        	else
-        		path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + file1;
-        	
+        	String path = EditorContext.getInstance().getWorkingDir() + file1;
+
             f0 = new PrintWriter(new FileWriter(path));
-        } 
+        }
         catch (IOException e1) {
             e1.printStackTrace();
             JOptionPane.showMessageDialog(null, "An error occurred: " + e1.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        
+
         Scanner in = null;
         try {
-        	String path = new String();
-        	if ("ses".equals(EditorContext.getInstance().getToolMode()))
-        		path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + file2;
-        	else
-        		path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + file2;
+        	String path = EditorContext.getInstance().getWorkingDir() + file2;
         	
             in = new Scanner(new File(path));
         } 

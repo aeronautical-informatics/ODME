@@ -137,11 +137,7 @@ public class ToolbarController {
 
         ODMEEditor.saveChanges();
         
-        String path = new String();
-        if ("ses".equals(EditorContext.getInstance().getToolMode()))
-            path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName()  + "/ses.xsd";
-        else
-            path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario()  + "/ses.xsd";
+        String path = EditorContext.getInstance().getWorkingDir() + "/ses.xsd";
         
         fileConversion.createSES(path);
         

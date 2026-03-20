@@ -144,11 +144,7 @@ public class JtreeToGraphGeneral {
     public static void xmlOutputForXSD() {
         PrintWriter f0 = null;
         try {
-            String path = new String();
-            if ("ses".equals(EditorContext.getInstance().getToolMode()))
-                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/xmlforxsd.xml";
-            else
-                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + "/xmlforxsd.xml";
+            String path = EditorContext.getInstance().getWorkingDir() + "/xmlforxsd.xml";
 
             f0 = new PrintWriter(
                     new FileWriter(path));
@@ -161,11 +157,7 @@ public class JtreeToGraphGeneral {
 
         Scanner in = null;
         try {
-            String path = new String();
-            if ("ses".equals(EditorContext.getInstance().getToolMode()))
-                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/outputgraphxmlforxsd.xml";
-            else
-                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + "/outputgraphxmlforxsd.xml";
+            String path = EditorContext.getInstance().getWorkingDir() + "/outputgraphxmlforxsd.xml";
 
             in = new Scanner(new File(path));
 
@@ -476,11 +468,7 @@ public class JtreeToGraphGeneral {
     public static void openExistingProject(String filename, String oldProjectTreeProjectName) {
         parent = graph.getDefaultParent();
 
-        String path = new String();
-        if ("ses".equals(EditorContext.getInstance().getToolMode()))
-            path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/"  + filename + "Graph.xml";
-        else
-            path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + "/"  + filename + "Graph.xml";
+        String path = EditorContext.getInstance().getWorkingDir() + "/"  + filename + "Graph.xml";
         
         /* EditorContext.getInstance().getSsdFileGraph() set via context */
 
