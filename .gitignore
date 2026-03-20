@@ -28,3 +28,11 @@ __pycache__/
 Main/ses.xsd
 papers/
 .claude/
+
+# ODME generated output
+.odme/
+evidence/
+
+# Static analysis reports
+target/spotbugs/
+target/checkstyle/

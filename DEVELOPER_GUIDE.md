@@ -108,3 +108,71 @@ For questions, coordinate with the maintainer or open an issue.
 
 Welcome to the ODME developer team!
 Let’s keep the project stable, collaborative, and easy to maintain.
+
+---
+
+## Domain-Driven Development (v2.0+)
+
+### Adding a new operation
+
+All model mutations go through the Command pattern:
+
+1. Create a class in `odme.domain.operations` implementing `SESCommand`
+2. Implement `execute(ProjectSession)`, `undo(ProjectSession)`, `describe()`
+3. Add `AuditLogger` call in `execute()`
+4. Write a unit test (no Swing needed)
+5. Wire the Swing UI to call `projectService.getCommandHistory().execute(yourCommand)`
+
+Example:
+```java
+public class MyCommand implements SESCommand {
+    @Override
+    public void execute(ProjectSession session) throws SESCommandException {
+        // mutate session.getSESModel()
+        AuditLogger.sesNodeAdded(...);
+    }
+
+    @Override
+    public void undo(ProjectSession session) throws SESCommandException {
+        // reverse the mutation
+    }
+
+    @Override
+    public String describe() { return "My operation on ..."; }
+}
+```
+
+### Running quality checks
+
+```bash
+mvn test                  # unit tests + JaCoCo coverage
+mvn jacoco:report         # open target/site/jacoco/index.html
+mvn spotbugs:check        # static analysis (new domain code)
+mvn checkstyle:check      # code style (new domain code)
+```
+
+### Domain package rules
+
+- `odme.domain.*` must never import from `javax.swing`, `java.awt`, or `com.mxgraph`
+- All new business logic goes in `odme.domain.*` or `odme.application.*`
+- Legacy packages (`odmeeditor`, `jtreetograph`, etc.) are not modified — they are gradually wired to delegate to the domain layer
+
+### Logging
+
+Use SLF4J:
+```java
+private static final Logger log = LoggerFactory.getLogger(MyClass.class);
+log.info("Something happened: {}", value);
+log.debug("Detail: {}", detail);
+```
+
+Never use `System.out.println`. New code failing this check will be caught by Checkstyle.
+
+### Generating the traceability report
+
+```java
+ProjectService service = ...; // inject or obtain
+TraceabilityMatrix matrix = new TraceabilityMatrix(ses, scenarios, pesTrees);
+new HtmlTraceabilityExporter().export(matrix, Path.of("evidence/traceability.html"));
+new CsvTraceabilityExporter().export(matrix, Path.of("evidence/traceability.csv"));
+```
