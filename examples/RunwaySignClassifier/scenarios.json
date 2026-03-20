@@ -1,0 +1,37 @@
+[
+  {
+    "scenario": {
+      "name": "InitScenario",
+      "risk": "",
+      "remarks": "Default initial scenario"
+    }
+  },
+  {
+    "scenario": {
+      "name": "KSFO_Fair_Morning_Close",
+      "risk": "Low",
+      "remarks": "San Francisco, fair weather, morning, 10-12m distance — nominal conditions"
+    }
+  },
+  {
+    "scenario": {
+      "name": "KBOS_Snow_Dusk_Far",
+      "risk": "High",
+      "remarks": "Boston, snowy weather, dusk lighting, 14-16m distance — degraded visibility"
+    }
+  },
+  {
+    "scenario": {
+      "name": "KSAN_Fog_Dawn_Offset",
+      "risk": "High",
+      "remarks": "San Diego, foggy weather, dawn, high lateral offset — edge case for detection"
+    }
+  },
+  {
+    "scenario": {
+      "name": "KSFO_Rain_Afternoon_Mid",
+      "risk": "Medium",
+      "remarks": "San Francisco, rainy weather, afternoon, mid-range distance and elevation"
+    }
+  }
+]
