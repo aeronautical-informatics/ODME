@@ -65,6 +65,25 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - End-to-end integration test (`FullWorkflowIntegrationTest`)
 - Updated `DEVELOPER_GUIDE.md` with domain-driven development guide
 
+### Added — Phase 6: Bug Fixes, LHS, Example Project
+- `EditorContext.getWorkingDir()` — centralized path construction for SES/PES modes,
+  replacing 26 duplicated if/else blocks across 11 files
+- `LatinHypercubeSampler` — Latin Hypercube Sampling engine for generating
+  coverage-efficient test cases from ODD parameter ranges
+- "Generate Test Cases (LHS)" button in ODD Manager — extracts continuous
+  parameters from ODD table, prompts for sample count, exports CSV
+- **RunwaySignClassifier example** (`examples/RunwaySignClassifier/`) —
+  complete ODD model from Dmitriev et al. (DASC 2023) with 43 parameters,
+  23 leaf entities, 2,592 PES combinations, and pre-generated LHS samples
+
+### Fixed
+- `MenuController.openFunc()` was missing `setNewFileName()` call, causing
+  `getSsdFileGraph()` to return wrong path for non-Main projects
+- `DynamicTree.openExistingProject()` now refreshes all `.ssd*` file references
+  when opening a different project (previously kept stale Main references)
+- `ODDManager.xsdToYaml()` NPE when `row[3]` (lower bound) is null —
+  now checks for null before calling `isEmpty()`
+
 ### Changed
 - Version: `1.0-SNAPSHOT` → `2.0.0-SNAPSHOT`
 - `pom.xml`: added SLF4J, Logback, AssertJ, jackson-datatype-jsr310 dependencies

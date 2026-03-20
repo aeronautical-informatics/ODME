@@ -21,13 +21,14 @@ mvn clean install
 This creates a runnable JAR file inside the target/ folder.
 
 ### 3. Run the Application
-java -jar target/SESEditor-1.0-SNAPSHOT-shaded.jar
+```bash
+java -jar target/SESEditor-2.0.0-SNAPSHOT.jar
+```
 
-if it doesnt work, run following command
-
-mvn clean package shade:shade
-
-this will run explicitly shade plugin
+If the JAR is missing, build it first:
+```bash
+mvn clean package -DskipTests
+```
 
 ## Working with the Repository
 Always Sync Before Starting Work
@@ -176,3 +177,29 @@ TraceabilityMatrix matrix = new TraceabilityMatrix(ses, scenarios, pesTrees);
 new HtmlTraceabilityExporter().export(matrix, Path.of("evidence/traceability.html"));
 new CsvTraceabilityExporter().export(matrix, Path.of("evidence/traceability.csv"));
 ```
+
+### Working with examples
+
+Example projects live in `examples/`. To use one:
+
+```bash
+cp -r examples/RunwaySignClassifier .
+# Launch ODME → File → Open → select RunwaySignClassifier
+```
+
+To create a new example:
+1. Build the SES tree in ODME with entities, specializations, and aspects
+2. Attach variables with `type`, `min`, `max` values to leaf entities
+3. Save the project, then copy the project directory to `examples/`
+4. Add a `README.md` documenting the SES structure and variable catalog
+5. Test: Generate OD → verify the ODD table → Generate Test Cases (LHS)
+
+### Testing the ODD Manager and LHS
+
+The LHS feature requires variables with numeric ranges (min < max) in the ODD table.
+Fixed-value parameters (min == max) and string-type variables are automatically excluded.
+To verify:
+1. Open a project with parameterized variables
+2. **Tools → Generate OD** — check the ODD table shows Lower/Upper Bound columns
+3. Click **Generate Test Cases (LHS)** — should list found parameters and prompt for N
+4. Enter a sample count and save the CSV

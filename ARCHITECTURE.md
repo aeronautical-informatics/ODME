@@ -142,9 +142,47 @@ mvn checkstyle:check
 | `{project}_domain.xml` | SES model (new format) | project directory |
 | `{project}Graph.xml` | mxGraph layout (legacy) | project directory |
 | `{project}.xml` | JTree structure (legacy) | project directory |
+| `xsdfromxml.xsd` | Generated XSD with variable ranges | project directory |
 | `scenarios.json` | Scenario catalogue | project directory |
 | `*.ssdbeh` | Behaviour data (legacy binary) | scenario directory |
 | `*.ssdvar` | Variable data (legacy binary) | scenario directory |
 | `*.ssdcon` | Constraint data (legacy binary) | scenario directory |
+| `odd/*.ser` | Saved ODD snapshots (Java serialized) | project `odd/` directory |
+| `*_LHS_N.csv` | LHS test case exports | user-chosen location |
 | Audit log | Structured event log | `~/.odme/logs/audit.log` |
 | Application log | Application log | `~/.odme/logs/odme.log` |
+
+---
+
+## ODD Manager & Test Case Generation
+
+The ODD Manager (`ODDManager.java`) reads the generated XSD (`xsdfromxml.xsd`)
+to populate a table of all model entities and their variables. Key capabilities:
+
+1. **Save/Load ODD** — serialized `.ser` snapshots for ODD versioning
+2. **Export XML/YAML** — machine-readable and human-readable ODD exports
+3. **Latin Hypercube Sampling** — `LatinHypercubeSampler` generates test vectors:
+   - Extracts all variables with numeric `[min, max]` ranges (min < max)
+   - Divides each parameter range into N equal strata
+   - Assigns one random sample per stratum per parameter
+   - Shuffles assignments to minimize inter-parameter correlations
+   - Exports to CSV with full traceability headers
+
+### Path Construction
+
+`EditorContext.getWorkingDir()` provides the single source of truth for file
+paths in both SES and PES modes:
+- **SES mode**: `{fileLocation}/{projName}/`
+- **PES mode**: `{fileLocation}/{projName}/{currentScenario}/`
+
+This replaced 26 scattered if/else blocks across 11 files.
+
+---
+
+## Example Projects
+
+Example projects live in `examples/` and can be copied to the working directory:
+
+| Example | Domain | Parameters | PES Combinations |
+|---------|--------|------------|------------------|
+| `RunwaySignClassifier` | Airborne ML sign detection (DAL C) | 43 (21 continuous) | 2,592 |

@@ -1,67 +1,119 @@
-# Operation Domain Modeling Environment (ODME)
+# Operational Design Domain Modeling Environment (ODME)
 
 ### Table of Contents
 
-* [Overview](#Overview)
-* [Workflow](#workflow)
+* [Overview](#overview)
+* [Key Features](#key-features)
 * [Getting Started](#getting-started)
-* [Usage](#usage)
+* [Example: Runway Sign Classifier](#example-runway-sign-classifier)
+* [Workflow](#workflow)
+* [Architecture](#architecture)
 * [Contributing](#contributing)
 * [License](#license)
 
-## [Overview](#Overview)
+## Overview
 
-The **Operation Domain Modeling Environment (ODME)** is a powerful modeling tool developed for creating and refining operation domain models. It consists of two main components: **Domain Modeling Editor** and **Scenario Modelling Editor**. ODME provides an intuitive graphical user interface for creating, visualizing, and validating domain models while supporting various modeling scenarios.
+The **Operational Design Domain Modeling Environment (ODME)** is a desktop application for authoring, validating, and managing Operational Design Domain (ODD) models for AI-based systems in safety-critical domains, with a focus on aviation.
 
-**Domain Modeling Editor** has been developed as a modeling environment. The graphical user interface is designed in such a way that the user can draw graphs on the screen almost as one would on paper. The vertices or elements and edges can be drawn by clicking and dragging the mouse. Elements icons are added in the toolbox for easy access. Also, nodes and edges can be easily moved to any position. The drawing panel is synchronized with the bottom left side tree. Element addition in one place either in the white drawing panel or in the left tree, it will be added in both the sections automatically. Variable can be attached with the nodes. And attached variables are shown in the variable table on the right top corner during any node selection from either of the trees. Also, a constraint can be added to the aspect node to restrict the choices of entities. Constraint is written using XPath query language. Like variable, constraint is also visible on the constraint table on the right side of the editor during aspect node selection. Domain Modeling Editor allows saving part of the designed model as a module for future use. That saved module can be reused in any project later. It has also the facility to validate the created model against axioms using predefined XML Schema. Validation result is displayed in the console window and for valid model XML and Schema is displayed in the bottom right display window. The editor’s export and import options increased the share ability of the designed models among researchers. The newly created or opened project name is displayed in the top left corner of the editor.
+ODME implements the **System Entity Structure (SES)** formalism to model the operational conditions under which an AI/ML system is designed to function. From a single SES model, users can derive **Pruned Entity Structures (PES)** representing concrete test scenarios, attach variables with ranges to define the continuous parameter space, and generate test cases using **Latin Hypercube Sampling (LHS)** for efficient coverage of the ODD.
 
-**Scenario Modelling Editor** has been developed as an interactive pruning tool. It also has a variable table for displaying variables or editing values of variables. Also, constraint table and console window work exactly the same way. Here also left side tree is synchronized with the white drawing panel. Nodes are also movable here. But here a new project can’t be created. Also, new elements can’t be added to the model in Scenario Modelling. Then, the main functionality of Scenario Modelling is pruning Domain Models to create pruned entity structure. After completing pruning of the created domain metamodel, executable scenario can be exported for target simulation environment by using a project-specific XSLT file.
+The tool supports the AI Learning Assurance workflow defined in the **EASA AI Roadmap 2.0** and is designed to produce evidence artifacts for certification of ML-based airborne systems.
 
-**Behavior Modelling Editor** has been developed as a Behavior Tree editor for the available functions defined for each entity. The user can build a behavior tree and then export it as XML and merge it with the existing scenario file. *This mode is a work in progress*
+## Key Features
 
-**Operational Design Domain** has been developed as an ODD editor. The user can generate Operational Domain(OD) from the domain model and using that as the base can edit and save multiple ODDs using the ODD manager. *This mode is a work in progress*
+| Mode | Description | Status |
+|------|-------------|--------|
+| **Domain Modeling Editor** | SES tree construction with synchronized graph view, variable/constraint attachment, XSD validation | Stable |
+| **Scenario Modelling Editor** | Interactive SES→PES pruning to derive concrete test scenarios | Stable |
+| **ODD Manager** | Generate, save, edit, and export Operational Design Domains in XML/YAML/CSV | Stable |
+| **LHS Test Case Generation** | Latin Hypercube Sampling over ODD parameter ranges for coverage-efficient test vectors | Stable |
+| **Behavior Modelling Editor** | Behavior tree editor for entity functions, XML export | Work in Progress |
+| **Scenario Manager** | Scenario catalogue with risk factors and lifecycle states | Work in Progress |
+| **CAMEO Import Plugin** | Import SysML operational scenarios from CAMEO into ODME | Work in Progress |
+| **Scripting Add-On** | Translate scenarios to executable Python scripts for simulation | Work in Progress |
 
-**Scenario Manager** has been developed to manage the existing scenario and assign risk factors to them. Future work involves allocating build scripts to each scenario and having a feedback loop from the simulator execution. *This mode is a work in progress*
+## Getting Started
 
-**Import Operational Design Domain Plugin** has been developed to import Operational scenarios from Cameo and transform them to operational domain model into ODME. *This mode is a work in progress*
+### Prerequisites
 
-**Scripting Add-On** has been developed to bridge the gap between scenario modeling and simulation execution within ODME. It allows users to seamlessly translate XML and YAML-based scenarios into executable Python scripts, enabling real-time validation and integration with external simulation environments.  *This mode is a work in progress*
+- **Java 17+** (tested with OpenJDK 17 and 21)
+- **Maven 3.8+**
 
+### Build and Run
 
-## [Workflow](#workflow)
+```bash
+git clone https://github.com/umutdurak/ODME.git
+cd ODME
+mvn clean package -DskipTests
+java -jar target/SESEditor-2.0.0-SNAPSHOT.jar
+```
 
-This repository uses GitHub Actions to automate the build, testing, packaging, and release of the ODME project. The workflow consists of several jobs that run whenever changes are pushed or pull requests are made to the **"main"** branch. Here's an overview of the workflow steps:
-1. **Build and Test** : The build_test job compiles the Java code using Maven and runs tests to ensure code integrity.
+### Run Tests
 
-2. **Publish Artifact** : The publish-job job verifies the project, stages the built artifact, and uploads it as a package.
+```bash
+mvn test                  # Unit tests + JaCoCo coverage
+mvn jacoco:report         # HTML coverage report → target/site/jacoco/
+mvn spotbugs:check        # Static analysis
+mvn checkstyle:check      # Code style checks
+```
 
-3. **Automate Release** : The automate-release job creates a GitHub release based on the uploaded artifact, providing a versioned snapshot of the project.
+## Example: Runway Sign Classifier
 
-This workflow streamlines the development process, ensuring code quality, artifact packaging, and release management.
+ODME ships with a complete example based on:
 
-## [Getting Started](#getting-started)
+> K. Dmitriev et al., "Runway Sign Classifier: A DAL C Certifiable Machine Learning System,"
+> *IEEE/AIAA 42nd DASC*, Barcelona, 2023.
 
-To get started with ODME, follow these steps:
+The example models an airborne DNN system for airport sign detection and classification, with:
 
-1. Clone this repository to your local machine.
-2. Install the required dependencies, including Java and Maven.
-3. Use the provided editors to create and refine domain models.
-4. Leverage the workflow for automated build, testing, packaging, and release (The provided GitHub Actions workflow automates the development process. It builds the project, packages artifacts, and releases new versions based on changes to the main branch.)
-5. Also please read [Developer Guide](./DEVELOPER_GUIDE.md) before starting
+- **23 leaf entities** across Environment (airport, weather, time-of-day), Sensor (distance, elevation, offset), and SystemArchitecture (Faster R-CNN, YOLOv2, SafetyMonitor)
+- **43 ODD parameters** (21 with continuous ranges for LHS sampling)
+- **2,592 possible PES combinations** from 7 specialization nodes
+- Full variable parameterization sourced from the paper's Table II and established aviation standards (ICAO, WMO, CIE)
 
-## [Usage](#usage)
+To try it:
+```bash
+cp -r examples/RunwaySignClassifier .
+# Launch ODME → File → Open → select RunwaySignClassifier
+```
 
-1. Download the package from Release and extract the contents
-2. Execute the *SESEditor-1.0-SNAPSHOT-jar-with-dependencies* 
+See [`examples/RunwaySignClassifier/README.md`](examples/RunwaySignClassifier/README.md) for the complete variable catalog.
 
+## Workflow
 
-## [Contributing](#contributing)
+This repository uses GitHub Actions to automate build, testing, and release:
 
-Contributions to ODME are welcome!
+1. **Build and Test**: Compiles with Maven, runs unit tests with JaCoCo coverage
+2. **Static Analysis**: SpotBugs + Checkstyle quality gates on `odme.domain.*` packages
+3. **Publish Artifact**: Stages the built JAR and uploads it as a package
+4. **Automate Release**: Creates a GitHub release based on the uploaded artifact
 
-## [License](#license)
+## Architecture
 
-ODME is released under the **MIT License**.  
+ODME follows a **strangler-fig architecture** with a clean domain layer:
 
+```
+odme/
+├── domain/          ← Pure Java, no Swing/mxGraph. Fully unit-testable.
+│   ├── model/       ← SESNode, SESTree, PESTree, Scenario
+│   ├── operations/  ← Command pattern (Add/Delete/Prune/Rename)
+│   ├── persistence/ ← XML serializer, JSON scenario store
+│   ├── validation/  ← SES structure validator
+│   ├── coverage/    ← ODD coverage analyzer
+│   ├── enumeration/ ← PES enumerator (exhaustive + coverage-guided)
+│   ├── traceability/← EASA traceability matrix, CSV/HTML exporters
+│   └── audit/       ← Structured event logging
+├── application/     ← ProjectService, ProjectSession
+└── [legacy]         ← Swing UI (odmeeditor, jtreetograph, core, behaviour)
+```
+
+See [`ARCHITECTURE.md`](ARCHITECTURE.md) for design decisions and data flow.
+See [`DEVELOPER_GUIDE.md`](DEVELOPER_GUIDE.md) for development workflow.
+
+## Contributing
+
+Contributions to ODME are welcome! See [`CONTRIBUTING.md`](CONTRIBUTING.md) for guidelines.
+
+## License
 
 ODME is released under the **MIT License**.

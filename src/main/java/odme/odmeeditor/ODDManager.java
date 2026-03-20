@@ -92,6 +92,7 @@ public class ODDManager extends JPanel{
 	private JButton deleteBtn;
 	private JButton exportYamlBtn;
 	private JButton exportXmlBtn;
+	private JButton lhsBtn;
 	private JLabel currentODDLabel;
 
 	private JPanel oddsPanel;
@@ -164,6 +165,7 @@ public class ODDManager extends JPanel{
 		this.btnsPanel=new JPanel();
 		btnsPanel.add(currentODDLabel);
 		initSaveBtn();
+		initLhsBtn();
 		if (mode.equals("ODD Manager")) {
 			initExportXmlBtn();
 			initExportYamlBtn();
@@ -319,6 +321,109 @@ public class ODDManager extends JPanel{
 		});
 	}
 
+	private void initLhsBtn() {
+		this.lhsBtn = new JButton("Generate Test Cases (LHS)");
+		btnsPanel.add(lhsBtn);
+		lhsBtn.addActionListener(new ActionListener() {
+			@Override public void actionPerformed(ActionEvent ae) {
+				generateLhsTestCases();
+			}
+		});
+	}
+
+	/**
+	 * Extract Variable parameters from the ODD table, ask user for sample count,
+	 * run Latin Hypercube Sampling, and export to CSV via file chooser.
+	 */
+	private void generateLhsTestCases() {
+		// First ensure the table is up to date
+		ODMEEditor.saveFunc(false);
+		ODMEEditor.updateState();
+		JtreeToGraphConvert.convertTreeToXML();
+
+		// Extract parameters from the current table
+		EditableDataModel model = (EditableDataModel) jt.getModel();
+		List<LatinHypercubeSampler.Parameter> params = new ArrayList<>();
+		String currentParentNode = "";
+
+		for (int row = 0; row < model.getRowCount(); row++) {
+			String name = model.getValueAt(row, 0) != null ? model.getValueAt(row, 0).toString().trim() : "";
+			String type = model.getValueAt(row, 1) != null ? model.getValueAt(row, 1).toString().trim() : "";
+
+			if (type.equals("Node")) {
+				// Track current parent for variable naming
+				currentParentNode = name.replaceAll("^\\s*", "");
+			} else if (type.equals("Variable")) {
+				String dataType = model.getValueAt(row, 2) != null ? model.getValueAt(row, 2).toString().trim() : "";
+				String minStr = model.getValueAt(row, 3) != null ? model.getValueAt(row, 3).toString().trim() : "";
+				String maxStr = model.getValueAt(row, 4) != null ? model.getValueAt(row, 4).toString().trim() : "";
+
+				// Skip variables without numeric bounds
+				if (minStr.isEmpty() || maxStr.isEmpty()) continue;
+				// Skip string-type variables
+				if (dataType.equalsIgnoreCase("string")) continue;
+
+				try {
+					double min = Double.parseDouble(minStr);
+					double max = Double.parseDouble(maxStr);
+					if (min >= max) continue; // skip fixed-value parameters (min == max)
+
+					String varName = name.replaceAll("^[\\s-]*", "");
+					params.add(new LatinHypercubeSampler.Parameter(
+							varName, currentParentNode, dataType, min, max));
+				} catch (NumberFormatException e) {
+					// skip non-numeric
+				}
+			}
+		}
+
+		if (params.isEmpty()) {
+			JOptionPane.showMessageDialog(null,
+					"No variable parameters with numeric ranges found in the ODD.\n" +
+					"Ensure variables have Lower Bound and Upper Bound values set\n" +
+					"and that min < max (fixed-value parameters are excluded).",
+					"No Parameters", JOptionPane.WARNING_MESSAGE);
+			return;
+		}
+
+		// Show parameter summary and ask for sample count
+		StringBuilder paramSummary = new StringBuilder();
+		paramSummary.append("Found ").append(params.size()).append(" variable parameters:\n\n");
+		for (LatinHypercubeSampler.Parameter p : params) {
+			paramSummary.append("  ").append(p.toString()).append("\n");
+		}
+		paramSummary.append("\nEnter number of test cases to generate:");
+
+		String input = JOptionPane.showInputDialog(null, paramSummary.toString(),
+				"Latin Hypercube Sampling", JOptionPane.QUESTION_MESSAGE);
+		if (input == null) return; // cancelled
+
+		int n;
+		try {
+			n = Integer.parseInt(input.trim());
+			if (n <= 0) throw new NumberFormatException();
+		} catch (NumberFormatException e) {
+			JOptionPane.showMessageDialog(null,
+					"Please enter a positive integer.", "Invalid Input",
+					JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+
+		// Run LHS
+		LatinHypercubeSampler sampler = new LatinHypercubeSampler();
+		List<LatinHypercubeSampler.TestCase> testCases = sampler.sample(params, n);
+		String csv = LatinHypercubeSampler.toCsv(params, testCases);
+
+		// Save via file chooser
+		String suggestedName = EditorContext.getInstance().getProjName() + "_LHS_" + n + ".csv";
+		chooseAndSaveFile(csv, suggestedName, "csv");
+
+		JOptionPane.showMessageDialog(null,
+				n + " test cases generated using Latin Hypercube Sampling\n" +
+				"covering " + params.size() + " parameters.",
+				"LHS Complete", JOptionPane.INFORMATION_MESSAGE);
+	}
+
 	private void initDeleteBtn() {
 		this.deleteBtn=new JButton("Delete");
 		btnsPanel.add(deleteBtn);
@@ -373,11 +478,11 @@ public class ODDManager extends JPanel{
 							.append(getIndent(currentYamlIndent + 1))
 							.append("type: ").append(row[2]).append("\n");
 
-					if (!row[3].isEmpty()) {
+					if (row[3] != null && !row[3].isEmpty()) {
 						curr.append(getIndent(currentYamlIndent + 1))
 								.append("min: ").append(row[3]).append("\n");
 					}
-					if (!row[4].isEmpty()) {
+					if (row[4] != null && !row[4].isEmpty()) {
 						curr.append(getIndent(currentYamlIndent + 1))
 								.append("max: ").append(row[4]).append("\n");
 					}
