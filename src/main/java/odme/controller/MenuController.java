@@ -227,6 +227,7 @@ public class MenuController {
             String fileName = selectedFile.getName();
             String oldProjectTreeProjectName = EditorContext.getInstance().getProjName();
             EditorContext.getInstance().setProjName(fileName);
+            EditorContext.getInstance().setNewFileName(fileName);
             EditorContext.getInstance().setFileLocation(selectedFile.getParentFile().getAbsolutePath());
             JtreeToGraphGeneral.openExistingProject(fileName, oldProjectTreeProjectName);
 

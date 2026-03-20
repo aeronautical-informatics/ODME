@@ -217,9 +217,15 @@ public class DynamicTree extends JPanel implements MouseListener {
         String newProjectName = filename;
         EditorContext.getInstance().setProjName(newProjectName);
         EditorContext.getInstance().setNewFileName(newProjectName);
+        projectFileName = newProjectName;
 
+        String baseDir = EditorContext.getInstance().getWorkingDir();
         ODMEEditor.treePanel.ssdFile =
-                new File(EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/" + newProjectName + ".xml");
+                new File(baseDir + "/" + newProjectName + ".xml");
+        ODMEEditor.treePanel.ssdFileVar = new File(baseDir + "/" + newProjectName + ".ssdvar");
+        ODMEEditor.treePanel.ssdFileCon = new File(baseDir + "/" + newProjectName + ".ssdcon");
+        ODMEEditor.treePanel.ssdFileBeh = new File(baseDir + "/" + newProjectName + ".ssdbeh");
+        ODMEEditor.treePanel.ssdFileFlag = new File(baseDir + "/" + newProjectName + ".ssdflag");
         try {
         	
         	path = EditorContext.getInstance().getWorkingDir() + "/" + newProjectName + ".ssdvar";

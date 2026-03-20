@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<entity xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ses.xsd" name="RunwaySignClassifier">
+<specialization name="pSpec">
+<entity name="Environment">
+<aspect name="AirportDec">
+<entity name="KSFO">
+</entity>
+<entity name="KBOS">
+</entity>
+<entity name="KSAN">
+</entity>
+</aspect>
+<aspect name="WeatherDec">
+<entity name="FairWeather">
+</entity>
+<entity name="RainyWeather">
+</entity>
+<entity name="SnowyWeather">
+</entity>
+<entity name="FoggyWeather">
+</entity>
+</aspect>
+<aspect name="TimeOfDayDec">
+<entity name="Morning">
+</entity>
+<entity name="Afternoon">
+</entity>
+<entity name="Dusk">
+</entity>
+<entity name="Dawn">
+</entity>
+</aspect>
+</entity>
+<entity name="Sensor">
+<aspect name="DistanceDec">
+<entity name="DS10">
+</entity>
+<entity name="DS12">
+</entity>
+<entity name="DS14">
+</entity>
+</aspect>
+<aspect name="ElevationDec">
+<entity name="EL10">
+</entity>
+<entity name="EL13">
+</entity>
+<entity name="EL16">
+</entity>
+</aspect>
+<aspect name="LateralOffsetDec">
+<entity name="LO00">
+</entity>
+<entity name="LO07">
+</entity>
+<entity name="LO14">
+</entity>
+</aspect>
+</entity>
+<entity name="SystemArchitecture">
+<aspect name="DNNComponentDec">
+<entity name="FasterRCNN">
+</entity>
+<entity name="YOLOv2">
+</entity>
+</aspect>
+<aspect name="SysArchDec">
+<entity name="SafetyMonitor">
+</entity>
+</aspect>
+</entity>
+</specialization>
+</entity>

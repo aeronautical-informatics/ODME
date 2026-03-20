@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<start>
 <RunwaySignClassifier>
 <pSpec>
 <Environment>
+<Seq>
 <AirportDec>
 <KSFO/>
 <KBOS/>
@@ -20,8 +20,10 @@
 <Dusk/>
 <Dawn/>
 </TimeOfDayDec>
+</Seq>
 </Environment>
 <Sensor>
+<Seq>
 <DistanceDec>
 <DS10/>
 <DS12/>
@@ -37,8 +39,10 @@
 <LO07/>
 <LO14/>
 </LateralOffsetDec>
+</Seq>
 </Sensor>
 <SystemArchitecture>
+<Seq>
 <DNNComponentDec>
 <FasterRCNN/>
 <YOLOv2/>
@@ -46,7 +50,7 @@
 <SysArchDec>
 <SafetyMonitor/>
 </SysArchDec>
+</Seq>
 </SystemArchitecture>
 </pSpec>
 </RunwaySignClassifier>
-</start>

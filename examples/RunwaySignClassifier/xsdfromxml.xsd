@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+ xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning" 
+ elementFormDefault="qualified" vc:minVersion="1.1" >
+
+<xs:element name="RunwaySignClassifier">
+<xs:complexType>
+<xs:choice id="pSpec">
+<xs:element name="Environment">
+<xs:complexType>
+<xs:sequence>
+<xs:sequence id="AirportDec">
+<xs:element name="KSFO">
+<xs:complexType>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+<xs:element name="KBOS">
+<xs:complexType>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+<xs:element name="KSAN">
+<xs:complexType>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+</xs:sequence>
+<xs:sequence id="WeatherDec">
+<xs:element name="FairWeather">
+<xs:complexType>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+<xs:element name="RainyWeather">
+<xs:complexType>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+<xs:element name="SnowyWeather">
+<xs:complexType>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+<xs:element name="FoggyWeather">
+<xs:complexType>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+</xs:sequence>
+<xs:sequence id="TimeOfDayDec">
+<xs:element name="Morning">
+<xs:complexType>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+<xs:element name="Afternoon">
+<xs:complexType>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+<xs:element name="Dusk">
+<xs:complexType>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+<xs:element name="Dawn">
+<xs:complexType>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+</xs:sequence>
+</xs:sequence>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+<xs:element name="Sensor">
+<xs:complexType>
+<xs:sequence>
+<xs:sequence id="DistanceDec">
+<xs:element name="DS10">
+<xs:complexType>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+<xs:element name="DS12">
+<xs:complexType>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+<xs:element name="DS14">
+<xs:complexType>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+</xs:sequence>
+<xs:sequence id="ElevationDec">
+<xs:element name="EL10">
+<xs:complexType>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+<xs:element name="EL13">
+<xs:complexType>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+<xs:element name="EL16">
+<xs:complexType>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+</xs:sequence>
+<xs:sequence id="LateralOffsetDec">
+<xs:element name="LO00">
+<xs:complexType>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+<xs:element name="LO07">
+<xs:complexType>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+<xs:element name="LO14">
+<xs:complexType>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+</xs:sequence>
+</xs:sequence>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+<xs:element name="SystemArchitecture">
+<xs:complexType>
+<xs:sequence>
+<xs:sequence id="DNNComponentDec">
+<xs:element name="FasterRCNN">
+<xs:complexType>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+<xs:element name="YOLOv2">
+<xs:complexType>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+</xs:sequence>
+<xs:sequence id="SysArchDec">
+<xs:element name="SafetyMonitor">
+<xs:complexType>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+</xs:sequence>
+</xs:sequence>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+</xs:choice>
+<xs:attribute name="name" use="optional"/> 
+</xs:complexType>
+</xs:element>
+</xs:schema>

@@ -1,121 +1,52 @@
-<mxGraphModel><root><mxCell id="0"/><mxCell id="1" parent="0"/><mxCell id="rootnode" parent="1" style="Entity" value="RunwaySignClassifier" vertex="1"><mxGeometry as="geometry" height="30.0" width="160.0" x="600.0" y="20.0"/></mxCell><mxCell id="hideV" parent="1" style="Entity" value="End of Canvas" vertex="1"><mxGeometry as="geometry" height="30.0" width="80.0" y="50000.0"/></mxCell><mxCell id="hideH" parent="1" style="Entity" value="End of Canvas" vertex="1"><mxGeometry as="geometry" height="30.0" width="80.0" x="50000.0"/></mxCell>
-
-<!-- pSpec specialization from root -->
-<mxCell id="n_pSpec" parent="1" style="Specialization" value="pSpec" vertex="1"><mxGeometry as="geometry" height="30.0" width="30.0" x="670.0" y="70.0"/></mxCell>
-<mxCell edge="1" id="e_root_pSpec" parent="1" source="rootnode" style="" target="n_pSpec" value=""/>
-
-<!-- Level 2: Environment, Sensor, SystemArchitecture -->
-<mxCell id="n_Environment" parent="1" style="Entityp" value="Environment" vertex="1"><mxGeometry as="geometry" height="30.0" width="120.0" x="200.0" y="130.0"/></mxCell>
-<mxCell edge="1" id="e_pSpec_Env" parent="1" source="n_pSpec" style="" target="n_Environment" value=""/>
-
-<mxCell id="n_Sensor" parent="1" style="Entityp" value="Sensor" vertex="1"><mxGeometry as="geometry" height="30.0" width="100.0" x="630.0" y="130.0"/></mxCell>
-<mxCell edge="1" id="e_pSpec_Sensor" parent="1" source="n_pSpec" style="" target="n_Sensor" value=""/>
-
-<mxCell id="n_SysArch" parent="1" style="Entityp" value="SystemArchitecture" vertex="1"><mxGeometry as="geometry" height="30.0" width="160.0" x="1050.0" y="130.0"/></mxCell>
-<mxCell edge="1" id="e_pSpec_SysArch" parent="1" source="n_pSpec" style="" target="n_SysArch" value=""/>
-
-<!-- ===== ENVIRONMENT branch ===== -->
-<!-- AirportDec (specialization) -->
-<mxCell id="n_AirportDec" parent="1" style="Specialization" value="AirportDec" vertex="1"><mxGeometry as="geometry" height="30.0" width="30.0" x="80.0" y="200.0"/></mxCell>
-<mxCell edge="1" id="e_Env_AirportDec" parent="1" source="n_Environment" style="" target="n_AirportDec" value=""/>
-
-<mxCell id="n_KSFO" parent="1" style="Entityp" value="KSFO" vertex="1"><mxGeometry as="geometry" height="30.0" width="80.0" x="0.0" y="270.0"/></mxCell>
-<mxCell edge="1" id="e_AD_KSFO" parent="1" source="n_AirportDec" style="" target="n_KSFO" value=""/>
-
-<mxCell id="n_KBOS" parent="1" style="Entityp" value="KBOS" vertex="1"><mxGeometry as="geometry" height="30.0" width="80.0" x="90.0" y="270.0"/></mxCell>
-<mxCell edge="1" id="e_AD_KBOS" parent="1" source="n_AirportDec" style="" target="n_KBOS" value=""/>
-
-<mxCell id="n_KSAN" parent="1" style="Entityp" value="KSAN" vertex="1"><mxGeometry as="geometry" height="30.0" width="80.0" x="180.0" y="270.0"/></mxCell>
-<mxCell edge="1" id="e_AD_KSAN" parent="1" source="n_AirportDec" style="" target="n_KSAN" value=""/>
-
-<!-- WeatherDec (specialization) -->
-<mxCell id="n_WeatherDec" parent="1" style="Specialization" value="WeatherDec" vertex="1"><mxGeometry as="geometry" height="30.0" width="30.0" x="240.0" y="200.0"/></mxCell>
-<mxCell edge="1" id="e_Env_WeatherDec" parent="1" source="n_Environment" style="" target="n_WeatherDec" value=""/>
-
-<mxCell id="n_Fair" parent="1" style="Entityp" value="FairWeather" vertex="1"><mxGeometry as="geometry" height="30.0" width="100.0" x="270.0" y="270.0"/></mxCell>
-<mxCell edge="1" id="e_WD_Fair" parent="1" source="n_WeatherDec" style="" target="n_Fair" value=""/>
-
-<mxCell id="n_Rain" parent="1" style="Entityp" value="RainyWeather" vertex="1"><mxGeometry as="geometry" height="30.0" width="110.0" x="380.0" y="270.0"/></mxCell>
-<mxCell edge="1" id="e_WD_Rain" parent="1" source="n_WeatherDec" style="" target="n_Rain" value=""/>
-
-<mxCell id="n_Snow" parent="1" style="Entityp" value="SnowyWeather" vertex="1"><mxGeometry as="geometry" height="30.0" width="120.0" x="270.0" y="320.0"/></mxCell>
-<mxCell edge="1" id="e_WD_Snow" parent="1" source="n_WeatherDec" style="" target="n_Snow" value=""/>
-
-<mxCell id="n_Fog" parent="1" style="Entityp" value="FoggyWeather" vertex="1"><mxGeometry as="geometry" height="30.0" width="120.0" x="400.0" y="320.0"/></mxCell>
-<mxCell edge="1" id="e_WD_Fog" parent="1" source="n_WeatherDec" style="" target="n_Fog" value=""/>
-
-<!-- TimeOfDayDec (specialization) -->
-<mxCell id="n_TimeOfDayDec" parent="1" style="Specialization" value="TimeOfDayDec" vertex="1"><mxGeometry as="geometry" height="30.0" width="30.0" x="160.0" y="200.0"/></mxCell>
-<mxCell edge="1" id="e_Env_TimeOfDayDec" parent="1" source="n_Environment" style="" target="n_TimeOfDayDec" value=""/>
-
-<mxCell id="n_Morning" parent="1" style="Entityp" value="Morning" vertex="1"><mxGeometry as="geometry" height="30.0" width="80.0" x="0.0" y="380.0"/></mxCell>
-<mxCell edge="1" id="e_TD_Morning" parent="1" source="n_TimeOfDayDec" style="" target="n_Morning" value=""/>
-
-<mxCell id="n_Afternoon" parent="1" style="Entityp" value="Afternoon" vertex="1"><mxGeometry as="geometry" height="30.0" width="90.0" x="90.0" y="380.0"/></mxCell>
-<mxCell edge="1" id="e_TD_Afternoon" parent="1" source="n_TimeOfDayDec" style="" target="n_Afternoon" value=""/>
-
-<mxCell id="n_Dusk" parent="1" style="Entityp" value="Dusk" vertex="1"><mxGeometry as="geometry" height="30.0" width="80.0" x="190.0" y="380.0"/></mxCell>
-<mxCell edge="1" id="e_TD_Dusk" parent="1" source="n_TimeOfDayDec" style="" target="n_Dusk" value=""/>
-
-<mxCell id="n_Dawn" parent="1" style="Entityp" value="Dawn" vertex="1"><mxGeometry as="geometry" height="30.0" width="80.0" x="280.0" y="380.0"/></mxCell>
-<mxCell edge="1" id="e_TD_Dawn" parent="1" source="n_TimeOfDayDec" style="" target="n_Dawn" value=""/>
-
-<!-- ===== SENSOR branch ===== -->
-<!-- DistanceDec (specialization) -->
-<mxCell id="n_DistanceDec" parent="1" style="Specialization" value="DistanceDec" vertex="1"><mxGeometry as="geometry" height="30.0" width="30.0" x="550.0" y="200.0"/></mxCell>
-<mxCell edge="1" id="e_Sensor_DistanceDec" parent="1" source="n_Sensor" style="" target="n_DistanceDec" value=""/>
-
-<mxCell id="n_DS10" parent="1" style="Entityp" value="DS10" vertex="1"><mxGeometry as="geometry" height="30.0" width="80.0" x="500.0" y="270.0"/></mxCell>
-<mxCell edge="1" id="e_DD_DS10" parent="1" source="n_DistanceDec" style="" target="n_DS10" value=""/>
-
-<mxCell id="n_DS12" parent="1" style="Entityp" value="DS12" vertex="1"><mxGeometry as="geometry" height="30.0" width="80.0" x="590.0" y="270.0"/></mxCell>
-<mxCell edge="1" id="e_DD_DS12" parent="1" source="n_DistanceDec" style="" target="n_DS12" value=""/>
-
-<mxCell id="n_DS14" parent="1" style="Entityp" value="DS14" vertex="1"><mxGeometry as="geometry" height="30.0" width="80.0" x="500.0" y="320.0"/></mxCell>
-<mxCell edge="1" id="e_DD_DS14" parent="1" source="n_DistanceDec" style="" target="n_DS14" value=""/>
-
-<!-- ElevationDec (specialization) -->
-<mxCell id="n_ElevationDec" parent="1" style="Specialization" value="ElevationDec" vertex="1"><mxGeometry as="geometry" height="30.0" width="30.0" x="680.0" y="200.0"/></mxCell>
-<mxCell edge="1" id="e_Sensor_ElevationDec" parent="1" source="n_Sensor" style="" target="n_ElevationDec" value=""/>
-
-<mxCell id="n_EL10" parent="1" style="Entityp" value="EL10" vertex="1"><mxGeometry as="geometry" height="30.0" width="80.0" x="680.0" y="270.0"/></mxCell>
-<mxCell edge="1" id="e_ED_EL10" parent="1" source="n_ElevationDec" style="" target="n_EL10" value=""/>
-
-<mxCell id="n_EL13" parent="1" style="Entityp" value="EL13" vertex="1"><mxGeometry as="geometry" height="30.0" width="80.0" x="770.0" y="270.0"/></mxCell>
-<mxCell edge="1" id="e_ED_EL13" parent="1" source="n_ElevationDec" style="" target="n_EL13" value=""/>
-
-<mxCell id="n_EL16" parent="1" style="Entityp" value="EL16" vertex="1"><mxGeometry as="geometry" height="30.0" width="80.0" x="680.0" y="320.0"/></mxCell>
-<mxCell edge="1" id="e_ED_EL16" parent="1" source="n_ElevationDec" style="" target="n_EL16" value=""/>
-
-<!-- LateralOffsetDec (specialization) -->
-<mxCell id="n_LateralOffsetDec" parent="1" style="Specialization" value="LateralOffsetDec" vertex="1"><mxGeometry as="geometry" height="30.0" width="30.0" x="810.0" y="200.0"/></mxCell>
-<mxCell edge="1" id="e_Sensor_LateralOffsetDec" parent="1" source="n_Sensor" style="" target="n_LateralOffsetDec" value=""/>
-
-<mxCell id="n_LO00" parent="1" style="Entityp" value="LO00" vertex="1"><mxGeometry as="geometry" height="30.0" width="80.0" x="860.0" y="270.0"/></mxCell>
-<mxCell edge="1" id="e_LO_LO00" parent="1" source="n_LateralOffsetDec" style="" target="n_LO00" value=""/>
-
-<mxCell id="n_LO07" parent="1" style="Entityp" value="LO07" vertex="1"><mxGeometry as="geometry" height="30.0" width="80.0" x="950.0" y="270.0"/></mxCell>
-<mxCell edge="1" id="e_LO_LO07" parent="1" source="n_LateralOffsetDec" style="" target="n_LO07" value=""/>
-
-<mxCell id="n_LO14" parent="1" style="Entityp" value="LO14" vertex="1"><mxGeometry as="geometry" height="30.0" width="80.0" x="860.0" y="320.0"/></mxCell>
-<mxCell edge="1" id="e_LO_LO14" parent="1" source="n_LateralOffsetDec" style="" target="n_LO14" value=""/>
-
-<!-- ===== SYSTEM ARCHITECTURE branch ===== -->
-<!-- DNNComponentDec (specialization) -->
-<mxCell id="n_DNNComponentDec" parent="1" style="Specialization" value="DNNComponentDec" vertex="1"><mxGeometry as="geometry" height="30.0" width="30.0" x="1080.0" y="200.0"/></mxCell>
-<mxCell edge="1" id="e_SysArch_DNNDec" parent="1" source="n_SysArch" style="" target="n_DNNComponentDec" value=""/>
-
-<mxCell id="n_FasterRCNN" parent="1" style="Entityp" value="FasterRCNN" vertex="1"><mxGeometry as="geometry" height="30.0" width="100.0" x="1040.0" y="270.0"/></mxCell>
-<mxCell edge="1" id="e_DNND_FRCNN" parent="1" source="n_DNNComponentDec" style="" target="n_FasterRCNN" value=""/>
-
-<mxCell id="n_YOLOv2" parent="1" style="Entityp" value="YOLOv2" vertex="1"><mxGeometry as="geometry" height="30.0" width="80.0" x="1150.0" y="270.0"/></mxCell>
-<mxCell edge="1" id="e_DNND_YOLO" parent="1" source="n_DNNComponentDec" style="" target="n_YOLOv2" value=""/>
-
-<!-- SafetyMonitor (entity under SystemArchitecture aspect) -->
-<mxCell id="n_SafetyMonitorAsp" parent="1" style="Aspect" value="SysArchDec" vertex="1"><mxGeometry as="geometry" height="30.0" width="30.0" x="1200.0" y="200.0"/></mxCell>
-<mxCell edge="1" id="e_SysArch_SMAsp" parent="1" source="n_SysArch" style="" target="n_SafetyMonitorAsp" value=""/>
-
-<mxCell id="n_SafetyMonitor" parent="1" style="Entity" value="SafetyMonitor" vertex="1"><mxGeometry as="geometry" height="30.0" width="120.0" x="1250.0" y="270.0"/></mxCell>
-<mxCell edge="1" id="e_SMAsp_SM" parent="1" source="n_SafetyMonitorAsp" style="" target="n_SafetyMonitor" value=""/>
-
-</root></mxGraphModel>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<start>
+<RunwaySignClassifier>
+<pSpec>
+<Environment>
+<AirportDec>
+<KSFO/>
+<KBOS/>
+<KSAN/>
+</AirportDec>
+<WeatherDec>
+<FairWeather/>
+<RainyWeather/>
+<SnowyWeather/>
+<FoggyWeather/>
+</WeatherDec>
+<TimeOfDayDec>
+<Morning/>
+<Afternoon/>
+<Dusk/>
+<Dawn/>
+</TimeOfDayDec>
+</Environment>
+<Sensor>
+<DistanceDec>
+<DS10/>
+<DS12/>
+<DS14/>
+</DistanceDec>
+<ElevationDec>
+<EL10/>
+<EL13/>
+<EL16/>
+</ElevationDec>
+<LateralOffsetDec>
+<LO00/>
+<LO07/>
+<LO14/>
+</LateralOffsetDec>
+</Sensor>
+<SystemArchitecture>
+<DNNComponentDec>
+<FasterRCNN/>
+<YOLOv2/>
+</DNNComponentDec>
+<SysArchDec>
+<SafetyMonitor/>
+</SysArchDec>
+</SystemArchitecture>
+</pSpec>
+</RunwaySignClassifier>
+</start>
