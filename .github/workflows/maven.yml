@@ -10,41 +10,48 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
           cache: maven
 
       - name: Build and run tests
-        run: mvn -B package --file pom.xml
+        run: mvn -B verify --file pom.xml
+
+      - name: Publish test results
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: JUnit Tests
+          path: target/surefire-reports/*.xml
+          reporter: java-junit
 
       - name: Upload JaCoCo coverage report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: jacoco-report
           path: target/site/jacoco/
 
       - name: Run SpotBugs
         run: mvn -B spotbugs:check --file pom.xml
-        continue-on-error: true
 
       - name: Run Checkstyle
         run: mvn -B checkstyle:check --file pom.xml
-        continue-on-error: true
 
   publish:
     needs: build-and-test
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' && github.repository == github.event.repository.full_name
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
@@ -54,7 +61,8 @@ jobs:
         run: mvn -B package -DskipTests --file pom.xml
 
       - name: Upload JAR artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ODME-jar
-          path: target/SESEditor-*-jar-with-dependencies.jar
+          path: target/SESEditor-*.jar
+          if-no-files-found: error
