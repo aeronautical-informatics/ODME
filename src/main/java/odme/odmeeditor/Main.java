@@ -45,7 +45,7 @@ public class Main {
         splash.runningPBar();
 
         // Create and set up the main window.
-        frame = new JFrame("Operation Domain Modeling Environment");
+        frame = new JFrame("Operational Design Domain Modelling Environment");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         // Create and set up the content pane.
@@ -66,9 +66,17 @@ public class Main {
       
 //      -------------------------------------
        frame.pack();
-       ImageIcon windowIcon =
-              new ImageIcon(ODMEEditor.class.getClassLoader().getResource("images/tu_clausthal_icon.jpg"));
-       frame.setIconImage(windowIcon.getImage());
+       // Multi-resolution icons for taskbar, title bar, dock, and Alt-Tab
+       java.util.List<Image> icons = new java.util.ArrayList<>();
+       for (String size : new String[]{"16x16", "32x32", "48x48", "64x64", "128x128", "256x256", "512x512"}) {
+           java.net.URL url = ODMEEditor.class.getClassLoader().getResource("logo/odme_icon_" + size + ".png");
+           if (url != null) {
+               icons.add(new ImageIcon(url).getImage());
+           }
+       }
+       if (!icons.isEmpty()) {
+           frame.setIconImages(icons);
+       }
        frame.setExtendedState(java.awt.Frame.MAXIMIZED_BOTH);
        frame.setVisible(true);
 //      -------------------------------------
