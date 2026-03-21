@@ -25,7 +25,14 @@ odme/
 │   ├── enumeration/     <- PESEnumerator (interface), ExhaustivePESEnumerator
 │   ├── traceability/    <- TraceabilityMatrix, TraceabilityEntry
 │   │                       CsvTraceabilityExporter, HtmlTraceabilityExporter
-│   └── audit/           <- AuditLogger (structured event logging)
+│   ├── audit/           <- AuditLogger (structured event logging)
+│   ├── graph/           <- SESGraph (interface), SESGraphNode, SESGraphEdge
+│   │                       Graph abstraction decoupling algorithms from mxGraph
+│   ├── transform/       <- XmlToPythonTranslator, YamlToPythonTranslator
+│   │                       XsdToYamlConverter, XsdParser, XmlTransformRules
+│   ├── prune/           <- PruneEngine (algorithms against SESGraph interface)
+│   │                       NamingConventions (Dec/Spec/MAsp suffix rules)
+│   └── validation/      <- + FieldValidators (variable name/value/bound validation)
 │
 ├── application/         <- Orchestration layer (use-case services)
 │   ├── ProjectSession   <- Scoped session replacing static JtreeToGraphVariables

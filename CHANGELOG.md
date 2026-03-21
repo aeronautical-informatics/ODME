@@ -65,6 +65,19 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - End-to-end integration test (`FullWorkflowIntegrationTest`)
 - Updated `DEVELOPER_GUIDE.md` with domain-driven development guide
 
+### Added — Phase 7: Domain Layer Extraction & Graph Abstraction
+- `SESGraph` interface — graph abstraction decoupling domain algorithms from mxGraph
+- `SESGraphNode` / `SESGraphEdge` — lightweight value objects for graph traversal
+- `XmlToPythonTranslator` — extracted from `Execution.java` (264 lines pure business logic)
+- `YamlToPythonTranslator` — extracted from `Execution.java` (85 lines)
+- `XsdToYamlConverter` — extracted from `ODDManager.java` (60 lines)
+- `XsdParser` — extracted from `ODDManager.java` (80 lines XSD parsing pipeline)
+- `XmlTransformRules` — extracted from `JtreeToGraphModify` + `JtreeToGraphGeneral` (350 lines)
+- `FieldValidators` — extracted from `Variable.java` (128 lines validation logic)
+- `PruneEngine` — pruning algorithms working against `SESGraph` interface
+- `NamingConventions` — SES suffix detection/manipulation (Dec/Spec/MAsp rules)
+- 99 new tests (221 total, 0 failures)
+
 ### Added — Phase 6: Bug Fixes, LHS, Example Project
 - `EditorContext.getWorkingDir()` — centralized path construction for SES/PES modes,
   replacing 26 duplicated if/else blocks across 11 files
