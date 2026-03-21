@@ -76,6 +76,13 @@ public class Main {
        }
        if (!icons.isEmpty()) {
            frame.setIconImages(icons);
+           // Set macOS dock icon (overrides default Java coffee cup)
+           try {
+               Taskbar taskbar = Taskbar.getTaskbar();
+               taskbar.setIconImage(icons.get(icons.size() - 1)); // largest icon
+           } catch (UnsupportedOperationException | SecurityException ignored) {
+               // Not macOS or not supported — frame icons are enough
+           }
        }
        frame.setExtendedState(java.awt.Frame.MAXIMIZED_BOTH);
        frame.setVisible(true);

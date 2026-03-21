@@ -46,14 +46,6 @@ public class SplashScreen {
         JLabel logoLabel = createLogoLabel();
         logoLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         content.add(logoLabel);
-        content.add(Box.createVerticalStrut(16));
-
-        // Application name
-        JLabel nameLabel = new JLabel("Operational Design Domain Modelling Environment");
-        nameLabel.setFont(new Font("Helvetica Neue", Font.BOLD, 16));
-        nameLabel.setForeground(ACCENT);
-        nameLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        content.add(nameLabel);
         content.add(Box.createVerticalStrut(24));
 
         // Progress bar

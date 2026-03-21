@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <g transform="translate(128, 128)">
+    <!-- Outer hexagonal boundary -->
+    <polygon points="0,-110 95,-55 95,55 0,110 -95,55 -95,-55" fill="none" stroke="#185FA5" stroke-width="3" opacity="0.9"/>
+
+    <!-- Grid lines -->
+    <line x1="-64" y1="-32" x2="64" y2="-32" stroke="#85B7EB" stroke-width="0.8" opacity="0.5"/>
+    <line x1="-78" y1="0" x2="78" y2="0" stroke="#85B7EB" stroke-width="0.8" opacity="0.5"/>
+    <line x1="-64" y1="32" x2="64" y2="32" stroke="#85B7EB" stroke-width="0.8" opacity="0.5"/>
+    <line x1="-32" y1="-87" x2="-32" y2="87" stroke="#85B7EB" stroke-width="0.8" opacity="0.5"/>
+    <line x1="0" y1="-100" x2="0" y2="100" stroke="#85B7EB" stroke-width="0.8" opacity="0.5"/>
+    <line x1="32" y1="-87" x2="32" y2="87" stroke="#85B7EB" stroke-width="0.8" opacity="0.5"/>
+
+    <!-- Sample points -->
+    <circle cx="-48" cy="-50" r="4" fill="#378ADD" opacity="0.7"/>
+    <circle cx="-16" cy="-64" r="4" fill="#378ADD" opacity="0.7"/>
+    <circle cx="18" cy="-46" r="4" fill="#378ADD" opacity="0.7"/>
+    <circle cx="50" cy="-28" r="4" fill="#378ADD" opacity="0.7"/>
+    <circle cx="-55" cy="9" r="4" fill="#378ADD" opacity="0.7"/>
+    <circle cx="-18" cy="-14" r="4" fill="#378ADD" opacity="0.7"/>
+    <circle cx="16" cy="5" r="4" fill="#378ADD" opacity="0.7"/>
+    <circle cx="53" cy="18" r="4" fill="#378ADD" opacity="0.7"/>
+    <circle cx="-46" cy="50" r="4" fill="#378ADD" opacity="0.7"/>
+    <circle cx="-14" cy="37" r="4" fill="#378ADD" opacity="0.7"/>
+    <circle cx="23" cy="55" r="4" fill="#378ADD" opacity="0.7"/>
+    <circle cx="48" cy="64" r="4" fill="#378ADD" opacity="0.7"/>
+    <circle cx="64" cy="-9" r="4" fill="#378ADD" opacity="0.6"/>
+    <circle cx="-64" cy="-23" r="4" fill="#378ADD" opacity="0.6"/>
+    <circle cx="5" cy="73" r="4" fill="#378ADD" opacity="0.6"/>
+    <circle cx="-37" cy="69" r="4" fill="#378ADD" opacity="0.6"/>
+
+    <!-- Aircraft silhouette -->
+    <g transform="scale(0.82)">
+      <path d="M0,-58 C3,-56 5,-48 5,-30 L5,35 C5,42 3,48 0,52 C-3,48 -5,42 -5,35 L-5,-30 C-5,-48 -3,-56 0,-58 Z" fill="#185FA5" opacity="0.85"/>
+      <ellipse cx="0" cy="-52" rx="3" ry="5" fill="#0C447C" opacity="0.3"/>
+      <path d="M5,-4 L58,20 L56,26 L5,12 Z" fill="#185FA5" opacity="0.85"/>
+      <path d="M-5,-4 L-58,20 L-56,26 L-5,12 Z" fill="#185FA5" opacity="0.85"/>
+      <path d="M5,34 L28,44 L26,48 L5,40 Z" fill="#185FA5" opacity="0.85"/>
+      <path d="M-5,34 L-28,44 L-26,48 L-5,40 Z" fill="#185FA5" opacity="0.85"/>
+      <path d="M0,20 L2,22 L2,48 L0,52 L-2,48 L-2,22 Z" fill="#0C447C" opacity="0.45"/>
+    </g>
+
+    <!-- Dashed inner hexagon -->
+    <polygon points="0,-90 78,-45 78,45 0,90 -78,45 -78,-45" fill="none" stroke="#85B7EB" stroke-width="1.2" stroke-dasharray="6 4" opacity="0.45"/>
+  </g>
+</svg>
