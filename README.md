@@ -25,8 +25,12 @@ The tool supports the AI Learning Assurance workflow defined in the **EASA AI Ro
 |------|-------------|--------|
 | **Domain Modeling Editor** | SES tree construction with synchronized graph view, variable/constraint attachment, XSD validation | Stable |
 | **Scenario Modelling Editor** | Interactive SES→PES pruning to derive concrete test scenarios | Stable |
-| **ODD Manager** | Generate, save, edit, and export Operational Design Domains in XML/YAML/CSV | Stable |
+| **ODD Manager** | Generate, save, edit, and export Operational Design Domains in XML/YAML/CSV, with distribution metadata columns | Stable |
 | **LHS Test Case Generation** | Latin Hypercube Sampling over ODD parameter ranges for coverage-efficient test vectors | Stable |
+| **Constrained Sampling Pipeline** | YAML-driven sampling with constraint-based rejection sampling, distribution-aware generation, and CSV export | Stable |
+| **Scenario Generation from CSV** | Bulk-generate individual XML scenario files from a sampled CSV (column format: `EntityName_Variable`) | Stable |
+| **Intra/Inter-Entity Constraints** | Split constraint panels: intra-entity (within one entity) and inter-entity (across entities) with double-click editing | Stable |
+| **Distribution Panel** | Per-variable probability distribution metadata panel (distribution name + details) in the right-side data view | Stable |
 | **Behavior Modelling Editor** | Behavior tree editor for entity functions, XML export | Work in Progress |
 | **Scenario Manager** | Scenario catalogue with risk factors and lifecycle states | Work in Progress |
 | **CAMEO Import Plugin** | Import SysML operational scenarios from CAMEO into ODME | Work in Progress |
@@ -98,13 +102,26 @@ odme/
 │   ├── model/       ← SESNode, SESTree, PESTree, Scenario
 │   ├── operations/  ← Command pattern (Add/Delete/Prune/Rename)
 │   ├── persistence/ ← XML serializer, JSON scenario store
-│   ├── validation/  ← SES structure validator
+│   ├── validation/  ← SES structure validator, FieldValidators
 │   ├── coverage/    ← ODD coverage analyzer
 │   ├── enumeration/ ← PES enumerator (exhaustive + coverage-guided)
 │   ├── traceability/← EASA traceability matrix, CSV/HTML exporters
+│   ├── transform/   ← XSD/YAML/Python translators
+│   ├── graph/       ← SESGraph abstraction (decouples from mxGraph)
 │   └── audit/       ← Structured event logging
 ├── application/     ← ProjectService, ProjectSession
+├── sampling/        ← Constrained LHS sampling pipeline (new)
+│   ├── LatinHypercubeSampler  ← Space-filling normalized samples
+│   ├── ConstraintEvaluator    ← mXparser-based constraint evaluation
+│   ├── ScenarioParser         ← SnakeYAML scenario file parser
+│   ├── SamplingManager        ← Full pipeline: YAML → sample → CSV
+│   ├── GenerateSamplesPanel   ← Swing UI panel for sampling workflow
+│   ├── distribution/          ← Normal and uniform distribution sampling
+│   └── model/                 ← Parameter, Scenario data classes
 └── [legacy]         ← Swing UI (odmeeditor, jtreetograph, core, behaviour)
+    └── odmeeditor/  ← Now includes: BackgroundTaskRunner, Distribution,
+                        IntraEntityConstraint, InterEntityConstraints,
+                        ScenarioGeneration
 ```
 
 See [`ARCHITECTURE.md`](ARCHITECTURE.md) for design decisions and data flow.

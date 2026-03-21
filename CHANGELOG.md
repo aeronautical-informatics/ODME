@@ -8,6 +8,67 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased] — 2.0.0-SNAPSHOT
 
+### Added — Phase 8: Constrained Sampling Pipeline & Scenario Generation
+
+Ported and adapted from [AIgsid/ODME-refactored](https://github.com/AIgsid/ODME-refactored).
+
+#### New package: `odme.sampling`
+- `LatinHypercubeSampler` — space-filling normalized LHS sampler (returns `List<double[]>`
+  in [0,1]^dimensions; used by SamplingManager)
+- `ConstraintEvaluator` — evaluates ODME constraint syntax
+  `if(@param > val) then (@other < limit) else true` via mXparser 5.2.1;
+  strips special characters from variable names; license confirmed non-commercial
+- `ScenarioParser` — SnakeYAML-based parser for `.yaml` scenario files;
+  supports numerical (int/double/float), categorical (options list), distribution-typed
+  parameters and `HasConstraint` blocks with `IntraConstraint`/`InterConstraint` entries;
+  constraint list is reset per `parse()` call (no cross-call leakage)
+- `SamplingManager` — full constrained sampling pipeline:
+  `generateSamples()` (includes distribution-typed params) and
+  `generateSamplesforDomainModel()` (excludes distribution type);
+  rejection sampling with `maxAttempts = N × 200`; exports CSV
+- `GenerateSamplesPanel` — Swing UI panel: YAML file picker, sample count field,
+  CSV output path picker, Generate/Cancel buttons; uses `BackgroundTaskRunner`
+- `distribution/DistributionSampling` — `normalDistributionSample(mean, stdDev, n)`
+  (5-tier SD-threshold: μ−σ, μ, μ+σ, μ+2σ, μ+3σ) and `uniformDistributionSample(a, b)`
+- `model/Parameter` — plain POJO: name, type, min, max, options,
+  distributionName, distributionDetails, constraint
+- `model/Scenario` — plain POJO: `List<Parameter>` + `List<String>` constraints
+
+#### New files: `odme.odmeeditor`
+- `BackgroundTaskRunner` — generic `SwingWorker`-based async task runner;
+  shows modal progress dialog with wait cursor; `run(parent, title, msg, task, onSuccess, onError)`
+- `Distribution` — 4-column table panel (Node Name, Variable Name, Distribution Name,
+  Details); reads distribution metadata from ODD XSD attributes
+- `IntraEntityConstraint` — read-only single-column table for within-entity constraints;
+  double-click opens viewing dialog
+- `InterEntityConstraints` — read-only single-column table for cross-entity constraints;
+  same double-click pattern
+- `ScenarioGeneration` — converts CSV rows into individual XML scenario files;
+  groups columns by entity prefix (`EgoAC_Altitude` → entity `EgoAC`, var `Altitude`);
+  handles duplicate folder names; exposes `importScenarioDatasFromCSVFile()` directly
+
+#### Modified files
+- `pom.xml` — added `mXparser 5.2.1` and explicit `SnakeYAML 2.2` dependencies
+- `MenuBar` — added "Generate Samples" to Scenario Manager menu;
+  added "Generate Scenario → From CSV" submenu under "Save Scenario";
+  new dialogs use `BackgroundTaskRunner` for non-blocking execution
+- `ODMEEditor` — added `Distribution`, `IntraEntityConstraint`, `InterEntityConstraints`
+  panels to right-side data view; reset calls in mode-switch listener
+- `PanelSplitor` — new overloaded `addSplitor()` accepting Distribution,
+  InterEntityConstraints, IntraEntityConstraint alongside existing params
+- `ODDManager` — added `currentXsdToYamlTemp()` helper delegating to `xsdToYaml()`
+
+#### Tests
+- 104 new tests across 6 test classes — **534 total, 0 failures**
+  - `sampling/LatinHypercubeSamplerTest` (9): bounds, strata coverage, edge cases
+  - `sampling/ConstraintEvaluatorTest` (10): satisfied/violated, boundary, null/malformed
+  - `sampling/distribution/DistributionSamplingTest` (58): tier coverage, bounds, edge cases
+  - `sampling/ScenarioParserTest` (10): numerical/categorical/distribution/constraint YAML
+  - `sampling/SamplingManagerTest` (7): row count, bounds, categorical, domain-model mode
+  - `odmeeditor/ScenarioGenerationTest` (10): XML structure, entity grouping, edge cases
+
+---
+
 ### Added — Phase 1: Domain Model Foundation
 - `SESNodeType` enum replacing all scattered `endsWith("Dec")`/`"MAsp"`/`"Spec"` magic-string checks
 - `SESNode` typed domain object with id, name, type, children, variables, behaviours, constraints, flags

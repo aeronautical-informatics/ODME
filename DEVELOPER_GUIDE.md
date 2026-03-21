@@ -73,8 +73,6 @@ Some files are critical for the project’s automated builds and workflows:
 
 pom.xml (Maven build setup)
 
-Dockerfile
-
 .gitignore
 
 ## Rules:
@@ -203,3 +201,76 @@ To verify:
 2. **Tools → Generate OD** — check the ODD table shows Lower/Upper Bound columns
 3. Click **Generate Test Cases (LHS)** — should list found parameters and prompt for N
 4. Enter a sample count and save the CSV
+
+---
+
+## Working with the Sampling Pipeline (`odme.sampling`)
+
+The sampling pipeline is fully headless (no Swing) and can be used programmatically
+or via **Scenario Manager → Generate Samples** in the UI.
+
+### YAML scenario file format
+
+```yaml
+Scenario:
+  EgoAC:                      # entity name
+    Speed:                    # variable name → parameter "EgoAC_Speed"
+      type: double
+      min: 0
+      max: 300
+    WeatherMode:              # categorical parameter
+      options: [Clear, Rain, Fog]
+    Noise:                    # distribution-typed parameter
+      type: distribution
+      distributionName: normalDistribution
+      distributionDetails: mean=0.5___stdDev=0.1
+    HasConstraint:
+      IntraConstraint: if(@EgoACSpeed > 200) then (@EgoACAltitude > 500) else true
+      InterConstraint: if(@EgoAC@speed > 50) then (@Traffic@count < 10) else true
+```
+
+### Generating samples programmatically
+
+```java
+SamplingManager manager = new SamplingManager();
+
+// Full pipeline (includes distribution-typed params)
+manager.generateSamples("path/to/scenario.yaml", 100, "output/samples.csv");
+
+// Domain-model mode (excludes distribution-typed params)
+manager.generateSamplesforDomainModel("path/to/scenario.yaml", 100, "output/samples.csv");
+```
+
+### Constraint syntax
+
+ODME constraint expressions follow the pattern:
+
+```
+if(@paramName > value) then (@otherParam < limit) else true
+```
+
+- Variables are prefixed with `@` in the source YAML
+- `@` and other special chars are stripped before mXparser evaluation
+- `true` → `1`, `false` → `0`
+- Malformed expressions (no `if/then/else`) always return `false` (safe default)
+
+### Generating XML scenarios from a CSV
+
+```java
+// Direct call — no EditorContext required
+String result = ScenarioGeneration.importScenarioDatasFromCSVFile(
+        "path/to/samples.csv",
+        "path/to/output/ScenarioSet1");
+```
+
+CSV header convention: `EntityName_VariableName` (e.g. `EgoAC_Speed`).
+Each data row produces one `Scenario_N.xml` file.
+
+### Running quality checks
+
+```bash
+mvn test                  # unit tests + JaCoCo coverage
+mvn jacoco:report         # open target/site/jacoco/index.html
+mvn spotbugs:check        # static analysis (new domain code)
+mvn checkstyle:check      # code style (new domain code)
+```

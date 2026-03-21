@@ -21,6 +21,7 @@ odme/
 │   │                       ScenarioStore (interface), JsonScenarioStore
 │   ├── validation/      <- SESValidator (interface), SESStructureValidator
 │   │                       ValidationResult
+│   │                       FieldValidators (variable name/value/bound validation)
 │   ├── coverage/        <- ODDCoverageAnalyzer, ODDCoverageReport
 │   ├── enumeration/     <- PESEnumerator (interface), ExhaustivePESEnumerator
 │   ├── traceability/    <- TraceabilityMatrix, TraceabilityEntry
@@ -30,16 +31,45 @@ odme/
 │   │                       Graph abstraction decoupling algorithms from mxGraph
 │   ├── transform/       <- XmlToPythonTranslator, YamlToPythonTranslator
 │   │                       XsdToYamlConverter, XsdParser, XmlTransformRules
-│   ├── prune/           <- PruneEngine (algorithms against SESGraph interface)
-│   │                       NamingConventions (Dec/Spec/MAsp suffix rules)
-│   └── validation/      <- + FieldValidators (variable name/value/bound validation)
+│   └── prune/           <- PruneEngine (algorithms against SESGraph interface)
+│                           NamingConventions (Dec/Spec/MAsp suffix rules)
 │
 ├── application/         <- Orchestration layer (use-case services)
 │   ├── ProjectSession   <- Scoped session replacing static JtreeToGraphVariables
 │   └── ProjectService   <- Lifecycle: create/save/load/validate/scenarios
 │
+├── sampling/            <- Constrained LHS sampling pipeline
+│   ├── LatinHypercubeSampler    <- Generates normalized [0,1] LHS samples
+│   ├── ConstraintEvaluator      <- Evaluates ODME constraint syntax via mXparser
+│   │                               "if(@param > val) then (@other < lim) else true"
+│   ├── ScenarioParser           <- SnakeYAML-based .yaml scenario file parser
+│   │                               Extracts Parameters (numerical/categorical/
+│   │                               distribution) and constraints (Intra/Inter)
+│   ├── SamplingManager          <- Full pipeline: YAML → LHS → rejection sampling
+│   │                               → scale to real ranges → CSV export
+│   │                               Two modes: generateSamples() (incl. distribution)
+│   │                               and generateSamplesforDomainModel() (excl. dist.)
+│   ├── GenerateSamplesPanel     <- Swing UI: YAML picker, sample count, CSV output
+│   │                               Uses BackgroundTaskRunner for non-blocking exec
+│   ├── distribution/
+│   │   └── DistributionSampling <- normalDistributionSample (5-tier SD approach)
+│   │                               uniformDistributionSample([a,b])
+│   └── model/
+│       ├── Parameter            <- POJO: name, type, min, max, options,
+│       │                           distributionName, distributionDetails, constraint
+│       └── Scenario             <- POJO: List<Parameter> + List<String> constraints
+│
 └── [Legacy packages — unchanged, to be gradually wired to domain layer]
     ├── odmeeditor/      <- Swing UI (Main, ODMEEditor, DynamicTree, MenuBar...)
+    │   ├── BackgroundTaskRunner  <- SwingWorker async task runner with modal
+    │   │                           progress dialog; replaces boilerplate everywhere
+    │   ├── Distribution          <- Right-panel table: Node/Variable/Distribution
+    │   │                           Name/Details — reads from ODD XSD attributes
+    │   ├── IntraEntityConstraint <- Constraint panel for within-entity constraints
+    │   ├── InterEntityConstraints<- Constraint panel for cross-entity constraints
+    │   │                           Both panels: read-only table + double-click dialog
+    │   └── ScenarioGeneration    <- CSV rows → individual XML scenario files
+    │                               Column format: "EntityName_VariableName"
     ├── jtreetograph/    <- Graph-tree synchronisation (JtreeToGraphAdd, Prune...)
     ├── core/            <- EditorContext singleton, FileConvertion, utilities
     ├── behaviour/       <- Behaviour tree editor
@@ -168,12 +198,64 @@ to populate a table of all model entities and their variables. Key capabilities:
 
 1. **Save/Load ODD** — serialized `.ser` snapshots for ODD versioning
 2. **Export XML/YAML** — machine-readable and human-readable ODD exports
-3. **Latin Hypercube Sampling** — `LatinHypercubeSampler` generates test vectors:
+3. **Distribution columns** — reads `xs:distributionName` and `xs:distributionDetails`
+   XSD attributes into the ODD table; population reflected in the `Distribution` panel
+4. **Constraint classification** — heuristic split into intra-entity vs inter-entity;
+   inter constraints contain the `"AC@"` marker
+5. **Latin Hypercube Sampling** — `odmeeditor.LatinHypercubeSampler` generates test vectors
+   directly from ODD table rows:
    - Extracts all variables with numeric `[min, max]` ranges (min < max)
    - Divides each parameter range into N equal strata
    - Assigns one random sample per stratum per parameter
    - Shuffles assignments to minimize inter-parameter correlations
    - Exports to CSV with full traceability headers
+
+### Constrained Sampling Pipeline (`odme.sampling`)
+
+A fully separate pipeline for YAML-driven, constraint-aware sampling:
+
+```
+ScenarioParser.parse(yamlFile)
+    ↓
+Scenario { List<Parameter>, List<String> constraints }
+    ↓
+SamplingManager.generateSamples(yaml, N, outputCsv)
+    ├── LatinHypercubeSampler.generateNormalizedSamples(dims, N)  → [0,1] matrix
+    ├── scaleSample() → maps [0,1] → [min, max] or distribution sample
+    └── ConstraintEvaluator.evaluate(constraint, sample)  ← rejection gate
+        ↓
+writeToCsv()  → output CSV (numerical cols + random categorical cols)
+```
+
+**Constraint syntax** (ODME format → mXparser):
+```
+if(@rain_intensity > 5) then (@luminosity < 1000) else true
+  ↓ (formatted by ConstraintEvaluator)
+if(rainintensity > 5, luminosity < 1000, 1)
+```
+
+Special characters (`@`, `_`, `(`, `)`, `-`) are stripped from variable names
+before mXparser evaluation.
+
+**Distribution-typed parameters** use `distributionName` + `distributionDetails`
+(format: `mean=50___stdDev=10` or `min=0___max=100`) instead of [min,max] LHS.
+
+### Scenario Generation from CSV
+
+`ScenarioGeneration.importScenarioDatasFromCSVFile(csvPath, outputDir)` converts
+a sampled CSV into individual XML scenario files:
+
+```
+EgoAC_Altitude, EgoAC_Speed, Weather_Condition
+500, 120, Rainy
+800, 200, Clear
+   ↓
+Scenario_1.xml  (entity EgoAC with vars Altitude=500, Speed=120; entity Weather…)
+Scenario_2.xml
+```
+
+Columns without `_` are ignored. Output folder: `GeneratedScenarios/{proj}_Scenarios/{name}/`.
+Duplicate folder names get a `1` suffix with a warning in the return message.
 
 ### Path Construction
 
@@ -183,6 +265,28 @@ paths in both SES and PES modes:
 - **PES mode**: `{fileLocation}/{projName}/{currentScenario}/`
 
 This replaced 26 scattered if/else blocks across 11 files.
+
+---
+
+## File Formats — Updated
+
+| Format | Purpose | Location |
+|--------|---------|----------|
+| `{project}_domain.xml` | SES model (new format) | project directory |
+| `{project}Graph.xml` | mxGraph layout (legacy) | project directory |
+| `{project}.xml` | JTree structure (legacy) | project directory |
+| `xsdfromxml.xsd` | Generated XSD with variable ranges + distribution attrs | project directory |
+| `scenarios.json` | Scenario catalogue | project directory |
+| `*.ssdbeh` | Behaviour data (legacy binary) | scenario directory |
+| `*.ssdvar` | Variable data (legacy binary) | scenario directory |
+| `*.ssdcon` | Constraint data (legacy binary) | scenario directory |
+| `odd/*.ser` | Saved ODD snapshots (Java serialized) | project `odd/` directory |
+| `*_LHS_N.csv` | LHS test case exports (odmeeditor.LatinHypercubeSampler) | user-chosen |
+| `*.yaml` | Scenario definition for constrained sampling pipeline | user-chosen |
+| `*_samples.csv` | SamplingManager output (sampling pipeline) | user-chosen |
+| `GeneratedScenarios/{proj}…/Scenario_N.xml` | ScenarioGeneration XML files | project directory |
+| Audit log | Structured event log | `~/.odme/logs/audit.log` |
+| Application log | Application log | `~/.odme/logs/odme.log` |
 
 ---
 
