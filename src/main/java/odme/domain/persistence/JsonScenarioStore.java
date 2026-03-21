@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
@@ -66,7 +67,10 @@ public class JsonScenarioStore implements ScenarioStore {
     @Override
     public void saveAll(List<Scenario> scenarios, Path projectDirectory) throws IOException {
         Path file = projectDirectory.resolve(SCENARIOS_FILE);
-        file.getParent().toFile().mkdirs();
+        Path parent = file.getParent();
+        if (parent != null) {
+            Files.createDirectories(parent);
+        }
 
         ScenarioRecord[] records = scenarios.stream()
             .map(ScenarioRecord::fromDomain)

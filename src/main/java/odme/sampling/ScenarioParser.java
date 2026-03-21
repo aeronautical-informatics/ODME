@@ -17,7 +17,7 @@ import java.util.*;
  */
 public class ScenarioParser {
 
-    public static List<String> constraintList = new ArrayList<>();
+    private List<String> constraintList = new ArrayList<>();
 
     @SuppressWarnings("unchecked")
     public Scenario parse(String yamlFilePath) throws FileNotFoundException {
@@ -36,7 +36,7 @@ public class ScenarioParser {
 
             Map<String, Object> data = (Map<String, Object>) loaded;
             String rootKey = data.containsKey("Scenario") ? "Scenario" :
-                    (data.isEmpty() ? null : data.keySet().iterator().next());
+                    (data.isEmpty() ? null : data.entrySet().iterator().next().getKey());
 
             Scenario scenario = new Scenario();
             scenario.setParameters(new ArrayList<>());
@@ -72,8 +72,8 @@ public class ScenarioParser {
                 if (item instanceof Map) {
                     Map<String, Object> paramMap = (Map<String, Object>) item;
                     if (!paramMap.isEmpty()) {
-                        String paramKey = paramMap.keySet().iterator().next();
-                        parseParameter(entityName, paramKey, paramMap.get(paramKey), scenario);
+                        Map.Entry<String, Object> firstEntry = paramMap.entrySet().iterator().next();
+                        parseParameter(entityName, firstEntry.getKey(), firstEntry.getValue(), scenario);
                     }
                 }
             }

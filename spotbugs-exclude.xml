@@ -27,4 +27,50 @@
     <Match>
         <Package name="~odme\.module.*"/>
     </Match>
+    <Match>
+        <Package name="~behaviourtreetograph.*"/>
+    </Match>
+
+    <!-- GenerateSamplesPanel: CT_CONSTRUCTOR_THROW is a false positive for Swing panels;
+         addListeners() wires action listeners and cannot leave the object in a vulnerable state -->
+    <Match>
+        <Class name="odme.sampling.GenerateSamplesPanel"/>
+        <Bug code="CT"/>
+    </Match>
+
+    <!-- Sampling model POJOs: EI_EXPOSE_REP is intentional — Parameter and Scenario are
+         simple mutable data transfer objects used exclusively within the sampling pipeline -->
+    <Match>
+        <Package name="~odme\.sampling\.model.*"/>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
+    </Match>
+
+    <!-- Domain model / application layer: EI_EXPOSE_REP is intentional.
+         SESNode, SESTree, PESTree, ProjectSession, etc. are domain objects whose
+         API intentionally hands callers direct references to mutable state.
+         Making defensive copies of tree nodes would break the command pattern. -->
+    <Match>
+        <Package name="~odme\.domain.*"/>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
+    </Match>
+    <Match>
+        <Package name="~odme\.application.*"/>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
+    </Match>
+
+    <!-- JsonScenarioStore: LegacyScenarioWrapper.scenario is written by Jackson via
+         reflection during deserialization; SpotBugs cannot see Jackson's field injection -->
+    <Match>
+        <Class name="odme.domain.persistence.JsonScenarioStore$LegacyScenarioWrapper"/>
+        <Bug pattern="UWF_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD"/>
+    </Match>
+
+    <!-- structuretest / xml.schema: legacy analysis helper code in main sources,
+         not part of the production or domain layer — suppress all findings -->
+    <Match>
+        <Package name="~structuretest.*"/>
+    </Match>
+    <Match>
+        <Package name="~xml\.schema.*"/>
+    </Match>
 </FindBugsFilter>

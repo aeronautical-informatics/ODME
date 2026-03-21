@@ -7,6 +7,7 @@ import odme.sampling.model.Scenario;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -159,7 +160,7 @@ public class SamplingManager {
             return;
         }
 
-        try (PrintWriter writer = new PrintWriter(new FileWriter(outputCsvPath))) {
+        try (PrintWriter writer = new PrintWriter(new FileWriter(outputCsvPath, StandardCharsets.UTF_8))) {
             List<String> headers = new ArrayList<>();
             for (Parameter p : numericalParams) headers.add(p.getName());
             for (Parameter p : categoricalParams) headers.add(p.getName());

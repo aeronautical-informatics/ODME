@@ -34,7 +34,10 @@ public class XmlSESSerializer implements SESSerializer {
     @Override
     public void write(SESTree tree, Path path) throws IOException {
         try {
-            Files.createDirectories(path.getParent());
+            Path parentDir = path.getParent();
+            if (parentDir != null) {
+                Files.createDirectories(parentDir);
+            }
 
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
             DocumentBuilder db = dbf.newDocumentBuilder();
@@ -155,6 +158,7 @@ public class XmlSESSerializer implements SESSerializer {
                     case "constraint" -> node.addConstraint(child.getTextContent());
                     case "flag" -> node.putFlag(
                         child.getAttribute("key"), child.getAttribute("value"));
+                    default -> { /* unknown element — ignore */ }
                 }
             }
         }

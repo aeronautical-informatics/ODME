@@ -20,7 +20,10 @@ public class CsvTraceabilityExporter implements TraceabilityExporter {
 
     @Override
     public void export(TraceabilityMatrix matrix, Path path) throws IOException {
-        path.getParent().toFile().mkdirs();
+        Path parentDir = path.getParent();
+        if (parentDir != null) {
+            Files.createDirectories(parentDir);
+        }
 
         try (BufferedWriter writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
             // Header
