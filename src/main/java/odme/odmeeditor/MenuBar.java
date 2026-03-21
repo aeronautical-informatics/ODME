@@ -8,13 +8,23 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import odme.sampling.GenerateSamplesPanel;
+
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.border.EmptyBorder;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class MenuBar {
 	
@@ -74,10 +84,10 @@ public class MenuBar {
 		addMenu("Operation Design Domain", 0, items_operation_design_domain, keyevents_operation_design_domain, keys_operation_design_domain, images_operation_design_domain);
 		
 		// Scenario Manager Menu
-		final String[] items_scenario_manager =  {"Scenarios List", "Execution", "Feedback Loop"};
-		final int[] keyevents_scenario_manager = {0               , 0         ,  0             };
-		final String[] keys_scenario_manager =   {null            , null      ,  null          };
-		final String[] images_scenario_manager = {"list"          ,"executionIcon"      ,"feedbackLoopIcon"          };
+		final String[] items_scenario_manager =  {"Scenarios List", "Execution", "Feedback Loop", "Generate Samples"};
+		final int[] keyevents_scenario_manager = {0               , 0         ,  0             ,  0               };
+		final String[] keys_scenario_manager =   {null            , null      ,  null          ,  null            };
+		final String[] images_scenario_manager = {"list"          ,"executionIcon","feedbackLoopIcon","list"       };
 										
 		addMenu("Scenario Manager", 0, items_scenario_manager, keyevents_scenario_manager, keys_scenario_manager, images_scenario_manager);
 		
@@ -125,21 +135,35 @@ public class MenuBar {
 				}
 			}
 
-			if (items[i]=="Save Scenario" || items[i]=="Scenarios List" || items[i]=="Execution" || items[i]=="Feedback Loop")
+			if ("Save Scenario".equals(items[i]) || "Scenarios List".equals(items[i]) || "Execution".equals(items[i]) || "Feedback Loop".equals(items[i]) || "Generate Samples".equals(items[i]))
 				menuItem.setEnabled(false);
 
-			if (items[i]=="New Project" || items[i]=="Import Template" || items[i]=="Save Scenario" ||
-					items[i]=="Open" || items[i]=="Save as Template" || items[i]=="Scenarios List" ||
-					items[i]=="Execution" || items[i]=="Feedback Loop" || items[i]=="Export XML" ||
-					items[i]=="Export Yaml") {
+			if ("New Project".equals(items[i]) || "Import Template".equals(items[i]) || "Save Scenario".equals(items[i]) ||
+					"Open".equals(items[i]) || "Save as Template".equals(items[i]) || "Scenarios List".equals(items[i]) ||
+					"Execution".equals(items[i]) || "Feedback Loop".equals(items[i]) || "Generate Samples".equals(items[i]) ||
+					"Export XML".equals(items[i]) || "Export Yaml".equals(items[i])) {
 				fileMenuItems.add(menuItem);
+			}
+
+			// Add "Generate Scenario" submenu under "Save Scenario"
+			if ("Save Scenario".equals(items[i])) {
+				JMenu generateScenarioSubMenu = new JMenu("Generate Scenario");
+				JMenuItem csvItem = new JMenuItem("From CSV");
+				csvItem.addActionListener(ev -> openGenerateScenarioWithCsvWindow());
+				generateScenarioSubMenu.add(csvItem);
+				menu.add(generateScenarioSubMenu);
 			}
 
 			menuItem.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					odme.controller.MenuController menuController = new odme.controller.MenuController(mainFrame);
-					menuController.executeMenuAction(e.getActionCommand());
+					String cmd = e.getActionCommand();
+					if ("Generate Samples".equals(cmd)) {
+						openGenerateSamplesWindow();
+					} else {
+						odme.controller.MenuController menuController = new odme.controller.MenuController(mainFrame);
+						menuController.executeMenuAction(cmd);
+					}
 				}
 			});
 			menu.add(menuItem);
@@ -147,4 +171,81 @@ public class MenuBar {
 		menuBar.add(menu);
 	}
 
+	private void openGenerateSamplesWindow() {
+		JFrame f = new JFrame("Generate Samples");
+		f.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		f.getContentPane().add(new GenerateSamplesPanel());
+		f.pack();
+		f.setMinimumSize(new Dimension(500, 200));
+		f.setLocationRelativeTo(null);
+		f.setVisible(true);
+	}
+
+	public static void openGenerateScenarioWithCsvWindow() {
+		JDialog dialog = new JDialog((java.awt.Frame) null, "Generate Scenario Using CSV File", true);
+		dialog.setLayout(new GridBagLayout());
+		dialog.setSize(520, 200);
+		dialog.setLocationRelativeTo(null);
+
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.insets = new Insets(8, 8, 8, 8);
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.weightx = 1;
+
+		JLabel nameLabel = new JLabel("Enter Scenario Name:");
+		JTextField nameField = new JTextField();
+		gbc.gridx = 0; gbc.gridy = 0; dialog.add(nameLabel, gbc);
+		gbc.gridx = 1; gbc.gridy = 0; dialog.add(nameField, gbc);
+
+		JLabel pathLabel = new JLabel("CSV File Path:");
+		JTextField pathField = new JTextField();
+		pathField.setEditable(false);
+		JButton browseButton = new JButton("Browse...");
+		browseButton.addActionListener(e -> {
+			JFileChooser fc = new JFileChooser(ODMEEditor.fileLocation);
+			fc.setFileFilter(new FileNameExtensionFilter("CSV files (*.csv)", "csv"));
+			fc.setAcceptAllFileFilterUsed(false);
+			fc.setDialogTitle("Select CSV File");
+			if (fc.showOpenDialog(dialog) == JFileChooser.APPROVE_OPTION) {
+				pathField.setText(fc.getSelectedFile().getAbsolutePath());
+			}
+		});
+		gbc.gridx = 0; gbc.gridy = 1; dialog.add(pathLabel, gbc);
+		gbc.gridx = 1; gbc.gridy = 1; dialog.add(pathField, gbc);
+		gbc.gridx = 2; gbc.gridy = 1; gbc.weightx = 0; dialog.add(browseButton, gbc);
+
+		JButton okButton = new JButton("OK");
+		JButton cancelButton = new JButton("Cancel");
+		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		buttonPanel.add(okButton);
+		buttonPanel.add(cancelButton);
+		gbc.gridx = 0; gbc.gridy = 2; gbc.gridwidth = 3; gbc.weightx = 1;
+		dialog.add(buttonPanel, gbc);
+
+		okButton.addActionListener(e -> {
+			String scenarioName = nameField.getText().trim();
+			String csvPath = pathField.getText().trim();
+			if (scenarioName.isEmpty()) {
+				JOptionPane.showMessageDialog(dialog, "Please enter a scenario name.", "Missing Name", JOptionPane.WARNING_MESSAGE);
+				return;
+			}
+			if (csvPath.isEmpty()) {
+				JOptionPane.showMessageDialog(dialog, "Please select a CSV file.", "Missing File", JOptionPane.WARNING_MESSAGE);
+				return;
+			}
+			BackgroundTaskRunner.run(dialog,
+					"Generate Scenarios",
+					"Generating scenario files from CSV...",
+					() -> ScenarioGeneration.generateScenarios(csvPath, scenarioName),
+					result -> {
+						JOptionPane.showMessageDialog(dialog, result, "Done", JOptionPane.INFORMATION_MESSAGE);
+						dialog.dispose();
+					},
+					error -> JOptionPane.showMessageDialog(dialog,
+							"Failed:\n" + error.getMessage(), "Error", JOptionPane.ERROR_MESSAGE));
+		});
+
+		cancelButton.addActionListener(e -> dialog.dispose());
+		dialog.setVisible(true);
+	}
 }

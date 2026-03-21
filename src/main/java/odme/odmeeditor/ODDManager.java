@@ -399,6 +399,14 @@ public class ODDManager extends JPanel{
 		return xsdToYaml(getStateXsdFilePath());
 	}
 
+	/**
+	 * Like currentXsdToYaml() but takes an explicit XSD path.
+	 * Used by MenuBar for domain-model-based scenario generation.
+	 */
+	public static String currentXsdToYamlTemp(String xsdPath) {
+		return xsdToYaml(xsdPath);
+	}
+
 	public static String xsdToYaml(String path) {
 		try {
 			List<String[]> xsd = xsdParser.readXsd(path);

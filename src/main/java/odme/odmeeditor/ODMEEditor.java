@@ -66,6 +66,9 @@ public class ODMEEditor extends JPanel {
     public static DynamicTree treePanel;
     
     public static Constraint scenarioConstraint;
+    public static Distribution scenarioDistribution;
+    public static InterEntityConstraints scenarioInterEntityConstraints;
+    public static IntraEntityConstraint scenarioIntraEntityConstraint;
     public static Behaviour scenarioBehaviour;
     
     public static ProjectTree projectPanel;
@@ -113,6 +116,18 @@ public class ODMEEditor extends JPanel {
         scenarioConstraint.setPreferredSize(new Dimension(100, 100));
         scenarioConstraint.setBorder(new EmptyBorder(10, 10, 10, 10));
 
+        scenarioDistribution = new Distribution();
+        scenarioDistribution.setPreferredSize(new Dimension(100, 100));
+        scenarioDistribution.setBorder(new EmptyBorder(10, 10, 10, 10));
+
+        scenarioInterEntityConstraints = new InterEntityConstraints();
+        scenarioInterEntityConstraints.setPreferredSize(new Dimension(100, 100));
+        scenarioInterEntityConstraints.setBorder(new EmptyBorder(10, 10, 10, 10));
+
+        scenarioIntraEntityConstraint = new IntraEntityConstraint();
+        scenarioIntraEntityConstraint.setPreferredSize(new Dimension(100, 100));
+        scenarioIntraEntityConstraint.setBorder(new EmptyBorder(10, 10, 10, 10));
+
         scenarioBehaviour = new Behaviour();
         scenarioBehaviour.setPreferredSize(new Dimension(100 , 100));
         scenarioBehaviour.setBorder(new EmptyBorder(10, 10, 10, 10));
@@ -148,7 +163,8 @@ public class ODMEEditor extends JPanel {
         // add panelSpliter with main window's parts 
         PanelSplitor panelSplitor = new PanelSplitor();
         splitPane = panelSplitor.addSplitor(projectPanel, treePanel, graphWindow,
-        			console, scenarioVariable, scenarioBehaviour,scenarioConstraint, tabbedPane);  
+                console, scenarioVariable, scenarioDistribution, scenarioBehaviour,
+                scenarioInterEntityConstraints, scenarioIntraEntityConstraint, tabbedPane);
        
     }
     
@@ -210,6 +226,9 @@ public class ODMEEditor extends JPanel {
                     Variable.setNullToAllRows();
                     Constraint.setNullToAllRows();
                     Behaviour.setNullToAllRows();
+                    Distribution.setNullToAllRows();
+                    IntraEntityConstraint.setNullToAllRows();
+                    InterEntityConstraints.setNullToAllRows();
                     applyGuiSES();
             	}
             }
