@@ -11,6 +11,7 @@ import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableModel;
 
+import odme.domain.validation.FieldValidators;
 import odme.jtreetograph.JtreeToGraphDelete;
 import odme.jtreetograph.JtreeToGraphVariables;
 
@@ -44,7 +45,7 @@ public class Variable extends JPanel {
     // selectedType is using in below function: addVariableFromGraphPopup
     public static String selectedType;
     
-    public static final String variableFieldRegEx = "[a-zA-Z_][a-zA-Z0-9_]*";
+    public static final String variableFieldRegEx = FieldValidators.VARIABLE_FIELD_REGEX;
     
 
     public Variable() {
@@ -384,145 +385,53 @@ public class Variable extends JPanel {
     public static void variableFieldValidator(
     		JTextField variableField, JTextField valueField, JLabel errorLabelField,
     		JTextField lowerBoundField, JTextField upperBoundField) {
-    	if (selectedType.equals("string")) {
-            errorLabelField.setVisible(
-                    !variableField.getText().trim().matches(variableFieldRegEx) || !valueField
-                            .getText().trim().matches(variableFieldRegEx));
-        }
-        else if (selectedType.equals("boolean")) {
-
-            errorLabelField.setVisible(
-                    (!valueField.getText().trim().equals("false") && !valueField.getText().trim()
-                            .equals("true")) || !variableField.getText().trim()
-                            .matches(variableFieldRegEx));
-        }
-        else if (selectedType.equals("double")) {
-
-            errorLabelField.setVisible(
-                    !valueField.getText().trim().matches("^\\d*\\.\\d+") || !variableField.getText()
-                            .trim().matches(variableFieldRegEx) || !lowerBoundField.getText().trim()
-                            .matches("^\\d*\\.\\d+") || !upperBoundField.getText().trim()
-                            .matches("^\\d*\\.\\d+"));
-        } 
-        else {
-            errorLabelField.setVisible(
-                    !variableField.getText().trim().matches(variableFieldRegEx) || !valueField
-                            .getText().trim().matches("^[0-9]+") || !lowerBoundField.getText().trim()
-                            .matches("^[0-9]+") || !upperBoundField.getText().trim()
-                            .matches("^[0-9]+"));
-        }
+    	boolean valid = FieldValidators.validateVariableField(
+    			selectedType,
+    			variableField.getText(),
+    			valueField.getText(),
+    			lowerBoundField.getText(),
+    			upperBoundField.getText());
+    	errorLabelField.setVisible(!valid);
     }
     
     // added by amir
     public static void variableCommentValidator(JTextField commentFiled,JLabel errorLabelField) {
-    	try {
-    		errorLabelField.setVisible(
-				!commentFiled.getText().trim().matches("^[a-zA-Z_][a-Z0-9A-Z ]*")
-    		);
-    	}
-    	catch (Exception e) {
-    		errorLabelField.setVisible(true);
-		}
+    	errorLabelField.setVisible(!FieldValidators.validateComment(commentFiled.getText()));
     }
     
     public static void valueFieldvalidator(
     		JTextField variableField, JTextField valueField, JLabel errorLabelField,
     		JTextField lowerBoundField, JTextField upperBoundField) {
-    	if (selectedType.equals("boolean")) {
-            errorLabelField.setVisible(
-                    !valueField.getText().trim().equals("false") 
-                    && !valueField.getText().trim().equals("true"));
-        } 
-        else if (selectedType.equals("int")) {
-        	try {
-        		errorLabelField.setVisible(
-        				!valueField.getText().trim().matches("^-{0,1}[0-9]+") ||
-        				Integer.parseInt(valueField.getText()) > Integer.parseInt(upperBoundField.getText()) || 
-        				Integer.parseInt(valueField.getText()) < Integer.parseInt(lowerBoundField.getText()));
-        	}
-        	catch (Exception e) {
-        		errorLabelField.setVisible(true);
-			}
-        } 
-        else if (selectedType.equals("float")) {
-        	try {
-        		errorLabelField.setVisible(
-        				!valueField.getText().trim().matches("^\\d*\\.\\d+") ||
-        				Float.parseFloat(valueField.getText()) > Float.parseFloat(upperBoundField.getText()) || 
-        				Float.parseFloat(valueField.getText()) < Float.parseFloat(lowerBoundField.getText()));
-        	}
-        	catch (Exception e) {
-        		errorLabelField.setVisible(true);
-        	}
-        } 
-    	
-        else if (selectedType.equals("double")) {
-        	try {
-        		errorLabelField.setVisible(
-        				!valueField.getText().trim().matches("^\\d*\\.\\d+") ||
-        				Double.parseDouble(valueField.getText()) > Double.parseDouble(upperBoundField.getText()) || 
-        				Double.parseDouble(valueField.getText()) < Double.parseDouble(lowerBoundField.getText()));
-        	}
-        	catch (Exception e) {
-        		errorLabelField.setVisible(true);
-        	}
-        }
-        	
-        else if (selectedType.equals("string")) {
-            errorLabelField.setVisible(
-                    !valueField.getText().trim().matches(variableFieldRegEx));
-        }
+    	boolean valid = FieldValidators.validateValueField(
+    			selectedType,
+    			valueField.getText(),
+    			lowerBoundField.getText(),
+    			upperBoundField.getText());
+    	errorLabelField.setVisible(!valid);
     }
 
     public static void lowerBoundFieldValidator(
     		JTextField variableField, JTextField valueField, JLabel errorLabelField,
     		JTextField lowerBoundField, JTextField upperBoundField){
-    	
-        if (selectedType.equals("int")) {
-
-            errorLabelField.setVisible(
-                    !valueField.getText().trim().matches("^[0-9]+") || !variableField.getText().trim()
-                            .matches(variableFieldRegEx) || !lowerBoundField.getText().trim()
-                            .matches("^[0-9]+") || !upperBoundField.getText().trim()
-                            .matches("^[0-9]+"));
-        } 
-        else if (selectedType.equals("float") || selectedType.equals("double")) {
-
-            errorLabelField.setVisible(
-                    !valueField.getText().trim().matches("^\\d*\\.\\d+") || !variableField.getText()
-                            .trim().matches(variableFieldRegEx) || !lowerBoundField.getText().trim()
-                            .matches("^\\d*\\.\\d+") || !upperBoundField.getText().trim()
-                            .matches("^\\d*\\.\\d+"));
-        }
+    	boolean valid = FieldValidators.validateLowerBoundField(
+    			selectedType,
+    			variableField.getText(),
+    			valueField.getText(),
+    			lowerBoundField.getText(),
+    			upperBoundField.getText());
+    	errorLabelField.setVisible(!valid);
     }
     
     public static void upperBoundFieldValidator(
     		JTextField variableField, JTextField valueField, JLabel errorLabelField,
     		JTextField lowerBoundField, JTextField upperBoundField){
-    	if (selectedType.equals("float")) {
-        	
-            errorLabelField.setVisible(
-                    !valueField.getText().trim().matches("^[0-9]+") || !variableField.getText().trim()
-                            .matches(variableFieldRegEx) || !lowerBoundField.getText().trim()
-                            .matches("^[0-9]+") || !upperBoundField.getText().trim()
-                            .matches("^[0-9]+"));
-        }
-        else if (selectedType.equals("int")) {
-
-            errorLabelField.setVisible(
-                    !valueField.getText().trim().matches("^[0-9]+") || !variableField.getText().trim()
-                            .matches(variableFieldRegEx) || !lowerBoundField.getText().trim()
-                            .matches("^[0-9]+") || !upperBoundField.getText().trim()
-                            .matches("^[0-9]+"));
-        } 
-        else if (selectedType.equals("double")) {
-
-            errorLabelField.setVisible(
-                    !valueField.getText().trim().matches("^\\d*\\.\\d+") || !variableField.getText()
-                            .trim().matches(variableFieldRegEx) || !lowerBoundField.getText().trim()
-                            .matches("^\\d*\\.\\d+") || !upperBoundField.getText().trim()
-                            .matches("^\\d*\\.\\d+"));
-        }
+    	boolean valid = FieldValidators.validateUpperBoundField(
+    			selectedType,
+    			variableField.getText(),
+    			valueField.getText(),
+    			lowerBoundField.getText(),
+    			upperBoundField.getText());
+    	errorLabelField.setVisible(!valid);
     }
     
     public static void variableTypeFieldChange(JTextField variableField,

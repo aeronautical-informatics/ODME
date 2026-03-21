@@ -1,6 +1,8 @@
 package odme.jtreetograph;
 
 import odme.core.EditorContext;
+import odme.domain.transform.XmlTransformRules;
+
 import javax.swing.JOptionPane;
 import static odme.jtreetograph.JtreeToGraphVariables.*;
 import static odme.behaviour.BehaviourToTree.selectedScenario;
@@ -10,11 +12,15 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 import odme.odmeeditor.ODMEEditor;
 
 public class JtreeToGraphModify {
+
+    private static final XmlTransformRules transformRules = new XmlTransformRules();
 
     /**
      * This method will change the generated XML file according to requirement.
@@ -77,180 +83,157 @@ public class JtreeToGraphModify {
      * <node1> </node1>
      */
     public static void modifyXmlOutput() {
-        PrintWriter f0 = null;
+        // Read input file
+        List<String> inputLines = new ArrayList<>();
         try {
-            String path = new String();
+            String path;
             if ("ses".equals(EditorContext.getInstance().getToolMode()))
-                path = EditorContext.getInstance().getWorkingDir() + "/" + EditorContext.getInstance().getNewFileName() + ".xml";
+                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/graphxml.xml";
             else
-                path = EditorContext.getInstance().getWorkingDir() + "/" + EditorContext.getInstance().getProjName() + ".xml";
+                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + "/graphxml.xml";
 
-            f0 = new PrintWriter(new FileWriter(path));
+            Scanner in = new Scanner(new File(path));
+            while (in.hasNext()) {
+                inputLines.add(in.nextLine());
+            }
+            in.close();
         }
-        catch (IOException e1) {
-            e1.printStackTrace();
-            JOptionPane.showMessageDialog(null, "An error occurred: " + e1.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        Scanner in = null;
-        try {
-            String path = EditorContext.getInstance().getWorkingDir() + "/graphxml.xml";
-
-            in = new Scanner(new File(path));
-        } 
         catch (FileNotFoundException e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        while (in.hasNext()) { // Iterates each line in the file
-            String line = in.nextLine();
+        // Apply transformation rules
+        List<String> outputLines = transformRules.applyModifyXmlOutputRules(inputLines);
 
-            if (line.endsWith("start>")) {
-                continue;
-            } 
-            else if (line.endsWith("/>")) {
-                String result = line.replaceAll("[</>]", "");
-                result = result.replaceAll("\\s+", "");
-                String line1 = "<" + result + ">";
-                String line2 = "</" + result + ">";
-                f0.println(line1);
-                f0.println(line2);
-            } 
-            else {
+        // Write output file
+        try {
+            String path;
+            if ("ses".equals(EditorContext.getInstance().getToolMode()))
+                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/" + EditorContext.getInstance().getNewFileName() + ".xml";
+            else
+                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + "/" + EditorContext.getInstance().getProjName() + ".xml";
+
+            PrintWriter f0 = new PrintWriter(new FileWriter(path));
+            for (String line : outputLines) {
                 f0.println(line);
             }
+            f0.close();
         }
-        in.close();
-        f0.close();
+        catch (IOException e1) {
+            e1.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + e1.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
-    
+
  // for modifying the generated xml output from the project tree. it is not using
     // for graph tree now
     // graph tree are generating from mxGraph files
     public static void modifyXmlOutputSES() {
-        PrintWriter f0 = null;
+        // Read input file
+        List<String> inputLines = new ArrayList<>();
         try {
-
-            String path = new String();
+            String path;
             if ("ses".equals(EditorContext.getInstance().getToolMode()))
-                path = EditorContext.getInstance().getWorkingDir() + "/" + EditorContext.getInstance().getNewFileName() + "Project.xml";
+                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/projectTree.xml";
             else
-                path = EditorContext.getInstance().getWorkingDir() + "/" + EditorContext.getInstance().getProjName() + "Project.xml";
+                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + "/projectTree.xml";
 
-            f0 = new PrintWriter(new FileWriter(path));
-
+            Scanner in = new Scanner(new File(path));
+            while (in.hasNext()) {
+                inputLines.add(in.nextLine());
+            }
+            in.close();
         }
-        catch (IOException e1) {
-            e1.printStackTrace();
-            JOptionPane.showMessageDialog(null, "An error occurred: " + e1.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        Scanner in = null;
-        try {
-            String path = EditorContext.getInstance().getWorkingDir() + "/projectTree.xml";
-
-            in = new Scanner(new File(path));
-        } 
         catch (FileNotFoundException e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        
-        if (in != null) {
-            while (in.hasNext()) { // Iterates each line in the file
-            String line = in.nextLine();
 
-            if (line.endsWith("start>")) {
-                continue;
-            } 
-            else if (line.endsWith("/>")) {
-                String result = line.replaceAll("[</>]", "");
-                result = result.replaceAll("\\s+", "");
-                String line1 = "<" + result + ">";
-                String line2 = "</" + result + ">";
-                f0.println(line1);
-                f0.println(line2);
+        // Apply transformation rules (same rules as modifyXmlOutput - drops start> lines and expands self-closing tags)
+        List<String> outputLines = transformRules.applyModifyXmlOutputRules(inputLines);
+
+        // Write output file
+        try {
+            String path;
+            if ("ses".equals(EditorContext.getInstance().getToolMode()))
+                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/" + EditorContext.getInstance().getNewFileName() + "Project.xml";
+            else
+                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + "/" + EditorContext.getInstance().getProjName() + "Project.xml";
+
+            PrintWriter f0 = new PrintWriter(new FileWriter(path));
+            for (String line : outputLines) {
+                f0.println(line);
             }
-            }
+            f0.close();
         }
-        if (in != null) in.close();
-        if (f0 != null) f0.close();
+        catch (IOException e1) {
+            e1.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + e1.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
-    
+
     /**
      * Modifying the generated output by making single line element <node/> two
      * double lines <node> </node>
      */
     public static void modifyXmlOutputFixForSameNameNode() {
-        PrintWriter f0 = null;
+        // Read input file
+        List<String> inputLines = new ArrayList<>();
         try {
-            String path = EditorContext.getInstance().getWorkingDir() + "/outputgraphxmlforxsdvar.xml";
+            String path;
+            if ("ses".equals(EditorContext.getInstance().getToolMode()))
+                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/outputgraphxmlforxsd.xml";
+            else
+                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + "/outputgraphxmlforxsd.xml";
 
-            f0 = new PrintWriter(new FileWriter(path));
+            Scanner in = new Scanner(new File(path));
+            while (in.hasNext()) {
+                inputLines.add(in.nextLine());
+            }
+            in.close();
         }
-        catch (IOException e1) {
-            e1.printStackTrace();
-            JOptionPane.showMessageDialog(null, "An error occurred: " + e1.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        Scanner in = null;
-        try {
-            String path = EditorContext.getInstance().getWorkingDir() + "/outputgraphxmlforxsd.xml";
-
-            in = new Scanner(new File(path));
-        } 
         catch (FileNotFoundException e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        while (in.hasNext()) { // Iterates each line in the file
-            String line = in.nextLine();
+        // Apply transformation rules
+        List<String> outputLines = transformRules.applyModifyXmlOutputFixForSameNameNode(inputLines);
 
-            if (line.endsWith("/>")) {
-                String result = line.replaceAll("[</>]", "");
-                if (result.endsWith("RefNode")) {
-                    f0.println(line);
-                }
-                else if (result.endsWith("Var")) {
-                    f0.println(line);
-                }
-                else if (result.endsWith("Behaviour")) { // Author: Vadece Kamdem
-                    f0.println(line);
-                }
-                else if (result.endsWith("Con")) {
-                    f0.println(line);
-                } 
-                else {
-                    result = result.replaceAll("\\s+", "");
-                    String line1 = "<" + result + ">";
-                    String line2 = "</" + result + ">";
-                    f0.println(line1);
-                    f0.println(line2);
-                }
-            }
-            else {
+        // Write output file
+        try {
+            String path;
+            if ("ses".equals(EditorContext.getInstance().getToolMode()))
+                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/outputgraphxmlforxsdvar.xml";
+            else
+                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + "/outputgraphxmlforxsdvar.xml";
+
+            PrintWriter f0 = new PrintWriter(new FileWriter(path));
+            for (String line : outputLines) {
                 f0.println(line);
             }
+            f0.close();
         }
-
-        in.close();
-        f0.close();
+        catch (IOException e1) {
+            e1.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + e1.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
 
         copyFixForSameNameNodeToOther();
     }
-    
+
     private static void copyFixForSameNameNodeToOther() {
         PrintWriter f0 = null;
         try {
-            String path = EditorContext.getInstance().getWorkingDir() + "/outputgraphxmlforxsd.xml";
+            String path = new String();
+            if ("ses".equals(EditorContext.getInstance().getToolMode()))
+                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/outputgraphxmlforxsd.xml";
+            else
+                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + "/outputgraphxmlforxsd.xml";
 
             f0 = new PrintWriter(new FileWriter(path));
         }
@@ -262,10 +245,14 @@ public class JtreeToGraphModify {
 
         Scanner in = null;
         try {
-            String path = EditorContext.getInstance().getWorkingDir() + "/outputgraphxmlforxsdvar.xml";
+            String path = new String();
+            if ("ses".equals(EditorContext.getInstance().getToolMode()))
+                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/outputgraphxmlforxsdvar.xml";
+            else
+                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + "/outputgraphxmlforxsdvar.xml";
 
             in = new Scanner(new File(path));
-        } 
+        }
         catch (FileNotFoundException e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);

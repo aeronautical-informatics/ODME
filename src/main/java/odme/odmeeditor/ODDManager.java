@@ -2,6 +2,8 @@ package odme.odmeeditor;
 
 // import static odme.odmeeditor.XmlUtils.sesview;
 import odme.core.EditorContext;
+import odme.domain.transform.XsdParser;
+import odme.domain.transform.XsdToYamlConverter;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -21,16 +23,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
 import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.w3c.dom.NamedNodeMap;
-
-import org.xml.sax.SAXException;
 
 import odme.jtreetograph.JtreeToGraphConvert;
 import javax.swing.JFileChooser;
@@ -69,6 +61,9 @@ public class ODDManager extends JPanel{
 			"Comments"
 	};
 
+	private static final XsdParser xsdParser = new XsdParser();
+	private static final XsdToYamlConverter xsdToYamlConverter = new XsdToYamlConverter();
+
 	private static String getStateXsdFilePath() {
 		return EditorContext.getInstance().getFileLocation()+System.getProperty("file.separator")+
 				EditorContext.getInstance().getProjName()+
@@ -92,7 +87,6 @@ public class ODDManager extends JPanel{
 	private JButton deleteBtn;
 	private JButton exportYamlBtn;
 	private JButton exportXmlBtn;
-	private JButton lhsBtn;
 	private JLabel currentODDLabel;
 
 	private JPanel oddsPanel;
@@ -165,7 +159,6 @@ public class ODDManager extends JPanel{
 		this.btnsPanel=new JPanel();
 		btnsPanel.add(currentODDLabel);
 		initSaveBtn();
-		initLhsBtn();
 		if (mode.equals("ODD Manager")) {
 			initExportXmlBtn();
 			initExportYamlBtn();
@@ -321,109 +314,6 @@ public class ODDManager extends JPanel{
 		});
 	}
 
-	private void initLhsBtn() {
-		this.lhsBtn = new JButton("Generate Test Cases (LHS)");
-		btnsPanel.add(lhsBtn);
-		lhsBtn.addActionListener(new ActionListener() {
-			@Override public void actionPerformed(ActionEvent ae) {
-				generateLhsTestCases();
-			}
-		});
-	}
-
-	/**
-	 * Extract Variable parameters from the ODD table, ask user for sample count,
-	 * run Latin Hypercube Sampling, and export to CSV via file chooser.
-	 */
-	private void generateLhsTestCases() {
-		// First ensure the table is up to date
-		ODMEEditor.saveFunc(false);
-		ODMEEditor.updateState();
-		JtreeToGraphConvert.convertTreeToXML();
-
-		// Extract parameters from the current table
-		EditableDataModel model = (EditableDataModel) jt.getModel();
-		List<LatinHypercubeSampler.Parameter> params = new ArrayList<>();
-		String currentParentNode = "";
-
-		for (int row = 0; row < model.getRowCount(); row++) {
-			String name = model.getValueAt(row, 0) != null ? model.getValueAt(row, 0).toString().trim() : "";
-			String type = model.getValueAt(row, 1) != null ? model.getValueAt(row, 1).toString().trim() : "";
-
-			if (type.equals("Node")) {
-				// Track current parent for variable naming
-				currentParentNode = name.replaceAll("^\\s*", "");
-			} else if (type.equals("Variable")) {
-				String dataType = model.getValueAt(row, 2) != null ? model.getValueAt(row, 2).toString().trim() : "";
-				String minStr = model.getValueAt(row, 3) != null ? model.getValueAt(row, 3).toString().trim() : "";
-				String maxStr = model.getValueAt(row, 4) != null ? model.getValueAt(row, 4).toString().trim() : "";
-
-				// Skip variables without numeric bounds
-				if (minStr.isEmpty() || maxStr.isEmpty()) continue;
-				// Skip string-type variables
-				if (dataType.equalsIgnoreCase("string")) continue;
-
-				try {
-					double min = Double.parseDouble(minStr);
-					double max = Double.parseDouble(maxStr);
-					if (min >= max) continue; // skip fixed-value parameters (min == max)
-
-					String varName = name.replaceAll("^[\\s-]*", "");
-					params.add(new LatinHypercubeSampler.Parameter(
-							varName, currentParentNode, dataType, min, max));
-				} catch (NumberFormatException e) {
-					// skip non-numeric
-				}
-			}
-		}
-
-		if (params.isEmpty()) {
-			JOptionPane.showMessageDialog(null,
-					"No variable parameters with numeric ranges found in the ODD.\n" +
-					"Ensure variables have Lower Bound and Upper Bound values set\n" +
-					"and that min < max (fixed-value parameters are excluded).",
-					"No Parameters", JOptionPane.WARNING_MESSAGE);
-			return;
-		}
-
-		// Show parameter summary and ask for sample count
-		StringBuilder paramSummary = new StringBuilder();
-		paramSummary.append("Found ").append(params.size()).append(" variable parameters:\n\n");
-		for (LatinHypercubeSampler.Parameter p : params) {
-			paramSummary.append("  ").append(p.toString()).append("\n");
-		}
-		paramSummary.append("\nEnter number of test cases to generate:");
-
-		String input = JOptionPane.showInputDialog(null, paramSummary.toString(),
-				"Latin Hypercube Sampling", JOptionPane.QUESTION_MESSAGE);
-		if (input == null) return; // cancelled
-
-		int n;
-		try {
-			n = Integer.parseInt(input.trim());
-			if (n <= 0) throw new NumberFormatException();
-		} catch (NumberFormatException e) {
-			JOptionPane.showMessageDialog(null,
-					"Please enter a positive integer.", "Invalid Input",
-					JOptionPane.ERROR_MESSAGE);
-			return;
-		}
-
-		// Run LHS
-		LatinHypercubeSampler sampler = new LatinHypercubeSampler();
-		List<LatinHypercubeSampler.TestCase> testCases = sampler.sample(params, n);
-		String csv = LatinHypercubeSampler.toCsv(params, testCases);
-
-		// Save via file chooser
-		String suggestedName = EditorContext.getInstance().getProjName() + "_LHS_" + n + ".csv";
-		chooseAndSaveFile(csv, suggestedName, "csv");
-
-		JOptionPane.showMessageDialog(null,
-				n + " test cases generated using Latin Hypercube Sampling\n" +
-				"covering " + params.size() + " parameters.",
-				"LHS Complete", JOptionPane.INFORMATION_MESSAGE);
-	}
-
 	private void initDeleteBtn() {
 		this.deleteBtn=new JButton("Delete");
 		btnsPanel.add(deleteBtn);
@@ -441,65 +331,13 @@ public class ODDManager extends JPanel{
 	}
 
 	public static String xsdToYaml(String path) {
-		StringBuilder curr = new StringBuilder();
-		List<String[]> xsd;
 		try {
-			xsd = readXsd(path);
-			// Stack holds pair: [xsdIndent, yamlIndent]
-			Deque<int[]> indentStack = new ArrayDeque<>();
-			indentStack.push(new int[]{-1, -1});
-
-			for (String[] row : xsd) {
-				int xsdIndent = countLeadingSpaces(row[0]) / 2;
-				String componentName = row[0].replaceAll("^\\s*-?", "").trim();
-				if (componentName.isEmpty()) {
-					continue;  // Skip empty names
-				}
-				String type = row[1].trim();
-
-				// Pop until the current xsdIndent is greater than the one at stack top.
-				while (!indentStack.isEmpty() && indentStack.peek()[0] >= xsdIndent) {
-					indentStack.pop();
-				}
-
-				int parentYamlIndent = indentStack.isEmpty() ? -1 : indentStack.peek()[1];
-				int currentYamlIndent = parentYamlIndent + 1;
-
-				if (type.equals("Node")) {
-					// For nodes, output a mapping key with a colon.
-					curr.append(getIndent(currentYamlIndent))
-							.append(componentName)
-							.append(":\n");
-					indentStack.push(new int[]{xsdIndent, currentYamlIndent});
-				} else if (type.equals("Variable")) {
-					// For variables, output as list item.
-					curr.append(getIndent(currentYamlIndent))
-							.append("- ").append(componentName).append(":\n")
-							.append(getIndent(currentYamlIndent + 1))
-							.append("type: ").append(row[2]).append("\n");
-
-					if (row[3] != null && !row[3].isEmpty()) {
-						curr.append(getIndent(currentYamlIndent + 1))
-								.append("min: ").append(row[3]).append("\n");
-					}
-					if (row[4] != null && !row[4].isEmpty()) {
-						curr.append(getIndent(currentYamlIndent + 1))
-								.append("max: ").append(row[4]).append("\n");
-					}
-				}
-			}
+			List<String[]> xsd = xsdParser.readXsd(path);
+			return xsdToYamlConverter.convert(xsd);
 		} catch (Exception e) {
 			e.printStackTrace();
+			return "";
 		}
-		return curr.toString();
-	}
-
-	private static int countLeadingSpaces(String s) {
-		return (int) s.chars().takeWhile(c -> c == ' ').count();
-	}
-
-	private static String getIndent(int level) {
-		return "  ".repeat(Math.max(0, level));
 	}
 
 	/**
@@ -586,7 +424,7 @@ public class ODDManager extends JPanel{
 		EditableDataModel dtm=new EditableDataModel(nodeHeaders,0);
 		List<String[]> data=null;
 		try{
-			data=readCurrentXsd();
+			data=xsdParser.readXsd(getStateXsdFilePath());
 
 			// caveat: if user hasn't saved the whole
 			// progress yet, "data" may be null
@@ -600,145 +438,4 @@ public class ODDManager extends JPanel{
 		}
 	}
 
-	// ======================================================= Reading inital xsd - new format with indents
-
-	private static List<String[]> readCurrentXsd() throws SAXException, IOException, ParserConfigurationException{
-		return readXsd(getStateXsdFilePath());
-	}
-
-	/**
-	 * @author Roy
-	 * read current project's xsd and parse it (manually) to extract the data you want (that is; only the
-	 * columns like lowerBound upperBound etc.) and return a String[] list (list of arrays) so it can
-	 * be assigned to JTable
-	 */
-	private static List<String[]> readXsd(String tablePath) throws SAXException, IOException, ParserConfigurationException {
-
-		// preparing the Document Object Model (DOM)
-		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-		DocumentBuilder db = dbf.newDocumentBuilder();
-		org.w3c.dom.Document doc = db.parse(new File(tablePath));
-		doc.getDocumentElement().normalize();
-
-		// source of data for later consumption by the JTable
-		List<String[]> dataSource=new ArrayList<String[]>();
-		List<Element> processed=new ArrayList<Element>();
-
-		// kick start processing in a recursive manner (xsd in and of itself is recursive!)
-		NodeList nodes=doc.getElementsByTagName("xs:element");
-		processNodeList(nodes,dataSource,processed,0);
-
-		return dataSource;
-	}
-
-	/**
-	 * @author Roy
-	 * processes xs:element tags at one specific level of depth and recursively calls itself
-	 * if that tag has xs:element child tags, until all xs:element tags are processed
-	 * */
-	private static void processNodeList(NodeList nodes,List<String[]> src,List<Element> processed,int indent) {
-		Element curr=null;
-		NodeList kids=null;
-		for (int i=0;i<nodes.getLength();i++) {
-			curr=(Element)nodes.item(i);
-			if(!processed.contains(curr)) {
-				processElementTag(curr, src, indent);
-				kids=curr.getElementsByTagName("xs:element");
-				if(kids.getLength()>0)
-					processNodeList(kids, src,processed,indent+1);
-				processed.add(curr);
-			}
-		}
-	}
-
-
-	/**
-	 * @author Roy
-	 * process one Element Tag, without touching it's children
-	 * */
-	private static void processElementTag(Element e,List<String[]> src,int indent) {
-		src.add(getNodeHeaders(e,indent)); // adding headers
-
-		// processing xs:attribute tags under the current xs:element tag (which is e)
-		NodeList attrs=e.getElementsByTagName("xs:attribute");
-		indent+=2;
-		Element curr=null;
-		String firstParentName=null;
-		for(int i=0;i<attrs.getLength();i++) {
-			curr=(Element)attrs.item(i);
-			firstParentName=findFirstParent(curr, "xs:element");
-			if(firstParentName.equals(e.getAttribute("name")) &&
-					(!curr.hasAttribute("use") || !curr.getAttribute("use").equals("optional"))
-			)src.add(processAttributeTag(curr, indent));
-		}
-	}
-
-	/**
-	 * @author Roy
-	 * find the first parent tag of Element e, that has the tagName as its...well, tag name!
-	 * */
-	private static String findFirstParent(Element e,String tagName) {
-		Node curr=(Node)e;
-		Node n=null;
-		do {
-			n=curr.getParentNode();
-			curr=n;
-		}while(n!=null && !n.getNodeName().equals(tagName));
-		if(n==null)return "[NO_PARENT]";
-		return ((Element)n).getAttribute("name");
-	}
-
-	/**
-	 * @author Roy
-	 * get a node's attributes in a consumable form (based on the child tags)
-	 * */
-	private static String[] processAttributeTag(Element e,int indent) {
-
-		String[] r=new String[6];
-		r[0]=indentStr("-"+e.getAttribute("name"),indent);
-		r[1]="Variable";
-		NodeList nl=e.getElementsByTagName("*");
-		Element temp;
-		for(int i=0;i<nl.getLength();i++) {
-			temp=(Element)nl.item(i);
-			switch(temp.getNodeName()) {
-				case "xs:restriction":r[2]=temp.getAttribute("base").replace("xs:", "");break;
-				case "xs:minInclusive":r[3]=temp.getAttribute("value");break;
-				case "xs:maxInclusive":r[4]=temp.getAttribute("value");break;
-				default:break;
-			}
-		}
-		return r;
-	}
-
-	/**
-	 * @author Roy
-	 * get node name and the fact that it is a node
-	 * */
-	private static String[] getNodeHeaders(Element e,int indent) {
-		String[] r=new String[5];
-		r[0]=indentStr(e.getAttribute("name"),indent,"  ");
-		r[1]="Node";
-		return r;
-	}
-
-	/**
-	 * @author Roy
-	 * puts whitespaces at the start of a String
-	 * */
-	private static String indentStr(String s,int level) {
-		return indentStr(s,level," ");
-	}
-
-	/**
-	 * @author Roy
-	 * puts whitespaces at the start of a String
-	 * */
-	private static String indentStr(String s,int level,String indentStr) {
-		for (int i=0;i<level;i++)
-			s=indentStr+s;
-		return s;
-	}
-
 }
-
