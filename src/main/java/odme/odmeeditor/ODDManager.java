@@ -87,6 +87,7 @@ public class ODDManager extends JPanel{
 	private JButton deleteBtn;
 	private JButton exportYamlBtn;
 	private JButton exportXmlBtn;
+	private JButton lhsBtn;
 	private JLabel currentODDLabel;
 
 	private JPanel oddsPanel;
@@ -162,6 +163,7 @@ public class ODDManager extends JPanel{
 		if (mode.equals("ODD Manager")) {
 			initExportXmlBtn();
 			initExportYamlBtn();
+			initLhsBtn();
 			initDeleteBtn();
 		}
 		btnsPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
@@ -323,6 +325,73 @@ public class ODDManager extends JPanel{
 			}
 		});
 	}
+	private void initLhsBtn() {
+		this.lhsBtn = new JButton("Generate LHS Test Cases");
+		btnsPanel.add(lhsBtn);
+		lhsBtn.addActionListener(new ActionListener() {
+			@Override public void actionPerformed(ActionEvent ae) {
+				generateLhsTestCases();
+			}
+		});
+	}
+
+	/**
+	 * Read parameters from the ODD table, run Latin Hypercube Sampling,
+	 * and let the user save the resulting CSV of test cases.
+	 */
+	private void generateLhsTestCases() {
+		EditableDataModel model = (EditableDataModel) jt.getModel();
+		int rowCount = model.getRowCount();
+
+		// Collect parameters that have numeric bounds
+		List<LatinHypercubeSampler.Parameter> params = new ArrayList<>();
+		for (int r = 0; r < rowCount; r++) {
+			String name      = Objects.toString(model.getValueAt(r, 0), "").trim();
+			String type      = Objects.toString(model.getValueAt(r, 1), "").trim();
+			String dataType  = Objects.toString(model.getValueAt(r, 2), "").trim();
+			String lowerStr  = Objects.toString(model.getValueAt(r, 3), "").trim();
+			String upperStr  = Objects.toString(model.getValueAt(r, 4), "").trim();
+
+			if (name.isEmpty() || lowerStr.isEmpty() || upperStr.isEmpty()) continue;
+			try {
+				double lower = Double.parseDouble(lowerStr);
+				double upper = Double.parseDouble(upperStr);
+				if (upper < lower) { double tmp = lower; lower = upper; upper = tmp; }
+				params.add(new LatinHypercubeSampler.Parameter(name, type, dataType, lower, upper));
+			} catch (NumberFormatException ignored) {
+				// skip non-numeric rows
+			}
+		}
+
+		if (params.isEmpty()) {
+			JOptionPane.showMessageDialog(this,
+				"No parameters with valid numeric bounds found in the ODD table.",
+				"LHS Generation", JOptionPane.WARNING_MESSAGE);
+			return;
+		}
+
+		String nStr = JOptionPane.showInputDialog(this,
+			"Number of LHS samples to generate:", "10");
+		if (nStr == null) return; // cancelled
+		int n;
+		try {
+			n = Integer.parseInt(nStr.trim());
+			if (n <= 0) throw new NumberFormatException();
+		} catch (NumberFormatException e) {
+			JOptionPane.showMessageDialog(this,
+				"Please enter a positive integer.", "Invalid Input",
+				JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+
+		LatinHypercubeSampler sampler = new LatinHypercubeSampler();
+		List<LatinHypercubeSampler.TestCase> testCases = sampler.sample(params, n);
+		String csv = LatinHypercubeSampler.toCsv(params, testCases);
+
+		// Let the user choose where to save the CSV
+		chooseAndSaveFile(csv, currentProjName + "_lhs_test_cases.csv", "csv");
+	}
+
 // ======================================================= LEGACY - WORKS FINE, DON'T MODIFY UNLESS NECESSARY!
 // Modified to generate properly structured YAML
 

@@ -30,12 +30,57 @@ jobs:
           path: target/surefire-reports/*.xml
           reporter: java-junit
 
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: target/surefire-reports/
+
+      - name: Generate JaCoCo coverage report
+        if: always()
+        run: mvn -B jacoco:report --file pom.xml
+
       - name: Upload JaCoCo coverage report
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: jacoco-report
           path: target/site/jacoco/
+
+      - name: Coverage threshold gate
+        run: |
+          # Parse the JaCoCo CSV report to check overall line coverage
+          REPORT=target/site/jacoco/jacoco.csv
+          if [ ! -f "$REPORT" ]; then
+            echo "JaCoCo CSV report not found — failing."
+            exit 1
+          fi
+          # Sum LINE_MISSED and LINE_COVERED across all entries (skip header)
+          MISSED=$(awk -F',' 'NR>1 {s+=$8} END {print s+0}' "$REPORT")
+          COVERED=$(awk -F',' 'NR>1 {s+=$9} END {print s+0}' "$REPORT")
+          TOTAL=$((MISSED + COVERED))
+          if [ "$TOTAL" -eq 0 ]; then
+            echo "No line coverage data found."
+            exit 1
+          fi
+          PCT=$((COVERED * 100 / TOTAL))
+          echo "Line coverage: ${PCT}% (${COVERED}/${TOTAL})"
+          if [ "$PCT" -lt 10 ]; then
+            echo "FAIL: Line coverage ${PCT}% is below the 10% threshold."
+            exit 1
+          fi
+          echo "PASS: Line coverage ${PCT}% meets the 10% threshold."
+
+      - name: Run PIT mutation testing
+        run: mvn -B org.pitest:pitest-maven:mutationCoverage --file pom.xml
+
+      - name: Upload PIT mutation report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pitest-report
+          path: target/pit-reports/
 
       - name: Run SpotBugs
         run: mvn -B spotbugs:check --file pom.xml

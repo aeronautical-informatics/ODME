@@ -151,4 +151,98 @@ class XsdToYamlConverterTest {
     void getIndent_negativeLevel_producesEmpty() {
         assertThat(XsdToYamlConverter.getIndent(-1)).isEmpty();
     }
+
+    // ── Sibling nodes at same level ─────────────────────────────────────────
+
+    @Test
+    void convert_siblingNodes_sameIndentLevel() {
+        List<String[]> rows = Arrays.asList(
+                new String[]{"Root", "Node", null, null, null},
+                new String[]{"  ChildA", "Node", null, null, null},
+                new String[]{"  ChildB", "Node", null, null, null}
+        );
+
+        String yaml = converter.convert(rows);
+
+        assertThat(yaml).contains("Root:");
+        assertThat(yaml).contains("  ChildA:");
+        assertThat(yaml).contains("  ChildB:");
+    }
+
+    // ── Node with multiple variables ────────────────────────────────────────
+
+    @Test
+    void convert_nodeWithMultipleVariables_allRendered() {
+        List<String[]> rows = Arrays.asList(
+                new String[]{"Sensor", "Node", null, null, null},
+                new String[]{"    -temperature", "Variable", "double", "-40", "150"},
+                new String[]{"    -humidity", "Variable", "int", "0", "100"}
+        );
+
+        String yaml = converter.convert(rows);
+
+        assertThat(yaml).contains("- temperature:");
+        assertThat(yaml).contains("type: double");
+        assertThat(yaml).contains("min: -40");
+        assertThat(yaml).contains("max: 150");
+        assertThat(yaml).contains("- humidity:");
+        assertThat(yaml).contains("type: int");
+        assertThat(yaml).contains("min: 0");
+        assertThat(yaml).contains("max: 100");
+    }
+
+    // ── Pop back to parent level ────────────────────────────────────────────
+
+    @Test
+    void convert_deepThenShallow_indentStackPopsCorrectly() {
+        List<String[]> rows = Arrays.asList(
+                new String[]{"Root", "Node", null, null, null},
+                new String[]{"  Child", "Node", null, null, null},
+                new String[]{"    GrandChild", "Node", null, null, null},
+                new String[]{"  Sibling", "Node", null, null, null}  // pops back to child level
+        );
+
+        String yaml = converter.convert(rows);
+
+        assertThat(yaml).contains("Root:");
+        assertThat(yaml).contains("  Child:");
+        assertThat(yaml).contains("    GrandChild:");
+        assertThat(yaml).contains("  Sibling:");
+    }
+
+    // ── Mixed nodes and variables ────────────────────────────────────────────
+
+    @Test
+    void convert_mixedNodesAndVariables_correctStructure() {
+        List<String[]> rows = Arrays.asList(
+                new String[]{"Vehicle", "Node", null, null, null},
+                new String[]{"    -speed", "Variable", "int", "0", "200"},
+                new String[]{"  Engine", "Node", null, null, null},
+                new String[]{"      -rpm", "Variable", "int", "0", "8000"}
+        );
+
+        String yaml = converter.convert(rows);
+
+        assertThat(yaml).contains("Vehicle:");
+        assertThat(yaml).contains("- speed:");
+        assertThat(yaml).contains("  Engine:");
+        assertThat(yaml).contains("- rpm:");
+    }
+
+    // ── countLeadingSpaces edge cases ───────────────────────────────────────
+
+    @Test
+    void countLeadingSpaces_emptyString_returnsZero() {
+        assertThat(XsdToYamlConverter.countLeadingSpaces("")).isEqualTo(0);
+    }
+
+    @Test
+    void countLeadingSpaces_allSpaces_returnsLength() {
+        assertThat(XsdToYamlConverter.countLeadingSpaces("     ")).isEqualTo(5);
+    }
+
+    @Test
+    void countLeadingSpaces_tabsNotCounted_returnsZero() {
+        assertThat(XsdToYamlConverter.countLeadingSpaces("\thello")).isEqualTo(0);
+    }
 }

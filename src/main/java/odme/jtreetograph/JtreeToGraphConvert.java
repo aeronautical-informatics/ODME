@@ -545,37 +545,4 @@ public class JtreeToGraphConvert {
         JtreeToGraphModify.modifyXmlOutputSES();
     }
 
-    public static void convertBehaviourTreeToXML() {
-//        TreeNode thisTreeNode = (TreeNode) ODMEEditor.projectPanel.projectTree.getModel().getRoot();
-
-        TreeNode thisTreeNode = (TreeNode) ODMEBehaviourEditor.treePanel.tree.getModel().getRoot();
-        System.out.println("Tree node from behaviour tree = " + thisTreeNode.toString());
-/*
-        Document calendarDOMDoc = null;
-        try {
-            DOMImplementation domImpl =
-                    DocumentBuilderFactory.newInstance().newDocumentBuilder().getDOMImplementation();
-            calendarDOMDoc = domImpl.createDocument(null, "start", null);
-        }
-        catch (ParserConfigurationException e1) {
-            e1.printStackTrace(System.err);
-        }
-        catch (DOMException e2) {
-            e2.printStackTrace(System.err);
-        }
-        calendarDOMDoc.getDocumentElement().appendChild(JtreeToGraphSave.saveAllTreeNodes(calendarDOMDoc, thisTreeNode));
-        try {
-            if ("ses".equals(EditorContext.getInstance().getToolMode()))
-                JtreeToGraphSave.saveToXMLFile(calendarDOMDoc, EditorContext.getInstance().getFileLocation() + "/"+ EditorContext.getInstance().getProjName() +"/"+ selectedScenario + "/Tree.xml");
-            else
-                JtreeToGraphSave.saveToXMLFile(calendarDOMDoc, EditorContext.getInstance().getFileLocation() + "/"+ EditorContext.getInstance().getProjName() +"/"+ selectedScenario + "/Tree.xml");
-
-        }
-        catch (TransformerException ex) {
-            Logger.getLogger(ODMEEditor.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        JtreeToGraphModify.modifyXmlOutputSES();
-        */
-    }
-
 }
