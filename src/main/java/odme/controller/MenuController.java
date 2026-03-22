@@ -36,6 +36,8 @@ import odme.jtreetograph.JtreeToGraphModify;
 import odme.jtreetograph.JtreeToGraphSave;
 import odme.jtreetograph.JtreeToGraphVariables;
 import odme.module.importFromCameo.FileImporter;
+import odme.application.PluginRunner;
+import odme.application.ProjectSession;
 import odme.odmeeditor.About;
 import odme.odmeeditor.BehaviourList;
 import odme.odmeeditor.Console;
@@ -112,6 +114,9 @@ public class MenuController {
                 break;
             case "ODD Manager":
                 openODDManager("ODD Manager");
+                break;
+            case "Run Python Plugin...":
+                runPythonPlugin();
                 break;
         }
     }
@@ -369,5 +374,69 @@ public class MenuController {
     private void openExecutionWindow() {
         Execution executionWindow = new Execution();
         executionWindow.setVisible(true);
+    }
+
+    private void runPythonPlugin() {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setFileFilter(new FileNameExtensionFilter("Python scripts (*.py)", "py"));
+        fileChooser.setCurrentDirectory(new File(System.getProperty("user.dir")));
+
+        int result = fileChooser.showOpenDialog(mainFrame);
+        if (result != JFileChooser.APPROVE_OPTION) {
+            return;
+        }
+
+        File selectedScript = fileChooser.getSelectedFile();
+        String fileLocation = EditorContext.getInstance().getFileLocation();
+        String projName = EditorContext.getInstance().getProjName();
+
+        if (fileLocation == null || projName == null) {
+            JOptionPane.showMessageDialog(mainFrame,
+                "No project is open. Open a project first.",
+                "Plugin Error", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        java.nio.file.Path projectDir = java.nio.file.Path.of(fileLocation, projName);
+        ProjectSession session = new ProjectSession(
+            projName, projName, projectDir);
+
+        Console.consoleText.append("\n>> Running plugin: " + selectedScript.getName() + "\n");
+
+        javax.swing.SwingWorker<PluginRunner.PluginResult, String> worker =
+            new javax.swing.SwingWorker<>() {
+                @Override
+                protected PluginRunner.PluginResult doInBackground() throws Exception {
+                    PluginRunner runner = new PluginRunner();
+                    return runner.run(
+                        selectedScript.toPath(), session,
+                        java.util.List.of(), java.util.List.of(),
+                        null, null, null, null,
+                        line -> publish(line));
+                }
+
+                @Override
+                protected void process(java.util.List<String> chunks) {
+                    for (String line : chunks) {
+                        Console.consoleText.append(line + "\n");
+                    }
+                }
+
+                @Override
+                protected void done() {
+                    try {
+                        PluginRunner.PluginResult pluginResult = get();
+                        Console.consoleText.append("\n>> Plugin finished (exit code: "
+                            + pluginResult.exitCode() + ")\n");
+                        if (!pluginResult.verdicts().isEmpty()) {
+                            Console.consoleText.append(">> Imported "
+                                + pluginResult.verdicts().size() + " verdicts\n");
+                        }
+                    } catch (Exception e) {
+                        Console.consoleText.append("\n>> Plugin error: " + e.getMessage() + "\n");
+                    }
+                }
+            };
+        worker.execute();
     }
 }

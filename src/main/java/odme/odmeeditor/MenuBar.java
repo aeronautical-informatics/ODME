@@ -88,8 +88,16 @@ public class MenuBar {
 		final int[] keyevents_scenario_manager = {0               , 0         ,  0             ,  0               };
 		final String[] keys_scenario_manager =   {null            , null      ,  null          ,  null            };
 		final String[] images_scenario_manager = {"list"          ,"executionIcon","feedbackLoopIcon","list"       };
-										
+
 		addMenu("Scenario Manager", 0, items_scenario_manager, keyevents_scenario_manager, keys_scenario_manager, images_scenario_manager);
+
+		// Tools Menu
+		final String[] items_tools =  {"Run Python Plugin..."};
+		final int[] keyevents_tools = {KeyEvent.VK_P};
+		final String[] keys_tools =   {"control shift P"};
+		final String[] images_tools = {"executionIcon"};
+
+		addMenu("Tools", 0, items_tools, keyevents_tools, keys_tools, images_tools);
 		
 		// Help Menu
 		final String[] items_help =  {"Manual"     , "About"   };
