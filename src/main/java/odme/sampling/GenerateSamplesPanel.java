@@ -2,6 +2,7 @@ package odme.sampling;
 
 import odme.odmeeditor.BackgroundTaskRunner;
 import odme.odmeeditor.ODMEEditor;
+import odme.core.EditorContext;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -18,6 +19,9 @@ public class GenerateSamplesPanel extends JPanel {
     private final JTextField numSamplesField;
     private final JTextField filePathField;
     private final JTextField filePathFieldYaml;
+    private final JComboBox<String> sourceSelector;
+    private final JLabel currentModelValueLabel;
+    private final JLabel yamlLabel;
     private final JButton browseButton;
     private final JButton browseButtonYaml;
     private final JButton generateButton;
@@ -30,41 +34,62 @@ public class GenerateSamplesPanel extends JPanel {
         gbc.insets = new Insets(5, 5, 5, 5);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        // --- YAML file picker ---
-        JLabel yamlLabel = new JLabel("Select YAML:");
+        // --- Sample source ---
+        JLabel sourceLabel = new JLabel("Source:");
         gbc.gridx = 0; gbc.gridy = 0; gbc.weightx = 0;
+        add(sourceLabel, gbc);
+
+        sourceSelector = new JComboBox<>(new String[]{"Current Open Model", "YAML File"});
+        gbc.gridx = 1; gbc.gridy = 0; gbc.weightx = 4;
+        gbc.gridwidth = 2;
+        add(sourceSelector, gbc);
+
+        // --- Current model info ---
+        JLabel currentModelLabel = new JLabel("Current Model:");
+        gbc.gridx = 0; gbc.gridy = 1; gbc.weightx = 0; gbc.gridwidth = 1;
+        add(currentModelLabel, gbc);
+
+        currentModelValueLabel = new JLabel(currentModelDescription());
+        gbc.gridx = 1; gbc.gridy = 1; gbc.weightx = 4; gbc.gridwidth = 2;
+        add(currentModelValueLabel, gbc);
+
+        // --- YAML file picker ---
+        yamlLabel = new JLabel("Select YAML:");
+        gbc.gridx = 0; gbc.gridy = 2; gbc.weightx = 0; gbc.gridwidth = 1;
         add(yamlLabel, gbc);
 
         filePathFieldYaml = new JTextField();
         filePathFieldYaml.setEditable(false);
-        gbc.gridx = 1; gbc.gridy = 0; gbc.weightx = 4;
+        gbc.gridx = 1; gbc.gridy = 2; gbc.weightx = 4;
         add(filePathFieldYaml, gbc);
 
         browseButtonYaml = new JButton("Browse...");
-        gbc.gridx = 2; gbc.gridy = 0; gbc.weightx = 0;
+        gbc.gridx = 2; gbc.gridy = 2; gbc.weightx = 0;
         add(browseButtonYaml, gbc);
 
         // --- Sample count ---
         JLabel numSamplesLabel = new JLabel("Number of Samples:");
-        gbc.gridx = 0; gbc.gridy = 1; gbc.weightx = 0;
+        gbc.gridx = 0; gbc.gridy = 3; gbc.weightx = 0;
         add(numSamplesLabel, gbc);
 
         numSamplesField = new JTextField("100");
-        gbc.gridx = 1; gbc.gridy = 1; gbc.weightx = 1;
+        gbc.gridx = 1; gbc.gridy = 3; gbc.weightx = 1;
+        gbc.gridwidth = 2;
         add(numSamplesField, gbc);
 
         // --- Output CSV path ---
         JLabel filePathLabel = new JLabel("Save As:");
-        gbc.gridx = 0; gbc.gridy = 3; gbc.weightx = 0;
+        gbc.gridx = 0; gbc.gridy = 4; gbc.weightx = 0;
+        gbc.gridwidth = 1;
         add(filePathLabel, gbc);
 
         filePathField = new JTextField();
         filePathField.setEditable(false);
-        gbc.gridx = 1; gbc.gridy = 3; gbc.weightx = 1;
+        gbc.gridx = 1; gbc.gridy = 4; gbc.weightx = 1;
         add(filePathField, gbc);
 
         browseButton = new JButton("Browse...");
-        gbc.gridx = 2; gbc.gridy = 3; gbc.weightx = 0;
+        gbc.gridx = 2; gbc.gridy = 4; gbc.weightx = 0;
         add(browseButton, gbc);
 
         // --- Buttons ---
@@ -74,14 +99,17 @@ public class GenerateSamplesPanel extends JPanel {
         buttonPanel.add(generateButton);
         buttonPanel.add(cancelButton);
 
-        gbc.gridx = 0; gbc.gridy = 4; gbc.gridwidth = 3;
+        gbc.gridx = 0; gbc.gridy = 5; gbc.gridwidth = 3;
         gbc.fill = GridBagConstraints.NONE; gbc.anchor = GridBagConstraints.EAST;
         add(buttonPanel, gbc);
 
+        updateSourceControls();
         addListeners();
     }
 
     private void addListeners() {
+        sourceSelector.addActionListener(e -> updateSourceControls());
+
         browseButton.addActionListener(e -> {
             JFileChooser fc = new JFileChooser(ODMEEditor.fileLocation);
             fc.setDialogTitle("Save Sampled Data As");
@@ -123,15 +151,29 @@ public class GenerateSamplesPanel extends JPanel {
                 return;
             }
 
+            boolean useCurrentModel = sourceSelector.getSelectedIndex() == 0;
             String yamlFilePath = filePathFieldYaml.getText().trim();
+            if (!useCurrentModel && yamlFilePath.isEmpty()) {
+                JOptionPane.showMessageDialog(GenerateSamplesPanel.this,
+                        "Please select a YAML file or switch to Current Open Model.", "Input Required",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
             setControlsEnabled(false);
             final int finalSamples = numberOfSamples;
+            final boolean finalUseCurrentModel = useCurrentModel;
 
             BackgroundTaskRunner.run(GenerateSamplesPanel.this,
                     "Generate Samples",
                     "Generating valid samples...",
                     () -> {
-                        new SamplingManager().generateSamples(yamlFilePath, finalSamples, outputCsvPath);
+                        SamplingManager samplingManager = new SamplingManager();
+                        if (finalUseCurrentModel) {
+                            samplingManager.generateSamplesForCurrentModel(finalSamples, outputCsvPath);
+                        } else {
+                            samplingManager.generateSamples(yamlFilePath, finalSamples, outputCsvPath);
+                        }
                         return finalSamples;
                     },
                     generatedCount -> {
@@ -156,8 +198,21 @@ public class GenerateSamplesPanel extends JPanel {
     private void setControlsEnabled(boolean enabled) {
         numSamplesField.setEnabled(enabled);
         browseButton.setEnabled(enabled);
-        browseButtonYaml.setEnabled(enabled);
+        sourceSelector.setEnabled(enabled);
+        browseButtonYaml.setEnabled(enabled && sourceSelector.getSelectedIndex() == 1);
         generateButton.setEnabled(enabled);
         cancelButton.setEnabled(enabled);
+    }
+
+    private void updateSourceControls() {
+        boolean useCurrentModel = sourceSelector.getSelectedIndex() == 0;
+        filePathFieldYaml.setEnabled(!useCurrentModel);
+        browseButtonYaml.setEnabled(!useCurrentModel);
+        yamlLabel.setEnabled(!useCurrentModel);
+        currentModelValueLabel.setEnabled(true);
+    }
+
+    private String currentModelDescription() {
+        return EditorContext.getInstance().getWorkingDir() + File.separator + EditorContext.getInstance().getProjName();
     }
 }

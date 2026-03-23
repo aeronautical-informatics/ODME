@@ -1,9 +1,14 @@
 package odme.sampling;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreePath;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -33,6 +38,12 @@ class SamplingManagerTest {
 
     private Path outputCsv() {
         return tempDir.resolve("out_" + System.nanoTime() + ".csv");
+    }
+
+    private void writeSerializedMultimap(Path file, Multimap<TreePath, String> data) throws IOException {
+        try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(Files.newOutputStream(file))) {
+            objectOutputStream.writeObject(data);
+        }
     }
 
     // ────────────────────────────────────────────────────────────────────────
@@ -193,5 +204,65 @@ class SamplingManagerTest {
 
         List<String> lines = Files.readAllLines(csv);
         assertEquals(6, lines.size(), "Expected header + 5 valid samples");
+    }
+    @Test
+    void generateSamples_withMultipleConstraints_requiresAllConstraints() throws Exception {
+        Path yaml = writeYaml(
+                "Scenario:\n" +
+                "  EgoAC:\n" +
+                "    Speed:\n" +
+                "      type: double\n" +
+                "      min: 0\n" +
+                "      max: 100\n" +
+                "    Altitude:\n" +
+                "      type: double\n" +
+                "      min: 0\n" +
+                "      max: 100\n" +
+                "    HasConstraint:\n" +
+                "      IntraConstraint: if(@EgoACSpeed > -1) then (@EgoACAltitude > 40) else true\n" +
+                "      InterConstraint: if(@EgoACSpeed > -1) then (@EgoACAltitude < 60) else true\n");
+
+        Path csv = outputCsv();
+        manager.generateSamples(yaml.toString(), 12, csv.toString());
+
+        List<String> lines = Files.readAllLines(csv);
+        for (int i = 1; i < lines.size(); i++) {
+            String[] values = lines.get(i).split(",");
+            double altitude = Double.parseDouble(values[1]);
+            assertTrue(altitude > 40 && altitude < 60, "Altitude must satisfy both constraints.");
+        }
+    }
+
+    @Test
+    void generateSamplesForCurrentModel_readsSerializedVariablesAndConstraints() throws Exception {
+        DefaultMutableTreeNode root = new DefaultMutableTreeNode("Scenario");
+        DefaultMutableTreeNode aircraft = new DefaultMutableTreeNode("Aircraft");
+        root.add(aircraft);
+        TreePath aircraftPath = new TreePath(aircraft.getPath());
+
+        Multimap<TreePath, String> variables = ArrayListMultimap.create();
+        variables.put(aircraftPath, "Speed,double,50,0,100");
+        variables.put(aircraftPath, "Altitude,double,50,0,100");
+
+        Multimap<TreePath, String> constraints = ArrayListMultimap.create();
+        constraints.put(aircraftPath, "if(@Speed > -1) then (@Altitude > 40) else true");
+        constraints.put(aircraftPath, "if(@Speed > -1) then (@Altitude < 60) else true");
+
+        writeSerializedMultimap(tempDir.resolve("Model.ssdvar"), variables);
+        writeSerializedMultimap(tempDir.resolve("Model.ssdcon"), constraints);
+
+        Path csv = outputCsv();
+        manager.generateSamplesForCurrentModel(tempDir, "Model", 10, csv.toString());
+
+        List<String> lines = Files.readAllLines(csv);
+        assertEquals(11, lines.size(), "Expected header + 10 data rows");
+        assertTrue(lines.get(0).contains("Aircraft_Speed"));
+        assertTrue(lines.get(0).contains("Aircraft_Altitude"));
+
+        for (int i = 1; i < lines.size(); i++) {
+            String[] values = lines.get(i).split(",");
+            double altitude = Double.parseDouble(values[1]);
+            assertTrue(altitude > 40 && altitude < 60, "Serialized constraints must be enforced.");
+        }
     }
 }

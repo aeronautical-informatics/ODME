@@ -9,6 +9,7 @@ import java.util.List;
 public class Parameter {
     private String name;
     private String type; // "int", "double", "float", "categorical", "distribution"
+    private String defaultValue;
 
     // For distribution parameters
     private String distributionName;
@@ -29,6 +30,9 @@ public class Parameter {
 
     public String getType() { return type; }
     public void setType(String type) { this.type = type; }
+
+    public String getDefaultValue() { return defaultValue; }
+    public void setDefaultValue(String defaultValue) { this.defaultValue = defaultValue; }
 
     public String getDistributionName() { return distributionName; }
     public void setDistributionName(String distributionName) { this.distributionName = distributionName; }

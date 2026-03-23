@@ -88,10 +88,9 @@ class ConstraintEvaluatorTest {
     }
 
     @Test
-    void evaluate_malformedConstraint_returnsFalse() {
-        // No 'if/then/else' structure → formatExpression returns null → false
+    void evaluate_plainBooleanExpression_returnsTrue() {
         boolean result = evaluator.evaluate("x > 5 and y < 10", Map.of("x", 6.0, "y", 8.0));
-        assertFalse(result, "Malformed constraint (no if/then/else) should return false");
+        assertTrue(result, "Plain boolean expressions should be evaluated directly");
     }
 
     // ────────────────────────────────────────────────────────────────────────
@@ -134,5 +133,22 @@ class ConstraintEvaluatorTest {
                 "if(@rain_intensity > 5) then (@luminosity < 1000) else true",
                 Map.of());
         assertFalse(result, "Unresolved variables should cause NaN → false");
+    }
+    @Test
+    void evaluate_compactReference_resolvesCanonicalSampleKey() {
+        Map<String, Double> sample = Map.of("EgoAC_Speed", 60.0, "EgoAC_Altitude", 100.0);
+        boolean result = evaluator.evaluate(
+                "if(@EgoACSpeed > 50) then (@EgoACAltitude < 200) else true",
+                sample);
+        assertTrue(result);
+    }
+
+    @Test
+    void evaluate_uniqueSuffixReference_resolvesBareVariableName() {
+        Map<String, Double> sample = Map.of("EgoAC_Speed", 60.0, "EgoAC_Altitude", 100.0);
+        boolean result = evaluator.evaluate(
+                "if(@Speed > 50) then (@Altitude < 200) else true",
+                sample);
+        assertTrue(result);
     }
 }
