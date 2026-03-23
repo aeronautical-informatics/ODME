@@ -367,30 +367,36 @@ public class JtreeToGraphGeneral {
      */
     public static void openExistingProject(String filename, String oldProjectTreeProjectName) {
         parent = graph.getDefaultParent();
+        EditorContext.getInstance().setNewFileName(filename);
 
         String path = EditorContext.getInstance().getWorkingDir() + "/" + filename + "Graph.xml";
-        
-        /* EditorContext.getInstance().getSsdFileGraph() set via context */
+        File graphFile = new File(path);
 
-        if (EditorContext.getInstance().getSsdFileGraph().exists()) {
-            graph.getModel().beginUpdate();
-            try {
-                Document xml = mxXmlUtils.parseXml(mxUtils.readFile(path));
-                mxCodec codec = new mxCodec(xml);
-                codec.decode(xml.getDocumentElement(), graph.getModel());
-                parent = graph.getDefaultParent();
+        if (!graphFile.exists()) {
+            JOptionPane.showMessageDialog(null,
+                    "Graph model not found: " + graphFile.getAbsolutePath(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
 
-            } 
-            catch (Exception ex) {
-                ex.printStackTrace();
+        graph.getModel().beginUpdate();
+        try {
+            Document xml = mxXmlUtils.parseXml(mxUtils.readFile(graphFile.getAbsolutePath()));
+            mxCodec codec = new mxCodec(xml);
+            codec.decode(xml.getDocumentElement(), graph.getModel());
+            parent = graph.getDefaultParent();
+
+        }
+        catch (Exception ex) {
+            ex.printStackTrace();
             JOptionPane.showMessageDialog(null, "An error occurred: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             return;
-            } 
-            finally {
-                graph.getModel().endUpdate();
-            }
-                     
-            ODMEEditor.treePanel.openExistingProject(filename, oldProjectTreeProjectName);
         }
+        finally {
+            graph.getModel().endUpdate();
+        }
+
+        ODMEEditor.treePanel.openExistingProject(filename, oldProjectTreeProjectName);
     }   
 }

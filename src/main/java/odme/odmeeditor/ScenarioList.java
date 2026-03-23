@@ -89,34 +89,7 @@ public class ScenarioList extends JPanel {
         openItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-            	try {
-            		int row = getSelectedModelRow();
-            		if (row < 0) {
-            			return;
-            		}
-            		DynamicTree.varMap = ArrayListMultimap.create();
-
-            		String fileName = (String) model.getValueAt(row, 0);
-
-            		System.out.println("Selected file: " + fileName);
-            		EditorContext.getInstance().setCurrentScenario(fileName);
-
-            		nodeNumber = 1;
-            		JtreeToGraphGeneral.openExistingProject(EditorContext.getInstance().getProjName(), EditorContext.getInstance().getProjName());
-
-            		undoManager = new mxUndoManager();
-
-            		sesview.textArea.setText("");
-            		Console.consoleText.setText(">>");
-            		Variable.setNullToAllRows();
-            		Constraint.setNullToAllRows();
-            		Behaviour.setNullToAllRows();
-
-            		ODMEEditor.graphWindow.setTitle(fileName);
-            		ODMEEditor.changePruneColor();
-            	}
-            	catch (Exception ex){
-            	}
+            	openSelectedScenario();
             }
         });
         
@@ -335,6 +308,62 @@ public class ScenarioList extends JPanel {
         List<String[]> dataList = getJsonData();
         for (String[] arr : dataList) {
             model.addRow(arr);
+        }
+    }
+
+    private void openSelectedScenario() {
+        int row = getSelectedModelRow();
+        if (row < 0) {
+            return;
+        }
+
+        String scenarioName = (String) model.getValueAt(row, 0);
+        String projectName = EditorContext.getInstance().getProjName();
+        File scenarioDirectory = new File(EditorContext.getInstance().getProjectDir(), scenarioName);
+        File scenarioTree = new File(scenarioDirectory, projectName + ".xml");
+        File scenarioGraph = new File(scenarioDirectory, projectName + "Graph.xml");
+
+        if (!scenarioTree.exists() || !scenarioGraph.exists()) {
+            JOptionPane.showMessageDialog(
+                    frame != null ? frame : Main.frame,
+                    "Scenario files are missing for " + scenarioName + ".\n"
+                            + "Expected:\n"
+                            + scenarioTree.getAbsolutePath() + "\n"
+                            + scenarioGraph.getAbsolutePath(),
+                    "Open Scenario",
+                    JOptionPane.ERROR_MESSAGE
+            );
+            return;
+        }
+
+        try {
+            DynamicTree.varMap = ArrayListMultimap.create();
+            System.out.println("Selected file: " + scenarioName);
+
+            EditorContext.getInstance().setCurrentScenario(scenarioName);
+            EditorContext.getInstance().setNewFileName(projectName);
+
+            nodeNumber = 1;
+            JtreeToGraphGeneral.openExistingProject(projectName, projectName);
+
+            undoManager = new mxUndoManager();
+            sesview.textArea.setText("");
+            Console.consoleText.setText(">>");
+            Variable.setNullToAllRows();
+            Constraint.setNullToAllRows();
+            Behaviour.setNullToAllRows();
+
+            ODMEEditor.graphWindow.setTitle(scenarioName);
+            ODMEEditor.changePruneColor();
+        }
+        catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(
+                    frame != null ? frame : Main.frame,
+                    "Unable to open scenario " + scenarioName + ".\n" + ex.getMessage(),
+                    "Open Scenario",
+                    JOptionPane.ERROR_MESSAGE
+            );
         }
     }
     
