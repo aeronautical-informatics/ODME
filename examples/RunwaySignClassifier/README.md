@@ -99,7 +99,7 @@ RunwaySignClassifier
 
 Total leaf nodes:  6 + 4 + 4 + 4 + 4 + 3 + 3 + 3 + 4 + 4 = 39
 Specialization nodes: 10
-PES combinations: 6 × 4 × 4 × 4 × 4 × 3 × 3 × 3 × 4 × 4 = 1,327,104
+PES combinations: 6 × 4 × 4 × 4 × 4 × 3 × 3 × 3 × 4 × 4 = 663,552
 ```
 
 ## Variables (ODD Parameters)
@@ -233,7 +233,7 @@ via Latin Hypercube Sampling. The sampler extracts all variable parameters with
 continuous ranges and distributes samples uniformly across each dimension while
 minimising correlations between parameters.
 
-With 1,327,104 structural PES combinations and 30 continuous parameters, full
+With 663,552 structural PES combinations and 30 continuous parameters, full
 enumeration is infeasible. LHS efficiently samples the parameter space — e.g.,
 100 LHS samples per selected PES configuration provides good coverage with
 manageable test set sizes.
@@ -247,7 +247,7 @@ This example maps to EASA AI/ML guidance (Concept Paper Issue 2):
   operational envelope
 - **W-3.2 (Data requirements)**: Variable ranges sourced from ICAO Annex 14,
   WMO, CIE, and FAA AIP — each traceable to its authoritative reference
-- **W-4.4 (Verification)**: Scenario enumeration (1,327,104 PES combinations)
+- **W-4.4 (Verification)**: Scenario enumeration (663,552 PES combinations)
   + LHS test case generation for coverage-driven testing
 - **Degradation coverage**: SignCondition and SensorCondition branches address
   robustness requirements beyond nominal operating conditions
