@@ -94,62 +94,19 @@ public class JtreeToGraphConvert {
             }
 
             String[] stringArrayRev = pathToRootRev.toArray(new String[0]);
-            TreePath treePathForVariable = JtreeToGraphGeneral.getTreeNodePath(stringArrayRev);
-            if (treePathForVariable == null) {
+            String[] nodeVariables = DynamicTree.getMetadataValues(DynamicTree.varMap, stringArrayRev);
+            if (nodeVariables.length == 0) {
                 pathToRoot.clear();
                 return;
             }
-            
-            DefaultMutableTreeNode currentNode =
-                    (DefaultMutableTreeNode) (treePathForVariable.getLastPathComponent());
 
-            // -------------------------------------------------------
-            TreeNode[] nodes = currentNode.getPath();
-
-            String[] nodesToSelectedNode = new String[100];
-            String variables = "";
-            int b = 0;
-
-            for (TreePath key : DynamicTree.varMap.keySet()) {
-                int a = 0;
-
-                for (String value : DynamicTree.varMap.get(key)) {
-
-                    DefaultMutableTreeNode currentNode2 =
-                            (DefaultMutableTreeNode) (key.getLastPathComponent());
-
-                    TreeNode[] nodes2 = currentNode2.getPath();
-
-                    if (nodes.length == nodes2.length) {
-                        int aa = 1;
-                        for (int i = 0; i < nodes.length; i++) {
-                            if (!nodes[i].toString().equals(nodes2[i].toString())) {
-                                aa = 0;
-                                break;
-                            } 
-                        }
-                        a = aa;
-                    }
-
-                    if (a == 1) {
-                        nodesToSelectedNode[b] = value;
-                        b++;
-                    }
-                }
+            StringBuilder variables = new StringBuilder();
+            for (String value : nodeVariables) {
+                variables.append("<").append(value).append("Var/>").append("\n");
             }
 
-            // java 8 way null removal
-            nodesToSelectedNode =
-                    Arrays.stream(nodesToSelectedNode).filter(s -> (s != null && s.length() > 0))
-                            .toArray(String[]::new);
-
-            for (String value : nodesToSelectedNode) {
-                variables = variables + "<" + value + "Var/>" + "\n";
-            }
-
-            // treePathForVariable
             FileConvertion fileConversion = new FileConvertion();
-            fileConversion.variableAdditionToNode(treePathForVariable, variables);
+            fileConversion.variableAdditionToNode(new TreePath(stringArrayRev), variables.toString());
 
             pathToRoot.clear();
         }
@@ -168,62 +125,19 @@ public class JtreeToGraphConvert {
             }
 
             String[] stringArrayRev = pathToRootRev.toArray(new String[0]);
-            TreePath treePathForVariable = JtreeToGraphGeneral.getTreeNodePath(stringArrayRev);
-            if (treePathForVariable == null) {
+            String[] nodeBehaviours = DynamicTree.getMetadataValues(DynamicTree.behavioursList, stringArrayRev);
+            if (nodeBehaviours.length == 0) {
                 pathToRoot.clear();
                 return;
             }
 
-            DefaultMutableTreeNode currentNode =
-                    (DefaultMutableTreeNode) (treePathForVariable.getLastPathComponent());
-
-            // -------------------------------------------------------
-            TreeNode[] nodes = currentNode.getPath();
-
-            String[] nodesToSelectedNode = new String[100];
-            String variables = "";
-            int b = 0;
-
-            for (TreePath key : DynamicTree.behavioursList.keySet()) {
-                int a = 0;
-
-                for (String value : DynamicTree.behavioursList.get(key)) {
-
-                    DefaultMutableTreeNode currentNode2 =
-                            (DefaultMutableTreeNode) (key.getLastPathComponent());
-
-                    TreeNode[] nodes2 = currentNode2.getPath();
-
-                    if (nodes.length == nodes2.length) {
-                        int aa = 1;
-                        for (int i = 0; i < nodes.length; i++) {
-                            if (!nodes[i].toString().equals(nodes2[i].toString())) {
-                                aa = 0;
-                                break;
-                            }
-                        }
-                        a = aa;
-                    }
-
-                    if (a == 1) {
-                        nodesToSelectedNode[b] = value;
-                        b++;
-                    }
-                }
+            StringBuilder variables = new StringBuilder();
+            for (String value : nodeBehaviours) {
+                variables.append("<").append(value).append("Behaviour/>").append("\n");
             }
 
-            // java 8 way null removal
-            nodesToSelectedNode =
-                    Arrays.stream(nodesToSelectedNode).filter(s -> (s != null && s.length() > 0))
-                            .toArray(String[]::new);
-
-            for (String value : nodesToSelectedNode) {
-                variables = variables + "<" + value + "Behaviour/>" + "\n";
-            }
-
-            // treePathForVariable
             FileConvertion fileConversion = new FileConvertion();
-            fileConversion.behaviourAdditionToNode(treePathForVariable, variables);
+            fileConversion.behaviourAdditionToNode(new TreePath(stringArrayRev), variables.toString());
 
             pathToRoot.clear();
         }
@@ -245,65 +159,20 @@ public class JtreeToGraphConvert {
             }
 
             String[] stringArrayRev = pathToRootRev.toArray(new String[0]);
-
-            TreePath treePathForVariable = JtreeToGraphGeneral.getTreeNodePath(stringArrayRev);
-            if (treePathForVariable == null) {
+            String[] nodeConstraints = DynamicTree.getMetadataValues(DynamicTree.constraintsList, stringArrayRev);
+            if (nodeConstraints.length == 0) {
                 pathToRoot.clear();
                 return;
             }
-            DefaultMutableTreeNode currentNode =
-                    (DefaultMutableTreeNode) (treePathForVariable.getLastPathComponent());
 
-            // -------------------------------------------------------
-            TreeNode[] nodes = currentNode.getPath();
-
-            String[] nodesToSelectedNode = new String[100];
-
-            String variables = "";
-            int b = 0;
-
-            for (TreePath key : DynamicTree.constraintsList.keySet()) {
-                int a = 0;
-
-                for (String value : DynamicTree.constraintsList.get(key)) {
-                    DefaultMutableTreeNode currentNode2 =
-                            (DefaultMutableTreeNode) (key.getLastPathComponent());
-
-                    TreeNode[] nodes2 = currentNode2.getPath();
-
-                    if (nodes.length == nodes2.length) {
-                        int aa = 1;
-                        for (int i = 0; i < nodes.length; i++) {
-                            if (!nodes[i].toString().equals(nodes2[i].toString())) {
-                                aa = 0;
-                                break;
-                            } 
-                        }
-                        a = aa;
-                    }
-
-                    if (a == 1) {
-                        nodesToSelectedNode[b] = value;
-                        b++;
-                    }
-                }
+            StringBuilder variables = new StringBuilder();
+            for (String value : nodeConstraints) {
+                variables.append("<").append(value).append("Con/>").append("\n");
             }
 
-            // java 8 way null removal
-            nodesToSelectedNode =
-                    Arrays.stream(nodesToSelectedNode).filter(s -> (s != null && s.length() > 0))
-                            .toArray(String[]::new);
-
-            for (String value : nodesToSelectedNode) {
-                variables = variables + "<" + value + "Con/>" + "\n";
-            }
-
-            // treePathForVariable
-            if (variables.length() > 8) {
+            if (variables.length() > 0) {
                 FileConvertion fileConversion = new FileConvertion();
-                fileConversion.constraintAdditionToNode(selectedNode,
-                        variables); // sending treePath is correct way, the
-                // above one. have to check.
+                fileConversion.constraintAdditionToNode(new TreePath(stringArrayRev), variables.toString());
             }
             pathToRoot.clear();
         }

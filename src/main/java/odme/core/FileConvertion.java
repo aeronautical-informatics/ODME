@@ -557,7 +557,7 @@ public class FileConvertion {
         Scanner in = null;
         try {
             in = new Scanner(new File(
-                    EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/outputgraphxmlforxsd.xml"));
+                    EditorContext.getInstance().getWorkingDir() + "/outputgraphxmlforxsd.xml"));
         } 
         catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -568,7 +568,7 @@ public class FileConvertion {
         PrintWriter f0 = null;
         try {
             f0 = new PrintWriter(new FileWriter(
-                    EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/outputgraphxmlforxsdvar.xml"));
+                    EditorContext.getInstance().getWorkingDir() + "/outputgraphxmlforxsdvar.xml"));
         } 
         catch (IOException e1) {
             e1.printStackTrace();
@@ -622,7 +622,7 @@ public class FileConvertion {
         Scanner in = null;
         try {
             in = new Scanner(new File(
-                    EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/outputgraphxmlforxsd.xml"));
+                    EditorContext.getInstance().getWorkingDir() + "/outputgraphxmlforxsd.xml"));
         } 
         catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -633,7 +633,7 @@ public class FileConvertion {
         PrintWriter f0 = null;
         try {
             f0 = new PrintWriter(new FileWriter(
-                    EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/outputgraphxmlforxsdvar.xml"));
+                    EditorContext.getInstance().getWorkingDir() + "/outputgraphxmlforxsdvar.xml"));
         } 
         catch (IOException e1) {
             e1.printStackTrace();
@@ -695,7 +695,7 @@ public class FileConvertion {
         Scanner in = null;
         try {
             in = new Scanner(new File(
-                    EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/outputgraphxmlforxsd.xml"));
+                    EditorContext.getInstance().getWorkingDir() + "/outputgraphxmlforxsd.xml"));
         } 
         catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -706,7 +706,7 @@ public class FileConvertion {
         PrintWriter f0 = null;
         try {
             f0 = new PrintWriter(new FileWriter(
-                    EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/outputgraphxmlforxsdseq.xml"));
+                    EditorContext.getInstance().getWorkingDir() + "/outputgraphxmlforxsdseq.xml"));
         } 
         catch (IOException e1) {
             e1.printStackTrace();

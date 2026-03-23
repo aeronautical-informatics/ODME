@@ -267,125 +267,7 @@ public class JtreeToGraphCreate {
                                     }
                                 }
                                 
-                                pathToRoot.add((String) varCell.getValue());
-                                JtreeToGraphConvert.nodeToRootPathVar(varCell);
-
-                                String[] stringArray = pathToRoot.toArray(new String[0]);
-                                ArrayList<String> pathToRootRev = new ArrayList<String>();
-
-                                for (int i = stringArray.length - 1; i >= 0; i--) {
-                                    pathToRootRev.add(stringArray[i]);
-                                }
-
-                                String[] stringArrayRev = pathToRootRev.toArray(new String[0]);
-                            
-                                TreePath treePathForVariable = JtreeToGraphGeneral.getTreeNodePath(stringArrayRev);
-                                if (!(treePathForVariable == null)) {
-                                    DefaultMutableTreeNode currentNode =
-                                            (DefaultMutableTreeNode) (treePathForVariable
-                                                                              .getLastPathComponent()); // if mouse not released then some condition
-
-                                    // -------------------------------------------------------
-                                    TreeNode[] nodes = currentNode.getPath();
-
-                                    String[] nodesToSelectedNode = new String[100];
-                                    int b = 0;
-
-                                    for (TreePath key : DynamicTree.varMap.keySet()) {
-                                        int a = 0;
-
-                                        for (String value : DynamicTree.varMap.get(key)) {
-                                            DefaultMutableTreeNode currentNode2 =
-                                                    (DefaultMutableTreeNode) (key.getLastPathComponent());
-
-                                            TreeNode[] nodes2 = currentNode2.getPath();
-                                            
-                                            if (nodes.length == nodes2.length) {
-                                            	int aa = 1;
-                                                for (int i = 0; i < nodes.length; i++) {
-                                                    if (!nodes[i].toString().equals(nodes2[i].toString())) {
-                                                    	aa = 0;
-                                                    	break;
-                                                    } 
-                                                }
-                                                a = aa;
-                                            }
-                                            if (a == 1) {
-                                                nodesToSelectedNode[b] = value;
-                                                b++;
-                                            }
-                                        }
-                                    }
-
-
-                                    /*
-                                     * Author: Lionce Vadece
-                                     * This is to enable the behavior table to react
-                                     * when a node is clicked on
-                                     */
-                                    String[] nodesToSelectedNodeBehaviour = new String[100];
-                                    int bb = 0;
-
-                                    for (TreePath key : DynamicTree.behavioursList.keySet()) {
-                                        int a = 0;
-
-                                        for (String value : DynamicTree.behavioursList.get(key)) {
-                                            DefaultMutableTreeNode currentNode2 =
-                                                    (DefaultMutableTreeNode) (key.getLastPathComponent());
-
-                                            TreeNode[] nodes2 = currentNode2.getPath();
-
-                                            if (nodes.length == nodes2.length) {
-                                                int aa = 1;
-                                                for (int i = 0; i < nodes.length; i++) {
-                                                    if (!nodes[i].toString().equals(nodes2[i].toString())) {
-                                                        aa = 0;
-                                                        break;
-                                                    }
-                                                }
-                                                a = aa;
-                                            }
-                                            if (a == 1) {
-                                                nodesToSelectedNodeBehaviour[bb] = value;
-                                                bb++;
-                                            }
-                                        }
-                                    }
-
-
-                                    nodesToSelectedNode = Arrays.stream(nodesToSelectedNode)
-                                            .filter(s -> (s != null && s.length() > 0))
-                                            .toArray(String[]::new);
-                                    nodesToSelectedNodeBehaviour = Arrays.stream(nodesToSelectedNodeBehaviour)
-                                            .filter(s -> (s != null && s.length() > 0))
-                                            .toArray(String[]::new);
-
-                                    Arrays.parallelSort(nodesToSelectedNode);
-                                    Arrays.parallelSort(nodesToSelectedNodeBehaviour);
-
-                                    //onclick on a node => shows it's variable properties
-                                    ODMEEditor.scenarioVariable
-                                            .showNodeValuesInTable(currentNode.toString(),
-                                                    nodesToSelectedNode);
-
-                                    //onclick on a node => shows it's behaviors
-                                    ODMEEditor.scenarioBehaviour
-                                            .showBehaviourInTable(currentNode.toString(),
-                                                    nodesToSelectedNodeBehaviour);
-                                    
-                                    variableList = nodesToSelectedNode;
-                                    
-                                    // -------------------------------------------------------
-
-                                    pathToRoot.clear();
-
-                                    // for showing constraints in the table when selecting any node from graph;
-                                    ODMEEditor.treePanel.showConstraintsInTable(treePathForVariable);
-                                } 
-                                else {
-                                    pathToRoot.clear();
-                                    
-                                }
+                                showSelectedNodeMetadata(varCell);
                             }
                             
                             
@@ -471,77 +353,7 @@ public class JtreeToGraphCreate {
                             }
                         }
                         
-                        pathToRoot.add((String) varCell.getValue());
-                        JtreeToGraphConvert.nodeToRootPathVar(varCell);
-
-                        String[] stringArray = pathToRoot.toArray(new String[0]);
-                        ArrayList<String> pathToRootRev = new ArrayList<String>();
-
-                        for (int i = stringArray.length - 1; i >= 0; i--) {
-                            pathToRootRev.add(stringArray[i]);
-                        }
-
-                        String[] stringArrayRev = pathToRootRev.toArray(new String[0]);
-
-                        TreePath treePathForVariable = JtreeToGraphGeneral.getTreeNodePath(stringArrayRev);
-                        if (!(treePathForVariable == null)) {
-                            DefaultMutableTreeNode currentNode =
-                                    (DefaultMutableTreeNode) (treePathForVariable
-                                                                      .getLastPathComponent()); // if mouse not released then some condition
-
-                            // -------------------------------------------------------
-                            TreeNode[] nodes = currentNode.getPath();
-                            String[] nodesToSelectedNode = new String[100];
-                            int b = 0;
-                           
-                            for (TreePath key : DynamicTree.varMap.keySet()) {
-                                int a = 0;
-
-                                for (String value : DynamicTree.varMap.get(key)) {
-                                    DefaultMutableTreeNode currentNode2 =
-                                            (DefaultMutableTreeNode) (key.getLastPathComponent());
-
-                                    TreeNode[] nodes2 = currentNode2.getPath();
-
-                                    if (nodes.length == nodes2.length) {
-                                           int aa = 1;
-                                           for (int i = 0; i < nodes.length; i++) {
-                                        	   if (!nodes[i].toString().equals(nodes2[i].toString())) {
-                                        		   aa = 0;
-                                                   break;
-                                        	   } 
-                                           	}
-                                            
-                                           a = aa;
-                                    }
-                                    if (a == 1) {
-                                        nodesToSelectedNode[b] = value;
-                                        b++;
-                                    }
-                                }
-                            }
-
-                            nodesToSelectedNode = Arrays.stream(nodesToSelectedNode)
-                                    .filter(s -> (s != null && s.length() > 0))
-                                    .toArray(String[]::new);
-
-                            Arrays.parallelSort(nodesToSelectedNode);
-
-                            ODMEEditor.scenarioVariable
-                                    .showNodeValuesInTable(currentNode.toString(),
-                                            nodesToSelectedNode);
-                            
-                            variableList = nodesToSelectedNode;
-                            // -------------------------------------------------------
-
-                            pathToRoot.clear();
-
-                            // for showing constraints in the table when selecting any node from graph;
-                            ODMEEditor.treePanel.showConstraintsInTable(treePathForVariable);
-                        } 
-                        else {
-                            pathToRoot.clear();
-                        }
+                        showSelectedNodeMetadata(varCell);
                     }
                     }
                   //------------------------------
@@ -572,6 +384,34 @@ public class JtreeToGraphCreate {
             }
             // mouse event 2
         });
+    }
+
+    private static void showSelectedNodeMetadata(mxCell varCell) {
+        pathToRoot.add((String) varCell.getValue());
+        JtreeToGraphConvert.nodeToRootPathVar(varCell);
+
+        String[] stringArray = pathToRoot.toArray(new String[0]);
+        ArrayList<String> pathToRootRev = new ArrayList<String>();
+        for (int i = stringArray.length - 1; i >= 0; i--) {
+            pathToRootRev.add(stringArray[i]);
+        }
+
+        String[] stringArrayRev = pathToRootRev.toArray(new String[0]);
+        String selectedNodeName = stringArrayRev[stringArrayRev.length - 1];
+
+        String[] nodesToSelectedNode = DynamicTree.getMetadataValues(DynamicTree.varMap, stringArrayRev);
+        String[] nodesToSelectedNodeBehaviour =
+                DynamicTree.getMetadataValues(DynamicTree.behavioursList, stringArrayRev);
+
+        Arrays.parallelSort(nodesToSelectedNode);
+        Arrays.parallelSort(nodesToSelectedNodeBehaviour);
+
+        ODMEEditor.scenarioVariable.showNodeValuesInTable(selectedNodeName, nodesToSelectedNode);
+        ODMEEditor.scenarioBehaviour.showBehaviourInTable(selectedNodeName, nodesToSelectedNodeBehaviour);
+        variableList = nodesToSelectedNode;
+        pathToRoot.clear();
+
+        ODMEEditor.treePanel.showConstraintsInTable(new TreePath(stringArrayRev));
     }
     
     public static void callAfterEdgeConnectionComplete() {

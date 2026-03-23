@@ -17,6 +17,7 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
@@ -446,6 +447,7 @@ public final class AutomaticScenarioGeneration {
             throws IOException, TransformerException {
         writeTreeXml(prunedRoot, scenarioDirectory.resolve(projectName + ".xml"));
         writeGraphXml(prunedRoot, scenarioDirectory.resolve(projectName + "Graph.xml"));
+        writeReadableScenarioXml(prunedRoot, variables, scenarioDirectory.resolve("xmlforxsd.xml"));
         writeSerializedMap(variables, scenarioDirectory.resolve(projectName + ".ssdvar"));
         writeSerializedMap(constraints, scenarioDirectory.resolve(projectName + ".ssdcon"));
         writeSerializedMap(behaviours, scenarioDirectory.resolve(projectName + ".ssdbeh"));
@@ -463,6 +465,118 @@ public final class AutomaticScenarioGeneration {
         } catch (ParserConfigurationException e) {
             throw new IOException("Failed to build XML document for " + target, e);
         }
+    }
+
+    private static void writeReadableScenarioXml(DefaultMutableTreeNode root,
+                                                 Multimap<TreePath, String> variables,
+                                                 Path target)
+            throws TransformerException, IOException {
+        try {
+            DOMImplementation domImplementation =
+                    DocumentBuilderFactory.newInstance().newDocumentBuilder().getDOMImplementation();
+            Document document = domImplementation.createDocument(null, null, null);
+            Element rootElement = buildReadableScenarioElement(document, root, new ArrayList<>(), variables, true);
+            document.appendChild(rootElement);
+            JtreeToGraphSave.saveToXMLFile(document, target.toString());
+        } catch (ParserConfigurationException e) {
+            throw new IOException("Failed to build XML document for " + target, e);
+        }
+    }
+
+    private static Element buildReadableScenarioElement(Document document,
+                                                        DefaultMutableTreeNode node,
+                                                        List<String> parentPath,
+                                                        Multimap<TreePath, String> variables,
+                                                        boolean isRoot) {
+        String label = node.toString();
+        Element element = createReadableElement(document, label, isRoot);
+        List<String> currentPath = appendPath(parentPath, label);
+
+        for (String rawVariable : metadataValuesForPath(variables, currentPath)) {
+            appendVariableElement(document, element, rawVariable);
+        }
+
+        for (int i = 0; i < node.getChildCount(); i++) {
+            DefaultMutableTreeNode child = (DefaultMutableTreeNode) node.getChildAt(i);
+            element.appendChild(buildReadableScenarioElement(document, child, currentPath, variables, false));
+        }
+
+        return element;
+    }
+
+    private static Element createReadableElement(Document document, String label, boolean isRoot) {
+        Element element;
+        if (label.endsWith("Dec")) {
+            element = document.createElement("aspect");
+            element.setAttribute("name", label);
+            return element;
+        }
+        if (label.endsWith("MAsp")) {
+            element = document.createElement("multiAspect");
+            element.setAttribute("name", label);
+            return element;
+        }
+        if (label.endsWith("Spec")) {
+            element = document.createElement("specialization");
+            element.setAttribute("name", label);
+            return element;
+        }
+
+        element = document.createElement("entity");
+        element.setAttribute("name", label);
+        if (isRoot) {
+            element.setAttribute("xmlns:vc", "http://www.w3.org/2007/XMLSchema-versioning");
+            element.setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
+            element.setAttribute("xsi:noNamespaceSchemaLocation", "ses.xsd");
+        }
+        return element;
+    }
+
+    private static List<String> metadataValuesForPath(Multimap<TreePath, String> source, List<String> pathParts) {
+        List<String> values = new ArrayList<>();
+        for (TreePath key : source.keySet()) {
+            if (pathMatches(key, pathParts)) {
+                values.addAll(source.get(key));
+            }
+        }
+        return values;
+    }
+
+    private static boolean pathMatches(TreePath path, List<String> pathParts) {
+        Object[] rawSegments = path.getPath();
+        if (rawSegments.length != pathParts.size()) {
+            return false;
+        }
+
+        for (int i = 0; i < rawSegments.length; i++) {
+            if (!String.valueOf(rawSegments[i]).equals(pathParts.get(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static void appendVariableElement(Document document, Element parent, String rawVariable) {
+        if (rawVariable == null || rawVariable.isBlank()) {
+            return;
+        }
+
+        String[] parts = rawVariable.split(",", -1);
+        if (parts.length < 3) {
+            return;
+        }
+
+        Element variableElement = document.createElement("var");
+        variableElement.setAttribute("name", parts[0].trim());
+        variableElement.setAttribute("type", parts[1].trim());
+        variableElement.setAttribute("default", parts[2].trim());
+        if (parts.length > 3 && !parts[3].trim().isEmpty()) {
+            variableElement.setAttribute("lower", parts[3].trim());
+        }
+        if (parts.length > 4 && !parts[4].trim().isEmpty()) {
+            variableElement.setAttribute("upper", parts[4].trim());
+        }
+        parent.appendChild(variableElement);
     }
 
     private static void writeGraphXml(DefaultMutableTreeNode root, Path target) throws IOException {
