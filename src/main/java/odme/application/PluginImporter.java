@@ -54,10 +54,10 @@ public class PluginImporter {
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class VerdictResult {
-        public String testCaseId;
-        public String scenarioName;
-        public String verdict;
-        public String detail;
+        private String testCaseId;
+        private String scenarioName;
+        private String verdict;
+        private String detail;
 
         public VerdictResult() {}
 
@@ -68,5 +68,10 @@ public class PluginImporter {
             this.verdict = verdict;
             this.detail = detail;
         }
+
+        public String getTestCaseId() { return testCaseId; }
+        public String getScenarioName() { return scenarioName; }
+        public String getVerdict() { return verdict; }
+        public String getDetail() { return detail; }
     }
 }

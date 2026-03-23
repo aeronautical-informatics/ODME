@@ -109,10 +109,10 @@ class PluginRunnerTest {
 
         assertEquals(0, result.exitCode());
         assertEquals(2, result.verdicts().size());
-        assertEquals("TC_001", result.verdicts().get(0).testCaseId);
-        assertEquals("PASS", result.verdicts().get(0).verdict);
-        assertEquals("TC_002", result.verdicts().get(1).testCaseId);
-        assertEquals("FAIL", result.verdicts().get(1).verdict);
+        assertEquals("TC_001", result.verdicts().get(0).getTestCaseId());
+        assertEquals("PASS", result.verdicts().get(0).getVerdict());
+        assertEquals("TC_002", result.verdicts().get(1).getTestCaseId());
+        assertEquals("FAIL", result.verdicts().get(1).getVerdict());
     }
 
     @Test
@@ -168,8 +168,8 @@ class PluginRunnerTest {
         List<PluginImporter.VerdictResult> results = importer.importResults(resultsFile);
 
         assertEquals(1, results.size());
-        assertEquals("TC_001", results.get(0).testCaseId);
-        assertEquals("PASS", results.get(0).verdict);
+        assertEquals("TC_001", results.get(0).getTestCaseId());
+        assertEquals("PASS", results.get(0).getVerdict());
     }
 
     @Test
