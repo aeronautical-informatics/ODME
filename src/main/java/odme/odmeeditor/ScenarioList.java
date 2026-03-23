@@ -18,8 +18,10 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.*;
 import javax.swing.border.EtchedBorder;
@@ -70,7 +72,27 @@ public class ScenarioList extends JPanel {
 			}
 		});
 
+		JButton deleteSelectedBtn = new JButton("Delete Selected");
+		deleteSelectedBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				deleteSelectedScenarios();
+			}
+		});
+
+		JButton deleteGeneratedBtn = new JButton("Delete Generated");
+		deleteGeneratedBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				deleteGeneratedScenarios();
+			}
+		});
+
 		toolBar.add(automaticScenarioGenerationBtn);
+		toolBar.addSeparator();
+		toolBar.add(deleteSelectedBtn);
+		toolBar.addSeparator();
+		toolBar.add(deleteGeneratedBtn);
 		toolBar.addSeparator();
 		toolBar.add(structuralCoverageBtn);
     	
@@ -79,14 +101,15 @@ public class ScenarioList extends JPanel {
         table = new JTable(model);
         table.setShowVerticalLines(true);
         table.setDefaultEditor(Object.class, null);
-        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         
         table.setAutoCreateRowSorter(true);
         reloadTableData();
         
         final JPopupMenu popupMenu = new JPopupMenu();
         JMenuItem openItem = new JMenuItem("Open");
-        JMenuItem deleteItem = new JMenuItem("Delete");
+        JMenuItem deleteSelectedItem = new JMenuItem("Delete Selected");
+        JMenuItem deleteGeneratedItem = new JMenuItem("Delete Generated");
         
         openItem.addActionListener(new ActionListener() {
             @Override
@@ -96,29 +119,20 @@ public class ScenarioList extends JPanel {
         });
         
         popupMenu.add(openItem);
-        popupMenu.add(deleteItem);
+        popupMenu.add(deleteSelectedItem);
+        popupMenu.add(deleteGeneratedItem);
         
-        deleteItem.addActionListener(new ActionListener() {
+        deleteSelectedItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-            	int row = getSelectedModelRow();
-            	if (row < 0) {
-            		return;
-            	}
-            	String fileName = (String) model.getValueAt(row, 0);
-            	if (fileName.equals(EditorContext.getInstance().getCurrentScenario())) {
-            		JOptionPane.showMessageDialog(Main.frame, "The Scenario is currently opened!", "Error",
-                            JOptionPane.ERROR_MESSAGE);
-            		return;
-            	}
-            	
-            	int dialogResult = -1;
-            	dialogResult = JOptionPane.showConfirmDialog (null,
-        				"Do you want to delete "+fileName+"?","Delete Scenario",JOptionPane.YES_NO_OPTION);
-        		if(dialogResult == JOptionPane.YES_OPTION){
-        			deleteFolder(new File(EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/" +  fileName));
-        			deleteFromJson(fileName);
-        		}
+            	deleteSelectedScenarios();
+            }
+        });
+
+        deleteGeneratedItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                deleteGeneratedScenarios();
             }
         });
          
@@ -326,6 +340,31 @@ public class ScenarioList extends JPanel {
         return table.convertRowIndexToModel(viewRow);
     }
 
+    private List<Integer> getSelectedModelRows() {
+        List<Integer> rows = new ArrayList<>();
+        if (table == null) {
+            return rows;
+        }
+
+        int[] selectedViewRows = table.getSelectedRows();
+        for (int selectedViewRow : selectedViewRows) {
+            if (selectedViewRow >= 0) {
+                rows.add(table.convertRowIndexToModel(selectedViewRow));
+            }
+        }
+        return rows;
+    }
+
+    private List<String> getSelectedScenarioNames() {
+        List<String> scenarioNames = new ArrayList<>();
+        for (int row : getSelectedModelRows()) {
+            if (row >= 0 && row < model.getRowCount()) {
+                scenarioNames.add((String) model.getValueAt(row, 0));
+            }
+        }
+        return scenarioNames;
+    }
+
     private void reloadTableData() {
         if (model == null) {
             return;
@@ -401,28 +440,176 @@ public class ScenarioList extends JPanel {
         }
     }
     
-    private void deleteFolder(File folder) {
+    private boolean deleteFolder(File folder) {
         File[] files = folder.listFiles();
+        boolean success = true;
         if(files!=null) {
             for(File f: files) {
                 if(f.isDirectory()) {
-                    deleteFolder(f);
+                    success &= deleteFolder(f);
                 } else {
-                    f.delete();
+                    success &= f.delete();
                 }
             }
         }
-        folder.delete();
+        return success & (!folder.exists() || folder.delete());
+    }
+
+    private void deleteSelectedScenarios() {
+        List<String> selectedScenarios = getSelectedScenarioNames();
+        if (selectedScenarios.isEmpty()) {
+            JOptionPane.showMessageDialog(frame != null ? frame : Main.frame,
+                    "Select one or more scenarios to delete.",
+                    "Delete Selected Scenarios",
+                    JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        deleteScenarios(selectedScenarios, "Delete Selected Scenarios");
+    }
+
+    private void deleteGeneratedScenarios() {
+        List<String> generatedScenarios = new ArrayList<>();
+        for (String[] scenario : getJsonData()) {
+            if (isGeneratedScenario(scenario[0])) {
+                generatedScenarios.add(scenario[0]);
+            }
+        }
+
+        if (generatedScenarios.isEmpty()) {
+            JOptionPane.showMessageDialog(frame != null ? frame : Main.frame,
+                    "No generated AutoScenario_* scenarios were found.",
+                    "Delete Generated Scenarios",
+                    JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        deleteScenarios(generatedScenarios, "Delete Generated Scenarios");
+    }
+
+    private void deleteScenarios(List<String> requestedScenarioNames, String title) {
+        Set<String> uniqueRequestedNames = new LinkedHashSet<>(requestedScenarioNames);
+        List<String> deletableScenarios = new ArrayList<>();
+        List<String> skippedScenarios = new ArrayList<>();
+
+        for (String scenarioName : uniqueRequestedNames) {
+            if (scenarioName == null || scenarioName.isBlank()) {
+                continue;
+            }
+            if (isProtectedScenario(scenarioName)) {
+                skippedScenarios.add(scenarioName);
+                continue;
+            }
+            deletableScenarios.add(scenarioName);
+        }
+
+        if (deletableScenarios.isEmpty()) {
+            JOptionPane.showMessageDialog(frame != null ? frame : Main.frame,
+                    buildSkippedMessage(skippedScenarios, "Nothing was deleted."),
+                    title,
+                    JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        int dialogResult = JOptionPane.showConfirmDialog(
+                frame != null ? frame : Main.frame,
+                buildDeleteConfirmationMessage(deletableScenarios, skippedScenarios),
+                title,
+                JOptionPane.YES_NO_OPTION);
+        if (dialogResult != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        List<String> deletedScenarios = new ArrayList<>();
+        List<String> failedScenarios = new ArrayList<>();
+        for (String scenarioName : deletableScenarios) {
+            File scenarioFolder = new File(EditorContext.getInstance().getProjectDir(), scenarioName);
+            if (!scenarioFolder.exists() || deleteFolder(scenarioFolder)) {
+                deletedScenarios.add(scenarioName);
+            } else {
+                failedScenarios.add(scenarioName);
+            }
+        }
+
+        if (!deletedScenarios.isEmpty()) {
+            deleteFromJson(new LinkedHashSet<>(deletedScenarios));
+        } else {
+            reloadTableData();
+        }
+
+        JOptionPane.showMessageDialog(frame != null ? frame : Main.frame,
+                buildDeleteResultMessage(deletedScenarios, skippedScenarios, failedScenarios),
+                title,
+                failedScenarios.isEmpty() ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.WARNING_MESSAGE);
+    }
+
+    private boolean isProtectedScenario(String scenarioName) {
+        return "InitScenario".equals(scenarioName)
+                || scenarioName.equals(EditorContext.getInstance().getCurrentScenario());
+    }
+
+    private boolean isGeneratedScenario(String scenarioName) {
+        return scenarioName != null && scenarioName.startsWith("AutoScenario_");
+    }
+
+    private String buildDeleteConfirmationMessage(List<String> deletableScenarios, List<String> skippedScenarios) {
+        StringBuilder message = new StringBuilder();
+        message.append("Delete ").append(deletableScenarios.size()).append(" scenario(s)?");
+        message.append("\n\n");
+        appendScenarioPreview(message, "Will delete", deletableScenarios);
+        if (!skippedScenarios.isEmpty()) {
+            message.append("\n\n");
+            appendScenarioPreview(message, "Will skip", skippedScenarios);
+        }
+        return message.toString();
+    }
+
+    private String buildDeleteResultMessage(List<String> deletedScenarios,
+                                            List<String> skippedScenarios,
+                                            List<String> failedScenarios) {
+        StringBuilder message = new StringBuilder();
+        message.append("Deleted ").append(deletedScenarios.size()).append(" scenario(s).");
+
+        if (!skippedScenarios.isEmpty()) {
+            message.append("\n\n");
+            appendScenarioPreview(message, "Skipped", skippedScenarios);
+        }
+        if (!failedScenarios.isEmpty()) {
+            message.append("\n\n");
+            appendScenarioPreview(message, "Failed", failedScenarios);
+        }
+
+        return message.toString();
+    }
+
+    private String buildSkippedMessage(List<String> skippedScenarios, String prefix) {
+        StringBuilder message = new StringBuilder(prefix);
+        if (!skippedScenarios.isEmpty()) {
+            message.append("\n\n");
+            appendScenarioPreview(message, "Skipped", skippedScenarios);
+        }
+        return message.toString();
+    }
+
+    private void appendScenarioPreview(StringBuilder target, String label, List<String> scenarios) {
+        target.append(label).append(":");
+        int previewCount = Math.min(scenarios.size(), 10);
+        for (int i = 0; i < previewCount; i++) {
+            target.append("\n- ").append(scenarios.get(i));
+        }
+        if (scenarios.size() > previewCount) {
+            target.append("\n- ... and ").append(scenarios.size() - previewCount).append(" more");
+        }
     }
     
     @SuppressWarnings("unchecked")
-	private void deleteFromJson(String scenario) {
+	private void deleteFromJson(Set<String> scenariosToDelete) {
     	List<String[]> dataList = getJsonData();
 		
 		JSONArray ja = new JSONArray();
 		for (String[] arr: dataList) {
 			JSONObject jo = new JSONObject();
-			if (arr[0].equals(scenario)) {
+			if (scenariosToDelete.contains(arr[0])) {
 				continue;
 			}
 			else {
