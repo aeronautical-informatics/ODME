@@ -41,7 +41,7 @@ public class XmlJTree extends JTree {
         try {
             builder = factory.newDocumentBuilder();
             doc = builder.parse(filePath);
-            root = doc.getDocumentElement();
+            root = unwrapEditorRoot(doc.getDocumentElement());
 
         }
         catch (ParserConfigurationException e) {
@@ -64,6 +64,24 @@ public class XmlJTree extends JTree {
             dtModel = new UndoableTreeModel(builtTreeNode(root));
             this.setModel(dtModel);
         }
+    }
+
+    private Node unwrapEditorRoot(Node documentRoot) {
+        if (documentRoot == null) {
+            return null;
+        }
+        if (!"start".equals(documentRoot.getNodeName())) {
+            return documentRoot;
+        }
+
+        NodeList nodeList = documentRoot.getChildNodes();
+        for (int i = 0; i < nodeList.getLength(); i++) {
+            Node child = nodeList.item(i);
+            if (child.getNodeType() == Node.ELEMENT_NODE) {
+                return child;
+            }
+        }
+        return documentRoot;
     }
 
     private DefaultMutableTreeNode builtTreeNode(Node root) {

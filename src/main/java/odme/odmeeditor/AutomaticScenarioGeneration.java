@@ -478,8 +478,6 @@ public final class AutomaticScenarioGeneration {
             Object rootVertex = graph.insertVertex(parent, "rootnode", root.toString(),
                     ROOT_X + xPositions.get(root), ROOT_Y, entityWidth(root.toString()), entityHeight(root.toString()),
                     styleForLabel(root.toString()));
-            graph.insertVertex(parent, "hideV", "End of Canvas", 0, 50000, 80, 30, "Entity");
-            graph.insertVertex(parent, "hideH", "End of Canvas", 50000, 0, 80, 30, "Entity");
             addGraphChildren(graph, parent, rootVertex, root, xPositions, idCounter, 1);
         } finally {
             graph.getModel().endUpdate();

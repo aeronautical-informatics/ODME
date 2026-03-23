@@ -382,6 +382,13 @@ public class ScenarioList extends JPanel {
 
             ODMEEditor.graphWindow.setTitle(scenarioName);
             ODMEEditor.changePruneColor();
+            ODMEEditor.updateState();
+            XmlUtils.showViewer(
+                    EditorContext.getInstance().getFileLocation(),
+                    EditorContext.getInstance().getProjName(),
+                    "xmlforxsd.xml",
+                    XmlUtils.sesview
+            );
         }
         catch (Exception ex) {
             ex.printStackTrace();
