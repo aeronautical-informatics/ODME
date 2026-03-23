@@ -88,11 +88,21 @@ public class ScenarioList extends JPanel {
 			}
 		});
 
+		JButton refreshBtn = new JButton("Refresh Scenario List");
+		refreshBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				reloadTableData();
+			}
+		});
+
 		toolBar.add(automaticScenarioGenerationBtn);
 		toolBar.addSeparator();
 		toolBar.add(deleteSelectedBtn);
 		toolBar.addSeparator();
 		toolBar.add(deleteGeneratedBtn);
+		toolBar.addSeparator();
+		toolBar.add(refreshBtn);
 		toolBar.addSeparator();
 		toolBar.add(structuralCoverageBtn);
     	
@@ -110,6 +120,7 @@ public class ScenarioList extends JPanel {
         JMenuItem openItem = new JMenuItem("Open");
         JMenuItem deleteSelectedItem = new JMenuItem("Delete Selected");
         JMenuItem deleteGeneratedItem = new JMenuItem("Delete Generated");
+        JMenuItem refreshItem = new JMenuItem("Refresh");
         
         openItem.addActionListener(new ActionListener() {
             @Override
@@ -121,6 +132,7 @@ public class ScenarioList extends JPanel {
         popupMenu.add(openItem);
         popupMenu.add(deleteSelectedItem);
         popupMenu.add(deleteGeneratedItem);
+        popupMenu.add(refreshItem);
         
         deleteSelectedItem.addActionListener(new ActionListener() {
             @Override
@@ -133,6 +145,13 @@ public class ScenarioList extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 deleteGeneratedScenarios();
+            }
+        });
+
+        refreshItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                reloadTableData();
             }
         });
          
