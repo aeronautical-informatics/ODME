@@ -32,7 +32,6 @@ import org.json.simple.parser.JSONParser;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.mxgraph.util.mxUndoManager;
-import com.mxgraph.util.svg.ParseException;
 
 import odme.jtreetograph.JtreeToGraphGeneral;
 import structuretest.BehaviourCoverageTest;
@@ -46,15 +45,20 @@ public class ScenarioList extends JPanel {
 	private static final long serialVersionUID = 1L;
 	private JTable table;
 	private DefaultTableModel model;
+    private JFrame frame;
 
     public void createScenarioListWindow() {
 
-		// inside createScenarioListWindow()
 		JToolBar toolBar = new JToolBar();
 		toolBar.setFloatable(false);
 
-    	List<String[]> dataList = getJsonData();
-
+		JButton automaticScenarioGenerationBtn = new JButton("Automatic Scenario Generation");
+		automaticScenarioGenerationBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				performAutomaticScenarioGeneration();
+			}
+		});
 
 		JButton structuralCoverageBtn = new JButton("Structural Coverage");
 		structuralCoverageBtn.addActionListener(new ActionListener() {
@@ -64,11 +68,11 @@ public class ScenarioList extends JPanel {
 			}
 		});
 
+		toolBar.add(automaticScenarioGenerationBtn);
+		toolBar.addSeparator();
 		toolBar.add(structuralCoverageBtn);
     	
     	model = new DefaultTableModel(new String[]{"Name", "Risk", "Remarks"}, 0);
-    	for (String[] arr: dataList)
-    		model.addRow(arr);
 
         table = new JTable(model);
         table.setShowVerticalLines(true);
@@ -76,6 +80,7 @@ public class ScenarioList extends JPanel {
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         
         table.setAutoCreateRowSorter(true);
+        reloadTableData();
         
         final JPopupMenu popupMenu = new JPopupMenu();
         JMenuItem openItem = new JMenuItem("Open");
@@ -85,11 +90,13 @@ public class ScenarioList extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
             	try {
-
+            		int row = getSelectedModelRow();
+            		if (row < 0) {
+            			return;
+            		}
             		DynamicTree.varMap = ArrayListMultimap.create();
 
-            		int row = table.getSelectedRow();
-            		String fileName = (String) table.getModel().getValueAt(row, 0);
+            		String fileName = (String) model.getValueAt(row, 0);
 
             		System.out.println("Selected file: " + fileName);
             		EditorContext.getInstance().setCurrentScenario(fileName);
@@ -119,8 +126,11 @@ public class ScenarioList extends JPanel {
         deleteItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-            	int row = table.getSelectedRow();
-            	String fileName = (String) table.getModel().getValueAt(row, 0);
+            	int row = getSelectedModelRow();
+            	if (row < 0) {
+            		return;
+            	}
+            	String fileName = (String) model.getValueAt(row, 0);
             	if (fileName.equals(EditorContext.getInstance().getCurrentScenario())) {
             		JOptionPane.showMessageDialog(Main.frame, "The Scenario is currently opened!", "Error",
                             JOptionPane.ERROR_MESSAGE);
@@ -131,7 +141,7 @@ public class ScenarioList extends JPanel {
             	dialogResult = JOptionPane.showConfirmDialog (null,
         				"Do you want to delete "+fileName+"?","Delete Scenario",JOptionPane.YES_NO_OPTION);
         		if(dialogResult == JOptionPane.YES_OPTION){
-        			deleteFolder(new File(EditorContext.getInstance().getFileLocation() + "/" +  fileName));  
+        			deleteFolder(new File(EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/" +  fileName));
         			deleteFromJson(fileName);
         		}
             }
@@ -142,12 +152,14 @@ public class ScenarioList extends JPanel {
         table.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2) {
-                    JTable target = (JTable) e.getSource();
-                    int row = table.getSelectedRow();
-                    
-                    String name = (String) target.getModel().getValueAt(row, 0);
-                    String risk = (String) target.getModel().getValueAt(row, 1);
-                    String remarks = (String) target.getModel().getValueAt(row, 2);
+                    int row = getSelectedModelRow();
+                    if (row < 0) {
+                    	return;
+                    }
+
+                    String name = (String) model.getValueAt(row, 0);
+                    String risk = (String) model.getValueAt(row, 1);
+                    String remarks = (String) model.getValueAt(row, 2);
  
                     updateTableData(name, risk, remarks);
                 }
@@ -163,7 +175,7 @@ public class ScenarioList extends JPanel {
 //        sortKeys.add(new RowSorter.SortKey(0, SortOrder.ASCENDING));
 //        sorter.setSortKeys(sortKeys);
                 
-        JFrame frame = new JFrame("Senario List");
+        frame = new JFrame("Scenario List");
         JPanel panelCenter = new JPanel();
                 
         JScrollPane scroll = new JScrollPane(table);
@@ -175,8 +187,8 @@ public class ScenarioList extends JPanel {
 
 		frame.add(toolBar, BorderLayout.NORTH);
 
-        int width = 500;
-        int height = 250;
+        int width = 760;
+        int height = 280;
         Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
         int x = (screen.width - width) / 2;
         int y = (screen.height - height) / 2;
@@ -190,6 +202,140 @@ public class ScenarioList extends JPanel {
 
         frame.setResizable(false);
         frame.setVisible(true);
+    }
+
+    private void performAutomaticScenarioGeneration() {
+        AutomaticScenarioGeneration.GenerationPreview preview;
+        try {
+            preview = AutomaticScenarioGeneration.inspectProject();
+        }
+        catch (Exception ex) {
+            JOptionPane.showMessageDialog(frame != null ? frame : Main.frame,
+                    "Unable to inspect the current domain model.\n" + ex.getMessage(),
+                    "Automatic Scenario Generation",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        if (preview.multiAspectCount() > 0) {
+            JOptionPane.showMessageDialog(frame != null ? frame : Main.frame,
+                    "Automatic Scenario Generation currently supports specialization pruning only.\n"
+                            + "Detected " + preview.multiAspectCount() + " multi-aspect node(s) in the domain model.",
+                    "Automatic Scenario Generation",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        int proceed = JOptionPane.showConfirmDialog(
+                frame != null ? frame : Main.frame,
+                buildPreviewMessage(preview),
+                "Automatic Scenario Generation",
+                JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.INFORMATION_MESSAGE
+        );
+        if (proceed != JOptionPane.OK_OPTION) {
+            return;
+        }
+
+        String requestedPrefix = (String) JOptionPane.showInputDialog(
+                frame != null ? frame : Main.frame,
+                "Scenario name prefix:",
+                "Automatic Scenario Generation",
+                JOptionPane.PLAIN_MESSAGE,
+                null,
+                null,
+                "AutoScenario"
+        );
+        if (requestedPrefix == null) {
+            return;
+        }
+
+        BackgroundTaskRunner.run(
+                this,
+                "Automatic Scenario Generation",
+                "Generating pruned scenario models...",
+                () -> AutomaticScenarioGeneration.generateAll(requestedPrefix),
+                result -> {
+                    reloadTableData();
+                    JOptionPane.showMessageDialog(
+                            frame != null ? frame : Main.frame,
+                            buildSuccessMessage(result),
+                            "Automatic Scenario Generation",
+                            JOptionPane.INFORMATION_MESSAGE
+                    );
+                }
+        );
+    }
+
+    private String buildPreviewMessage(AutomaticScenarioGeneration.GenerationPreview preview) {
+        StringBuilder message = new StringBuilder();
+        message.append("Project: ").append(preview.projectName()).append('\n');
+        message.append("Specialization nodes: ").append(preview.specializations().size()).append('\n');
+        message.append("Scenario combinations: ").append(preview.totalCombinations()).append('\n');
+
+        if (preview.specializations().isEmpty()) {
+            message.append('\n').append("No specialization nodes were found. ODME will create one scenario copy.");
+        }
+        else {
+            message.append('\n').append("Specializations:\n");
+            int previewCount = Math.min(preview.specializations().size(), 8);
+            for (int i = 0; i < previewCount; i++) {
+                AutomaticScenarioGeneration.SpecializationDescriptor descriptor = preview.specializations().get(i);
+                message.append("- ").append(descriptor.label())
+                        .append(" (").append(descriptor.optionLabels().size()).append(" options)")
+                        .append('\n');
+            }
+            if (preview.specializations().size() > previewCount) {
+                message.append("- ...\n");
+            }
+        }
+
+        message.append('\n')
+                .append("Generated scenarios will be stored under the current project folder and added to Scenario Manager.\n")
+                .append("Continue?");
+        return message.toString();
+    }
+
+    private String buildSuccessMessage(AutomaticScenarioGeneration.GenerationResult result) {
+        StringBuilder message = new StringBuilder();
+        message.append("Created ").append(result.createdCount())
+                .append(" scenario model(s) for ").append(result.projectName()).append('.');
+
+        if (!result.createdScenarioNames().isEmpty()) {
+            message.append('\n').append('\n').append("First generated scenarios:\n");
+            int previewCount = Math.min(result.createdScenarioNames().size(), 10);
+            for (int i = 0; i < previewCount; i++) {
+                message.append("- ").append(result.createdScenarioNames().get(i)).append('\n');
+            }
+            if (result.createdScenarioNames().size() > previewCount) {
+                message.append("- ...");
+            }
+        }
+
+        return message.toString();
+    }
+
+    private int getSelectedModelRow() {
+        if (table == null) {
+            return -1;
+        }
+        int viewRow = table.getSelectedRow();
+        if (viewRow < 0) {
+            return -1;
+        }
+        return table.convertRowIndexToModel(viewRow);
+    }
+
+    private void reloadTableData() {
+        if (model == null) {
+            return;
+        }
+
+        model.setRowCount(0);
+        List<String[]> dataList = getJsonData();
+        for (String[] arr : dataList) {
+            model.addRow(arr);
+        }
     }
     
     private void deleteFolder(File folder) {
@@ -236,16 +382,8 @@ public class ScenarioList extends JPanel {
              JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
              return;
 	      }
-		
-		DefaultTableModel dm = (DefaultTableModel)table.getModel();
-		while(dm.getRowCount() > 0) {
-		    dm.removeRow(0);
-		}
-		
-		List<String[]> newDataList = getJsonData();
-		
-		for (String[] arr: newDataList)
-    		model.addRow(arr);
+
+		reloadTableData();
     }
 
 
@@ -371,11 +509,7 @@ public class ScenarioList extends JPanel {
 		} catch (IOException e) {
 			e.printStackTrace();
             JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-		} catch (ParseException e) {
-			e.printStackTrace();
-            JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 		}
-
 		return dataList;
 	}
 
@@ -410,10 +544,6 @@ public class ScenarioList extends JPanel {
             e.printStackTrace();
             JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         } 
-        catch (ParseException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        }
     	
     	return dataList;
     }
@@ -486,16 +616,8 @@ public class ScenarioList extends JPanel {
     		      } catch (IOException e) {
     		         e.printStackTrace();
     		      }
-    			
-    			DefaultTableModel dm = (DefaultTableModel)table.getModel();
-    			while(dm.getRowCount() > 0) {
-    			    dm.removeRow(0);
-    			}
-    			
-    			List<String[]> newDataList = getJsonData();
-    			
-    			for (String[] arr: newDataList)
-    	    		model.addRow(arr);
+
+    			reloadTableData();
     	}	
     }
 }
