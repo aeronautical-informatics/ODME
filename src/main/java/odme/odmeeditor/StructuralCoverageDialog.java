@@ -45,7 +45,7 @@ final class StructuralCoverageDialog extends JDialog {
         instructions.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 10));
 
         JLabel infoLabel = new JLabel(
-                "Project: " + context.projectName() + "    Generated scenarios: " + context.scenarios().size(),
+                "Project: " + context.projectName() + "    Generated scenarios: " + context.scenarioReferences().size(),
                 SwingConstants.LEFT
         );
         infoLabel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
@@ -110,27 +110,30 @@ final class StructuralCoverageDialog extends JDialog {
     }
 
     static void open(JFrame parent, List<String[]> scenarioRows) {
-        try {
-            StructuralCoverageSupport.CoverageContext context =
-                    StructuralCoverageSupport.loadCoverageContext(scenarioRows);
-            if (context.scenarios().isEmpty()) {
-                JOptionPane.showMessageDialog(
+        BackgroundTaskRunner.run(
+                parent,
+                "Estimate Coverage",
+                "Loading ODD parameters and generated scenarios...",
+                () -> StructuralCoverageSupport.loadCoverageContext(scenarioRows),
+                context -> {
+                    if (context.scenarioReferences().isEmpty()) {
+                        JOptionPane.showMessageDialog(
+                                parent,
+                                "No generated scenarios were found. Generate or save scenarios first.",
+                                "Estimate Coverage",
+                                JOptionPane.INFORMATION_MESSAGE
+                        );
+                        return;
+                    }
+                    new StructuralCoverageDialog(parent, context).setVisible(true);
+                },
+                error -> JOptionPane.showMessageDialog(
                         parent,
-                        "No generated scenarios were found. Generate or save scenarios first.",
+                        "Unable to prepare coverage estimate: " + error.getMessage(),
                         "Estimate Coverage",
-                        JOptionPane.INFORMATION_MESSAGE
-                );
-                return;
-            }
-            new StructuralCoverageDialog(parent, context).setVisible(true);
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(
-                    parent,
-                    "Unable to prepare coverage estimate: " + e.getMessage(),
-                    "Estimate Coverage",
-                    JOptionPane.ERROR_MESSAGE
-            );
-        }
+                        JOptionPane.ERROR_MESSAGE
+                )
+        );
     }
 
     private void calculateCoverage() {
@@ -150,9 +153,22 @@ final class StructuralCoverageDialog extends JDialog {
                 ));
             }
 
-            StructuralCoverageSupport.CoverageReport report = StructuralCoverageSupport.analyze(context, rows);
-            CoverageReportDialog reportDialog = new CoverageReportDialog(this, report);
-            reportDialog.setVisible(true);
+            BackgroundTaskRunner.run(
+                    this,
+                    "Estimate Coverage",
+                    "Calculating pruning and parameter coverage...",
+                    () -> StructuralCoverageSupport.analyze(context, rows),
+                    report -> {
+                        CoverageReportDialog reportDialog = new CoverageReportDialog(this, report);
+                        reportDialog.setVisible(true);
+                    },
+                    error -> JOptionPane.showMessageDialog(
+                            this,
+                            "Unable to calculate coverage estimate: " + error.getMessage(),
+                            "Estimate Coverage",
+                            JOptionPane.ERROR_MESSAGE
+                    )
+            );
         } catch (IllegalArgumentException e) {
             JOptionPane.showMessageDialog(this, e.getMessage(), "Invalid Coverage Estimate Configuration", JOptionPane.WARNING_MESSAGE);
         }

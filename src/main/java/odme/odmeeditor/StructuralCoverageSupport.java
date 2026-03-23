@@ -32,6 +32,8 @@ final class StructuralCoverageSupport {
 
     private static final Pattern CUSTOM_BIN_PATTERN =
             Pattern.compile("^\\s*([-+]?\\d*\\.?\\d+)\\s*-\\s*([-+]?\\d*\\.?\\d+)\\s*$");
+    private static final String AUTO_GENERATED_REMARKS_PREFIX =
+            "Automatically generated specialization combination:";
 
     private StructuralCoverageSupport() {
     }
@@ -60,9 +62,9 @@ final class StructuralCoverageSupport {
         List<ParameterDefinition> parameterDefinitions = buildParameterDefinitions(samplingModel.bindings());
         List<StructuralOption> structuralOptions = new ArrayList<>();
         collectStructuralOptions(root, new ArrayList<>(), structuralOptions);
-        List<ScenarioSnapshot> scenarios = loadScenarioSnapshots(projectDirectory, projectName, scenarioRows);
+        List<ScenarioReference> scenarioReferences = buildScenarioReferences(scenarioRows);
 
-        return new CoverageContext(projectName, projectDirectory, parameterDefinitions, structuralOptions, scenarios);
+        return new CoverageContext(projectName, projectDirectory, parameterDefinitions, structuralOptions, scenarioReferences);
     }
 
     static List<ParameterSelectionRow> defaultSelectionRows(CoverageContext context) {
@@ -83,6 +85,11 @@ final class StructuralCoverageSupport {
     }
 
     static CoverageReport analyze(CoverageContext context, List<ParameterSelectionRow> selectionRows) {
+        List<ScenarioSnapshot> scenarios = loadScenarioSnapshots(
+                context.projectDirectory(),
+                context.projectName(),
+                context.scenarioReferences()
+        );
         Map<String, ParameterSelectionRow> selectionsById = new LinkedHashMap<>();
         for (ParameterSelectionRow row : selectionRows) {
             selectionsById.put(row.parameterId(), row);
@@ -91,9 +98,9 @@ final class StructuralCoverageSupport {
         List<StructuralCoverageResult> structuralResults = new ArrayList<>();
         int coveredStructural = 0;
         for (StructuralOption option : context.structuralOptions()) {
-            boolean covered = context.scenarios().stream()
-                    .map(ScenarioSnapshot::treePathVariants)
-                    .anyMatch(pathVariants -> intersects(pathVariants, option.coveragePathVariants()));
+            boolean covered = scenarios.stream().anyMatch(scenario ->
+                    scenario.selectedStructuralKeys().contains(option.key())
+                            || intersects(scenario.treePathVariants(), option.coveragePathVariants()));
             if (covered) {
                 coveredStructural++;
             }
@@ -113,7 +120,7 @@ final class StructuralCoverageSupport {
             List<CoverageBin> bins = buildBins(definition, row);
 
             List<Double> matchingValues = new ArrayList<>();
-            for (ScenarioSnapshot scenario : context.scenarios()) {
+            for (ScenarioSnapshot scenario : scenarios) {
                 for (ScenarioVariableValue value : scenario.variableValues()) {
                     if (!definition.variableName().equals(value.variableName())) {
                         continue;
@@ -160,7 +167,7 @@ final class StructuralCoverageSupport {
 
         return new CoverageReport(
                 context.projectName(),
-                context.scenarios().size(),
+                scenarios.size(),
                 structuralResults.size(),
                 coveredStructural,
                 structuralCoverage,
@@ -208,6 +215,7 @@ final class StructuralCoverageSupport {
                 DefaultMutableTreeNode child = (DefaultMutableTreeNode) node.getChildAt(i);
                 List<String> childPath = append(currentPath, child.toString());
                 target.add(new StructuralOption(
+                        structuralKey(label, child.toString()),
                         label,
                         child.toString(),
                         String.join(" > ", childPath),
@@ -221,10 +229,8 @@ final class StructuralCoverageSupport {
         }
     }
 
-    private static List<ScenarioSnapshot> loadScenarioSnapshots(Path projectDirectory,
-                                                               String projectName,
-                                                               List<String[]> scenarioRows) throws Exception {
-        List<ScenarioSnapshot> scenarios = new ArrayList<>();
+    private static List<ScenarioReference> buildScenarioReferences(List<String[]> scenarioRows) {
+        List<ScenarioReference> references = new ArrayList<>();
         for (String[] row : scenarioRows) {
             if (row == null || row.length == 0) {
                 continue;
@@ -233,24 +239,51 @@ final class StructuralCoverageSupport {
             if (scenarioName == null || scenarioName.isBlank() || "InitScenario".equals(scenarioName)) {
                 continue;
             }
+            String remarks = row.length > 2 ? row[2] : "";
+            references.add(new ScenarioReference(
+                    scenarioName,
+                    parseSelectedStructuralKeys(remarks)
+            ));
+        }
+        return references;
+    }
 
-            Path scenarioDirectory = projectDirectory.resolve(scenarioName);
-            Path scenarioTreePath = scenarioDirectory.resolve(projectName + ".xml");
-            if (!Files.exists(scenarioTreePath)) {
+    private static List<ScenarioSnapshot> loadScenarioSnapshots(Path projectDirectory,
+                                                               String projectName,
+                                                               List<ScenarioReference> scenarioReferences) {
+        List<ScenarioSnapshot> scenarios = new ArrayList<>();
+        for (ScenarioReference reference : scenarioReferences) {
+            if (reference == null || reference.scenarioName() == null || reference.scenarioName().isBlank()) {
                 continue;
             }
 
-            XmlJTree scenarioTree = new XmlJTree(scenarioTreePath.toString());
-            if (scenarioTree.dtModel == null) {
+            Path scenarioDirectory = projectDirectory.resolve(reference.scenarioName());
+            if (!Files.isDirectory(scenarioDirectory)) {
                 continue;
             }
 
-            DefaultMutableTreeNode root = (DefaultMutableTreeNode) scenarioTree.dtModel.getRoot();
             LinkedHashSet<String> pathVariants = new LinkedHashSet<>();
-            collectScenarioPathVariants(root, new ArrayList<>(), pathVariants);
+            if (reference.selectedStructuralKeys().isEmpty()) {
+                Path scenarioTreePath = scenarioDirectory.resolve(projectName + ".xml");
+                if (Files.exists(scenarioTreePath)) {
+                    try {
+                        XmlJTree scenarioTree = new XmlJTree(scenarioTreePath.toString());
+                        if (scenarioTree.dtModel != null) {
+                            DefaultMutableTreeNode root = (DefaultMutableTreeNode) scenarioTree.dtModel.getRoot();
+                            collectScenarioPathVariants(root, new ArrayList<>(), pathVariants);
+                        }
+                    } catch (Exception ignored) {
+                        // Keep coverage estimation resilient for partially generated/manual scenarios.
+                    }
+                }
+            }
 
-            Multimap<TreePath, String> scenarioVariables =
-                    readSerializedMultimap(scenarioDirectory.resolve(projectName + ".ssdvar").toFile());
+            Multimap<TreePath, String> scenarioVariables;
+            try {
+                scenarioVariables = readSerializedMultimap(scenarioDirectory.resolve(projectName + ".ssdvar").toFile());
+            } catch (IOException | ClassNotFoundException ex) {
+                continue;
+            }
 
             List<ScenarioVariableValue> values = new ArrayList<>();
             for (Map.Entry<TreePath, Collection<String>> entry : scenarioVariables.asMap().entrySet()) {
@@ -263,7 +296,7 @@ final class StructuralCoverageSupport {
                 }
             }
 
-            scenarios.add(new ScenarioSnapshot(scenarioName, pathVariants, values));
+            scenarios.add(new ScenarioSnapshot(reference.scenarioName(), reference.selectedStructuralKeys(), pathVariants, values));
         }
         return scenarios;
     }
@@ -298,6 +331,44 @@ final class StructuralCoverageSupport {
         } catch (NumberFormatException ignored) {
             return null;
         }
+    }
+
+    private static Set<String> parseSelectedStructuralKeys(String remarks) {
+        if (remarks == null || remarks.isBlank()) {
+            return Collections.emptySet();
+        }
+
+        String trimmed = remarks.trim();
+        int prefixIndex = trimmed.indexOf(AUTO_GENERATED_REMARKS_PREFIX);
+        if (prefixIndex < 0) {
+            return Collections.emptySet();
+        }
+
+        String selections = trimmed.substring(prefixIndex + AUTO_GENERATED_REMARKS_PREFIX.length()).trim();
+        int sampleIndex = selections.indexOf(" Variable sample ");
+        if (sampleIndex >= 0) {
+            selections = selections.substring(0, sampleIndex).trim();
+        }
+
+        LinkedHashSet<String> keys = new LinkedHashSet<>();
+        for (String token : selections.split(";")) {
+            String selection = token == null ? "" : token.trim();
+            if (selection.isEmpty()) {
+                continue;
+            }
+
+            int separatorIndex = selection.indexOf('=');
+            if (separatorIndex <= 0 || separatorIndex >= selection.length() - 1) {
+                continue;
+            }
+
+            String decisionNode = selection.substring(0, separatorIndex).trim();
+            String optionLabel = selection.substring(separatorIndex + 1).trim();
+            if (!decisionNode.isEmpty() && !optionLabel.isEmpty()) {
+                keys.add(structuralKey(decisionNode, optionLabel));
+            }
+        }
+        return keys;
     }
 
     private static List<CoverageBin> buildBins(ParameterDefinition definition, ParameterSelectionRow row) {
@@ -428,6 +499,9 @@ final class StructuralCoverageSupport {
             if (segment == null) {
                 continue;
             }
+            if (segment.isBlank() || "start".equalsIgnoreCase(segment)) {
+                continue;
+            }
             if (segment.endsWith("Spec") || segment.endsWith("MAsp") || segment.endsWith("Dec")) {
                 continue;
             }
@@ -444,6 +518,10 @@ final class StructuralCoverageSupport {
 
     private static String pathKey(List<String> pathSegments) {
         return String.join(">", pathSegments);
+    }
+
+    private static String structuralKey(String decisionNode, String optionLabel) {
+        return decisionNode.trim() + "=" + optionLabel.trim();
     }
 
     private static List<String> toSegments(TreePath path) {
@@ -489,7 +567,7 @@ final class StructuralCoverageSupport {
                            Path projectDirectory,
                            List<ParameterDefinition> parameterDefinitions,
                            List<StructuralOption> structuralOptions,
-                           List<ScenarioSnapshot> scenarios) {
+                           List<ScenarioReference> scenarioReferences) {
     }
 
     record ParameterDefinition(String id,
@@ -511,13 +589,19 @@ final class StructuralCoverageSupport {
                                  String customBins) {
     }
 
-    record StructuralOption(String decisionNode,
+    record StructuralOption(String key,
+                            String decisionNode,
                             String optionLabel,
                             String pathDisplay,
                             Set<String> coveragePathVariants) {
     }
 
+    record ScenarioReference(String scenarioName,
+                             Set<String> selectedStructuralKeys) {
+    }
+
     record ScenarioSnapshot(String scenarioName,
+                            Set<String> selectedStructuralKeys,
                             Set<String> treePathVariants,
                             List<ScenarioVariableValue> variableValues) {
     }
