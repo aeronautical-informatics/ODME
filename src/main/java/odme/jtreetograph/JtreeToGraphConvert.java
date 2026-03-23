@@ -95,6 +95,10 @@ public class JtreeToGraphConvert {
 
             String[] stringArrayRev = pathToRootRev.toArray(new String[0]);
             TreePath treePathForVariable = JtreeToGraphGeneral.getTreeNodePath(stringArrayRev);
+            if (treePathForVariable == null) {
+                pathToRoot.clear();
+                return;
+            }
             
             DefaultMutableTreeNode currentNode =
                     (DefaultMutableTreeNode) (treePathForVariable.getLastPathComponent());
@@ -165,6 +169,10 @@ public class JtreeToGraphConvert {
 
             String[] stringArrayRev = pathToRootRev.toArray(new String[0]);
             TreePath treePathForVariable = JtreeToGraphGeneral.getTreeNodePath(stringArrayRev);
+            if (treePathForVariable == null) {
+                pathToRoot.clear();
+                return;
+            }
 
             DefaultMutableTreeNode currentNode =
                     (DefaultMutableTreeNode) (treePathForVariable.getLastPathComponent());
@@ -239,6 +247,10 @@ public class JtreeToGraphConvert {
             String[] stringArrayRev = pathToRootRev.toArray(new String[0]);
 
             TreePath treePathForVariable = JtreeToGraphGeneral.getTreeNodePath(stringArrayRev);
+            if (treePathForVariable == null) {
+                pathToRoot.clear();
+                return;
+            }
             DefaultMutableTreeNode currentNode =
                     (DefaultMutableTreeNode) (treePathForVariable.getLastPathComponent());
 

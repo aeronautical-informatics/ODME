@@ -382,6 +382,11 @@ public class JtreeToGraphGeneral {
 
         graph.getModel().beginUpdate();
         try {
+            Object[] existingCells = graph.getChildCells(graph.getDefaultParent(), true, true);
+            if (existingCells != null && existingCells.length > 0) {
+                graph.removeCells(existingCells, true);
+            }
+
             Document xml = mxXmlUtils.parseXml(mxUtils.readFile(graphFile.getAbsolutePath()));
             mxCodec codec = new mxCodec(xml);
             codec.decode(xml.getDocumentElement(), graph.getModel());
