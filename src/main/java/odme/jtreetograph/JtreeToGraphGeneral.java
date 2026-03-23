@@ -385,6 +385,16 @@ public class JtreeToGraphGeneral {
             Document xml = mxXmlUtils.parseXml(mxUtils.readFile(graphFile.getAbsolutePath()));
             mxCodec codec = new mxCodec(xml);
             codec.decode(xml.getDocumentElement(), graph.getModel());
+            List<Object> legacyCanvasMarkers = new ArrayList<>();
+            for (Object vertex : graph.getChildVertices(graph.getDefaultParent())) {
+                if (vertex instanceof mxCell cell
+                        && ("hideV".equals(cell.getId()) || "hideH".equals(cell.getId()))) {
+                    legacyCanvasMarkers.add(vertex);
+                }
+            }
+            if (!legacyCanvasMarkers.isEmpty()) {
+                graph.removeCells(legacyCanvasMarkers.toArray());
+            }
             parent = graph.getDefaultParent();
 
         }
