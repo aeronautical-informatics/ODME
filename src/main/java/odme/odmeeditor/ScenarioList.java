@@ -12,6 +12,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -43,11 +45,20 @@ import odme.jtreetograph.JtreeToGraphGeneral;
 public class ScenarioList extends JPanel {
 
 	private static final long serialVersionUID = 1L;
+    private static ScenarioList activeScenarioList;
 	private JTable table;
 	private DefaultTableModel model;
     private JFrame frame;
+    private SwingWorker<Void, Void> artifactSyncWorker;
 
     public void createScenarioListWindow() {
+        if (activeScenarioList != null
+                && activeScenarioList.frame != null
+                && activeScenarioList.frame.isDisplayable()) {
+            activeScenarioList.reloadTableData(false);
+            activeScenarioList.focusScenarioListWindow();
+            return;
+        }
 
 		JToolBar toolBar = new JToolBar();
 		toolBar.setFloatable(false);
@@ -180,6 +191,16 @@ public class ScenarioList extends JPanel {
 //        sorter.setSortKeys(sortKeys);
                 
         frame = new JFrame("Scenario List");
+        activeScenarioList = this;
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosed(WindowEvent e) {
+                if (activeScenarioList == ScenarioList.this) {
+                    activeScenarioList = null;
+                }
+            }
+        });
         JPanel panelCenter = new JPanel();
                 
         JScrollPane scroll = new JScrollPane(table);
@@ -206,6 +227,7 @@ public class ScenarioList extends JPanel {
 
         frame.setResizable(false);
         frame.setVisible(true);
+        focusScenarioListWindow();
     }
 
     private void performAutomaticScenarioGeneration() {
@@ -242,6 +264,7 @@ public class ScenarioList extends JPanel {
                 () -> AutomaticScenarioGeneration.generateAll(options.prefix(), options.samplesPerCombination()),
                 result -> {
                     reloadTableData();
+                    focusScenarioListWindow();
                     JOptionPane.showMessageDialog(
                             frame != null ? frame : Main.frame,
                             buildSuccessMessage(result),
@@ -396,22 +419,57 @@ public class ScenarioList extends JPanel {
         }
 
         if (syncArtifacts) {
-            synchronizeScenarioArtifacts(dataList);
+            synchronizeScenarioArtifactsAsync(dataList);
         }
     }
 
-    private void synchronizeScenarioArtifacts(List<String[]> dataList) {
-        try {
-            ScenarioArtifactSync.syncCurrentProject(dataList);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            JOptionPane.showMessageDialog(
-                    frame != null ? frame : Main.frame,
-                    "Scenario exports could not be rebuilt.\n" + ex.getMessage(),
-                    "Scenario Exports",
-                    JOptionPane.WARNING_MESSAGE
-            );
+    private void synchronizeScenarioArtifactsAsync(List<String[]> dataList) {
+        List<String[]> snapshot = new ArrayList<>();
+        for (String[] row : dataList) {
+            snapshot.add(row == null ? null : row.clone());
         }
+
+        if (artifactSyncWorker != null && !artifactSyncWorker.isDone()) {
+            artifactSyncWorker.cancel(true);
+        }
+
+        artifactSyncWorker = new SwingWorker<>() {
+            @Override
+            protected Void doInBackground() throws Exception {
+                ScenarioArtifactSync.syncCurrentProject(snapshot);
+                return null;
+            }
+
+            @Override
+            protected void done() {
+                if (isCancelled()) {
+                    return;
+                }
+                try {
+                    get();
+                } catch (Exception ex) {
+                    Throwable cause = ex.getCause() == null ? ex : ex.getCause();
+                    cause.printStackTrace();
+                    JOptionPane.showMessageDialog(
+                            frame != null ? frame : Main.frame,
+                            "Scenario exports could not be rebuilt.\n" + cause.getMessage(),
+                            "Scenario Exports",
+                            JOptionPane.WARNING_MESSAGE
+                    );
+                }
+            }
+        };
+        artifactSyncWorker.execute();
+    }
+
+    private void focusScenarioListWindow() {
+        if (frame == null) {
+            return;
+        }
+        frame.setVisible(true);
+        frame.toFront();
+        frame.requestFocus();
+        frame.repaint();
     }
 
     private void openSelectedScenario() {
