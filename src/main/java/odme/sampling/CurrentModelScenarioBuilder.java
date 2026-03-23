@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Builds a sampling {@link Scenario} directly from the currently opened ODME
@@ -45,7 +46,7 @@ public class CurrentModelScenarioBuilder {
         Multimap<TreePath, String> variablesByPath = readSerializedMultimap(variableFile);
         Multimap<TreePath, String> constraintsByPath = loadConstraintsWithFallback(workingDir, modelName);
 
-        return buildScenario(variablesByPath, constraintsByPath);
+        return buildFromMetadata(variablesByPath, constraintsByPath).scenario();
     }
 
     @SuppressWarnings("unchecked")
@@ -75,8 +76,8 @@ public class CurrentModelScenarioBuilder {
         return mergedConstraints;
     }
 
-    private Scenario buildScenario(Multimap<TreePath, String> variablesByPath,
-                                   Multimap<TreePath, String> constraintsByPath) {
+    public SamplingModel buildFromMetadata(Multimap<TreePath, String> variablesByPath,
+                                           Multimap<TreePath, String> constraintsByPath) {
         List<VariableBinding> bindings = new ArrayList<>();
         for (Map.Entry<TreePath, Collection<String>> entry : variablesByPath.asMap().entrySet()) {
             for (String rawVariable : entry.getValue()) {
@@ -107,7 +108,7 @@ public class CurrentModelScenarioBuilder {
             }
         }
         scenario.setConstraint(constraints);
-        return scenario;
+        return new SamplingModel(scenario, List.copyOf(bindings));
     }
 
     private VariableBinding toBinding(TreePath path, String rawVariable) {
@@ -142,7 +143,7 @@ public class CurrentModelScenarioBuilder {
             default -> parameter.setType("fixed");
         }
 
-        return new VariableBinding(path, toSegments(path), variableName, parameter);
+        return new VariableBinding(path, toSegments(path), variableName, rawVariable, parameter);
     }
 
     private double parseDouble(String[] parts, int index, String fallback) {
@@ -348,9 +349,21 @@ public class CurrentModelScenarioBuilder {
         return safeToken(token).toLowerCase(Locale.ROOT);
     }
 
-    private record VariableBinding(TreePath path,
-                                   List<String> pathSegments,
-                                   String variableName,
-                                   Parameter parameter) {
+    public record SamplingModel(Scenario scenario, List<VariableBinding> bindings) {
+        public Map<String, VariableBinding> bindingByParameterName() {
+            return bindings.stream().collect(Collectors.toMap(
+                    binding -> binding.parameter().getName(),
+                    binding -> binding,
+                    (left, right) -> left,
+                    LinkedHashMap::new
+            ));
+        }
+    }
+
+    public record VariableBinding(TreePath path,
+                                  List<String> pathSegments,
+                                  String variableName,
+                                  String rawVariable,
+                                  Parameter parameter) {
     }
 }

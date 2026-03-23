@@ -9,6 +9,8 @@ import odme.core.EditorContext;
 import odme.core.FlagVariables;
 import odme.core.XmlJTree;
 import odme.jtreetograph.JtreeToGraphSave;
+import odme.sampling.CurrentModelScenarioBuilder;
+import odme.sampling.SamplingManager;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -34,6 +36,7 @@ import java.io.ObjectOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
@@ -65,6 +68,10 @@ public final class AutomaticScenarioGeneration {
 
     private AutomaticScenarioGeneration() {}
 
+    public static int maxGeneratedScenarioModels() {
+        return MAX_AUTO_SCENARIOS;
+    }
+
     public static GenerationPreview inspectProject() throws IOException, ClassNotFoundException {
         ProjectModel projectModel = loadProjectModel();
         return inspectProject(projectModel);
@@ -95,7 +102,12 @@ public final class AutomaticScenarioGeneration {
     }
 
     public static GenerationResult generateAll(String requestedPrefix)
-            throws IOException, ClassNotFoundException, ParseException, TransformerException {
+            throws Exception {
+        return generateAll(requestedPrefix, 1);
+    }
+
+    public static GenerationResult generateAll(String requestedPrefix, int samplesPerCombination)
+            throws Exception {
         ProjectModel projectModel = loadProjectModel();
         GenerationPreview preview = inspectProject(projectModel);
 
@@ -105,42 +117,64 @@ public final class AutomaticScenarioGeneration {
                             + "Detected " + preview.multiAspectCount() + " multi-aspect node(s) in the domain model.");
         }
 
-        if (preview.totalCombinations() > MAX_AUTO_SCENARIOS) {
+        if (samplesPerCombination <= 0) {
+            throw new IllegalArgumentException("Samples per specialization combination must be positive.");
+        }
+
+        if (preview.exceedsScenarioLimit(samplesPerCombination)) {
             throw new IllegalStateException(
-                    "The domain model expands to more than " + MAX_AUTO_SCENARIOS
-                            + " specialization combinations. Refine the model before generating scenarios.");
+                    "The requested generation would create more than " + MAX_AUTO_SCENARIOS
+                            + " scenario models. Reduce the samples per combination or refine the domain model.");
         }
 
         String prefix = sanitizePrefix(requestedPrefix);
         JSONArray scenarioCatalog = loadScenarioCatalog(projectModel.projectDirectory);
         Set<String> existingScenarioNames = loadScenarioNames(scenarioCatalog);
         int nextIndex = nextScenarioIndex(existingScenarioNames, prefix);
+        SamplingManager samplingManager = new SamplingManager();
+        CurrentModelScenarioBuilder samplingBuilder = new CurrentModelScenarioBuilder();
 
         List<String> createdScenarioNames = new ArrayList<>();
         int[] createdCounter = {0};
 
         forEachCombination(preview.specializations(), 0, new LinkedHashMap<>(), selectedChildren -> {
-            String scenarioName = nextAvailableScenarioName(
-                    prefix,
-                    existingScenarioNames,
-                    projectModel.projectDirectory,
-                    nextIndex + createdCounter[0]
-            );
-            createdCounter[0]++;
-
             GenerationContext generationContext = new GenerationContext(
                     projectModel.metadataBundle,
                     selectedChildren
             );
             DefaultMutableTreeNode prunedRoot = pruneTree(projectModel.root, null, new ArrayList<>(), generationContext);
-            Path scenarioDirectory = projectModel.projectDirectory.resolve(scenarioName);
+            CurrentModelScenarioBuilder.SamplingModel samplingModel =
+                    samplingBuilder.buildFromMetadata(
+                            generationContext.generatedVariables,
+                            generationContext.generatedConstraints
+                    );
+            List<Map<String, String>> sampleRows =
+                    generateSampleRows(samplingManager, samplingModel, generationContext.generatedVariables,
+                            samplesPerCombination);
+            String baseRemarks = buildRemarks(preview.specializations(), selectedChildren);
 
-            Files.createDirectories(scenarioDirectory);
-            writeScenarioFiles(projectModel.projectName, scenarioDirectory, prunedRoot, generationContext);
-            appendScenarioRecord(scenarioCatalog, scenarioName, buildRemarks(preview.specializations(), selectedChildren));
+            for (int sampleIndex = 0; sampleIndex < sampleRows.size(); sampleIndex++) {
+                String scenarioName = nextAvailableScenarioName(
+                        prefix,
+                        existingScenarioNames,
+                        projectModel.projectDirectory,
+                        nextIndex + createdCounter[0]
+                );
+                createdCounter[0]++;
 
-            existingScenarioNames.add(scenarioName);
-            createdScenarioNames.add(scenarioName);
+                Path scenarioDirectory = projectModel.projectDirectory.resolve(scenarioName);
+                Files.createDirectories(scenarioDirectory);
+
+                Multimap<TreePath, String> sampledVariables =
+                        applySampleValues(generationContext.generatedVariables, samplingModel, sampleRows.get(sampleIndex));
+                writeScenarioFiles(projectModel.projectName, scenarioDirectory, prunedRoot,
+                        sampledVariables, generationContext.generatedConstraints, generationContext.generatedBehaviours);
+                appendScenarioRecord(scenarioCatalog, scenarioName,
+                        buildSampleRemarks(baseRemarks, sampleIndex + 1, sampleRows.size()));
+
+                existingScenarioNames.add(scenarioName);
+                createdScenarioNames.add(scenarioName);
+            }
         });
 
         saveScenarioCatalog(projectModel.projectDirectory, scenarioCatalog);
@@ -148,6 +182,7 @@ public final class AutomaticScenarioGeneration {
         return new GenerationResult(
                 projectModel.projectName,
                 preview.totalCombinations(),
+                samplesPerCombination,
                 createdScenarioNames
         );
     }
@@ -247,14 +282,14 @@ public final class AutomaticScenarioGeneration {
     }
 
     private interface CombinationConsumer {
-        void accept(Map<String, String> selectedChildren) throws IOException, ClassNotFoundException, ParseException, TransformerException;
+        void accept(Map<String, String> selectedChildren) throws Exception;
     }
 
     private static void forEachCombination(List<SpecializationDescriptor> descriptors,
                                            int index,
                                            LinkedHashMap<String, String> currentSelection,
                                            CombinationConsumer consumer)
-            throws IOException, ClassNotFoundException, ParseException, TransformerException {
+            throws Exception {
         if (descriptors.isEmpty()) {
             consumer.accept(Collections.emptyMap());
             return;
@@ -341,16 +376,79 @@ public final class AutomaticScenarioGeneration {
         }
     }
 
+    private static List<Map<String, String>> generateSampleRows(SamplingManager samplingManager,
+                                                                CurrentModelScenarioBuilder.SamplingModel samplingModel,
+                                                                Multimap<TreePath, String> generatedVariables,
+                                                                int samplesPerCombination) throws Exception {
+        if (generatedVariables.isEmpty() || samplingModel.scenario().getParameters().isEmpty()) {
+            List<Map<String, String>> defaultRows = new ArrayList<>(samplesPerCombination);
+            for (int i = 0; i < samplesPerCombination; i++) {
+                defaultRows.add(new LinkedHashMap<>());
+            }
+            return defaultRows;
+        }
+        return samplingManager.generateSampleRows(samplingModel.scenario(), samplesPerCombination, false);
+    }
+
+    private static Multimap<TreePath, String> applySampleValues(
+            Multimap<TreePath, String> generatedVariables,
+            CurrentModelScenarioBuilder.SamplingModel samplingModel,
+            Map<String, String> sampleValues) {
+        Multimap<TreePath, String> sampledVariables = ArrayListMultimap.create();
+        Map<String, CurrentModelScenarioBuilder.VariableBinding> bindingsByParameterName =
+                samplingModel.bindingByParameterName();
+        Map<String, String> sampledValuesByBindingKey = new LinkedHashMap<>();
+
+        for (Map.Entry<String, String> entry : sampleValues.entrySet()) {
+            CurrentModelScenarioBuilder.VariableBinding binding = bindingsByParameterName.get(entry.getKey());
+            if (binding == null) {
+                continue;
+            }
+            sampledValuesByBindingKey.put(variableBindingKey(binding.path(), binding.variableName()), entry.getValue());
+        }
+
+        for (Map.Entry<TreePath, Collection<String>> entry : generatedVariables.asMap().entrySet()) {
+            TreePath path = entry.getKey();
+            for (String rawVariable : entry.getValue()) {
+                String variableName = extractVariableName(rawVariable);
+                String sampledValue = sampledValuesByBindingKey.get(variableBindingKey(path, variableName));
+                sampledVariables.put(path, sampledValue == null ? rawVariable : replaceDefaultValue(rawVariable, sampledValue));
+            }
+        }
+
+        return sampledVariables;
+    }
+
+    private static String extractVariableName(String rawVariable) {
+        String[] parts = rawVariable.split(",", -1);
+        return parts.length == 0 ? "" : parts[0].trim();
+    }
+
+    private static String replaceDefaultValue(String rawVariable, String sampledValue) {
+        String[] parts = rawVariable.split(",", -1);
+        if (parts.length < 3) {
+            return rawVariable;
+        }
+        parts[2] = sampledValue == null ? "" : sampledValue;
+        return String.join(",", parts);
+    }
+
+    private static String variableBindingKey(TreePath path, String variableName) {
+        return pathKey(path) + "|" + variableName;
+    }
+
     private static void writeScenarioFiles(String projectName,
                                            Path scenarioDirectory,
                                            DefaultMutableTreeNode prunedRoot,
-                                           GenerationContext context)
+                                           Multimap<TreePath, String> variables,
+                                           Multimap<TreePath, String> constraints,
+                                           Multimap<TreePath, String> behaviours)
             throws IOException, TransformerException {
         writeTreeXml(prunedRoot, scenarioDirectory.resolve(projectName + ".xml"));
         writeGraphXml(prunedRoot, scenarioDirectory.resolve(projectName + "Graph.xml"));
-        writeSerializedMap(context.generatedVariables, scenarioDirectory.resolve(projectName + ".ssdvar"));
-        writeSerializedMap(context.generatedConstraints, scenarioDirectory.resolve(projectName + ".ssdcon"));
-        writeSerializedMap(context.generatedBehaviours, scenarioDirectory.resolve(projectName + ".ssdbeh"));
+        writeSerializedMap(variables, scenarioDirectory.resolve(projectName + ".ssdvar"));
+        writeSerializedMap(constraints, scenarioDirectory.resolve(projectName + ".ssdcon"));
+        writeSerializedMap(behaviours, scenarioDirectory.resolve(projectName + ".ssdbeh"));
         writeFlags(prunedRoot, scenarioDirectory.resolve(projectName + ".ssdflag"));
     }
 
@@ -568,6 +666,11 @@ public final class AutomaticScenarioGeneration {
         return "Automatically generated specialization combination: " + String.join("; ", selections);
     }
 
+    private static String buildSampleRemarks(String baseRemarks, int sampleIndex, int totalSamples) {
+        return baseRemarks + " Variable sample " + sampleIndex + " of " + totalSamples
+                + " via constrained Latin Hypercube sampling.";
+    }
+
     private static int nextScenarioIndex(Set<String> existingScenarioNames, String prefix) {
         int maxIndex = 0;
         String normalizedPrefix = prefix.toLowerCase(Locale.ROOT) + "_";
@@ -616,6 +719,24 @@ public final class AutomaticScenarioGeneration {
         return prefix;
     }
 
+    private static long projectedScenarioModels(long structuralCombinations, int samplesPerCombination) {
+        if (samplesPerCombination <= 0) {
+            return 0;
+        }
+        try {
+            return Math.multiplyExact(structuralCombinations, (long) samplesPerCombination);
+        } catch (ArithmeticException ex) {
+            return Long.MAX_VALUE;
+        }
+    }
+
+    private static boolean exceedsScenarioLimit(long structuralCombinations, int samplesPerCombination) {
+        if (samplesPerCombination <= 0) {
+            return false;
+        }
+        return structuralCombinations > MAX_AUTO_SCENARIOS / (long) samplesPerCombination;
+    }
+
     private static List<String> appendPath(List<String> parentPath, String label) {
         List<String> result = new ArrayList<>(parentPath);
         result.add(label);
@@ -638,13 +759,26 @@ public final class AutomaticScenarioGeneration {
     public record GenerationPreview(String projectName,
                                     List<SpecializationDescriptor> specializations,
                                     int multiAspectCount,
-                                    long totalCombinations) {}
+                                    long totalCombinations) {
+        public long projectedScenarioModels(int samplesPerCombination) {
+            return AutomaticScenarioGeneration.projectedScenarioModels(totalCombinations, samplesPerCombination);
+        }
+
+        public boolean exceedsScenarioLimit(int samplesPerCombination) {
+            return AutomaticScenarioGeneration.exceedsScenarioLimit(totalCombinations, samplesPerCombination);
+        }
+    }
 
     public record GenerationResult(String projectName,
-                                   long totalCombinations,
+                                   long structuralCombinationCount,
+                                   int samplesPerCombination,
                                    List<String> createdScenarioNames) {
         public int createdCount() {
             return createdScenarioNames.size();
+        }
+
+        public long projectedScenarioModels() {
+            return AutomaticScenarioGeneration.projectedScenarioModels(structuralCombinationCount, samplesPerCombination);
         }
     }
 

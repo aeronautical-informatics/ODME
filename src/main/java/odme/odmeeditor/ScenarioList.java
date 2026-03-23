@@ -6,6 +6,7 @@ import static odme.odmeeditor.XmlUtils.sesview;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.GridLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -22,6 +23,7 @@ import java.util.Map;
 
 import javax.swing.*;
 import javax.swing.border.EtchedBorder;
+import javax.swing.event.ChangeListener;
 import javax.swing.table.DefaultTableModel;
 
 import odme.behaviour.Behaviour;
@@ -199,35 +201,16 @@ public class ScenarioList extends JPanel {
             return;
         }
 
-        int proceed = JOptionPane.showConfirmDialog(
-                frame != null ? frame : Main.frame,
-                buildPreviewMessage(preview),
-                "Automatic Scenario Generation",
-                JOptionPane.OK_CANCEL_OPTION,
-                JOptionPane.INFORMATION_MESSAGE
-        );
-        if (proceed != JOptionPane.OK_OPTION) {
-            return;
-        }
-
-        String requestedPrefix = (String) JOptionPane.showInputDialog(
-                frame != null ? frame : Main.frame,
-                "Scenario name prefix:",
-                "Automatic Scenario Generation",
-                JOptionPane.PLAIN_MESSAGE,
-                null,
-                null,
-                "AutoScenario"
-        );
-        if (requestedPrefix == null) {
+        AutomaticGenerationOptions options = showAutomaticScenarioGenerationDialog(preview);
+        if (options == null) {
             return;
         }
 
         BackgroundTaskRunner.run(
                 this,
                 "Automatic Scenario Generation",
-                "Generating pruned scenario models...",
-                () -> AutomaticScenarioGeneration.generateAll(requestedPrefix),
+                "Generating pruned scenario models with constrained Latin Hypercube sampling...",
+                () -> AutomaticScenarioGeneration.generateAll(options.prefix(), options.samplesPerCombination()),
                 result -> {
                     reloadTableData();
                     JOptionPane.showMessageDialog(
@@ -240,39 +223,80 @@ public class ScenarioList extends JPanel {
         );
     }
 
-    private String buildPreviewMessage(AutomaticScenarioGeneration.GenerationPreview preview) {
-        StringBuilder message = new StringBuilder();
-        message.append("Project: ").append(preview.projectName()).append('\n');
-        message.append("Specialization nodes: ").append(preview.specializations().size()).append('\n');
-        message.append("Scenario combinations: ").append(preview.totalCombinations()).append('\n');
+    private AutomaticGenerationOptions showAutomaticScenarioGenerationDialog(
+            AutomaticScenarioGeneration.GenerationPreview preview) {
+        JTextField prefixField = new JTextField("AutoScenario");
+        JSpinner samplesSpinner = new JSpinner(new SpinnerNumberModel(1, 1, 1000, 1));
+        JLabel totalLabel = new JLabel();
+        JLabel limitLabel = new JLabel(" ");
 
-        if (preview.specializations().isEmpty()) {
-            message.append('\n').append("No specialization nodes were found. ODME will create one scenario copy.");
-        }
-        else {
-            message.append('\n').append("Specializations:\n");
-            int previewCount = Math.min(preview.specializations().size(), 8);
-            for (int i = 0; i < previewCount; i++) {
-                AutomaticScenarioGeneration.SpecializationDescriptor descriptor = preview.specializations().get(i);
-                message.append("- ").append(descriptor.label())
-                        .append(" (").append(descriptor.optionLabels().size()).append(" options)")
-                        .append('\n');
+        Runnable refreshSummary = () -> {
+            int samples = ((Number) samplesSpinner.getValue()).intValue();
+            totalLabel.setText("Total scenario models to create: " + preview.projectedScenarioModels(samples));
+            if (preview.exceedsScenarioLimit(samples)) {
+                limitLabel.setText("This exceeds the current limit of "
+                        + AutomaticScenarioGeneration.maxGeneratedScenarioModels() + " scenario models.");
             }
-            if (preview.specializations().size() > previewCount) {
-                message.append("- ...\n");
+            else {
+                limitLabel.setText(" ");
             }
-        }
+        };
+        ChangeListener changeListener = e -> refreshSummary.run();
+        samplesSpinner.addChangeListener(changeListener);
+        refreshSummary.run();
 
-        message.append('\n')
-                .append("Generated scenarios will be stored under the current project folder and added to Scenario Manager.\n")
-                .append("Continue?");
-        return message.toString();
+        JPanel summaryPanel = new JPanel(new GridLayout(0, 1, 0, 4));
+        summaryPanel.add(new JLabel("Project: " + preview.projectName()));
+        summaryPanel.add(new JLabel("Structural combinations after pruning: " + preview.totalCombinations()));
+        summaryPanel.add(new JLabel("Specialization nodes: " + preview.specializations().size()));
+        summaryPanel.add(totalLabel);
+        summaryPanel.add(limitLabel);
+
+        JPanel inputPanel = new JPanel(new GridLayout(0, 1, 0, 4));
+        inputPanel.add(new JLabel("Scenario name prefix"));
+        inputPanel.add(prefixField);
+        inputPanel.add(new JLabel("Variable samples per pruned combination"));
+        inputPanel.add(samplesSpinner);
+
+        JPanel container = new JPanel(new BorderLayout(0, 12));
+        container.add(summaryPanel, BorderLayout.NORTH);
+        container.add(inputPanel, BorderLayout.CENTER);
+
+        while (true) {
+            int option = JOptionPane.showConfirmDialog(
+                    frame != null ? frame : Main.frame,
+                    container,
+                    "Automatic Scenario Generation",
+                    JOptionPane.OK_CANCEL_OPTION,
+                    JOptionPane.PLAIN_MESSAGE
+            );
+            if (option != JOptionPane.OK_OPTION) {
+                return null;
+            }
+
+            int samples = ((Number) samplesSpinner.getValue()).intValue();
+            if (!preview.exceedsScenarioLimit(samples)) {
+                return new AutomaticGenerationOptions(prefixField.getText(), samples);
+            }
+
+            JOptionPane.showMessageDialog(
+                    frame != null ? frame : Main.frame,
+                    "Requested generation exceeds the current limit of "
+                            + AutomaticScenarioGeneration.maxGeneratedScenarioModels()
+                            + " scenario models.\nReduce the samples per combination and try again.",
+                    "Automatic Scenario Generation",
+                    JOptionPane.WARNING_MESSAGE
+            );
+        }
     }
 
     private String buildSuccessMessage(AutomaticScenarioGeneration.GenerationResult result) {
         StringBuilder message = new StringBuilder();
         message.append("Created ").append(result.createdCount())
                 .append(" scenario model(s) for ").append(result.projectName()).append('.');
+        message.append('\n').append('\n')
+                .append("Structural combinations: ").append(result.structuralCombinationCount()).append('\n')
+                .append("Variable samples per combination: ").append(result.samplesPerCombination());
 
         if (!result.createdScenarioNames().isEmpty()) {
             message.append('\n').append('\n').append("First generated scenarios:\n");
@@ -286,6 +310,9 @@ public class ScenarioList extends JPanel {
         }
 
         return message.toString();
+    }
+
+    private record AutomaticGenerationOptions(String prefix, int samplesPerCombination) {
     }
 
     private int getSelectedModelRow() {

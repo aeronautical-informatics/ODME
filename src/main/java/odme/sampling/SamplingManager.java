@@ -49,10 +49,31 @@ public class SamplingManager {
         generateSamples(scenario, numberOfSamples, outputCsvPath, false);
     }
 
+    public List<Map<String, String>> generateSampleRows(Scenario scenario,
+                                                        int numberOfSamples,
+                                                        boolean includeDistributionParameters) throws Exception {
+        List<SampleRow> sampleRows = generateSampleRowsInternal(scenario, numberOfSamples, includeDistributionParameters);
+        List<Map<String, String>> exportedRows = new ArrayList<>(sampleRows.size());
+        for (SampleRow sampleRow : sampleRows) {
+            exportedRows.add(new LinkedHashMap<>(sampleRow.csvValues()));
+        }
+        return exportedRows;
+    }
+
     private void generateSamples(Scenario scenario,
                                  int numberOfSamples,
                                  String outputCsvPath,
                                  boolean includeDistributionParameters) throws Exception {
+        List<SampleRow> finalSamples = generateSampleRowsInternal(scenario, numberOfSamples, includeDistributionParameters);
+        List<Parameter> outputParameters = scenario.getParameters().stream()
+                .filter(parameter -> includeInOutput(parameter, includeDistributionParameters))
+                .collect(Collectors.toList());
+        writeToCsv(finalSamples, outputParameters, outputCsvPath);
+    }
+
+    private List<SampleRow> generateSampleRowsInternal(Scenario scenario,
+                                                       int numberOfSamples,
+                                                       boolean includeDistributionParameters) throws Exception {
         if (numberOfSamples <= 0) {
             throw new IllegalArgumentException("Number of samples must be positive.");
         }
@@ -108,7 +129,7 @@ public class SamplingManager {
                     + "The constraints may be too restrictive or reference unsupported values.");
         }
 
-        writeToCsv(finalSamples, outputParameters, outputCsvPath);
+        return finalSamples;
     }
 
     private boolean includeInOutput(Parameter parameter, boolean includeDistributionParameters) {
