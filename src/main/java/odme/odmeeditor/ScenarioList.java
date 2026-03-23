@@ -92,7 +92,7 @@ public class ScenarioList extends JPanel {
 		refreshBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				reloadTableData();
+				reloadTableData(true);
 			}
 		});
 
@@ -114,7 +114,7 @@ public class ScenarioList extends JPanel {
         table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         
         table.setAutoCreateRowSorter(true);
-        reloadTableData();
+        reloadTableData(false);
         
         final JPopupMenu popupMenu = new JPopupMenu();
         JMenuItem openItem = new JMenuItem("Open");
@@ -151,7 +151,7 @@ public class ScenarioList extends JPanel {
         refreshItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                reloadTableData();
+                reloadTableData(true);
             }
         });
          
@@ -385,6 +385,10 @@ public class ScenarioList extends JPanel {
     }
 
     private void reloadTableData() {
+        reloadTableData(true);
+    }
+
+    private void reloadTableData(boolean syncArtifacts) {
         if (model == null) {
             return;
         }
@@ -393,6 +397,24 @@ public class ScenarioList extends JPanel {
         List<String[]> dataList = getJsonData();
         for (String[] arr : dataList) {
             model.addRow(arr);
+        }
+
+        if (syncArtifacts) {
+            synchronizeScenarioArtifacts(dataList);
+        }
+    }
+
+    private void synchronizeScenarioArtifacts(List<String[]> dataList) {
+        try {
+            ScenarioArtifactSync.syncCurrentProject(dataList);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(
+                    frame != null ? frame : Main.frame,
+                    "Scenario exports could not be rebuilt.\n" + ex.getMessage(),
+                    "Scenario Exports",
+                    JOptionPane.WARNING_MESSAGE
+            );
         }
     }
 
