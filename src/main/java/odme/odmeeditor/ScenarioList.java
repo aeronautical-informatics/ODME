@@ -38,10 +38,6 @@ import com.google.common.collect.ArrayListMultimap;
 import com.mxgraph.util.mxUndoManager;
 
 import odme.jtreetograph.JtreeToGraphGeneral;
-import structuretest.BehaviourCoverageTest;
-import structuretest.MultiAspectNodeTest;
-import structuretest.ParamterCoverage;
-import structuretest.SpecialisationNodeTest;
 
 
 public class ScenarioList extends JPanel {
@@ -679,100 +675,7 @@ public class ScenarioList extends JPanel {
 
 
 	private void performStructuralCoverage(){
-
-		List<String[]> dataList = getScenarioJsonData();
-
-		String path = EditorContext.getInstance().getProjectDir()  + "/graphxml.xml";
-
-		SpecialisationNodeTest specialisationNodeTest = new SpecialisationNodeTest(path);
-		Map c = specialisationNodeTest.getSpecialisationNodes();
-
-		specialisationNodeTest.checkMatchedNodes(dataList);
-
-		//Now behaviour test
-		BehaviourCoverageTest behaviourCoverageTest = new BehaviourCoverageTest();
-		behaviourCoverageTest.checkCodeCoverageForBehaviours(dataList);
-
-		//Now MultiAspect nodes
-		MultiAspectNodeTest multiAspectNodeTest  = new MultiAspectNodeTest();
-		multiAspectNodeTest.parseNodes(path);
-
-		multiAspectNodeTest.checkCodeCoverageMultiAspect(dataList);
-
-//		Test t = new Test(dataList);
-//		Map<String, Integer> map = t.getBucketStatistics();
-
-		ParamterCoverage t = new ParamterCoverage(dataList);
-		Map<String, Integer> map = t.getBucketStatistics();
-
-		int totalBuckets = map.get("totalBuckets");
-		int totalCoveredBuckets = map.get("totalCoveredBuckets");
-		System.out.println("totalBuckets " + totalBuckets);
-		System.out.println("totalCoveredBuckets " + totalCoveredBuckets);
-
-
-		double specialisationPercentage = (specialisationNodeTest.getTotalSpecialisationNode() > 0)
-				? (((double) specialisationNodeTest.getMatchedSpecialisationNode()  / specialisationNodeTest.getTotalSpecialisationNode())) * 100
-				: 0.0;
-
-
-		double behaviourPercentage = (behaviourCoverageTest.getTotalBehaviours() > 0)
-				? (behaviourCoverageTest.getMatchedBehaviours() * 100.0 / behaviourCoverageTest.getTotalBehaviours())
-				: 0.0;
-
-		double parameterPercentage = ((double) totalCoveredBuckets / totalBuckets) * 100;
-		System.out.println("parameterPercentage = " + parameterPercentage);
-		double variablePercent =  ((double) 408 / 925) * 100;
-		double overAllPercentage = (specialisationPercentage + variablePercent)/2;
-
-		// Creating the 2D array
-		Object[][] data = {
-				{"Structural Coverage ",null, null, null, null},
-
-				{"          Specialisation Coverage",
-						specialisationNodeTest.getMatchedSpecialisationNode() ,
-						specialisationNodeTest.getTotalSpecialisationNode() - specialisationNodeTest.getMatchedSpecialisationNode() ,
-						specialisationNodeTest.getTotalSpecialisationNode(),
-						specialisationPercentage
-				},
-
-				{"          MultiAspect Coverage" , multiAspectNodeTest.getTotalCoveredChildren(), multiAspectNodeTest.getTotalUncoveredChildren(),
-						multiAspectNodeTest.getTotalUncoveredChildren() + multiAspectNodeTest.getTotalCoveredChildren(),
-						multiAspectNodeTest.getTotalPercentage()
-				},
-				{"          Behaviours", behaviourCoverageTest.getMatchedBehaviours(),
-						behaviourCoverageTest.getTotalBehaviours() - behaviourCoverageTest.getMatchedBehaviours(),
-						behaviourCoverageTest.getTotalBehaviours(),
-						behaviourPercentage},
-				{
-						"Parameter Coverage" ,  totalCoveredBuckets ,
-						totalBuckets - totalCoveredBuckets , totalBuckets,
-						parameterPercentage
-//						((double) totalCoveredBuckets / totalBuckets) * 100
-//						variableCoverageTest.getTotalCoveredBuckets(),variableCoverageTest.getTotalUnCoveredBuckets(),
-//						variableCoverageTest.getTotalBuckets(),
-//						variablePercentage
-				},
-				{
-						"Overall Coverage" , null,
-//						specialisationPercentage
-//						specialisationNodeTest.getMatchedSpecialisationNode()+
-//						multiAspectNodeTest.getTotalCoveredChildren()
-//						+variableCoverageTest.getTotalCoveredBuckets(), //unCovered starts
-						null,
-//						(specialisationNodeTest.getTotalSpecialisationNode() - specialisationNodeTest.getMatchedSpecialisationNode()) +
-//								multiAspectNodeTest.getTotalUncoveredChildren()
-//								+variableCoverageTest.getTotalUnCoveredBuckets(), // Total starts
-						null,
-//						specialisationNodeTest.getTotalSpecialisationNode() + multiAspectNodeTest.getMultiAspectNodeCount()
-//						+ variableCoverageTest.getTotalBuckets(),
-						(specialisationPercentage + multiAspectNodeTest.getTotalPercentage() + behaviourPercentage + parameterPercentage)/ 4
-//						overAllPercentage
-				}
-		};
-
-		CodeCoverageLayout layout = new CodeCoverageLayout(Main.frame , data);
-		layout.setVisible(true);
+		StructuralCoverageDialog.open(Main.frame, getScenarioJsonData());
 	}
 
 	public List<String[]> getScenarioJsonData() {
