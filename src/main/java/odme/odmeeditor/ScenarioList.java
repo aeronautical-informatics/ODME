@@ -391,7 +391,7 @@ public class ScenarioList extends JPanel {
 
 		List<String[]> dataList = getScenarioJsonData();
 
-		String path = EditorContext.getInstance().getFileLocation()  + "/graphxml.xml";
+		String path = EditorContext.getInstance().getProjectDir()  + "/graphxml.xml";
 
 		SpecialisationNodeTest specialisationNodeTest = new SpecialisationNodeTest(path);
 		Map c = specialisationNodeTest.getSpecialisationNodes();

@@ -161,7 +161,7 @@ public class BehaviourList extends JPanel{
 		String s = null;
 		Path path = Path.of("").toAbsolutePath();
 		for(String folder: scenaiorsList) {
-			File f =  new File(EditorContext.getInstance().getFileLocation() + "/" + folder + "/" + EditorContext.getInstance().getProjName() + ".ssdbeh" );
+			File f =  new File(EditorContext.getInstance().getProjectDir() + "/" + folder + "/" + EditorContext.getInstance().getProjName() + ".ssdbeh" );
 			if(f.exists()) {
 				s = folder;
 			}

@@ -31,11 +31,7 @@ public class JtreeToGraphModify {
         // Read input file
         List<String> inputLines = new ArrayList<>();
         try {
-            String path;
-            if ("ses".equals(EditorContext.getInstance().getToolMode()))
-                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/graphxml.xml";
-            else
-                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + "/graphxml.xml";
+            String path = EditorContext.getInstance().getWorkingDir() + "/graphxml.xml";
 
             Scanner in = new Scanner(new File(path));
             while (in.hasNext()) {
@@ -54,11 +50,7 @@ public class JtreeToGraphModify {
 
         // Write output file
         try {
-            String path;
-            if ("ses".equals(EditorContext.getInstance().getToolMode()))
-                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/" + EditorContext.getInstance().getNewFileName() + ".xml";
-            else
-                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + "/" + EditorContext.getInstance().getProjName() + ".xml";
+            String path = EditorContext.getInstance().getWorkingDir() + "/" + EditorContext.getInstance().getProjName() + ".xml";
 
             PrintWriter f0 = new PrintWriter(new FileWriter(path));
             for (String line : outputLines) {
@@ -79,11 +71,7 @@ public class JtreeToGraphModify {
         // Read input file
         List<String> inputLines = new ArrayList<>();
         try {
-            String path;
-            if ("ses".equals(EditorContext.getInstance().getToolMode()))
-                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/projectTree.xml";
-            else
-                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + "/projectTree.xml";
+            String path = EditorContext.getInstance().getWorkingDir() + "/projectTree.xml";
 
             Scanner in = new Scanner(new File(path));
             while (in.hasNext()) {
@@ -102,11 +90,7 @@ public class JtreeToGraphModify {
 
         // Write output file
         try {
-            String path;
-            if ("ses".equals(EditorContext.getInstance().getToolMode()))
-                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/" + EditorContext.getInstance().getNewFileName() + "Project.xml";
-            else
-                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + "/" + EditorContext.getInstance().getProjName() + "Project.xml";
+            String path = EditorContext.getInstance().getWorkingDir() + "/" + EditorContext.getInstance().getProjName() + "Project.xml";
 
             PrintWriter f0 = new PrintWriter(new FileWriter(path));
             for (String line : outputLines) {
@@ -128,11 +112,7 @@ public class JtreeToGraphModify {
         // Read input file
         List<String> inputLines = new ArrayList<>();
         try {
-            String path;
-            if ("ses".equals(EditorContext.getInstance().getToolMode()))
-                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/outputgraphxmlforxsd.xml";
-            else
-                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + "/outputgraphxmlforxsd.xml";
+            String path = EditorContext.getInstance().getWorkingDir() + "/outputgraphxmlforxsd.xml";
 
             Scanner in = new Scanner(new File(path));
             while (in.hasNext()) {
@@ -151,11 +131,7 @@ public class JtreeToGraphModify {
 
         // Write output file
         try {
-            String path;
-            if ("ses".equals(EditorContext.getInstance().getToolMode()))
-                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/outputgraphxmlforxsdvar.xml";
-            else
-                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + "/outputgraphxmlforxsdvar.xml";
+            String path = EditorContext.getInstance().getWorkingDir() + "/outputgraphxmlforxsdvar.xml";
 
             PrintWriter f0 = new PrintWriter(new FileWriter(path));
             for (String line : outputLines) {
@@ -174,12 +150,7 @@ public class JtreeToGraphModify {
     private static void copyFixForSameNameNodeToOther() {
         PrintWriter f0 = null;
         try {
-            String path = new String();
-            if ("ses".equals(EditorContext.getInstance().getToolMode()))
-                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/outputgraphxmlforxsd.xml";
-            else
-                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + "/outputgraphxmlforxsd.xml";
-
+            String path = EditorContext.getInstance().getWorkingDir() + "/outputgraphxmlforxsd.xml";
             f0 = new PrintWriter(new FileWriter(path));
         }
         catch (IOException e1) {
@@ -190,12 +161,7 @@ public class JtreeToGraphModify {
 
         Scanner in = null;
         try {
-            String path = new String();
-            if ("ses".equals(EditorContext.getInstance().getToolMode()))
-                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/outputgraphxmlforxsdvar.xml";
-            else
-                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getCurrentScenario() + "/outputgraphxmlforxsdvar.xml";
-
+            String path = EditorContext.getInstance().getWorkingDir() + "/outputgraphxmlforxsdvar.xml";
             in = new Scanner(new File(path));
         }
         catch (FileNotFoundException e) {

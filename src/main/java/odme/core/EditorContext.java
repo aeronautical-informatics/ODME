@@ -38,6 +38,14 @@ public class EditorContext {
     public String getNewFileName() { return newFileName; }
     public void setNewFileName(String newFileName) { this.newFileName = newFileName; }
 
+    public String getProjectDir() {
+        return fileLocation + "/" + projName;
+    }
+
+    public String getScenarioDir() {
+        return getProjectDir() + "/" + currentScenario;
+    }
+
     /**
      * Returns the working directory for the current mode.
      * SES mode: fileLocation/projName
@@ -45,9 +53,9 @@ public class EditorContext {
      */
     public String getWorkingDir() {
         if ("ses".equals(toolMode)) {
-            return fileLocation + "/" + projName;
+            return getProjectDir();
         } else {
-            return fileLocation + "/" + projName + "/" + currentScenario;
+            return getScenarioDir();
         }
     }
 

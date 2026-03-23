@@ -61,12 +61,14 @@ public class ProjectTree extends JPanel implements MouseListener {
         
         toolkit = Toolkit.getDefaultToolkit();
         clickControl = 0;
-        ssdFileProject = new File(String.format("%s/%sProject.xml", EditorContext.getInstance().getProjName(), EditorContext.getInstance().getNewFileName()));
+        ssdFileProject = new File(String.format("%s/%sProject.xml",
+                EditorContext.getInstance().getWorkingDir(),
+                EditorContext.getInstance().getProjName()));
 
         if (ssdFileProject.exists()) {
             // restoring jtree from xml
             XmlJTree myTree =
-                    new XmlJTree(EditorContext.getInstance().getProjName() + "/" + EditorContext.getInstance().getNewFileName() + "Project.xml");
+                    new XmlJTree(EditorContext.getInstance().getWorkingDir() + "/" + EditorContext.getInstance().getProjName() + "Project.xml");
             projectTreeModel = myTree.dtModel;
             projectTreeModel.addTreeModelListener(new ProjectTreeModelListener());
             projectTree = new JTree(projectTreeModel);
@@ -132,7 +134,7 @@ public class ProjectTree extends JPanel implements MouseListener {
         Scanner in = null;
         try {
         	System.out.println(EditorContext.getInstance().getProjName() + "/" + fileName);
-            in = new Scanner(new File(EditorContext.getInstance().getProjName() + "/" + fileName));
+            in = new Scanner(new File(EditorContext.getInstance().getWorkingDir() + "/" + fileName));
         } 
         catch (FileNotFoundException e) {
         	return;

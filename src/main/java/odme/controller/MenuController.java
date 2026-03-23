@@ -195,18 +195,19 @@ public class MenuController {
     
     private void createScenario(String ScenarioName) {
          EditorContext.getInstance().setCurrentScenario(ScenarioName);
+         String scenarioDir = EditorContext.getInstance().getProjectDir() + "/" + ScenarioName;
          ODMEEditor.treePanel.ssdFile = new File(String.format("%s/%s/%s.xml",
-                 EditorContext.getInstance().getFileLocation(),  ScenarioName, EditorContext.getInstance().getProjName()));
+                 EditorContext.getInstance().getProjectDir(),  ScenarioName, EditorContext.getInstance().getProjName()));
          ODMEEditor.treePanel.ssdFileVar = new File(String.format("%s/%s/%s.ssdvar",
-                 EditorContext.getInstance().getFileLocation(),  ScenarioName, EditorContext.getInstance().getProjName()));
+                 EditorContext.getInstance().getProjectDir(),  ScenarioName, EditorContext.getInstance().getProjName()));
          ODMEEditor.treePanel.ssdFileCon = new File(String.format("%s/%s/%s.ssdcon",
-                 EditorContext.getInstance().getFileLocation(),  ScenarioName, EditorContext.getInstance().getProjName()));
+                 EditorContext.getInstance().getProjectDir(),  ScenarioName, EditorContext.getInstance().getProjName()));
          ODMEEditor.treePanel.ssdFileFlag = new File(String.format("%s/%s/%s.ssdflag",
-                 EditorContext.getInstance().getFileLocation(),  ScenarioName, EditorContext.getInstance().getProjName()));
+                 EditorContext.getInstance().getProjectDir(),  ScenarioName, EditorContext.getInstance().getProjName()));
         ODMEEditor.treePanel.ssdFileBeh = new File(String.format("%s/%s/%s.ssdbeh",
-                EditorContext.getInstance().getFileLocation(),  ScenarioName, EditorContext.getInstance().getProjName()));
+                EditorContext.getInstance().getProjectDir(),  ScenarioName, EditorContext.getInstance().getProjName()));
 
-        File f = new File(EditorContext.getInstance().getFileLocation() + "/" +  ScenarioName);
+        File f = new File(scenarioDir);
         f.mkdirs();
         
         ODMEEditor.updateState();
