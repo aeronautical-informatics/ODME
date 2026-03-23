@@ -29,7 +29,7 @@ final class StructuralCoverageDialog extends JDialog {
     private final DefaultTableModel parameterModel;
 
     private StructuralCoverageDialog(JFrame parent, StructuralCoverageSupport.CoverageContext context) {
-        super(parent, "Structural Coverage Configuration", true);
+        super(parent, "Estimate Coverage Configuration", true);
         this.context = context;
 
         setLayout(new BorderLayout(10, 10));
@@ -87,7 +87,7 @@ final class StructuralCoverageDialog extends JDialog {
         JPanel bottomPanel = new JPanel(new BorderLayout());
         if (context.parameterDefinitions().isEmpty()) {
             JLabel emptyLabel = new JLabel(
-                    "No numeric ODD parameters with variable ranges were found. Structural coverage can still be calculated.",
+                    "No numeric ODD parameters with variable ranges were found. Coverage can still be estimated from pruning options.",
                     SwingConstants.CENTER
             );
             emptyLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -117,7 +117,7 @@ final class StructuralCoverageDialog extends JDialog {
                 JOptionPane.showMessageDialog(
                         parent,
                         "No generated scenarios were found. Generate or save scenarios first.",
-                        "Structural Coverage",
+                        "Estimate Coverage",
                         JOptionPane.INFORMATION_MESSAGE
                 );
                 return;
@@ -126,8 +126,8 @@ final class StructuralCoverageDialog extends JDialog {
         } catch (Exception e) {
             JOptionPane.showMessageDialog(
                     parent,
-                    "Unable to prepare structural coverage: " + e.getMessage(),
-                    "Structural Coverage",
+                    "Unable to prepare coverage estimate: " + e.getMessage(),
+                    "Estimate Coverage",
                     JOptionPane.ERROR_MESSAGE
             );
         }
@@ -154,7 +154,7 @@ final class StructuralCoverageDialog extends JDialog {
             CoverageReportDialog reportDialog = new CoverageReportDialog(this, report);
             reportDialog.setVisible(true);
         } catch (IllegalArgumentException e) {
-            JOptionPane.showMessageDialog(this, e.getMessage(), "Invalid Coverage Configuration", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, e.getMessage(), "Invalid Coverage Estimate Configuration", JOptionPane.WARNING_MESSAGE);
         }
     }
 
@@ -173,7 +173,7 @@ final class StructuralCoverageDialog extends JDialog {
     private static final class CoverageReportDialog extends JDialog {
 
         private CoverageReportDialog(JDialog parent, StructuralCoverageSupport.CoverageReport report) {
-            super(parent, "Structural Coverage Report", true);
+            super(parent, "Estimate Coverage Report", true);
             setLayout(new BorderLayout(10, 10));
 
             JLabel title = new JLabel(
@@ -210,7 +210,7 @@ final class StructuralCoverageDialog extends JDialog {
             DefaultTableModel model = new DefaultTableModel(
                     new Object[]{"Metric", "Covered", "Uncovered", "Total", "Coverage"}, 0);
             model.addRow(new Object[]{
-                    "Structural Coverage",
+                    "Pruning Coverage",
                     report.coveredStructuralOptions(),
                     report.uncoveredStructuralOptions(),
                     report.totalStructuralOptions(),

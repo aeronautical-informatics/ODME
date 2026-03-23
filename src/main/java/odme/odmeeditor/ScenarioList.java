@@ -60,7 +60,7 @@ public class ScenarioList extends JPanel {
 			}
 		});
 
-		JButton structuralCoverageBtn = new JButton("Structural Coverage");
+		JButton structuralCoverageBtn = new JButton("Estimate Coverage");
 		structuralCoverageBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
