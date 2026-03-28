@@ -52,7 +52,7 @@ jobs:
         run: mvn -B package -Dmaven.test.skip=true --file pom.xml
 
       - name: Upload JAR artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ODME-jar
           path: target/SESEditor-*.jar
@@ -148,7 +148,7 @@ jobs:
           wait "$APP_PID" || true
 
       - name: Upload native artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.artifact_name }}
           path: ${{ matrix.artifact_path }}
