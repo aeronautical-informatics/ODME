@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ODME User Manual</title>
+  <style>
+    @page {
+      margin: 18mm 16mm;
+      size: A4;
+    }
+
+    :root {
+      --ink: #173042;
+      --muted: #566876;
+      --accent: #0b7a5a;
+      --accent-soft: #e9f5f0;
+      --border: #d7e1e8;
+      --panel: #f7fafc;
+      --warning-bg: #fff6e9;
+      --warning-border: #efcd94;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: #fff;
+      font-family: "Segoe UI", Arial, sans-serif;
+      font-size: 11pt;
+      line-height: 1.55;
+    }
+
+    h1, h2, h3 {
+      margin: 0 0 8px;
+      color: var(--ink);
+      page-break-after: avoid;
+    }
+
+    h1 {
+      font-size: 28pt;
+      line-height: 1.05;
+    }
+
+    h2 {
+      margin-top: 28px;
+      padding-bottom: 6px;
+      border-bottom: 2px solid var(--border);
+      font-size: 16pt;
+    }
+
+    h3 {
+      margin-top: 18px;
+      font-size: 12.5pt;
+    }
+
+    p {
+      margin: 0 0 10px;
+    }
+
+    ul, ol {
+      margin: 0 0 12px 22px;
+      padding: 0;
+    }
+
+    li {
+      margin: 0 0 6px;
+    }
+
+    strong {
+      color: var(--ink);
+    }
+
+    code {
+      font-family: "Cascadia Mono", Consolas, monospace;
+      font-size: 0.92em;
+      background: #f2f6f9;
+      padding: 1px 4px;
+      border-radius: 4px;
+    }
+
+    .cover {
+      min-height: 250mm;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      page-break-after: always;
+    }
+
+    .brand {
+      display: inline-block;
+      margin-bottom: 18px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 10pt;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .hero {
+      padding-top: 24mm;
+    }
+
+    .subtitle {
+      max-width: 152mm;
+      color: var(--muted);
+      font-size: 14pt;
+    }
+
+    .meta {
+      border-top: 1px solid var(--border);
+      padding-top: 10mm;
+      color: var(--muted);
+      font-size: 10pt;
+    }
+
+    .panel,
+    .tip,
+    .note,
+    .warning {
+      margin: 12px 0 16px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      page-break-inside: avoid;
+    }
+
+    .panel {
+      background: var(--panel);
+    }
+
+    .tip {
+      background: var(--accent-soft);
+    }
+
+    .note {
+      background: #f3f8fb;
+    }
+
+    .warning {
+      background: var(--warning-bg);
+      border-color: var(--warning-border);
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: 9.5pt;
+    }
+
+    .toc {
+      columns: 2;
+      column-gap: 24px;
+      margin-top: 12px;
+    }
+
+    .toc li {
+      break-inside: avoid;
+    }
+
+    .mode-table,
+    .artifact-table {
+      width: 100%;
+      margin: 12px 0 16px;
+      border-collapse: collapse;
+      font-size: 10.5pt;
+    }
+
+    .mode-table th,
+    .mode-table td,
+    .artifact-table th,
+    .artifact-table td {
+      border: 1px solid var(--border);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .mode-table th,
+    .artifact-table th {
+      background: var(--panel);
+      font-size: 10pt;
+    }
+
+    .step {
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .avoid-break {
+      page-break-inside: avoid;
+    }
+
+    figure {
+      margin: 14px 0 18px;
+      page-break-inside: avoid;
+    }
+
+    figure img {
+      width: 100%;
+      display: block;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: white;
+    }
+
+    figcaption {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 9.5pt;
+    }
+  </style>
+</head>
+<body>
+  <section class="cover">
+    <div class="hero">
+      <div class="brand">ODME User Manual</div>
+      <h1>Operational Design Domain Modeling Environment</h1>
+      <p class="subtitle">
+        A practical user manual for the current ODME desktop application, including
+        the modeling workflow, the main modes, ODD and scenario tooling, execution
+        support, and packaged application usage.
+      </p>
+      <div class="tip">
+        <strong>Best way to learn ODME:</strong> start with <strong>Domain Modelling</strong>,
+        validate your model, then switch to <strong>Scenario Modelling</strong> for
+        pruning and scenario-specific work.
+      </div>
+    </div>
+
+    <div class="meta">
+      <p><strong>Product:</strong> Operational Design Domain Modeling Environment (ODME)</p>
+      <p><strong>Current application line:</strong> 2.x desktop application</p>
+      <p><strong>Main purpose:</strong> author SES-based domain models, derive PES/scenarios, manage ODD data, generate samples, and support downstream automation workflows</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Contents</h2>
+    <ol class="toc">
+      <li>What ODME is</li>
+      <li>What ODME produces</li>
+      <li>How to start the application</li>
+      <li>Main window overview</li>
+      <li>Recommended workflow</li>
+      <li>Domain Modelling mode</li>
+      <li>Scenario Modelling mode</li>
+      <li>Behavior Modelling</li>
+      <li>Operation Design Domain and ODD Manager</li>
+      <li>Scenario Manager and sample generation</li>
+      <li>Execution and Python plugin support</li>
+      <li>Import from Cameo</li>
+      <li>Saving, validation, export, and packaging</li>
+      <li>Example projects</li>
+      <li>Troubleshooting</li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>1. What ODME Is</h2>
+    <p>
+      ODME is a desktop modeling environment for creating and maintaining
+      <strong>Operational Design Domain (ODD)</strong> models using the
+      <strong>System Entity Structure (SES)</strong> formalism. A single model
+      can be edited graphically, inspected structurally as a tree, validated,
+      pruned into scenarios, enriched with variables and constraints, and exported
+      for downstream use.
+    </p>
+    <p>
+      In practical terms, ODME helps you define the operating conditions of an
+      AI or autonomous system, convert those conditions into testable scenario
+      structures, and prepare supporting artifacts such as XML, schema, YAML,
+      CSV, and automation-oriented outputs.
+    </p>
+    <div class="warning">
+      <strong>Important distinction:</strong> ODME is both a modeling tool and a
+      workflow support tool. Most users spend their time in the modeling modes,
+      while ODD generation, sample generation, execution tooling, and plugin support
+      are usually later steps in the process.
+    </div>
+  </section>
+
+  <section>
+    <h2>2. What ODME Produces</h2>
+    <p>Depending on the workflow stage, ODME can produce or maintain these artifacts:</p>
+    <table class="artifact-table">
+      <thead>
+        <tr>
+          <th>Artifact</th>
+          <th>Purpose</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Project XML and graph XML</td>
+          <td>The main structural model and graph layout used by the editors.</td>
+        </tr>
+        <tr>
+          <td><code>.ssd*</code> files</td>
+          <td>Serialized supporting data such as variables, behaviors, constraints, flags, and related editor state.</td>
+        </tr>
+        <tr>
+          <td><code>xsdfromxml.xsd</code></td>
+          <td>Generated schema used for ODD extraction and validation-related workflows.</td>
+        </tr>
+        <tr>
+          <td>ODD snapshots</td>
+          <td>Saved ODD data sets stored under the project <code>odd/</code> directory.</td>
+        </tr>
+        <tr>
+          <td>YAML and XML exports</td>
+          <td>Human-readable or machine-readable ODD outputs.</td>
+        </tr>
+        <tr>
+          <td>CSV sample files</td>
+          <td>Generated sample sets from the ODD or YAML-based constrained sampling pipeline.</td>
+        </tr>
+        <tr>
+          <td>Scenario XML files</td>
+          <td>Generated scenario files from CSV or pruned scenario work.</td>
+        </tr>
+        <tr>
+          <td>Python-friendly outputs</td>
+          <td>Execution and plugin workflows can translate model content for script-based automation.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>3. How to Start the Application</h2>
+
+    <h3>Packaged Windows application</h3>
+    <ol>
+      <li>Open the generated <strong>ODME</strong> application folder.</li>
+      <li>Double-click <strong>ODME.exe</strong>.</li>
+      <li>Keep the full <strong>ODME</strong> folder together; do not move the executable by itself.</li>
+    </ol>
+
+    <h3>Packaged macOS or Linux application</h3>
+    <ol>
+      <li>Open the packaged application folder or app bundle.</li>
+      <li>Launch the ODME application from that package.</li>
+    </ol>
+
+    <h3>Run from source</h3>
+    <ol>
+      <li>Build the application JAR.</li>
+      <li>Run the shaded JAR or launch <code>odme.odmeeditor.Main</code> from your IDE.</li>
+    </ol>
+
+    <div class="tip">
+      <strong>Recommended for normal users:</strong> use the packaged desktop application,
+      not the source tree, unless you are actively developing the tool.
+    </div>
+  </section>
+
+  <section>
+    <h2>4. Main Window Overview</h2>
+    <p>The main ODME window is organized around a synchronized tree-and-graph editing workflow.</p>
+
+    <figure>
+      <img src="./images/odme-main-window.png" alt="ODME main window">
+      <figcaption>
+        Typical ODME main window. The left side contains the project and structure views,
+        the center contains the graph editor, the right side contains node-related data panels,
+        and the bottom area contains viewers and console output.
+      </figcaption>
+    </figure>
+
+    <div class="panel avoid-break">
+      <p><strong>Menu bar</strong><br>Accesses file actions, modeling modes, ODD tooling, scenario management, tools, and help.</p>
+      <p><strong>Project tree</strong><br>Shows the current project structure and related files.</p>
+      <p><strong>Model tree</strong><br>Shows the SES structure as a hierarchical tree synchronized with the graph editor.</p>
+      <p><strong>Graph canvas</strong><br>The main visual workspace for creating entities, aspects, specialization nodes, and relationships.</p>
+      <p><strong>Right-side data panels</strong><br>Variables, distributions, behaviors, inter-entity constraints, and intra-entity constraints for the selected node.</p>
+      <p><strong>Bottom viewers</strong><br>Ontology, schema, or XML views depending on the current mode and selected tab.</p>
+      <p><strong>Console</strong><br>Displays validation feedback and operation output.</p>
+      <p><strong>Status bar and mode switch</strong><br>Shows whether you are in Domain Modelling or Scenario Modelling and lets you switch between them.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>5. Recommended Workflow</h2>
+    <p>For most users, ODME is easiest to use as a staged workflow:</p>
+    <ol>
+      <li><span class="step">Step 1:</span> Create or open a project in <strong>Domain Modelling</strong>.</li>
+      <li><span class="step">Step 2:</span> Build the full SES structure on the graph canvas.</li>
+      <li><span class="step">Step 3:</span> Add variables, constraints, distributions, and behaviors where relevant.</li>
+      <li><span class="step">Step 4:</span> Save and validate the project.</li>
+      <li><span class="step">Step 5:</span> Switch to <strong>Scenario Modelling</strong>.</li>
+      <li><span class="step">Step 6:</span> Create or open scenarios and prune the model into scenario-specific structures.</li>
+      <li><span class="step">Step 7:</span> Use ODD, sample generation, execution, or plugin workflows only after the model is stable.</li>
+    </ol>
+    <div class="note">
+      <strong>Rule of thumb:</strong> if scenario work starts behaving unexpectedly,
+      return to Domain Modelling and verify the base project first.
+    </div>
+  </section>
+
+  <section>
+    <h2>6. Core Modes and Menus</h2>
+    <table class="mode-table">
+      <thead>
+        <tr>
+          <th>Area</th>
+          <th>Purpose</th>
+          <th>Typical user action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Domain Modelling</td>
+          <td>Create, edit, import, validate, and export the main SES project.</td>
+          <td>Build the base model.</td>
+        </tr>
+        <tr>
+          <td>Scenario Modelling</td>
+          <td>Prune the domain model into scenario-specific structures and outputs.</td>
+          <td>Create and refine scenarios.</td>
+        </tr>
+        <tr>
+          <td>Behavior Modelling</td>
+          <td>Manage and synchronize behavior-related information for entities.</td>
+          <td>Inspect or sync behaviors after the structure is ready.</td>
+        </tr>
+        <tr>
+          <td>Operation Design Domain</td>
+          <td>Generate and manage ODD representations derived from the current project.</td>
+          <td>Review or export ODD data.</td>
+        </tr>
+        <tr>
+          <td>Scenario Manager</td>
+          <td>Work with scenario lists, execution support, feedback, and sample generation.</td>
+          <td>Manage scenario-related downstream tasks.</td>
+        </tr>
+        <tr>
+          <td>Tools</td>
+          <td>Run external automation helpers such as the Python plugin flow.</td>
+          <td>Integrate ODME output with scripts.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>7. Domain Modelling Mode</h2>
+    <p>
+      Domain Modelling is the primary authoring mode. It is where you define the
+      complete structure of the operational domain before creating scenarios.
+    </p>
+
+    <h3>Main capabilities</h3>
+    <ul>
+      <li>Create a new project.</li>
+      <li>Open an existing project.</li>
+      <li>Import a template or import a model from Cameo.</li>
+      <li>Add entities, aspects, specialization nodes, and multi-aspects.</li>
+      <li>Edit node properties and relationships through the graph and the synchronized tree.</li>
+      <li>Add variables, behaviors, distributions, and constraints to nodes.</li>
+      <li>Save the project and export a reusable template.</li>
+      <li>Generate the XML and schema outputs used by later workflows.</li>
+    </ul>
+
+    <h3>What to do first</h3>
+    <ol>
+      <li>Create the structural tree.</li>
+      <li>Add variables and default values.</li>
+      <li>Add constraints and distributions only after the structure is stable.</li>
+      <li>Save and validate before switching modes.</li>
+    </ol>
+
+    <div class="tip">
+      <strong>Best practice:</strong> keep naming consistent while building the tree.
+      Many later actions, exports, and scenario flows assume the model structure is already clean.
+    </div>
+  </section>
+
+  <section>
+    <h2>8. Scenario Modelling Mode</h2>
+    <p>
+      Scenario Modelling is the working mode for deriving concrete scenario structures
+      from the domain model. ODME switches into this mode through the status-bar mode button.
+    </p>
+
+    <h3>What changes when you switch</h3>
+    <ul>
+      <li>The application changes its current mode from SES editing to PES/scenario work.</li>
+      <li>Project state is saved and scenario folders are created as needed.</li>
+      <li>The viewer tabs emphasize XML output for the active scenario.</li>
+      <li>Toolbar actions related to creating high-level structural nodes are reduced.</li>
+    </ul>
+
+    <h3>Typical tasks</h3>
+    <ul>
+      <li>Create a scenario.</li>
+      <li>Open an existing scenario from the scenario list.</li>
+      <li>Prune and refine the model for scenario-specific use.</li>
+      <li>Inspect the XML generated for the scenario.</li>
+      <li>Save or export the resulting scenario state.</li>
+    </ul>
+
+    <div class="warning">
+      <strong>Do not treat Scenario Modelling as the place to fix the full project design.</strong>
+      If the base tree is wrong, correct it in Domain Modelling first and then regenerate the scenario state.
+    </div>
+  </section>
+
+  <section>
+    <h2>9. Behavior Modelling</h2>
+    <p>
+      The Behavior Modelling menu supports behavior-related synchronization and editing work.
+      It is typically used after the structural model already exists and the relevant entities
+      have been defined.
+    </p>
+    <ul>
+      <li>Behavior data is presented alongside the main modeling workflow rather than as a separate main window mode.</li>
+      <li>The right-side data panels include behavior information for the selected node.</li>
+      <li>The <strong>Sync Behaviour</strong> action is used when behavior-related project data needs to be refreshed or synchronized.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>10. Operation Design Domain and ODD Manager</h2>
+    <p>
+      The <strong>Operation Design Domain</strong> menu gives access to ODD generation and the ODD Manager.
+      These features operate on schema and model data generated from the current project.
+    </p>
+
+    <h3>Generate OD</h3>
+    <p>
+      This view creates and displays the current ODD from the open project and lets you inspect
+      or save it in the manager workflow.
+    </p>
+
+    <h3>ODD Manager</h3>
+    <p>
+      ODD Manager is where saved ODD snapshots are reviewed and exported. It works with the generated
+      schema and supports editing and export-oriented workflows.
+    </p>
+
+    <h3>Main ODD-related capabilities</h3>
+    <ul>
+      <li>Display the current ODD as a table.</li>
+      <li>Save ODD data to the project <code>odd/</code> directory.</li>
+      <li>Export ODD content as XML or YAML.</li>
+      <li>Generate LHS-style test cases from ODD ranges.</li>
+      <li>Use the project schema data as the basis for downstream sampling workflows.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>11. Scenario Manager and Sample Generation</h2>
+    <p>
+      The <strong>Scenario Manager</strong> menu groups together scenario-oriented downstream actions.
+      It is especially useful after a project or ODD is already in a usable state.
+    </p>
+
+    <h3>Scenario list</h3>
+    <p>Shows the saved scenarios for the current project and lets you open or manage them.</p>
+
+    <h3>Generate Samples</h3>
+    <p>
+      Opens the current constrained sampling workflow. In the current application line, this supports:
+    </p>
+    <ul>
+      <li>YAML-based scenario definition input</li>
+      <li>Latin Hypercube Sampling for continuous parameters</li>
+      <li>Constraint-aware rejection sampling</li>
+      <li>CSV sample output for downstream use</li>
+    </ul>
+
+    <h3>Generate Scenario from CSV</h3>
+    <p>
+      Under <strong>Save Scenario</strong>, ODME provides the <strong>Generate Scenario → From CSV</strong>
+      action. This converts sampled CSV rows into individual scenario XML files.
+    </p>
+
+    <div class="tip">
+      <strong>Typical sequence:</strong> derive or save the ODD, generate samples, then generate scenarios from the resulting CSV.
+    </div>
+  </section>
+
+  <section>
+    <h2>12. Execution and Python Plugin Support</h2>
+    <p>
+      ODME includes an <strong>Execution</strong> window and a <strong>Run Python Plugin...</strong> tool
+      for automation-oriented workflows.
+    </p>
+
+    <h3>Execution window</h3>
+    <ul>
+      <li>Load XML.</li>
+      <li>Load YAML.</li>
+      <li>Translate XML to Python-friendly structures.</li>
+      <li>Translate YAML to Python-friendly structures.</li>
+      <li>Edit or load Python scripts.</li>
+      <li>Run scripts and inspect console output.</li>
+    </ul>
+
+    <h3>Run Python Plugin</h3>
+    <ul>
+      <li>Select a Python script file.</li>
+      <li>ODME passes project/session context to the plugin runner.</li>
+      <li>Plugin output is streamed to the ODME console area.</li>
+      <li>This is useful for custom simulation or automation integration.</li>
+    </ul>
+
+    <div class="warning">
+      These features are powerful but are usually not the first place to start.
+      Use them after the project, scenario, or ODD data is already stable.
+    </div>
+  </section>
+
+  <section>
+    <h2>13. Import from Cameo</h2>
+    <p>
+      The <strong>Import From Cameo</strong> action is available from the Domain Modelling menu.
+      It is intended for workflows where operational scenario or model data already exists in Cameo
+      and must be transformed into ODME-compatible project content.
+    </p>
+    <p>
+      This is generally an integration workflow rather than a beginner workflow. If you are learning ODME,
+      begin with a manually created project first.
+    </p>
+  </section>
+
+  <section>
+    <h2>14. Saving, Validation, Export, and Packaging</h2>
+
+    <h3>Saving</h3>
+    <ul>
+      <li><strong>File → Save</strong> stores the current project state.</li>
+      <li><strong>File → Save As</strong> creates a renamed project copy.</li>
+      <li><strong>File → Save as PNG</strong> exports the graph canvas as an image.</li>
+    </ul>
+
+    <h3>Validation and generated views</h3>
+    <ul>
+      <li>The schema and XML viewers are refreshed through the project update pipeline.</li>
+      <li>The console reports validation and generation feedback.</li>
+      <li>The schema and XML tabs should be used as working outputs, not just as debug views.</li>
+    </ul>
+
+    <h3>Export</h3>
+    <ul>
+      <li>Templates can be exported from Domain Modelling.</li>
+      <li>ODD content can be exported through ODD Manager.</li>
+      <li>Scenario generation can produce CSV-derived XML outputs.</li>
+    </ul>
+
+    <h3>Packaged application usage</h3>
+    <ul>
+      <li>The packaged application folder includes all files required by the executable.</li>
+      <li>Help → Manual opens the bundled manual shipped with the application.</li>
+      <li>If you rebuild the packaged app, rebuild the app image after code or manual changes so the packaged copy stays current.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>15. Example Projects</h2>
+    <p>
+      ODME ships with example material that is useful for learning the workflow and for checking
+      whether your application build is behaving correctly.
+    </p>
+    <ul>
+      <li><strong>RunwaySignClassifier</strong> is the main example bundled in the repository.</li>
+      <li>Custom projects such as <strong>ScenAIroTableII</strong> can also be opened, provided their expected project files are present.</li>
+    </ul>
+    <div class="note">
+      If a project opens but some supporting files are missing, ODME may still load the main structure
+      while showing errors for missing serialized side files. Keep related project files together when
+      moving or copying a project.
+    </div>
+  </section>
+
+  <section>
+    <h2>16. Troubleshooting</h2>
+
+    <h3>The app opens but Help → Manual does nothing</h3>
+    <ul>
+      <li>Make sure you are using a freshly rebuilt application after manual changes.</li>
+      <li>Use the packaged app folder as a whole, not a copied standalone executable.</li>
+    </ul>
+
+    <h3>A project loads with missing-file errors</h3>
+    <ul>
+      <li>Check that the project folder contains all related XML and <code>.ssd*</code> files.</li>
+      <li>Open the project from its root folder, not from a nested or partial copy.</li>
+      <li>If you copied the project between old and new ODME versions, verify that the supporting constraint files were copied too.</li>
+    </ul>
+
+    <h3>The build works but the packaged app is missing new changes</h3>
+    <ul>
+      <li>Rebuild the packaged app image after changing code or documentation.</li>
+      <li>Re-run the packaging step, not only the JAR build step.</li>
+    </ul>
+
+    <h3>Sampling or execution features feel advanced</h3>
+    <ul>
+      <li>That is expected. Learn the project editing workflow first.</li>
+      <li>Return to Domain Modelling, Scenario Modelling, and ODD generation if you need a simpler entry point.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>17. Final Advice</h2>
+    <p>
+      The current ODME application is most effective when used in this order:
+    </p>
+    <ol>
+      <li>Model the complete structure in <strong>Domain Modelling</strong>.</li>
+      <li>Validate and inspect the generated XML and schema.</li>
+      <li>Switch to <strong>Scenario Modelling</strong> for PES/scenario work.</li>
+      <li>Use ODD, sample generation, execution, and plugins once the model is already stable.</li>
+    </ol>
+    <p>
+      If you keep that sequence, the different menus and supporting tools fit together naturally.
+    </p>
+  </section>
+</body>
+</html>

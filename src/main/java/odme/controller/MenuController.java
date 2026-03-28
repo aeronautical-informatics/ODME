@@ -6,11 +6,15 @@ import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.Scanner;
 
 import javax.imageio.ImageIO;
@@ -354,21 +358,46 @@ public class MenuController {
     }
 
     private void manualFunc() {
-        File pdfTemp = null;
-        if (Desktop.isDesktopSupported()) {
+        if (!Desktop.isDesktopSupported()) {
+            JOptionPane.showMessageDialog(
+                    mainFrame,
+                    "Desktop integration is not available on this system.",
+                    "Manual",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        try {
+            File manualFile = extractResourceToTempFile("docs/manual.pdf", ".pdf");
+            Desktop.getDesktop().open(manualFile);
+            return;
+        } catch (IOException primaryError) {
             try {
-                java.net.URL resource = ODMEEditor.class.getClassLoader().getResource("docs/manual.pdf");
-                try {
-                    pdfTemp = new File(resource.toURI());
-                } catch (URISyntaxException e) {
-                    e.printStackTrace();
-                    JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-                Desktop.getDesktop().open(pdfTemp);
-            } catch (IOException e1) {
-                System.out.println("erreur : " + e1);
+                File manualHtml = extractResourceToTempFile("docs/manual-source.html", ".html");
+                Desktop.getDesktop().browse(manualHtml.toURI());
+                return;
+            } catch (IOException fallbackError) {
+                fallbackError.addSuppressed(primaryError);
+                fallbackError.printStackTrace();
+                JOptionPane.showMessageDialog(
+                        mainFrame,
+                        "Unable to open the bundled manual.\n" + fallbackError.getMessage(),
+                        "Manual",
+                        JOptionPane.ERROR_MESSAGE);
             }
+        }
+    }
+
+    private File extractResourceToTempFile(String resourcePath, String suffix) throws IOException {
+        try (InputStream resourceStream = ODMEEditor.class.getClassLoader().getResourceAsStream(resourcePath)) {
+            if (resourceStream == null) {
+                throw new IOException("Resource not found: " + resourcePath);
+            }
+
+            Path tempFile = Files.createTempFile("odme-manual-", suffix);
+            Files.copy(resourceStream, tempFile, StandardCopyOption.REPLACE_EXISTING);
+            tempFile.toFile().deleteOnExit();
+            return tempFile.toFile();
         }
     }
 
