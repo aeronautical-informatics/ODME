@@ -68,7 +68,7 @@
         <dependency>
             <groupId>com.github.vbmacher</groupId>
             <artifactId>java-cup-runtime</artifactId>
-            <version>11b</version>
+            <version>11b-20160615-3</version>
         </dependency>
         <dependency>
             <groupId>com.ibm.icu</groupId>
