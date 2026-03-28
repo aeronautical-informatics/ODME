@@ -56,17 +56,30 @@ rm -rf "${APP_BUNDLE}"
 mkdir -p "${DIST_DIR}"
 
 echo "Creating macOS app bundle..."
-jpackage \
-  --type app-image \
-  --name ODME \
-  --app-version "${APP_VERSION}" \
-  --input "${STAGE_DIR}" \
-  --main-jar "$(basename "${TARGET_JAR}")" \
-  --main-class odme.odmeeditor.Main \
-  --dest "${DIST_DIR}" \
-  --vendor "DLR SES" \
-  --description "Operation Domain Modeling Environment" \
-  "${JPACKAGE_SIGN_ARGS[@]}"
+if [[ -n "${MACOS_SIGNING_IDENTITY:-}" ]]; then
+  jpackage \
+    --type app-image \
+    --name ODME \
+    --app-version "${APP_VERSION}" \
+    --input "${STAGE_DIR}" \
+    --main-jar "$(basename "${TARGET_JAR}")" \
+    --main-class odme.odmeeditor.Main \
+    --dest "${DIST_DIR}" \
+    --vendor "DLR SES" \
+    --description "Operation Domain Modeling Environment" \
+    "${JPACKAGE_SIGN_ARGS[@]}"
+else
+  jpackage \
+    --type app-image \
+    --name ODME \
+    --app-version "${APP_VERSION}" \
+    --input "${STAGE_DIR}" \
+    --main-jar "$(basename "${TARGET_JAR}")" \
+    --main-class odme.odmeeditor.Main \
+    --dest "${DIST_DIR}" \
+    --vendor "DLR SES" \
+    --description "Operation Domain Modeling Environment"
+fi
 
 if [[ ! -d "${APP_BUNDLE}" ]]; then
   echo "App bundle was not created: ${APP_BUNDLE}"

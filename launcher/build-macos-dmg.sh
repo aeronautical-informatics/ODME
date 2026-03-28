@@ -52,17 +52,30 @@ mkdir -p "${STAGE_DIR}"
 cp "${TARGET_JAR}" "${STAGE_DIR}/"
 
 echo "Creating macOS dmg installer..."
-jpackage \
-  --type dmg \
-  --name ODME \
-  --app-version "${APP_VERSION}" \
-  --input "${STAGE_DIR}" \
-  --main-jar "$(basename "${TARGET_JAR}")" \
-  --main-class odme.odmeeditor.Main \
-  --dest "${DIST_DIR}" \
-  --vendor "DLR SES" \
-  --description "Operation Domain Modeling Environment" \
-  "${JPACKAGE_SIGN_ARGS[@]}"
+if [[ -n "${MACOS_SIGNING_IDENTITY:-}" ]]; then
+  jpackage \
+    --type dmg \
+    --name ODME \
+    --app-version "${APP_VERSION}" \
+    --input "${STAGE_DIR}" \
+    --main-jar "$(basename "${TARGET_JAR}")" \
+    --main-class odme.odmeeditor.Main \
+    --dest "${DIST_DIR}" \
+    --vendor "DLR SES" \
+    --description "Operation Domain Modeling Environment" \
+    "${JPACKAGE_SIGN_ARGS[@]}"
+else
+  jpackage \
+    --type dmg \
+    --name ODME \
+    --app-version "${APP_VERSION}" \
+    --input "${STAGE_DIR}" \
+    --main-jar "$(basename "${TARGET_JAR}")" \
+    --main-class odme.odmeeditor.Main \
+    --dest "${DIST_DIR}" \
+    --vendor "DLR SES" \
+    --description "Operation Domain Modeling Environment"
+fi
 
 echo
 echo "macOS installer created in:"
