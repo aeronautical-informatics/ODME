@@ -26,7 +26,7 @@ mkdir -p "${MAVEN_REPO_DIR}"
 echo "Building application jar..."
 (
   cd "${REPO_ROOT}"
-  mvn -q "-Dmaven.repo.local=${MAVEN_REPO_DIR}" -DskipTests package
+  mvn -q "-Dmaven.repo.local=${MAVEN_REPO_DIR}" "-Dmaven.test.skip=true" package
 )
 
 TARGET_JAR="$(find "${REPO_ROOT}/target" -maxdepth 1 -type f -name 'SESEditor-*.jar' ! -name 'original-*' | sort | tail -n 1)"

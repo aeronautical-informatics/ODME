@@ -2,9 +2,10 @@ name: ODME CI
 
 on:
   push:
-    branches: ["main"]
+    branches: [ "main" ]
   pull_request:
-    branches: ["main"]
+    branches: [ "main" ]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -24,7 +25,7 @@ jobs:
           distribution: "temurin"
           cache: maven
 
-      - name: Build source
+      - name: Build application
         run: mvn -B package -Dmaven.test.skip=true --file pom.xml
 
       - name: Run SpotBugs
@@ -55,4 +56,100 @@ jobs:
         with:
           name: ODME-jar
           path: target/SESEditor-*.jar
+          if-no-files-found: error
+
+  package-native:
+    needs: build-and-test
+    if: github.event_name != 'pull_request'
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            artifact_name: ODME-windows-app-image
+            artifact_path: dist/ODME
+          - os: ubuntu-latest
+            artifact_name: ODME-linux-app-image
+            artifact_path: dist/ODME
+          - os: macos-latest
+            artifact_name: ODME-macos-app-bundle
+            artifact_path: dist/ODME.app
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: "17"
+          distribution: "temurin"
+          cache: maven
+
+      - name: Install Linux smoke test dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb
+
+      - name: Make launcher scripts executable
+        if: runner.os != 'Windows'
+        run: chmod +x launcher/*.sh
+
+      - name: Build Windows app image
+        if: runner.os == 'Windows'
+        shell: powershell
+        run: powershell -ExecutionPolicy Bypass -File .\launcher\build-windows-exe.ps1
+
+      - name: Build Linux app image
+        if: runner.os == 'Linux'
+        run: ./launcher/build-linux-app.sh
+
+      - name: Build macOS app bundle
+        if: runner.os == 'macOS'
+        run: ./launcher/build-macos-app.sh
+
+      - name: Smoke test Windows app image
+        if: runner.os == 'Windows'
+        shell: powershell
+        run: |
+          $proc = Start-Process -FilePath .\dist\ODME\ODME.exe -PassThru
+          Start-Sleep -Seconds 15
+          if ($proc.HasExited) {
+            throw "Windows app image exited before the smoke-test timeout."
+          }
+          Stop-Process -Id $proc.Id -Force
+
+      - name: Smoke test Linux app image
+        if: runner.os == 'Linux'
+        run: |
+          xvfb-run -a ./dist/ODME/bin/ODME >odme-linux.log 2>&1 &
+          APP_PID=$!
+          sleep 15
+          if ! kill -0 "$APP_PID" 2>/dev/null; then
+            cat odme-linux.log
+            echo "Linux app image exited before the smoke-test timeout."
+            exit 1
+          fi
+          kill "$APP_PID"
+          wait "$APP_PID" || true
+
+      - name: Smoke test macOS app bundle
+        if: runner.os == 'macOS'
+        run: |
+          ./dist/ODME.app/Contents/MacOS/ODME >odme-macos.log 2>&1 &
+          APP_PID=$!
+          sleep 15
+          if ! kill -0 "$APP_PID" 2>/dev/null; then
+            cat odme-macos.log
+            echo "macOS app bundle exited before the smoke-test timeout."
+            exit 1
+          fi
+          kill "$APP_PID"
+          wait "$APP_PID" || true
+
+      - name: Upload native artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: ${{ matrix.artifact_path }}
           if-no-files-found: error
