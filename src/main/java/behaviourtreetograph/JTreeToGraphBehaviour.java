@@ -27,7 +27,7 @@ import com.mxgraph.util.mxEventSource.mxIEventListener;
 import com.mxgraph.view.mxGraph;
 import com.mxgraph.view.mxStylesheet;
 
-import odeme.behaviour.ODMEBehaviourEditor;
+import odme.behaviour.ODMEBehaviourEditor;
 
 import odme.core.UndoableTreeModel;
 

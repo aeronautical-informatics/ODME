@@ -17,6 +17,7 @@
 //jdk8x2r jaxp.TypeInfoWriter -xsd11 -i xsd11_datatype_test.xml
 package xml.schema;
 
+import odme.core.EditorContext;
 import org.w3c.dom.TypeInfo;
 import org.xml.sax.Attributes;
 import org.xml.sax.DTDHandler;
@@ -151,23 +152,13 @@ public class TypeInfoWriter extends DefaultHandler {
         }
 
         if (ODMEEditor.sesValidationControl == 1) {
-        	String path = new String();
-        	if (ODMEEditor.toolMode == "ses")
-        		path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/xmlforxsd.xml";
-        	else
-        		path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/xmlforxsd.xml";
-        	
+        	String path = EditorContext.getInstance().getWorkingDir() + "/xmlforxsd.xml";
             instances.add(path);
             ODMEEditor.sesValidationControl = 0;
         } else {
             String rootNodeName = JtreeToGraphGeneral.rootNodeName();
             
-            String path = new String();
-        	if (ODMEEditor.toolMode == "ses")
-        		path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/" + rootNodeName + ".xml";
-        	else
-        		path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/" + rootNodeName + ".xml";
-        	
+            String path = EditorContext.getInstance().getWorkingDir() + "/" + rootNodeName + ".xml";
             instances.add(path);
         }
 
@@ -175,7 +166,7 @@ public class TypeInfoWriter extends DefaultHandler {
         if (parser == null) {
             // create parser
             try {
-                parser = XMLReaderFactory.createXMLReader(DEFAULT_PARSER_NAME);
+                parser = javax.xml.parsers.SAXParserFactory.newInstance().newSAXParser().getXMLReader();
             } 
             catch (Exception e) {
                 Console.addConsoleOutput("error: Unable to instantiate parser (" + DEFAULT_PARSER_NAME + ")");

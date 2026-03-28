@@ -1,5 +1,6 @@
 package odme.jtreetograph;
 
+import odme.core.EditorContext;
 import com.mxgraph.io.mxCodec;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.util.mxUtils;
@@ -13,12 +14,15 @@ import odme.odmeeditor.ODMEEditor;
 import static behaviourtreetograph.JTreeToGraphBehaviour.benhaviourGraph;
 import static odme.jtreetograph.JtreeToGraphVariables.*;
 
+import odme.domain.transform.XmlTransformRules;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 import javax.swing.JFileChooser;
@@ -141,149 +145,42 @@ public class JtreeToGraphGeneral {
     
  // for modifying the generated xml output
     public static void xmlOutputForXSD() {
-        PrintWriter f0 = null;
-        try {
-            String path = new String();
-            if (ODMEEditor.toolMode == "ses")
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/xmlforxsd.xml";
-            else
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/xmlforxsd.xml";
+        XmlTransformRules transformRules = new XmlTransformRules();
 
-            f0 = new PrintWriter(
-                    new FileWriter(path));
-        } 
-        catch (IOException e1) {
-            e1.printStackTrace();
+        // Read input file
+        List<String> inputLines = new ArrayList<>();
+        try {
+            String path = EditorContext.getInstance().getWorkingDir() + "/outputgraphxmlforxsd.xml";
+
+            Scanner in = new Scanner(new File(path));
+            while (in.hasNext()) {
+                inputLines.add(in.nextLine());
+            }
+            in.close();
         }
-
-        Scanner in = null;
-        try {
-            String path = new String();
-            if (ODMEEditor.toolMode == "ses")
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/outputgraphxmlforxsd.xml";
-            else
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/outputgraphxmlforxsd.xml";
-
-            in = new Scanner(new File(path));
-
-        } 
         catch (FileNotFoundException e) {
             e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
 
-        int first = 0;
+        // Apply XSD transformation rules
+        List<String> outputLines = transformRules.applyXsdTransformRules(inputLines);
 
-        while (in.hasNext()) { // Iterates each line in the file
-            String mod = null;
-            String line = in.nextLine();
+        // Write output file
+        try {
+            String path = EditorContext.getInstance().getWorkingDir() + "/xmlforxsd.xml";
 
-            if (line.startsWith("<?")) { // have to solve space problem for this line
-                f0.println("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>");
-
+            PrintWriter f0 = new PrintWriter(new FileWriter(path));
+            for (String line : outputLines) {
+                f0.println(line);
             }
-            else if (line.startsWith("</")) {
-                String result = line.replaceAll("[</>]", "");
-
-                if (result.endsWith("Dec")) {
-                    mod = "</aspect>";
-                }
-                else if (result.endsWith("MAsp")) {
-                    mod = "</multiAspect>";
-                } 
-                else if (result.endsWith("Spec")) {
-                    mod = "</specialization>";
-                } 
-                else {
-                    if (result.endsWith("Seq")) {
-                        continue;
-                    }
-                    mod = "</entity>";
-                }
-                f0.println(mod);
-            } 
-            else if (line.startsWith("<")) {
-                if (line.endsWith("/>")) {
-                    String result = line.replaceAll("[</>]", "");
-
-                    if (result.endsWith("Var")) { // Author : Vadece Kamdem--> modified so that it can print the variable type
-                        String novarresult = result.replace("Var", "");
-                        
-                        String[] properties = novarresult.split(",");
-                        if (properties[1].equals("string") || properties[1].equals("boolean")) {
-
-                            f0.println("<var name=\"" + properties[0] + "\" type=\"" + properties[1]
-                                    + "\" default=\"" + properties[2]
-                                       + "\"> </var>");
-                        }
-                        else {
-
-                            f0.println("<var name=\"" + properties[0] + "\" type=\"" + properties[1]
-                                    + "\" default=\"" + properties[2]
-                                       + "\" lower=\"" + properties[3] + "\" " + "upper=\""
-                                       + properties[4] + "\"> </var>");
-                        }
-
-                    }
-                    else if (result.endsWith("Behaviour")) { // Author : Vadece Kamdem
-                        String novarresult = result.replace("Behaviour", "");
-                        String[] properties = novarresult.split(",");
-                        f0.println("<behaviour name=\"" + properties[0] + "\"> </behaviour>");
-                    }
-                    else if (result.endsWith("RefNode")) {
-                        String noRefNoderesult = result.replace("RefNode", "");
-
-                        if (noRefNoderesult.endsWith("Dec")) {
-                            f0.println("<aspect name=\"" + noRefNoderesult + "\" ref=\"" + noRefNoderesult
-                                       + "\"/>");
-                        }
-                        else if (noRefNoderesult.endsWith("MAsp")) {
-                            f0.println(
-                                    "<multiAspect name=\"" + noRefNoderesult + "\" ref=\"" + noRefNoderesult
-                                    + "\"/>");
-                        } 
-                        else if (noRefNoderesult.endsWith("Spec")) {
-                            f0.println("<specialization name=\"" + noRefNoderesult + "\" ref=\""
-                                       + noRefNoderesult + "\"/>");
-                        }
-                        else {
-                            f0.println("<entity name=\"" + noRefNoderesult + "\" ref=\"" + noRefNoderesult
-                                       + "\"/>");
-                        }
-                    } else {}
-                } 
-                else {
-                    String result = line.replaceAll("[</>]", "");
-
-                    if (result.endsWith("Dec")) {
-                        mod = "<aspect name=\"" + result + "\">";
-                    } 
-                    else if (result.endsWith("MAsp")) {
-                        mod = "<multiAspect name=\"" + result + "\">";
-                    } 
-                    else if (result.endsWith("Spec")) {
-                        mod = "<specialization name=\"" + result + "\">";
-                    } 
-                    else {
-                        if (first == 0) {
-                            mod = "<entity xmlns:vc=\"http://www.w3.org/2007/XMLSchema-versioning\""
-                                  + " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""
-                                  //+ " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema\""
-                                  + " xsi:noNamespaceSchemaLocation=\"ses.xsd\" name=\"" + result + "\">";
-                            first = 1;
-                        }
-                        else {
-                            if (result.endsWith("Seq")) {
-                                continue;
-                            }
-                            mod = "<entity name=\"" + result + "\">";
-                        }
-                    }
-                    f0.println(mod);
-                }
-            }
+            f0.close();
         }
-        in.close();
-        f0.close();
+        catch (IOException e1) {
+            e1.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + e1.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
     
     public static void writeSaveModuleToFileAsXML(Object obj) {
@@ -294,7 +191,7 @@ public class JtreeToGraphGeneral {
         FileNameExtensionFilter xmlfilter = new FileNameExtensionFilter("xml files (*.xml)", "xml");
         fileChooser.setFileFilter(xmlfilter);
         fileChooser.setSelectedFile(new File(fileName));
-        fileChooser.setCurrentDirectory(new File(ODMEEditor.fileLocation + "/" + ODMEEditor.projName));
+        fileChooser.setCurrentDirectory(new File(EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName()));
         int result = fileChooser.showSaveDialog(Main.frame);
         if (result == JFileChooser.APPROVE_OPTION) {
             File selectedFile = fileChooser.getSelectedFile();
@@ -470,33 +367,51 @@ public class JtreeToGraphGeneral {
      */
     public static void openExistingProject(String filename, String oldProjectTreeProjectName) {
         parent = graph.getDefaultParent();
+        EditorContext.getInstance().setNewFileName(filename);
 
-        String path = new String();
-        if (ODMEEditor.toolMode == "ses")
-            path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/"  + filename + "Graph.xml";
-        else
-            path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/"  + filename + "Graph.xml";
-        
-        ssdFileGraph =
-                new File(path);
+        String path = EditorContext.getInstance().getWorkingDir() + "/" + filename + "Graph.xml";
+        File graphFile = new File(path);
 
-        if (ssdFileGraph.exists()) {
-            graph.getModel().beginUpdate();
-            try {
-                Document xml = mxXmlUtils.parseXml(mxUtils.readFile(path));
-                mxCodec codec = new mxCodec(xml);
-                codec.decode(xml.getDocumentElement(), graph.getModel());
-                parent = graph.getDefaultParent();
-
-            } 
-            catch (Exception ex) {
-                ex.printStackTrace();
-            } 
-            finally {
-                graph.getModel().endUpdate();
-            }
-                     
-            ODMEEditor.treePanel.openExistingProject(filename, oldProjectTreeProjectName);
+        if (!graphFile.exists()) {
+            JOptionPane.showMessageDialog(null,
+                    "Graph model not found: " + graphFile.getAbsolutePath(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
         }
+
+        graph.getModel().beginUpdate();
+        try {
+            Object[] existingCells = graph.getChildCells(graph.getDefaultParent(), true, true);
+            if (existingCells != null && existingCells.length > 0) {
+                graph.removeCells(existingCells, true);
+            }
+
+            Document xml = mxXmlUtils.parseXml(mxUtils.readFile(graphFile.getAbsolutePath()));
+            mxCodec codec = new mxCodec(xml);
+            codec.decode(xml.getDocumentElement(), graph.getModel());
+            List<Object> legacyCanvasMarkers = new ArrayList<>();
+            for (Object vertex : graph.getChildVertices(graph.getDefaultParent())) {
+                if (vertex instanceof mxCell cell
+                        && ("hideV".equals(cell.getId()) || "hideH".equals(cell.getId()))) {
+                    legacyCanvasMarkers.add(vertex);
+                }
+            }
+            if (!legacyCanvasMarkers.isEmpty()) {
+                graph.removeCells(legacyCanvasMarkers.toArray());
+            }
+            parent = graph.getDefaultParent();
+
+        }
+        catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        finally {
+            graph.getModel().endUpdate();
+        }
+
+        ODMEEditor.treePanel.openExistingProject(filename, oldProjectTreeProjectName);
     }   
 }

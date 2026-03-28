@@ -1,6 +1,7 @@
 package odme.odmeeditor;
 
 import java.awt.Dimension;
+import odme.core.EditorContext;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -53,12 +54,8 @@ public class XmlUtils {
     public static String xsdToYaml(String fileLocation, String projName, String fileName) {
     	
     	// make the path string
-    	String path = new String();
-    	if (ODMEEditor.toolMode == "ses")
-    		path = fileLocation + "/" + projName + "/"+fileName;
-    	else 
-    		path = fileLocation + "/" + ODMEEditor.currentScenario + "/"+fileName; 
-    	
+    	String path = EditorContext.getInstance().getWorkingDir() + "/"+fileName;
+
         ObjectMapper xmlMapper = new XmlMapper();
         ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
 
@@ -77,6 +74,7 @@ public class XmlUtils {
 	        // System.out.println(yamlString);
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
+            javax.swing.JOptionPane.showMessageDialog(null, "An error occurred: " + ioe.getMessage(), "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
 		}
 		
 		return yamlString;
@@ -89,14 +87,12 @@ public class XmlUtils {
     public static String readFile(String fileLocation, String projName, String fileName) {
     	Scanner in = null;
         try {
-        	String path = new String();
-        	if (ODMEEditor.toolMode == "ses")
-        		path = fileLocation + "/" + projName + "/"+fileName;
-        	else 
-        		path = fileLocation + "/" + ODMEEditor.currentScenario + "/"+fileName; 
+        	String path = EditorContext.getInstance().getWorkingDir() + "/"+fileName;
             in = new Scanner(new File(path));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
+            javax.swing.JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+            return "";
         }
         StringBuilder xmlcontent = new StringBuilder(); // lighter more efficient to use StringBuilder for stream of text
         while (in.hasNext()) {

@@ -5,7 +5,7 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
-import javax.swing.border.EtchedBorder;
+
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.plaf.basic.BasicInternalFrameUI;
@@ -19,10 +19,12 @@ import com.google.common.collect.ArrayListMultimap;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.util.mxUndoManager;
 
-import odeme.behaviour.Behaviour;
+import odme.behaviour.Behaviour;
 import odme.core.EditorUndoableEditListener;
 import odme.core.FileConvertion;
 import odme.jtreetograph.*;
+
+import odme.core.EditorContext;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -50,16 +52,11 @@ public class ODMEEditor extends JPanel {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public static String toolMode = "ses";
-	
+		
     public static String nodeName = "NewNode ";
     public static int openClicked = 0;
     public static String openFileName = "Scenario";
-    public static String nodeAddDetector = "";
-    
-    public static String currentScenario = "InitScenario";
-    public static String projName = "Main";
-    
+            
     
     public static UndoManager undoJtree = new UndoManager();
     public static boolean undoControlForSubTree = false;
@@ -69,6 +66,9 @@ public class ODMEEditor extends JPanel {
     public static DynamicTree treePanel;
     
     public static Constraint scenarioConstraint;
+    public static Distribution scenarioDistribution;
+    public static InterEntityConstraints scenarioInterEntityConstraints;
+    public static IntraEntityConstraint scenarioIntraEntityConstraint;
     public static Behaviour scenarioBehaviour;
     
     public static ProjectTree projectPanel;
@@ -93,7 +93,7 @@ public class ODMEEditor extends JPanel {
     public ODMEEditor() {
         super(new BorderLayout());
 //      -------------------------------------
-        DynamicTree.projectFileName = JtreeToGraphVariables.newFileName;
+        DynamicTree.projectFileName = EditorContext.getInstance().getNewFileName();
         
         //
         tabbedPane =  new JTabbedPane();
@@ -108,17 +108,29 @@ public class ODMEEditor extends JPanel {
 //      -------------------------------------
         scenarioVariable = new Variable();
         scenarioVariable.setPreferredSize(new Dimension(100, 100));
-        scenarioVariable.setBorder(new EtchedBorder());
+        scenarioVariable.setBorder(new EmptyBorder(10, 10, 10, 10));
     
         
 //      -------------------------------------
         scenarioConstraint = new Constraint();
         scenarioConstraint.setPreferredSize(new Dimension(100, 100));
-        scenarioConstraint.setBorder(new EtchedBorder());
+        scenarioConstraint.setBorder(new EmptyBorder(10, 10, 10, 10));
+
+        scenarioDistribution = new Distribution();
+        scenarioDistribution.setPreferredSize(new Dimension(100, 100));
+        scenarioDistribution.setBorder(new EmptyBorder(10, 10, 10, 10));
+
+        scenarioInterEntityConstraints = new InterEntityConstraints();
+        scenarioInterEntityConstraints.setPreferredSize(new Dimension(100, 100));
+        scenarioInterEntityConstraints.setBorder(new EmptyBorder(10, 10, 10, 10));
+
+        scenarioIntraEntityConstraint = new IntraEntityConstraint();
+        scenarioIntraEntityConstraint.setPreferredSize(new Dimension(100, 100));
+        scenarioIntraEntityConstraint.setBorder(new EmptyBorder(10, 10, 10, 10));
 
         scenarioBehaviour = new Behaviour();
         scenarioBehaviour.setPreferredSize(new Dimension(100 , 100));
-        scenarioBehaviour.setBorder(new EtchedBorder());
+        scenarioBehaviour.setBorder(new EmptyBorder(10, 10, 10, 10));
       
 //        -------------------------------------
         // Adding jgraph window in the center
@@ -151,7 +163,8 @@ public class ODMEEditor extends JPanel {
         // add panelSpliter with main window's parts 
         PanelSplitor panelSplitor = new PanelSplitor();
         splitPane = panelSplitor.addSplitor(projectPanel, treePanel, graphWindow,
-        			console, scenarioVariable, scenarioBehaviour,scenarioConstraint, tabbedPane);  
+                console, scenarioVariable, scenarioDistribution, scenarioBehaviour,
+                scenarioInterEntityConstraints, scenarioIntraEntityConstraint, tabbedPane);
        
     }
     
@@ -179,7 +192,7 @@ public class ODMEEditor extends JPanel {
         btnMode.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) { 
-            	if (ODMEEditor.toolMode == "ses") {
+            	if ("ses".equals(EditorContext.getInstance().getToolMode())) {
             		//Save Current
             		ODMEEditor.treePanel.saveTreeModel();
 
@@ -197,14 +210,14 @@ public class ODMEEditor extends JPanel {
                 	JtreeToGraphConvert.graphToXMLWithUniformity();
 
                 	//open Ses
-                	toolMode = "ses";
+                	EditorContext.getInstance().setToolMode("ses");
                 	
                 	File selectedFile = new File(fileLocation);
                 	String fileName = selectedFile.getName();
-                    String oldProjectTreeProjectName = projName;
-                    projName = fileName;
+                    String oldProjectTreeProjectName = EditorContext.getInstance().getProjName();
+                    EditorContext.getInstance().setProjName(fileName);
                     fileLocation = selectedFile.getParentFile().getAbsolutePath();
-                    JtreeToGraphGeneral.openExistingProject(projName, oldProjectTreeProjectName);
+                    JtreeToGraphGeneral.openExistingProject(EditorContext.getInstance().getProjName(), oldProjectTreeProjectName);
                     JtreeToGraphVariables.
                             undoManager = new mxUndoManager();
 
@@ -213,6 +226,9 @@ public class ODMEEditor extends JPanel {
                     Variable.setNullToAllRows();
                     Constraint.setNullToAllRows();
                     Behaviour.setNullToAllRows();
+                    Distribution.setNullToAllRows();
+                    IntraEntityConstraint.setNullToAllRows();
+                    InterEntityConstraints.setNullToAllRows();
                     applyGuiSES();
             	}
             }
@@ -243,7 +259,7 @@ public class ODMEEditor extends JPanel {
 		
 		
 		ToolBar.btnScenario.setVisible(false);
-		ODMEEditor.graphWindow.setTitle(projName);
+		ODMEEditor.graphWindow.setTitle(EditorContext.getInstance().getProjName());
 		
 		JTableHeader th = Variable.table.getTableHeader();
         TableColumnModel tcm = th.getColumnModel();
@@ -255,8 +271,8 @@ public class ODMEEditor extends JPanel {
     private static void switchToPes() {
     	btnMode.setText("Scenario Modelling");
     	statusLabel.setText("Current Mode: Scenario Modelling");
-		ODMEEditor.toolMode = "pes";
-		currentScenario = "InitScenario";
+		EditorContext.getInstance().setToolMode("pes");
+		EditorContext.getInstance().setCurrentScenario("InitScenario");
 		
 		// Change Toollbar
 		for (Map.Entry<String, JButton> entry : ToolBar.btnItems.entrySet()) {
@@ -277,26 +293,23 @@ public class ODMEEditor extends JPanel {
     	}
     	
     	//Save as to create Pes version
-        fileLocation = fileLocation+"/"+projName;
-        JtreeToGraphVariables.newFileName = currentScenario;
-        JtreeToGraphVariables.projectFileNameGraph = currentScenario;
+        fileLocation = fileLocation+"/"+EditorContext.getInstance().getProjName();
+        EditorContext.getInstance().setNewFileName(EditorContext.getInstance().getCurrentScenario());
   
-        JtreeToGraphVariables.ssdFileGraph = new File(String.format("%s/%s/%sGraph.xml",
-    			fileLocation, currentScenario, projName));
         treePanel.ssdFile = new File(String.format("%s/%s/%s.xml",
-        		fileLocation, currentScenario, projName));
+        		fileLocation, EditorContext.getInstance().getCurrentScenario(), EditorContext.getInstance().getProjName()));
         treePanel.ssdFileVar = new File(String.format("%s/%s/%s.ssdvar",
-        		fileLocation, currentScenario, projName));
+        		fileLocation, EditorContext.getInstance().getCurrentScenario(), EditorContext.getInstance().getProjName()));
         treePanel.ssdFileCon = new File(String.format("%s/%s/%s.ssdcon",
-        		fileLocation, currentScenario, projName));
+        		fileLocation, EditorContext.getInstance().getCurrentScenario(), EditorContext.getInstance().getProjName()));
 
         treePanel.ssdFileBeh = new File(String.format("%s/%s/%s.ssdbeh",
-        		fileLocation, currentScenario, projName));
+        		fileLocation, EditorContext.getInstance().getCurrentScenario(), EditorContext.getInstance().getProjName()));
         
         treePanel.ssdFileFlag = new File(String.format("%s/%s/%s.ssdflag",
-        		fileLocation, currentScenario, projName));
+        		fileLocation, EditorContext.getInstance().getCurrentScenario(), EditorContext.getInstance().getProjName()));
 
-        File f = new File(fileLocation + "/" + currentScenario);
+        File f = new File(fileLocation + "/" + EditorContext.getInstance().getCurrentScenario());
         f.mkdirs();
         
         treePanel.saveTreeModel();
@@ -309,8 +322,8 @@ public class ODMEEditor extends JPanel {
         tabbedPane.addTab("XML", XmlUtils.sesview);
         changePruneColor();
         ToolBar.btnScenario.setVisible(true);
-        ODMEEditor.graphWindow.setTitle(currentScenario);
-        nodeAddDetector = "";
+        ODMEEditor.graphWindow.setTitle(EditorContext.getInstance().getCurrentScenario());
+        odme.core.EditorContext.getInstance().setNodeAddDetector("");
         
         JTableHeader th = Variable.table.getTableHeader();
         TableColumnModel tcm = th.getColumnModel();
@@ -367,7 +380,7 @@ public class ODMEEditor extends JPanel {
     }
 
     public static void newProjectFolderCreation() {
-        File f = new File(fileLocation + "/" + projName);
+        File f = new File(fileLocation + "/" + EditorContext.getInstance().getProjName());
         f.mkdirs();
     }
 
@@ -408,7 +421,7 @@ public class ODMEEditor extends JPanel {
         JtreeToGraphConvert.convertTreeToXML();
         JtreeToGraphConvert.graphToXML();
         JtreeToGraphConvert.graphToXMLWithUniformity();
-        ODMEEditor.graphWindow.setTitle( ODMEEditor.currentScenario);
+        ODMEEditor.graphWindow.setTitle( EditorContext.getInstance().getCurrentScenario());
 
         ODMEEditor.saveChanges();
         ODMEEditor.fileConversion.modifyXmlOutputForXSD();
@@ -433,11 +446,15 @@ public class ODMEEditor extends JPanel {
             fw=new FileWriter(getOpenedFile(suggestedPath));
             fw.write(content);
             javax.swing.JOptionPane.showMessageDialog(null,"File Saved Successfully.");
-        }catch(IOException ioe) {ioe.printStackTrace();}
+        }catch(IOException ioe) {ioe.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + ioe.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;}
 
         // handle leakage and canceling
         try { if(fw!=null) fw.close(); }
-        catch(IOException ioe1) { ioe1.printStackTrace(); }
+        catch(IOException ioe1) { ioe1.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + ioe1.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return; }
     }
 
     private void tabbedPaneChange() {
@@ -447,16 +464,16 @@ public class ODMEEditor extends JPanel {
             public void stateChanged(ChangeEvent arg0) {
                 if (tabbedPane.getSelectedIndex() == 0) {
                 	
-                	if (ODMEEditor.toolMode == "ses") {
+                	if ("ses".equals(EditorContext.getInstance().getToolMode())) {
                 		sesview.setTitle("Ontology");
-                		fileConversion.createSES(fileLocation + "/" + projName + "/ses.xsd");
-                		XmlUtils.showViewer(fileLocation, projName, "ses.xsd", XmlUtils.ontologyview);
+                		fileConversion.createSES(fileLocation + "/" + EditorContext.getInstance().getProjName() + "/ses.xsd");
+                		XmlUtils.showViewer(fileLocation, EditorContext.getInstance().getProjName(), "ses.xsd", XmlUtils.ontologyview);
                 	}
                 	else {
                 		sesview.setTitle("XML");
                         saveChanges();
                         
-                    	fileConversion.createSES(fileLocation + "/" + currentScenario + "/ses.xsd");
+                    	fileConversion.createSES(fileLocation + "/" + EditorContext.getInstance().getCurrentScenario() + "/ses.xsd");
                         
                         // have to fix this--------------------------------------
                         fileConversion.modifyXmlOutputForXSD(); // changed the input file to graphxmluniformity
@@ -479,13 +496,13 @@ public class ODMEEditor extends JPanel {
 //                            errorPresentInSES = 0;
 //                        } 
 //                        else {
-                            XmlUtils.showViewer(fileLocation, projName, "xmlforxsd.xml", XmlUtils.sesview);
+                            XmlUtils.showViewer(fileLocation, EditorContext.getInstance().getProjName(), "xmlforxsd.xml", XmlUtils.sesview);
 //                        }
                 	}
                 		
-//                		fileConversion.createSES(fileLocation + "/" + currentScenario + "/ses.xsd");
+//                		fileConversion.createSES(fileLocation + "/" + EditorContext.getInstance().getCurrentScenario() + "/ses.xsd");
 //                    
-//                    XmlUtils.showViewer(fileLocation, projName, "ses.xsd", XmlUtils.ontologyview);
+//                    XmlUtils.showViewer(fileLocation, EditorContext.getInstance().getProjName(), "ses.xsd", XmlUtils.ontologyview);
                 } 
                 else if (tabbedPane.getSelectedIndex() == 1) {
                 	XmlUtils.schemaview.setTitle("Schema"); // SES Ontology / Schema Viewer
@@ -497,7 +514,7 @@ public class ODMEEditor extends JPanel {
                     JtreeToGraphModify.modifyXmlOutputFixForSameNameNode();
                     fileConversion.xmlToXSDConversion();
                     fileConversion.placeAssertInRightPosition();
-                    XmlUtils.showViewer(fileLocation, projName, "xsdfromxml.xsd", XmlUtils.schemaview);
+                    XmlUtils.showViewer(fileLocation, EditorContext.getInstance().getProjName(), "xsdfromxml.xsd", XmlUtils.schemaview);
                 } 
                 else if (tabbedPane.getSelectedIndex() == 2) {
                     

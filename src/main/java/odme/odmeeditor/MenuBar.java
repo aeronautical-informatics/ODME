@@ -4,50 +4,27 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
-import javax.imageio.ImageIO;
+import odme.sampling.GenerateSamplesPanel;
+
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
-
-import odme.module.importFromCameo.FileImporter;
-import odme.module.importFromCameo.ImportFromCameo;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-
-import com.google.common.collect.ArrayListMultimap;
-import com.mxgraph.util.mxCellRenderer;
-import com.mxgraph.util.mxUndoManager;
-import com.mxgraph.util.svg.ParseException;
-
-import odme.jtreetograph.JtreeToGraphConvert;
-import odme.jtreetograph.JtreeToGraphGeneral;
-import odme.jtreetograph.JtreeToGraphModify;
-import odme.jtreetograph.JtreeToGraphSave;
-import odme.jtreetograph.JtreeToGraphVariables;
-
-import static odme.odmeeditor.XmlUtils.sesview;
 
 public class MenuBar {
 	
@@ -107,12 +84,20 @@ public class MenuBar {
 		addMenu("Operation Design Domain", 0, items_operation_design_domain, keyevents_operation_design_domain, keys_operation_design_domain, images_operation_design_domain);
 		
 		// Scenario Manager Menu
-		final String[] items_scenario_manager =  {"Scenarios List", "Execution", "Feedback Loop"};
-		final int[] keyevents_scenario_manager = {0               , 0         ,  0             };
-		final String[] keys_scenario_manager =   {null            , null      ,  null          };
-		final String[] images_scenario_manager = {"list"          ,"executionIcon"      ,"feedbackLoopIcon"          };
-										
+		final String[] items_scenario_manager =  {"Scenarios List", "Execution", "Feedback Loop", "Generate Samples"};
+		final int[] keyevents_scenario_manager = {0               , 0         ,  0             ,  0               };
+		final String[] keys_scenario_manager =   {null            , null      ,  null          ,  null            };
+		final String[] images_scenario_manager = {"list"          ,"executionIcon","feedbackLoopIcon","list"       };
+
 		addMenu("Scenario Manager", 0, items_scenario_manager, keyevents_scenario_manager, keys_scenario_manager, images_scenario_manager);
+
+		// Tools Menu
+		final String[] items_tools =  {"Run Python Plugin..."};
+		final int[] keyevents_tools = {KeyEvent.VK_P};
+		final String[] keys_tools =   {"control shift P"};
+		final String[] images_tools = {"executionIcon"};
+
+		addMenu("Tools", 0, items_tools, keyevents_tools, keys_tools, images_tools);
 		
 		// Help Menu
 		final String[] items_help =  {"Manual"     , "About"   };
@@ -158,70 +143,34 @@ public class MenuBar {
 				}
 			}
 
-			if (items[i]=="Save Scenario" || items[i]=="Scenarios List" || items[i]=="Execution" || items[i]=="Feedback Loop")
+			if ("Save Scenario".equals(items[i]) || "Scenarios List".equals(items[i]) || "Execution".equals(items[i]) || "Feedback Loop".equals(items[i]) || "Generate Samples".equals(items[i]))
 				menuItem.setEnabled(false);
 
-			if (items[i]=="New Project" || items[i]=="Import Template" || items[i]=="Save Scenario" ||
-					items[i]=="Open" || items[i]=="Save as Template" || items[i]=="Scenarios List" ||
-					items[i]=="Execution" || items[i]=="Feedback Loop" || items[i]=="Export XML" ||
-					items[i]=="Export Yaml") {
+			if ("New Project".equals(items[i]) || "Import Template".equals(items[i]) || "Save Scenario".equals(items[i]) ||
+					"Open".equals(items[i]) || "Save as Template".equals(items[i]) || "Scenarios List".equals(items[i]) ||
+					"Execution".equals(items[i]) || "Feedback Loop".equals(items[i]) || "Generate Samples".equals(items[i]) ||
+					"Export XML".equals(items[i]) || "Export Yaml".equals(items[i])) {
 				fileMenuItems.add(menuItem);
+			}
+
+			// Add "Generate Scenario" submenu under "Save Scenario"
+			if ("Save Scenario".equals(items[i])) {
+				JMenu generateScenarioSubMenu = new JMenu("Generate Scenario");
+				JMenuItem csvItem = new JMenuItem("From CSV");
+				csvItem.addActionListener(ev -> openGenerateScenarioWithCsvWindow());
+				generateScenarioSubMenu.add(csvItem);
+				menu.add(generateScenarioSubMenu);
 			}
 
 			menuItem.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					switch (e.getActionCommand()) {
-						case "Save Scenario":
-							saveScenario();
-							break;
-						case "Scenarios List":
-							ScenarioList scenarioList = new ScenarioList();
-							scenarioList.createScenarioListWindow();
-							break;
-						case "Execution":
-							openExecutionWindow();
-							break;
-						case "New Project":
-							newFunc();
-							break;
-						case "Open":
-							openFunc();
-							break;
-						case "Save As":
-							saveAsFunc();
-							break;
-						case "Save as PNG":
-							saveAsPNGFunc();
-							break;
-						case "Import Template":
-							importFunc();
-							break;
-						case "Sync Behaviour":
-							BehaviourList b = new BehaviourList();
-							b.createScenarioListWindow();
-						case "Save as Template":
-							exportFunc();
-							break;
-						case "Import From Cameo":
-							cImportFunc();
-							break;
-						case "Exit":
-							System.exit(1);
-							break;
-						case "Manual":
-							manualFunc();
-							break;
-						case "About":
-							About about = new About();
-							about.aboutGUI();
-							break;
-						case "Generate OD":
-							openODDManager("Generate OD");
-							break;
-						case "ODD Manager":
-							openODDManager("ODD Manager");
-							break;
+					String cmd = e.getActionCommand();
+					if ("Generate Samples".equals(cmd)) {
+						openGenerateSamplesWindow();
+					} else {
+						odme.controller.MenuController menuController = new odme.controller.MenuController(mainFrame);
+						menuController.executeMenuAction(cmd);
 					}
 				}
 			});
@@ -230,304 +179,81 @@ public class MenuBar {
 		menuBar.add(menu);
 	}
 
-
-	private void cImportFunc() {
-		FileImporter fileImporter = new FileImporter();
-		fileImporter.showImportDialog(mainFrame);
+	private void openGenerateSamplesWindow() {
+		JFrame f = new JFrame("Generate Samples");
+		f.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		f.getContentPane().add(new GenerateSamplesPanel());
+		f.pack();
+		f.setMinimumSize(new Dimension(500, 200));
+		f.setLocationRelativeTo(null);
+		f.setVisible(true);
 	}
 
-	/**
-     * @author Roy
-     * #ROY - adding new Functionality to see all the nodes 
-     * */
-    private void openODDManager(String mode) {
-    	ODMEEditor.saveFunc(false); // save the results
-    	ODMEEditor.updateState();
-    	ODDManager nt=new ODDManager(mode);
-    	JFrame jd = new JFrame();
-    	jd.getContentPane().add(nt);
-    	jd.pack();
-    	jd.setVisible(true);
-    	// jd.setLocation(128, 128);
-    	jd.setLocationRelativeTo(null);
-    	// jd.setAlwaysOnTop(true);
-    }
+	public static void openGenerateScenarioWithCsvWindow() {
+		JDialog dialog = new JDialog((java.awt.Frame) null, "Generate Scenario Using CSV File", true);
+		dialog.setLayout(new GridBagLayout());
+		dialog.setSize(520, 200);
+		dialog.setLocationRelativeTo(null);
 
-   
-	
-    
-    @SuppressWarnings("unchecked")
-	private void saveScenario() {
-    	JSONParser jsonParser = new JSONParser();
-        
-        try (FileReader reader = new FileReader(ODMEEditor.fileLocation + "/scenarios.json")){
-            Object obj = null;
-			try {
-				obj = jsonParser.parse(reader);
-			} 
-			catch (org.json.simple.parser.ParseException e) {
-				e.printStackTrace();
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.insets = new Insets(8, 8, 8, 8);
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.weightx = 1;
+
+		JLabel nameLabel = new JLabel("Enter Scenario Name:");
+		JTextField nameField = new JTextField();
+		gbc.gridx = 0; gbc.gridy = 0; dialog.add(nameLabel, gbc);
+		gbc.gridx = 1; gbc.gridy = 0; dialog.add(nameField, gbc);
+
+		JLabel pathLabel = new JLabel("CSV File Path:");
+		JTextField pathField = new JTextField();
+		pathField.setEditable(false);
+		JButton browseButton = new JButton("Browse...");
+		browseButton.addActionListener(e -> {
+			JFileChooser fc = new JFileChooser(ODMEEditor.fileLocation);
+			fc.setFileFilter(new FileNameExtensionFilter("CSV files (*.csv)", "csv"));
+			fc.setAcceptAllFileFilterUsed(false);
+			fc.setDialogTitle("Select CSV File");
+			if (fc.showOpenDialog(dialog) == JFileChooser.APPROVE_OPTION) {
+				pathField.setText(fc.getSelectedFile().getAbsolutePath());
 			}
-			
-            JSONArray data = (JSONArray) obj;
-            
-        	JTextField nameField = new JTextField();
-        	nameField.setText("Scenario" + Integer.toString(data.size()+1));
+		});
+		gbc.gridx = 0; gbc.gridy = 1; dialog.add(pathLabel, gbc);
+		gbc.gridx = 1; gbc.gridy = 1; dialog.add(pathField, gbc);
+		gbc.gridx = 2; gbc.gridy = 1; gbc.weightx = 0; dialog.add(browseButton, gbc);
 
-        	Object[] message = {"Scenario Name:", nameField};
+		JButton okButton = new JButton("OK");
+		JButton cancelButton = new JButton("Cancel");
+		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		buttonPanel.add(okButton);
+		buttonPanel.add(cancelButton);
+		gbc.gridx = 0; gbc.gridy = 2; gbc.gridwidth = 3; gbc.weightx = 1;
+		dialog.add(buttonPanel, gbc);
 
-        	int option = JOptionPane
-        			.showConfirmDialog(Main.frame, message, "Create Scenario", JOptionPane.OK_CANCEL_OPTION,
-        			JOptionPane.PLAIN_MESSAGE);
-        	
-        	if (option == JOptionPane.OK_OPTION) {
-            	createScenario(nameField.getText());
-            	
-        		JSONObject jo = new JSONObject();
-        		jo.put("name", nameField.getText());
-        		jo.put("risk", "");
-        		jo.put("remarks", "");
-				
-				JSONObject jom = new JSONObject();
-				jom.put("scenario", jo);
-				data.add(jom);
-        	}
-        	
-        	else
-        		return;
-        	
-        	try {
-		         FileWriter file = new FileWriter(ODMEEditor.fileLocation + "/scenarios.json");
-		         file.write(data.toJSONString());
-		         file.close();
-		         ODMEEditor.graphWindow.setTitle(nameField.getText());
-		      }
-        	catch (IOException e) {
-		         e.printStackTrace();
-		      }
+		okButton.addActionListener(e -> {
+			String scenarioName = nameField.getText().trim();
+			String csvPath = pathField.getText().trim();
+			if (scenarioName.isEmpty()) {
+				JOptionPane.showMessageDialog(dialog, "Please enter a scenario name.", "Missing Name", JOptionPane.WARNING_MESSAGE);
+				return;
+			}
+			if (csvPath.isEmpty()) {
+				JOptionPane.showMessageDialog(dialog, "Please select a CSV file.", "Missing File", JOptionPane.WARNING_MESSAGE);
+				return;
+			}
+			BackgroundTaskRunner.run(dialog,
+					"Generate Scenarios",
+					"Generating scenario files from CSV...",
+					() -> ScenarioGeneration.generateScenarios(csvPath, scenarioName),
+					result -> {
+						JOptionPane.showMessageDialog(dialog, result, "Done", JOptionPane.INFORMATION_MESSAGE);
+						dialog.dispose();
+					},
+					error -> JOptionPane.showMessageDialog(dialog,
+							"Failed:\n" + error.getMessage(), "Error", JOptionPane.ERROR_MESSAGE));
+		});
 
-        } 
-        catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } 
-        catch (IOException e) {
-            e.printStackTrace();
-        } 
-        catch (ParseException e) {
-            e.printStackTrace();
-        } 
-    }
-    
-    private void createScenario(String ScenarioName) {
-        ODMEEditor.currentScenario = ScenarioName;
-        
-        JtreeToGraphVariables.ssdFileGraph = new File(String.format("%s/%s/%sGraph.xml",
-    			 ODMEEditor.fileLocation, ScenarioName, ODMEEditor.projName));
-    	 ODMEEditor.treePanel.ssdFile = new File(String.format("%s/%s/%s.xml",
-    			 ODMEEditor.fileLocation,  ScenarioName, ODMEEditor.projName));
-    	 ODMEEditor.treePanel.ssdFileVar = new File(String.format("%s/%s/%s.ssdvar",
-    			 ODMEEditor.fileLocation,  ScenarioName, ODMEEditor.projName));
-    	 ODMEEditor.treePanel.ssdFileCon = new File(String.format("%s/%s/%s.ssdcon",
-    			 ODMEEditor.fileLocation,  ScenarioName, ODMEEditor.projName));
-    	 ODMEEditor.treePanel.ssdFileFlag = new File(String.format("%s/%s/%s.ssdflag",
-    			 ODMEEditor.fileLocation,  ScenarioName, ODMEEditor.projName));
-
-		ODMEEditor.treePanel.ssdFileBeh = new File(String.format("%s/%s/%s.ssdbeh",
-				ODMEEditor.fileLocation,  ScenarioName, ODMEEditor.projName));
-
-        File f = new File(ODMEEditor.fileLocation + "/" +  ScenarioName);
-        f.mkdirs();
-        
-        ODMEEditor.updateState();
-        ODMEEditor.changePruneColor();
-    }
-    
-    private void newFunc() {
-    	DynamicTree.varMap = ArrayListMultimap.create();
-    	NewProject newProject = new NewProject();
-	  	newProject.createNewProjectWindow();
-	  	// resetting undoManager so that it will remove its indexes from previous projects
-	  	JtreeToGraphVariables.undoManager = new mxUndoManager();
-    }
-    
-    private void openFunc() {
-    	// filechooser
-    	//DynamicTree.varMap = ArrayListMultimap.create();
-    	//JtreeToGraphVariables.variableList = new String[100];
-    	
-    	
-        JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        fileChooser.setAcceptAllFileFilterUsed(false);
-        fileChooser.setCurrentDirectory(
-                new File(ODMEEditor.repFslas)); // this is ok because normally all the file will be
-        // in default location. so don't need to add fileLocation
-
-        int result = fileChooser.showOpenDialog(Main.frame);
-
-        if (result == JFileChooser.APPROVE_OPTION) {
-            File selectedFile = fileChooser.getSelectedFile();
-            String fileName = selectedFile.getName();
-            System.out.println("Selected file: " + selectedFile.getName());
-
-            String oldProjectTreeProjectName = ODMEEditor.projName;
-            ODMEEditor.projName = fileName;
-            ODMEEditor.fileLocation = selectedFile.getParentFile().getAbsolutePath();
-            JtreeToGraphGeneral.openExistingProject(fileName, oldProjectTreeProjectName);
-
-            JtreeToGraphVariables.undoManager = new mxUndoManager();
-            sesview.textArea.setText("");
-            Console.consoleText.setText(">>");
-            Variable.setNullToAllRows();
-            Constraint.setNullToAllRows();
-            
-            if (ODMEEditor.toolMode == "pes")
-            	ODMEEditor.applyGuiSES();
-        }
-    }
-    
-    private void saveAsFunc() {
-    	JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setCurrentDirectory(new File(ODMEEditor.fileLocation));
-        int result = fileChooser.showSaveDialog(Main.frame);
-        if (result == JFileChooser.APPROVE_OPTION) {
-            File selectedFile = fileChooser.getSelectedFile();
-            
-            ODMEEditor.fileLocation = selectedFile.getParentFile().getAbsolutePath();
-
-            String newProjectName = selectedFile.getName();
-            String oldProjectTreeProjectName = ODMEEditor.projName;
-
-            ODMEEditor.projName = newProjectName;
-            JtreeToGraphVariables.newFileName = newProjectName;
-            JtreeToGraphVariables.projectFileNameGraph = newProjectName;
-
-            JtreeToGraphVariables.ssdFileGraph = new File(String.format("%s/%s/%sGraph.xml",
-            		ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
-            ODMEEditor.treePanel.ssdFile = new File(String.format("%s/%s/%s.xml",
-            		ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
-            ODMEEditor.treePanel.ssdFileVar = new File(String.format("%s/%s/%s.ssdvar",
-            		ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
-            ODMEEditor.treePanel.ssdFileCon = new File(String.format("%s/%s/%s.ssdcon",
-            		ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
-            ODMEEditor.treePanel.ssdFileFlag = new File(String.format("%s/%s/%s.ssdflag",
-            		ODMEEditor.fileLocation, ODMEEditor.projName, newProjectName));
-
-            ProjectTree.projectName = newProjectName;
-            ODMEEditor.projectPanel.changeCurrentProjectFileName(newProjectName, oldProjectTreeProjectName);
-
-            ODMEEditor.newProjectFolderCreation();
-            ODMEEditor.treePanel.saveTreeModel();
-            JtreeToGraphSave.saveGraph();
-
-            // also it will convert after saving from here
-            // this code is also present in convert to xml button click action.
-            JtreeToGraphConvert.convertTreeToXML(); // this function is using for converting project tree into xml file
-            JtreeToGraphConvert.graphToXML();
-            JtreeToGraphConvert.graphToXMLWithUniformity();
-            JOptionPane.showMessageDialog(Main.frame, "Saved Successfully.", "Save",
-                    JOptionPane.INFORMATION_MESSAGE);
-        }
-    }
-    
-    private void saveAsPNGFunc() {
-    	// remove border nodes
-    	JtreeToGraphVariables.graph.getModel().beginUpdate();
-    	Object position = JtreeToGraphVariables.graphComponent.getCellAt(0, 50000);
-    	JtreeToGraphVariables.graph.removeCells(new Object[]{position});
-		position = JtreeToGraphVariables.graphComponent.getCellAt(50000, 0);
-		JtreeToGraphVariables.graph.removeCells(new Object[]{position});
-		JtreeToGraphVariables.graph.getModel().endUpdate();
-
-        // saving drawn graph as a png
-    	try{
-    		BufferedImage image = mxCellRenderer.createBufferedImage(JtreeToGraphVariables.graph, null, 1, Color.WHITE, true, null);
-    		String path = new String();
-        	if (ODMEEditor.toolMode == "ses")
-        		path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName  + "/graph.png";
-        	else
-        		path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/graph.png";
-        		
-            ImageIO.write(image, "PNG", new File(path));
-            JOptionPane.showMessageDialog(Main.frame, "Saved Successfully.", "Save PNG",
-                    JOptionPane.INFORMATION_MESSAGE);
-        } 
-    	catch (Exception e) {
-            System.out.println("Error:" + e);
-            JOptionPane.showMessageDialog(Main.frame, "Error:" + e, "Error",
-                    JOptionPane.ERROR_MESSAGE);
-        }
-    	
-    	// add border nodes again
-    	JtreeToGraphVariables.graph.getModel().beginUpdate();
-    	JtreeToGraphVariables.graph.insertVertex(JtreeToGraphVariables.parent, "hideV", "End of Canvas", 0, 50000, 80, 30, "Entity");
-    	JtreeToGraphVariables.graph.insertVertex(JtreeToGraphVariables.parent, "hideH", "End of Canvas", 50000, 0, 80, 30, "Entity");
-    	JtreeToGraphVariables.graph.getModel().endUpdate();	
-    }
-
-    private void importFunc() {
-    	ImportProject impProj = new ImportProject();
-        impProj.importProject();
-    }
-
-    private void exportFunc() {
-    	ToolBar.validation();
-        String fileName = ODMEEditor.projName; // don't know why not fetching the file name here
-        JFileChooser fileChooser = new JFileChooser();
-        FileNameExtensionFilter xmlfilter = new FileNameExtensionFilter("xml files (*.xml)", "xml");
-        fileChooser.setFileFilter(xmlfilter);
-        fileChooser.setSelectedFile(new File(fileName)); // not working because filename is null
-        fileChooser.setCurrentDirectory(new File(ODMEEditor.fileLocation + "/" + ODMEEditor.projName));
-        int result = fileChooser.showSaveDialog(Main.frame);
-        if (result == JFileChooser.APPROVE_OPTION) {
-            File selectedFile = fileChooser.getSelectedFile();
-            System.out.println("Exported file path: " + selectedFile.getAbsolutePath());
-            PrintWriter f0 = null;
-            try {
-                f0 = new PrintWriter(new FileWriter(
-                        selectedFile.getAbsolutePath() + ".xml"));
-            }
-            catch (IOException e1) {
-                e1.printStackTrace();
-            }
-            Scanner in = null;
-            try {
-                in = new Scanner(new File(
-                        ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/xmlforxsd.xml"));
-            } catch (FileNotFoundException e2) {
-                e2.printStackTrace();
-            }
-            while (in.hasNext()) { // Iterates each line in the file
-                String line = in.nextLine();
-                f0.println(line);
-            }
-            in.close();
-            f0.close();
-        }
-    }
-
-    private void manualFunc() {
-    	File pdfTemp = null;
-        if (Desktop.isDesktopSupported()) {
-            try {
-            	java.net.URL resource = ODMEEditor.class.getClassLoader().getResource("docs/manual.pdf");
-            	
-            	try {
-					pdfTemp = new File(resource.toURI());
-				} catch (URISyntaxException e) {
-					e.printStackTrace();
-				}
-                // Open the PDF
-                Desktop.getDesktop().open(pdfTemp);
-            }
-            catch (IOException e1) {
-                System.out.println("erreur : " + e1);
-            }
-        }
-    }
-
-	private void openExecutionWindow() {
-		Execution executionWindow = new Execution();
-		executionWindow.setVisible(true);
+		cancelButton.addActionListener(e -> dialog.dispose());
+		dialog.setVisible(true);
 	}
 }

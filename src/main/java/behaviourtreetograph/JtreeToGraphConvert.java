@@ -1,7 +1,9 @@
 package behaviourtreetograph;
 
+import odme.core.EditorContext;
+import javax.swing.JOptionPane;
 import com.mxgraph.model.mxCell;
-import odeme.behaviour.ODMEBehaviourEditor;
+import odme.behaviour.ODMEBehaviourEditor;
 import odme.core.FileConvertion;
 
 import odme.odmeeditor.DynamicTree;
@@ -25,10 +27,10 @@ import java.util.logging.Logger;
 
 //import static behaviourtreetograph.JtreeToGraphModify.modifiyBehaviourXML;
 import static behaviourtreetograph.JTreeToGraphBehaviour.benhaviourGraph;
-import static odeme.behaviour.BehaviourToTree.selectedScenario;
+import static odme.behaviour.BehaviourToTree.selectedScenario;
 //import static odme.jtreetograph.JtreeToGraphGeneral.childNodes;
 import static odme.jtreetograph.JtreeToGraphVariables.*;
-import static odme.odmeeditor.ODMEEditor.fileLocation;
+
 
 public class JtreeToGraphConvert {
 
@@ -302,7 +304,7 @@ public class JtreeToGraphConvert {
         try {
             String path = new String();
 
-            path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName +  "/" + selectedScenario   + "/behaviourxml.xml";
+            path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() +  "/" + selectedScenario   + "/behaviourxml.xml";
 
             JtreeToGraphSave.saveToXMLFile(calendarDOMDoc, path);
         }
@@ -321,13 +323,15 @@ public class JtreeToGraphConvert {
             try {
                 String path = new String();
 
-                path = fileLocation + "/" + ODMEEditor.projName +  "/" +selectedScenario+ "/MergedXMLforxsd.xml";
+                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() +  "/" +selectedScenario+ "/MergedXMLforxsd.xml";
 
                 f0 = new PrintWriter(new FileWriter(path));
             }
 
             catch (IOException e1) {
                 e1.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + e1.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
             }
 
             Scanner in = null;
@@ -337,8 +341,8 @@ public class JtreeToGraphConvert {
                 String path = new String();
                 String secondFile = new String();
 
-                path = fileLocation +"/" + ODMEEditor.projName +  "/" +selectedScenario+"/xmlforxsd.xml";
-                secondFile = fileLocation +"/" + ODMEEditor.projName +  "/" +selectedScenario+"/OutputBehaviourxml.xml";
+                path = EditorContext.getInstance().getFileLocation() +"/" + EditorContext.getInstance().getProjName() +  "/" +selectedScenario+"/xmlforxsd.xml";
+                secondFile = EditorContext.getInstance().getFileLocation() +"/" + EditorContext.getInstance().getProjName() +  "/" +selectedScenario+"/OutputBehaviourxml.xml";
 
                 File file = new File (path);
                 File f = new File(secondFile);
@@ -370,8 +374,12 @@ public class JtreeToGraphConvert {
                 f0.close();
             }catch (FileNotFoundException e) {
                 e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
             } catch (IOException e) {
                 e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
             }
     }
 

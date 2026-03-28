@@ -1,8 +1,9 @@
 package odme.jtreetograph;
 
+import odme.core.EditorContext;
 import com.mxgraph.model.mxCell;
 
-import odeme.behaviour.ODMEBehaviourEditor;
+import odme.behaviour.ODMEBehaviourEditor;
 import odme.core.FileConvertion;
 import odme.odmeeditor.DynamicTree;
 import odme.odmeeditor.ODMEEditor;
@@ -10,7 +11,7 @@ import odme.odmeeditor.ODMEEditor;
 import static behaviourtreetograph.JTreeToGraphBehaviour.benhaviourGraph;
 import static odme.jtreetograph.JtreeToGraphGeneral.childNodes;
 import static odme.jtreetograph.JtreeToGraphVariables.*;
-import static odeme.behaviour.BehaviourToTree.selectedScenario;
+import static odme.behaviour.BehaviourToTree.selectedScenario;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -93,58 +94,19 @@ public class JtreeToGraphConvert {
             }
 
             String[] stringArrayRev = pathToRootRev.toArray(new String[0]);
-            TreePath treePathForVariable = JtreeToGraphGeneral.getTreeNodePath(stringArrayRev);
-            
-            DefaultMutableTreeNode currentNode =
-                    (DefaultMutableTreeNode) (treePathForVariable.getLastPathComponent());
-
-            // -------------------------------------------------------
-            TreeNode[] nodes = currentNode.getPath();
-
-            String[] nodesToSelectedNode = new String[100];
-            String variables = "";
-            int b = 0;
-
-            for (TreePath key : DynamicTree.varMap.keySet()) {
-                int a = 0;
-
-                for (String value : DynamicTree.varMap.get(key)) {
-
-                    DefaultMutableTreeNode currentNode2 =
-                            (DefaultMutableTreeNode) (key.getLastPathComponent());
-
-                    TreeNode[] nodes2 = currentNode2.getPath();
-
-                    if (nodes.length == nodes2.length) {
-                        int aa = 1;
-                        for (int i = 0; i < nodes.length; i++) {
-                            if (!nodes[i].toString().equals(nodes2[i].toString())) {
-                                aa = 0;
-                                break;
-                            } 
-                        }
-                        a = aa;
-                    }
-
-                    if (a == 1) {
-                        nodesToSelectedNode[b] = value;
-                        b++;
-                    }
-                }
+            String[] nodeVariables = DynamicTree.getMetadataValues(DynamicTree.varMap, stringArrayRev);
+            if (nodeVariables.length == 0) {
+                pathToRoot.clear();
+                return;
             }
 
-            // java 8 way null removal
-            nodesToSelectedNode =
-                    Arrays.stream(nodesToSelectedNode).filter(s -> (s != null && s.length() > 0))
-                            .toArray(String[]::new);
-
-            for (String value : nodesToSelectedNode) {
-                variables = variables + "<" + value + "Var/>" + "\n";
+            StringBuilder variables = new StringBuilder();
+            for (String value : nodeVariables) {
+                variables.append("<").append(value).append("Var/>").append("\n");
             }
 
-            // treePathForVariable
             FileConvertion fileConversion = new FileConvertion();
-            fileConversion.variableAdditionToNode(treePathForVariable, variables);
+            fileConversion.variableAdditionToNode(new TreePath(stringArrayRev), variables.toString());
 
             pathToRoot.clear();
         }
@@ -163,58 +125,19 @@ public class JtreeToGraphConvert {
             }
 
             String[] stringArrayRev = pathToRootRev.toArray(new String[0]);
-            TreePath treePathForVariable = JtreeToGraphGeneral.getTreeNodePath(stringArrayRev);
-
-            DefaultMutableTreeNode currentNode =
-                    (DefaultMutableTreeNode) (treePathForVariable.getLastPathComponent());
-
-            // -------------------------------------------------------
-            TreeNode[] nodes = currentNode.getPath();
-
-            String[] nodesToSelectedNode = new String[100];
-            String variables = "";
-            int b = 0;
-
-            for (TreePath key : DynamicTree.behavioursList.keySet()) {
-                int a = 0;
-
-                for (String value : DynamicTree.behavioursList.get(key)) {
-
-                    DefaultMutableTreeNode currentNode2 =
-                            (DefaultMutableTreeNode) (key.getLastPathComponent());
-
-                    TreeNode[] nodes2 = currentNode2.getPath();
-
-                    if (nodes.length == nodes2.length) {
-                        int aa = 1;
-                        for (int i = 0; i < nodes.length; i++) {
-                            if (!nodes[i].toString().equals(nodes2[i].toString())) {
-                                aa = 0;
-                                break;
-                            }
-                        }
-                        a = aa;
-                    }
-
-                    if (a == 1) {
-                        nodesToSelectedNode[b] = value;
-                        b++;
-                    }
-                }
+            String[] nodeBehaviours = DynamicTree.getMetadataValues(DynamicTree.behavioursList, stringArrayRev);
+            if (nodeBehaviours.length == 0) {
+                pathToRoot.clear();
+                return;
             }
 
-            // java 8 way null removal
-            nodesToSelectedNode =
-                    Arrays.stream(nodesToSelectedNode).filter(s -> (s != null && s.length() > 0))
-                            .toArray(String[]::new);
-
-            for (String value : nodesToSelectedNode) {
-                variables = variables + "<" + value + "Behaviour/>" + "\n";
+            StringBuilder variables = new StringBuilder();
+            for (String value : nodeBehaviours) {
+                variables.append("<").append(value).append("Behaviour/>").append("\n");
             }
 
-            // treePathForVariable
             FileConvertion fileConversion = new FileConvertion();
-            fileConversion.behaviourAdditionToNode(treePathForVariable, variables);
+            fileConversion.behaviourAdditionToNode(new TreePath(stringArrayRev), variables.toString());
 
             pathToRoot.clear();
         }
@@ -236,61 +159,20 @@ public class JtreeToGraphConvert {
             }
 
             String[] stringArrayRev = pathToRootRev.toArray(new String[0]);
-
-            TreePath treePathForVariable = JtreeToGraphGeneral.getTreeNodePath(stringArrayRev);
-            DefaultMutableTreeNode currentNode =
-                    (DefaultMutableTreeNode) (treePathForVariable.getLastPathComponent());
-
-            // -------------------------------------------------------
-            TreeNode[] nodes = currentNode.getPath();
-
-            String[] nodesToSelectedNode = new String[100];
-
-            String variables = "";
-            int b = 0;
-
-            for (TreePath key : DynamicTree.constraintsList.keySet()) {
-                int a = 0;
-
-                for (String value : DynamicTree.constraintsList.get(key)) {
-                    DefaultMutableTreeNode currentNode2 =
-                            (DefaultMutableTreeNode) (key.getLastPathComponent());
-
-                    TreeNode[] nodes2 = currentNode2.getPath();
-
-                    if (nodes.length == nodes2.length) {
-                        int aa = 1;
-                        for (int i = 0; i < nodes.length; i++) {
-                            if (!nodes[i].toString().equals(nodes2[i].toString())) {
-                                aa = 0;
-                                break;
-                            } 
-                        }
-                        a = aa;
-                    }
-
-                    if (a == 1) {
-                        nodesToSelectedNode[b] = value;
-                        b++;
-                    }
-                }
+            String[] nodeConstraints = DynamicTree.getMetadataValues(DynamicTree.constraintsList, stringArrayRev);
+            if (nodeConstraints.length == 0) {
+                pathToRoot.clear();
+                return;
             }
 
-            // java 8 way null removal
-            nodesToSelectedNode =
-                    Arrays.stream(nodesToSelectedNode).filter(s -> (s != null && s.length() > 0))
-                            .toArray(String[]::new);
-
-            for (String value : nodesToSelectedNode) {
-                variables = variables + "<" + value + "Con/>" + "\n";
+            StringBuilder variables = new StringBuilder();
+            for (String value : nodeConstraints) {
+                variables.append("<").append(value).append("Con/>").append("\n");
             }
 
-            // treePathForVariable
-            if (variables.length() > 8) {
+            if (variables.length() > 0) {
                 FileConvertion fileConversion = new FileConvertion();
-                fileConversion.constraintAdditionToNode(selectedNode,
-                        variables); // sending treePath is correct way, the
-                // above one. have to check.
+                fileConversion.constraintAdditionToNode(new TreePath(stringArrayRev), variables.toString());
             }
             pathToRoot.clear();
         }
@@ -409,11 +291,7 @@ public class JtreeToGraphConvert {
         calendarDOMDoc.getDocumentElement().appendChild(childNodes(calendarDOMDoc, rootcell));
 
         try {
-            String path = new String();
-            if (ODMEEditor.toolMode == "ses")
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/graphxml.xml";
-            else
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/graphxml.xml";
+            String path = EditorContext.getInstance().getWorkingDir() + "/graphxml.xml";
 
             JtreeToGraphSave.saveToXMLFile(calendarDOMDoc, path);
         } 
@@ -465,7 +343,7 @@ public class JtreeToGraphConvert {
         try {
             String path = new String();
 
-            path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName +  "/" + selectedScenario   + "/behaviourxml.xml";
+            path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() +  "/" + selectedScenario   + "/behaviourxml.xml";
 
             JtreeToGraphSave.saveToXMLFile(calendarDOMDoc, path);
         }
@@ -511,11 +389,7 @@ public class JtreeToGraphConvert {
         calendarDOMDoc.getDocumentElement().appendChild(JtreeToGraphGeneral.childNodesWithUniformity(calendarDOMDoc, rootcell));
 
         try {
-            String path = new String();
-            if (ODMEEditor.toolMode == "ses")
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/graphxmluniformity.xml";
-            else
-                path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/graphxmluniformity.xml";
+            String path = EditorContext.getInstance().getWorkingDir() + "/graphxmluniformity.xml";
             JtreeToGraphSave.saveToXMLFile(calendarDOMDoc, path);
         } 
         catch (TransformerException ex) {
@@ -543,49 +417,13 @@ public class JtreeToGraphConvert {
         }
         calendarDOMDoc.getDocumentElement().appendChild(JtreeToGraphSave.saveAllTreeNodes(calendarDOMDoc, thisTreeNode));
         try {
-            if (ODMEEditor.toolMode == "ses")
-                JtreeToGraphSave.saveToXMLFile(calendarDOMDoc, ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/projectTree.xml");
-            else
-                JtreeToGraphSave.saveToXMLFile(calendarDOMDoc, ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario + "/projectTree.xml");
+            JtreeToGraphSave.saveToXMLFile(calendarDOMDoc, EditorContext.getInstance().getWorkingDir() + "/projectTree.xml");
 
         } 
         catch (TransformerException ex) {
             Logger.getLogger(ODMEEditor.class.getName()).log(Level.SEVERE, null, ex);
         }
         JtreeToGraphModify.modifyXmlOutputSES();
-    }
-
-    public static void convertBehaviourTreeToXML() {
-//        TreeNode thisTreeNode = (TreeNode) ODMEEditor.projectPanel.projectTree.getModel().getRoot();
-
-        TreeNode thisTreeNode = (TreeNode) ODMEBehaviourEditor.treePanel.tree.getModel().getRoot();
-        System.out.println("Tree node from behaviour tree = " + thisTreeNode.toString());
-/*
-        Document calendarDOMDoc = null;
-        try {
-            DOMImplementation domImpl =
-                    DocumentBuilderFactory.newInstance().newDocumentBuilder().getDOMImplementation();
-            calendarDOMDoc = domImpl.createDocument(null, "start", null);
-        }
-        catch (ParserConfigurationException e1) {
-            e1.printStackTrace(System.err);
-        }
-        catch (DOMException e2) {
-            e2.printStackTrace(System.err);
-        }
-        calendarDOMDoc.getDocumentElement().appendChild(JtreeToGraphSave.saveAllTreeNodes(calendarDOMDoc, thisTreeNode));
-        try {
-            if (ODMEEditor.toolMode == "ses")
-                JtreeToGraphSave.saveToXMLFile(calendarDOMDoc, ODMEEditor.fileLocation + "/"+ ODMEEditor.projName +"/"+ selectedScenario + "/Tree.xml");
-            else
-                JtreeToGraphSave.saveToXMLFile(calendarDOMDoc, ODMEEditor.fileLocation + "/"+ ODMEEditor.projName +"/"+ selectedScenario + "/Tree.xml");
-
-        }
-        catch (TransformerException ex) {
-            Logger.getLogger(ODMEEditor.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        JtreeToGraphModify.modifyXmlOutputSES();
-        */
     }
 
 }

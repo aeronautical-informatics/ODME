@@ -6,56 +6,72 @@ import static odme.odmeeditor.XmlUtils.sesview;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.GridLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.*;
 import javax.swing.border.EtchedBorder;
+import javax.swing.event.ChangeListener;
 import javax.swing.table.DefaultTableModel;
 
-import odeme.behaviour.Behaviour;
+import odme.behaviour.Behaviour;
+import odme.core.EditorContext;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.mxgraph.util.mxUndoManager;
-import com.mxgraph.util.svg.ParseException;
 
 import odme.jtreetograph.JtreeToGraphGeneral;
-import structuretest.BehaviourCoverageTest;
-import structuretest.MultiAspectNodeTest;
-import structuretest.ParamterCoverage;
-import structuretest.SpecialisationNodeTest;
 
 
 public class ScenarioList extends JPanel {
 
 	private static final long serialVersionUID = 1L;
+    private static ScenarioList activeScenarioList;
 	private JTable table;
 	private DefaultTableModel model;
+    private JFrame frame;
+    private SwingWorker<Void, Void> artifactSyncWorker;
 
     public void createScenarioListWindow() {
+        if (activeScenarioList != null
+                && activeScenarioList.frame != null
+                && activeScenarioList.frame.isDisplayable()) {
+            activeScenarioList.reloadTableData(false);
+            activeScenarioList.focusScenarioListWindow();
+            return;
+        }
 
-		// inside createScenarioListWindow()
 		JToolBar toolBar = new JToolBar();
 		toolBar.setFloatable(false);
 
-    	List<String[]> dataList = getJsonData();
+		JButton automaticScenarioGenerationBtn = new JButton("Automatic Scenario Generation");
+		automaticScenarioGenerationBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				performAutomaticScenarioGeneration();
+			}
+		});
 
-
-		JButton structuralCoverageBtn = new JButton("Structural Coverage");
+		JButton structuralCoverageBtn = new JButton("Estimate Coverage");
 		structuralCoverageBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -63,76 +79,86 @@ public class ScenarioList extends JPanel {
 			}
 		});
 
+		JButton deleteSelectedBtn = new JButton("Delete Selected");
+		deleteSelectedBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				deleteSelectedScenarios();
+			}
+		});
+
+		JButton deleteGeneratedBtn = new JButton("Delete Generated");
+		deleteGeneratedBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				deleteGeneratedScenarios();
+			}
+		});
+
+		JButton refreshBtn = new JButton("Refresh Scenario List");
+		refreshBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				reloadTableData(true);
+			}
+		});
+
+		toolBar.add(automaticScenarioGenerationBtn);
+		toolBar.addSeparator();
+		toolBar.add(deleteSelectedBtn);
+		toolBar.addSeparator();
+		toolBar.add(deleteGeneratedBtn);
+		toolBar.addSeparator();
+		toolBar.add(refreshBtn);
+		toolBar.addSeparator();
 		toolBar.add(structuralCoverageBtn);
     	
     	model = new DefaultTableModel(new String[]{"Name", "Risk", "Remarks"}, 0);
-    	for (String[] arr: dataList)
-    		model.addRow(arr);
 
         table = new JTable(model);
         table.setShowVerticalLines(true);
         table.setDefaultEditor(Object.class, null);
-        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         
         table.setAutoCreateRowSorter(true);
+        reloadTableData(false);
         
         final JPopupMenu popupMenu = new JPopupMenu();
         JMenuItem openItem = new JMenuItem("Open");
-        JMenuItem deleteItem = new JMenuItem("Delete");
+        JMenuItem deleteSelectedItem = new JMenuItem("Delete Selected");
+        JMenuItem deleteGeneratedItem = new JMenuItem("Delete Generated");
+        JMenuItem refreshItem = new JMenuItem("Refresh");
         
         openItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-            	try {
-
-            		DynamicTree.varMap = ArrayListMultimap.create();
-
-            		int row = table.getSelectedRow();
-            		String fileName = (String) table.getModel().getValueAt(row, 0);
-
-            		System.out.println("Selected file: " + fileName);
-            		ODMEEditor.currentScenario = fileName;
-
-            		nodeNumber = 1;
-            		JtreeToGraphGeneral.openExistingProject(ODMEEditor.projName, ODMEEditor.projName);
-
-            		undoManager = new mxUndoManager();
-
-            		sesview.textArea.setText("");
-            		Console.consoleText.setText(">>");
-            		Variable.setNullToAllRows();
-            		Constraint.setNullToAllRows();
-            		Behaviour.setNullToAllRows();
-
-            		ODMEEditor.graphWindow.setTitle(fileName);
-            		ODMEEditor.changePruneColor();
-            	}
-            	catch (Exception ex){
-            	}
+            	openSelectedScenario();
             }
         });
         
         popupMenu.add(openItem);
-        popupMenu.add(deleteItem);
+        popupMenu.add(deleteSelectedItem);
+        popupMenu.add(deleteGeneratedItem);
+        popupMenu.add(refreshItem);
         
-        deleteItem.addActionListener(new ActionListener() {
+        deleteSelectedItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-            	int row = table.getSelectedRow();
-            	String fileName = (String) table.getModel().getValueAt(row, 0);
-            	if (fileName.equals(ODMEEditor.currentScenario)) {
-            		JOptionPane.showMessageDialog(Main.frame, "The Scenario is currently opened!", "Error",
-                            JOptionPane.ERROR_MESSAGE);
-            		return;
-            	}
-            	
-            	int dialogResult = -1;
-            	dialogResult = JOptionPane.showConfirmDialog (null,
-        				"Do you want to delete "+fileName+"?","Delete Scenario",JOptionPane.YES_NO_OPTION);
-        		if(dialogResult == JOptionPane.YES_OPTION){
-        			deleteFolder(new File(ODMEEditor.fileLocation + "/" +  fileName));  
-        			deleteFromJson(fileName);
-        		}
+            	deleteSelectedScenarios();
+            }
+        });
+
+        deleteGeneratedItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                deleteGeneratedScenarios();
+            }
+        });
+
+        refreshItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                reloadTableData(true);
             }
         });
          
@@ -141,12 +167,14 @@ public class ScenarioList extends JPanel {
         table.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2) {
-                    JTable target = (JTable) e.getSource();
-                    int row = table.getSelectedRow();
-                    
-                    String name = (String) target.getModel().getValueAt(row, 0);
-                    String risk = (String) target.getModel().getValueAt(row, 1);
-                    String remarks = (String) target.getModel().getValueAt(row, 2);
+                    int row = getSelectedModelRow();
+                    if (row < 0) {
+                    	return;
+                    }
+
+                    String name = (String) model.getValueAt(row, 0);
+                    String risk = (String) model.getValueAt(row, 1);
+                    String remarks = (String) model.getValueAt(row, 2);
  
                     updateTableData(name, risk, remarks);
                 }
@@ -162,7 +190,17 @@ public class ScenarioList extends JPanel {
 //        sortKeys.add(new RowSorter.SortKey(0, SortOrder.ASCENDING));
 //        sorter.setSortKeys(sortKeys);
                 
-        JFrame frame = new JFrame("Senario List");
+        frame = new JFrame("Scenario List");
+        activeScenarioList = this;
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosed(WindowEvent e) {
+                if (activeScenarioList == ScenarioList.this) {
+                    activeScenarioList = null;
+                }
+            }
+        });
         JPanel panelCenter = new JPanel();
                 
         JScrollPane scroll = new JScrollPane(table);
@@ -174,8 +212,8 @@ public class ScenarioList extends JPanel {
 
 		frame.add(toolBar, BorderLayout.NORTH);
 
-        int width = 500;
-        int height = 250;
+        int width = 760;
+        int height = 280;
         Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
         int x = (screen.width - width) / 2;
         int y = (screen.height - height) / 2;
@@ -189,30 +227,484 @@ public class ScenarioList extends JPanel {
 
         frame.setResizable(false);
         frame.setVisible(true);
+        focusScenarioListWindow();
+    }
+
+    private void performAutomaticScenarioGeneration() {
+        AutomaticScenarioGeneration.GenerationPreview preview;
+        try {
+            preview = AutomaticScenarioGeneration.inspectProject();
+        }
+        catch (Exception ex) {
+            JOptionPane.showMessageDialog(frame != null ? frame : Main.frame,
+                    "Unable to inspect the current domain model.\n" + ex.getMessage(),
+                    "Automatic Scenario Generation",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        if (preview.multiAspectCount() > 0) {
+            JOptionPane.showMessageDialog(frame != null ? frame : Main.frame,
+                    "Automatic Scenario Generation currently supports specialization pruning only.\n"
+                            + "Detected " + preview.multiAspectCount() + " multi-aspect node(s) in the domain model.",
+                    "Automatic Scenario Generation",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        AutomaticGenerationOptions options = showAutomaticScenarioGenerationDialog(preview);
+        if (options == null) {
+            return;
+        }
+
+        BackgroundTaskRunner.run(
+                this,
+                "Automatic Scenario Generation",
+                "Generating pruned scenario models with constrained Latin Hypercube sampling...",
+                () -> AutomaticScenarioGeneration.generateAll(options.prefix(), options.samplesPerCombination()),
+                result -> {
+                    reloadTableData();
+                    focusScenarioListWindow();
+                    JOptionPane.showMessageDialog(
+                            frame != null ? frame : Main.frame,
+                            buildSuccessMessage(result),
+                            "Automatic Scenario Generation",
+                            JOptionPane.INFORMATION_MESSAGE
+                    );
+                }
+        );
+    }
+
+    private AutomaticGenerationOptions showAutomaticScenarioGenerationDialog(
+            AutomaticScenarioGeneration.GenerationPreview preview) {
+        JTextField prefixField = new JTextField("AutoScenario");
+        JSpinner samplesSpinner = new JSpinner(new SpinnerNumberModel(1, 1, 1000, 1));
+        JLabel totalLabel = new JLabel();
+        JLabel limitLabel = new JLabel(" ");
+
+        Runnable refreshSummary = () -> {
+            int samples = ((Number) samplesSpinner.getValue()).intValue();
+            totalLabel.setText("Total scenario models to create: " + preview.projectedScenarioModels(samples));
+            if (preview.exceedsScenarioLimit(samples)) {
+                limitLabel.setText("This exceeds the current limit of "
+                        + AutomaticScenarioGeneration.maxGeneratedScenarioModels() + " scenario models.");
+            }
+            else {
+                limitLabel.setText(" ");
+            }
+        };
+        ChangeListener changeListener = e -> refreshSummary.run();
+        samplesSpinner.addChangeListener(changeListener);
+        refreshSummary.run();
+
+        JPanel summaryPanel = new JPanel(new GridLayout(0, 1, 0, 4));
+        summaryPanel.add(new JLabel("Project: " + preview.projectName()));
+        summaryPanel.add(new JLabel("Structural combinations after pruning: " + preview.totalCombinations()));
+        summaryPanel.add(new JLabel("Specialization nodes: " + preview.specializations().size()));
+        summaryPanel.add(totalLabel);
+        summaryPanel.add(limitLabel);
+
+        JPanel inputPanel = new JPanel(new GridLayout(0, 1, 0, 4));
+        inputPanel.add(new JLabel("Scenario name prefix"));
+        inputPanel.add(prefixField);
+        inputPanel.add(new JLabel("Variable samples per pruned combination"));
+        inputPanel.add(samplesSpinner);
+
+        JPanel container = new JPanel(new BorderLayout(0, 12));
+        container.add(summaryPanel, BorderLayout.NORTH);
+        container.add(inputPanel, BorderLayout.CENTER);
+
+        while (true) {
+            int option = JOptionPane.showConfirmDialog(
+                    frame != null ? frame : Main.frame,
+                    container,
+                    "Automatic Scenario Generation",
+                    JOptionPane.OK_CANCEL_OPTION,
+                    JOptionPane.PLAIN_MESSAGE
+            );
+            if (option != JOptionPane.OK_OPTION) {
+                return null;
+            }
+
+            int samples = ((Number) samplesSpinner.getValue()).intValue();
+            if (!preview.exceedsScenarioLimit(samples)) {
+                return new AutomaticGenerationOptions(prefixField.getText(), samples);
+            }
+
+            JOptionPane.showMessageDialog(
+                    frame != null ? frame : Main.frame,
+                    "Requested generation exceeds the current limit of "
+                            + AutomaticScenarioGeneration.maxGeneratedScenarioModels()
+                            + " scenario models.\nReduce the samples per combination and try again.",
+                    "Automatic Scenario Generation",
+                    JOptionPane.WARNING_MESSAGE
+            );
+        }
+    }
+
+    private String buildSuccessMessage(AutomaticScenarioGeneration.GenerationResult result) {
+        StringBuilder message = new StringBuilder();
+        message.append("Created ").append(result.createdCount())
+                .append(" scenario model(s) for ").append(result.projectName()).append('.');
+        message.append('\n').append('\n')
+                .append("Structural combinations: ").append(result.structuralCombinationCount()).append('\n')
+                .append("Variable samples per combination: ").append(result.samplesPerCombination());
+
+        if (!result.createdScenarioNames().isEmpty()) {
+            message.append('\n').append('\n').append("First generated scenarios:\n");
+            int previewCount = Math.min(result.createdScenarioNames().size(), 10);
+            for (int i = 0; i < previewCount; i++) {
+                message.append("- ").append(result.createdScenarioNames().get(i)).append('\n');
+            }
+            if (result.createdScenarioNames().size() > previewCount) {
+                message.append("- ...");
+            }
+        }
+
+        return message.toString();
+    }
+
+    private record AutomaticGenerationOptions(String prefix, int samplesPerCombination) {
+    }
+
+    private int getSelectedModelRow() {
+        if (table == null) {
+            return -1;
+        }
+        int viewRow = table.getSelectedRow();
+        if (viewRow < 0) {
+            return -1;
+        }
+        return table.convertRowIndexToModel(viewRow);
+    }
+
+    private List<Integer> getSelectedModelRows() {
+        List<Integer> rows = new ArrayList<>();
+        if (table == null) {
+            return rows;
+        }
+
+        int[] selectedViewRows = table.getSelectedRows();
+        for (int selectedViewRow : selectedViewRows) {
+            if (selectedViewRow >= 0) {
+                rows.add(table.convertRowIndexToModel(selectedViewRow));
+            }
+        }
+        return rows;
+    }
+
+    private List<String> getSelectedScenarioNames() {
+        List<String> scenarioNames = new ArrayList<>();
+        for (int row : getSelectedModelRows()) {
+            if (row >= 0 && row < model.getRowCount()) {
+                scenarioNames.add((String) model.getValueAt(row, 0));
+            }
+        }
+        return scenarioNames;
+    }
+
+    private void reloadTableData() {
+        reloadTableData(true);
+    }
+
+    private void reloadTableData(boolean syncArtifacts) {
+        if (model == null) {
+            return;
+        }
+
+        model.setRowCount(0);
+        List<String[]> dataList = getJsonData();
+        for (String[] arr : dataList) {
+            model.addRow(arr);
+        }
+
+        if (syncArtifacts) {
+            synchronizeScenarioArtifactsAsync(dataList);
+        }
+    }
+
+    private void synchronizeScenarioArtifactsAsync(List<String[]> dataList) {
+        List<String[]> snapshot = new ArrayList<>();
+        for (String[] row : dataList) {
+            snapshot.add(row == null ? null : row.clone());
+        }
+
+        if (artifactSyncWorker != null && !artifactSyncWorker.isDone()) {
+            artifactSyncWorker.cancel(true);
+        }
+
+        artifactSyncWorker = new SwingWorker<>() {
+            @Override
+            protected Void doInBackground() throws Exception {
+                ScenarioArtifactSync.syncCurrentProject(snapshot);
+                return null;
+            }
+
+            @Override
+            protected void done() {
+                if (isCancelled()) {
+                    return;
+                }
+                try {
+                    get();
+                } catch (Exception ex) {
+                    Throwable cause = ex.getCause() == null ? ex : ex.getCause();
+                    cause.printStackTrace();
+                    JOptionPane.showMessageDialog(
+                            frame != null ? frame : Main.frame,
+                            "Scenario exports could not be rebuilt.\n" + cause.getMessage(),
+                            "Scenario Exports",
+                            JOptionPane.WARNING_MESSAGE
+                    );
+                }
+            }
+        };
+        artifactSyncWorker.execute();
+    }
+
+    private void focusScenarioListWindow() {
+        if (frame == null) {
+            return;
+        }
+        frame.setVisible(true);
+        frame.toFront();
+        frame.requestFocus();
+        frame.repaint();
+    }
+
+    private void openSelectedScenario() {
+        int row = getSelectedModelRow();
+        if (row < 0) {
+            return;
+        }
+
+        String scenarioName = (String) model.getValueAt(row, 0);
+        String projectName = EditorContext.getInstance().getProjName();
+        File scenarioDirectory = new File(EditorContext.getInstance().getProjectDir(), scenarioName);
+        File scenarioTree = new File(scenarioDirectory, projectName + ".xml");
+        File scenarioGraph = new File(scenarioDirectory, projectName + "Graph.xml");
+
+        if (!scenarioTree.exists() || !scenarioGraph.exists()) {
+            JOptionPane.showMessageDialog(
+                    frame != null ? frame : Main.frame,
+                    "Scenario files are missing for " + scenarioName + ".\n"
+                            + "Expected:\n"
+                            + scenarioTree.getAbsolutePath() + "\n"
+                            + scenarioGraph.getAbsolutePath(),
+                    "Open Scenario",
+                    JOptionPane.ERROR_MESSAGE
+            );
+            return;
+        }
+
+        try {
+            DynamicTree.varMap = ArrayListMultimap.create();
+            System.out.println("Selected file: " + scenarioName);
+
+            EditorContext.getInstance().setCurrentScenario(scenarioName);
+            EditorContext.getInstance().setNewFileName(projectName);
+
+            nodeNumber = 1;
+            JtreeToGraphGeneral.openExistingProject(projectName, projectName);
+
+            undoManager = new mxUndoManager();
+            sesview.textArea.setText("");
+            Console.consoleText.setText(">>");
+            Variable.setNullToAllRows();
+            Constraint.setNullToAllRows();
+            Behaviour.setNullToAllRows();
+
+            ODMEEditor.graphWindow.setTitle(scenarioName);
+            ODMEEditor.changePruneColor();
+            ODMEEditor.updateState();
+            XmlUtils.showViewer(
+                    EditorContext.getInstance().getFileLocation(),
+                    EditorContext.getInstance().getProjName(),
+                    "xmlforxsd.xml",
+                    XmlUtils.sesview
+            );
+        }
+        catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(
+                    frame != null ? frame : Main.frame,
+                    "Unable to open scenario " + scenarioName + ".\n" + ex.getMessage(),
+                    "Open Scenario",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
     }
     
-    private void deleteFolder(File folder) {
+    private boolean deleteFolder(File folder) {
         File[] files = folder.listFiles();
+        boolean success = true;
         if(files!=null) {
             for(File f: files) {
                 if(f.isDirectory()) {
-                    deleteFolder(f);
+                    success &= deleteFolder(f);
                 } else {
-                    f.delete();
+                    success &= f.delete();
                 }
             }
         }
-        folder.delete();
+        return success & (!folder.exists() || folder.delete());
+    }
+
+    private void deleteSelectedScenarios() {
+        List<String> selectedScenarios = getSelectedScenarioNames();
+        if (selectedScenarios.isEmpty()) {
+            JOptionPane.showMessageDialog(frame != null ? frame : Main.frame,
+                    "Select one or more scenarios to delete.",
+                    "Delete Selected Scenarios",
+                    JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        deleteScenarios(selectedScenarios, "Delete Selected Scenarios");
+    }
+
+    private void deleteGeneratedScenarios() {
+        List<String> generatedScenarios = new ArrayList<>();
+        for (String[] scenario : getJsonData()) {
+            if (isGeneratedScenario(scenario[0])) {
+                generatedScenarios.add(scenario[0]);
+            }
+        }
+
+        if (generatedScenarios.isEmpty()) {
+            JOptionPane.showMessageDialog(frame != null ? frame : Main.frame,
+                    "No generated AutoScenario_* scenarios were found.",
+                    "Delete Generated Scenarios",
+                    JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        deleteScenarios(generatedScenarios, "Delete Generated Scenarios");
+    }
+
+    private void deleteScenarios(List<String> requestedScenarioNames, String title) {
+        Set<String> uniqueRequestedNames = new LinkedHashSet<>(requestedScenarioNames);
+        List<String> deletableScenarios = new ArrayList<>();
+        List<String> skippedScenarios = new ArrayList<>();
+
+        for (String scenarioName : uniqueRequestedNames) {
+            if (scenarioName == null || scenarioName.isBlank()) {
+                continue;
+            }
+            if (isProtectedScenario(scenarioName)) {
+                skippedScenarios.add(scenarioName);
+                continue;
+            }
+            deletableScenarios.add(scenarioName);
+        }
+
+        if (deletableScenarios.isEmpty()) {
+            JOptionPane.showMessageDialog(frame != null ? frame : Main.frame,
+                    buildSkippedMessage(skippedScenarios, "Nothing was deleted."),
+                    title,
+                    JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        int dialogResult = JOptionPane.showConfirmDialog(
+                frame != null ? frame : Main.frame,
+                buildDeleteConfirmationMessage(deletableScenarios, skippedScenarios),
+                title,
+                JOptionPane.YES_NO_OPTION);
+        if (dialogResult != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        List<String> deletedScenarios = new ArrayList<>();
+        List<String> failedScenarios = new ArrayList<>();
+        for (String scenarioName : deletableScenarios) {
+            File scenarioFolder = new File(EditorContext.getInstance().getProjectDir(), scenarioName);
+            if (!scenarioFolder.exists() || deleteFolder(scenarioFolder)) {
+                deletedScenarios.add(scenarioName);
+            } else {
+                failedScenarios.add(scenarioName);
+            }
+        }
+
+        if (!deletedScenarios.isEmpty()) {
+            deleteFromJson(new LinkedHashSet<>(deletedScenarios));
+        } else {
+            reloadTableData();
+        }
+
+        JOptionPane.showMessageDialog(frame != null ? frame : Main.frame,
+                buildDeleteResultMessage(deletedScenarios, skippedScenarios, failedScenarios),
+                title,
+                failedScenarios.isEmpty() ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.WARNING_MESSAGE);
+    }
+
+    private boolean isProtectedScenario(String scenarioName) {
+        return "InitScenario".equals(scenarioName)
+                || scenarioName.equals(EditorContext.getInstance().getCurrentScenario());
+    }
+
+    private boolean isGeneratedScenario(String scenarioName) {
+        return scenarioName != null && scenarioName.startsWith("AutoScenario_");
+    }
+
+    private String buildDeleteConfirmationMessage(List<String> deletableScenarios, List<String> skippedScenarios) {
+        StringBuilder message = new StringBuilder();
+        message.append("Delete ").append(deletableScenarios.size()).append(" scenario(s)?");
+        message.append("\n\n");
+        appendScenarioPreview(message, "Will delete", deletableScenarios);
+        if (!skippedScenarios.isEmpty()) {
+            message.append("\n\n");
+            appendScenarioPreview(message, "Will skip", skippedScenarios);
+        }
+        return message.toString();
+    }
+
+    private String buildDeleteResultMessage(List<String> deletedScenarios,
+                                            List<String> skippedScenarios,
+                                            List<String> failedScenarios) {
+        StringBuilder message = new StringBuilder();
+        message.append("Deleted ").append(deletedScenarios.size()).append(" scenario(s).");
+
+        if (!skippedScenarios.isEmpty()) {
+            message.append("\n\n");
+            appendScenarioPreview(message, "Skipped", skippedScenarios);
+        }
+        if (!failedScenarios.isEmpty()) {
+            message.append("\n\n");
+            appendScenarioPreview(message, "Failed", failedScenarios);
+        }
+
+        return message.toString();
+    }
+
+    private String buildSkippedMessage(List<String> skippedScenarios, String prefix) {
+        StringBuilder message = new StringBuilder(prefix);
+        if (!skippedScenarios.isEmpty()) {
+            message.append("\n\n");
+            appendScenarioPreview(message, "Skipped", skippedScenarios);
+        }
+        return message.toString();
+    }
+
+    private void appendScenarioPreview(StringBuilder target, String label, List<String> scenarios) {
+        target.append(label).append(":");
+        int previewCount = Math.min(scenarios.size(), 10);
+        for (int i = 0; i < previewCount; i++) {
+            target.append("\n- ").append(scenarios.get(i));
+        }
+        if (scenarios.size() > previewCount) {
+            target.append("\n- ... and ").append(scenarios.size() - previewCount).append(" more");
+        }
     }
     
     @SuppressWarnings("unchecked")
-	private void deleteFromJson(String scenario) {
+	private void deleteFromJson(Set<String> scenariosToDelete) {
     	List<String[]> dataList = getJsonData();
 		
 		JSONArray ja = new JSONArray();
 		for (String[] arr: dataList) {
 			JSONObject jo = new JSONObject();
-			if (arr[0].equals(scenario)) {
+			if (scenariosToDelete.contains(arr[0])) {
 				continue;
 			}
 			else {
@@ -227,133 +719,35 @@ public class ScenarioList extends JPanel {
 		}
 		
 		try {
-	         FileWriter file = new FileWriter(ODMEEditor.fileLocation  + "/scenarios.json");
+	         FileWriter file = new FileWriter(EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/scenarios.json");
 	         file.write(ja.toJSONString());
 	         file.close();
 	      } catch (IOException e) {
 	         e.printStackTrace();
+             JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+             return;
 	      }
-		
-		DefaultTableModel dm = (DefaultTableModel)table.getModel();
-		while(dm.getRowCount() > 0) {
-		    dm.removeRow(0);
-		}
-		
-		List<String[]> newDataList = getJsonData();
-		
-		for (String[] arr: newDataList)
-    		model.addRow(arr);
+
+		reloadTableData();
     }
 
 
 	private void performStructuralCoverage(){
-
-		List<String[]> dataList = getScenarioJsonData();
-
-		String path = ODMEEditor.fileLocation  + "/graphxml.xml";
-
-		SpecialisationNodeTest specialisationNodeTest = new SpecialisationNodeTest(path);
-		Map c = specialisationNodeTest.getSpecialisationNodes();
-
-		specialisationNodeTest.checkMatchedNodes(dataList);
-
-		//Now behaviour test
-		BehaviourCoverageTest behaviourCoverageTest = new BehaviourCoverageTest();
-		behaviourCoverageTest.checkCodeCoverageForBehaviours(dataList);
-
-		//Now MultiAspect nodes
-		MultiAspectNodeTest multiAspectNodeTest  = new MultiAspectNodeTest();
-		multiAspectNodeTest.parseNodes(path);
-
-		multiAspectNodeTest.checkCodeCoverageMultiAspect(dataList);
-
-//		Test t = new Test(dataList);
-//		Map<String, Integer> map = t.getBucketStatistics();
-
-		ParamterCoverage t = new ParamterCoverage(dataList);
-		Map<String, Integer> map = t.getBucketStatistics();
-
-		int totalBuckets = map.get("totalBuckets");
-		int totalCoveredBuckets = map.get("totalCoveredBuckets");
-		System.out.println("totalBuckets " + totalBuckets);
-		System.out.println("totalCoveredBuckets " + totalCoveredBuckets);
-
-
-		double specialisationPercentage = (specialisationNodeTest.getTotalSpecialisationNode() > 0)
-				? (((double) specialisationNodeTest.getMatchedSpecialisationNode()  / specialisationNodeTest.getTotalSpecialisationNode())) * 100
-				: 0.0;
-
-
-		double behaviourPercentage = (behaviourCoverageTest.getTotalBehaviours() > 0)
-				? (behaviourCoverageTest.getMatchedBehaviours() * 100.0 / behaviourCoverageTest.getTotalBehaviours())
-				: 0.0;
-
-		double parameterPercentage = ((double) totalCoveredBuckets / totalBuckets) * 100;
-		System.out.println("parameterPercentage = " + parameterPercentage);
-		double variablePercent =  ((double) 408 / 925) * 100;
-		double overAllPercentage = (specialisationPercentage + variablePercent)/2;
-
-		// Creating the 2D array
-		Object[][] data = {
-				{"Structural Coverage ",null, null, null, null},
-
-				{"          Specialisation Coverage",
-						specialisationNodeTest.getMatchedSpecialisationNode() ,
-						specialisationNodeTest.getTotalSpecialisationNode() - specialisationNodeTest.getMatchedSpecialisationNode() ,
-						specialisationNodeTest.getTotalSpecialisationNode(),
-						specialisationPercentage
-				},
-
-				{"          MultiAspect Coverage" , multiAspectNodeTest.getTotalCoveredChildren(), multiAspectNodeTest.getTotalUncoveredChildren(),
-						multiAspectNodeTest.getTotalUncoveredChildren() + multiAspectNodeTest.getTotalCoveredChildren(),
-						multiAspectNodeTest.getTotalPercentage()
-				},
-				{"          Behaviours", behaviourCoverageTest.getMatchedBehaviours(),
-						behaviourCoverageTest.getTotalBehaviours() - behaviourCoverageTest.getMatchedBehaviours(),
-						behaviourCoverageTest.getTotalBehaviours(),
-						behaviourPercentage},
-				{
-						"Parameter Coverage" ,  totalCoveredBuckets ,
-						totalBuckets - totalCoveredBuckets , totalBuckets,
-						parameterPercentage
-//						((double) totalCoveredBuckets / totalBuckets) * 100
-//						variableCoverageTest.getTotalCoveredBuckets(),variableCoverageTest.getTotalUnCoveredBuckets(),
-//						variableCoverageTest.getTotalBuckets(),
-//						variablePercentage
-				},
-				{
-						"Overall Coverage" , null,
-//						specialisationPercentage
-//						specialisationNodeTest.getMatchedSpecialisationNode()+
-//						multiAspectNodeTest.getTotalCoveredChildren()
-//						+variableCoverageTest.getTotalCoveredBuckets(), //unCovered starts
-						null,
-//						(specialisationNodeTest.getTotalSpecialisationNode() - specialisationNodeTest.getMatchedSpecialisationNode()) +
-//								multiAspectNodeTest.getTotalUncoveredChildren()
-//								+variableCoverageTest.getTotalUnCoveredBuckets(), // Total starts
-						null,
-//						specialisationNodeTest.getTotalSpecialisationNode() + multiAspectNodeTest.getMultiAspectNodeCount()
-//						+ variableCoverageTest.getTotalBuckets(),
-						(specialisationPercentage + multiAspectNodeTest.getTotalPercentage() + behaviourPercentage + parameterPercentage)/ 4
-//						overAllPercentage
-				}
-		};
-
-		CodeCoverageLayout layout = new CodeCoverageLayout(Main.frame , data);
-		layout.setVisible(true);
+		StructuralCoverageDialog.open(Main.frame, getScenarioJsonData());
 	}
 
 	public List<String[]> getScenarioJsonData() {
 		JSONParser jsonParser = new JSONParser();
 		List<String[]> dataList = new ArrayList<String[]>();
-		System.out.println("ODMEEditor.fileLocation  = " + ODMEEditor.fileLocation );
-//		System.out.println(" ODMEEditor.projName  = " +  ODMEEditor.projName );
-		try (FileReader reader = new FileReader(ODMEEditor.fileLocation +  "/scenarios.json")){
+		System.out.println("fileLocation = " + EditorContext.getInstance().getFileLocation());
+		try (FileReader reader = new FileReader(EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() +  "/scenarios.json")){
 			Object obj = null;
 			try {
 				obj = jsonParser.parse(reader);
 			} catch (org.json.simple.parser.ParseException e) {
 				e.printStackTrace();
+                JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                return dataList;
 			}
 
 			JSONArray data = (JSONArray) obj;
@@ -363,12 +757,11 @@ public class ScenarioList extends JPanel {
 			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 		} catch (IOException e) {
 			e.printStackTrace();
-		} catch (ParseException e) {
-			e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 		}
-
 		return dataList;
 	}
 
@@ -377,7 +770,7 @@ public class ScenarioList extends JPanel {
     	JSONParser jsonParser = new JSONParser();
     	List<String[]> dataList = new ArrayList<String[]>();
     	
-        try (FileReader reader = new FileReader(ODMEEditor.fileLocation + "/scenarios.json")){
+        try (FileReader reader = new FileReader(EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/scenarios.json")){
 
             Object obj = null;
 			try {
@@ -385,6 +778,8 @@ public class ScenarioList extends JPanel {
 			} 
 			catch (org.json.simple.parser.ParseException e) {
 				e.printStackTrace();
+                JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                return dataList;
 			}
 			
             JSONArray data = (JSONArray) obj;
@@ -395,13 +790,12 @@ public class ScenarioList extends JPanel {
         } 
         catch (FileNotFoundException e) {
             e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         } 
         catch (IOException e) {
             e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         } 
-        catch (ParseException e) {
-            e.printStackTrace();
-        }
     	
     	return dataList;
     }
@@ -468,22 +862,14 @@ public class ScenarioList extends JPanel {
     			}
     			
     			try {
-    		         FileWriter file = new FileWriter(ODMEEditor.fileLocation  + "/scenarios.json");
+    		         FileWriter file = new FileWriter(EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/scenarios.json");
     		         file.write(ja.toJSONString());
     		         file.close();
     		      } catch (IOException e) {
     		         e.printStackTrace();
     		      }
-    			
-    			DefaultTableModel dm = (DefaultTableModel)table.getModel();
-    			while(dm.getRowCount() > 0) {
-    			    dm.removeRow(0);
-    			}
-    			
-    			List<String[]> newDataList = getJsonData();
-    			
-    			for (String[] arr: newDataList)
-    	    		model.addRow(arr);
+
+    			reloadTableData();
     	}	
     }
 }

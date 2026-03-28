@@ -1,5 +1,6 @@
 package odme.odmeeditor;
 
+
 import java.awt.BorderLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
@@ -11,18 +12,8 @@ import javax.swing.Box;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 import javax.swing.JToolBar;
-import javax.swing.border.EtchedBorder;
-import javax.swing.undo.CannotRedoException;
-import javax.swing.undo.CannotUndoException;
 
-import odme.core.FileConvertion;
-import odme.jtreetograph.JtreeToGraphAdd;
-import odme.jtreetograph.JtreeToGraphConvert;
-import odme.jtreetograph.JtreeToGraphGeneral;
-import odme.jtreetograph.JtreeToGraphModify;
-import xml.schema.TypeInfoWriter;
 
 
 public class ToolBar {
@@ -34,7 +25,7 @@ public class ToolBar {
 	public ToolBar(JFrame frame) {
 
         toolbar = new JToolBar();
-        toolbar.setBorder(new EtchedBorder());
+        toolbar.setBorder(new javax.swing.border.EmptyBorder(6, 10, 6, 10));
         frame.add(toolbar, BorderLayout.NORTH);
 	}
         
@@ -54,45 +45,8 @@ public class ToolBar {
             btn.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) { 
-                	switch (((JButton) e.getSource()).getName()) {
-              
-		              case "Selector":
-		            	  selector();
-		            	  break;
-		              case "Add Entity":
-		            	  addEntity();
-		            	  break;
-		              case "Add Aspect":
-		            	  addAspect();
-			              break;
-		              case "Add Specialization":
-		            	  addSpecialization();
-			              break;
-		              case "Add Multi-Aspect":
-		            	  addMultiAspect();
-			              break;
-		              case "Delete Node":
-		            	  deleteNode();
-		            	  break;
-		              case "Save Graph":
-		            	  saveGraph();
-		            	  break;
-		              case "Undo":
-		            	  undo();
-		            	  break;   
-		              case "Redo":
-		            	  redo();
-		            	  break; 
-		              case "Zoom In":
-		            	  zoomIn();
-		            	  break;
-		              case "Zoom Out":
-		            	  zoomOut();
-		            	  break; 
-		              case "Validation":
-		            	  validation();
-		            	  break; 
-                	}
+                    odme.controller.ToolbarController toolbarController = new odme.controller.ToolbarController();
+                    toolbarController.executeToolbarAction(((JButton) e.getSource()).getName());
                 }
             });
     	}
@@ -115,120 +69,8 @@ public class ToolBar {
         });
     }
     
-    private void selector(){
-    	ODMEEditor.nodeAddDetector = "";
-    }
-    
-    private void addEntity(){
-    	ODMEEditor.nodeAddDetector = "entity";
-    }
-
-    private void addAspect(){
-    	ODMEEditor.nodeAddDetector = "aspect";
-    }
-    
-    private void addSpecialization(){
-    	ODMEEditor.nodeAddDetector = "specialization";
-    }
-    
-    private void addMultiAspect(){
-    	ODMEEditor.nodeAddDetector = "multiaspect";
-    }
-    
-    private void deleteNode(){
-    	ODMEEditor.nodeAddDetector = "delete";
-    }
-    
-    private void saveGraph(){
-    	ODMEEditor.treePanel.saveTreeModel();
-    	JtreeToGraphConvert.convertTreeToXML();
-    	JtreeToGraphConvert.graphToXML();
-    	JtreeToGraphConvert.graphToXMLWithUniformity();
-        JOptionPane.showMessageDialog(Main.frame, "Saved Successfully.", "Save",
-                JOptionPane.INFORMATION_MESSAGE);
-    }
-    
-    private void undo(){
-    	// System.out.println("undo: if there is any node without input/output edge then
-        // undo tree will not work-have to do it");
-        // undo actions for jtree
-    	JtreeToGraphGeneral.undo();
-        // undo actions for graph
-        try {
-            if (ODMEEditor.undoJtree.canUndo()) {
-            	ODMEEditor.undoJtree.undo();
-            	ODMEEditor.treePanel.expandTree();
-            }
-        } 
-        catch (CannotUndoException ex) {
-            System.out.println("Unable to undo: " + ex);
-            ex.printStackTrace();
-        }
-    }
-    
-    private void redo(){
-    	// redo actions for jtree
-    	JtreeToGraphGeneral.redo();
-        // redo actions for graph
-        try {
-            if (ODMEEditor.undoJtree.canRedo()) {
-            	ODMEEditor.undoJtree.redo();
-            	ODMEEditor.treePanel.expandTree();
-            }
-        } 
-        catch (CannotRedoException ex) {
-            System.out.println("Unable to redo: " + ex);
-            ex.printStackTrace();
-        }
-    }
-    
-    private void zoomIn(){
-    	JtreeToGraphGeneral.zoomIn();
-    }
-    
-    private void zoomOut(){
-    	JtreeToGraphGeneral.zoomOut();
-    }
-    
-    public static void validation(){
-    	FileConvertion fileConversion = new FileConvertion();
-        // this is SES validation
-        Console.consoleText.setText(">>");
-
-        ODMEEditor.saveChanges();
-        
-        String path = new String();
-    	if (ODMEEditor.toolMode == "ses")
-    		path = ODMEEditor.fileLocation + "/" + ODMEEditor.projName  + "/ses.xsd";
-    	else
-    		path = ODMEEditor.fileLocation + "/" + ODMEEditor.currentScenario  + "/ses.xsd";
-    	
-        fileConversion.createSES(path);
-        
-        // have to fix this--------------------------------------
-        fileConversion.modifyXmlOutputForXSD(); // changed the input file to graphxmluniformity
-        JtreeToGraphConvert.rootToEndNodeSequenceSolve();
-        JtreeToGraphConvert.rootToEndNodeVariable();
-        // have to fix this end not needed all-----------------------------------
-        // this is important here. others above have to check
-        /*
-         * if i use modifyXmlOutputFixForSameNameNode then var is added as entity and
-         * SES is not generated showing error. have to check why
-         */
-        JtreeToGraphModify.modifyXmlOutputFixForSameNameNode();
-        JtreeToGraphGeneral.xmlOutputForXSD();
-        JtreeToGraphAdd.addconstraintToSESStructure();
-        ODMEEditor.sesValidationControl = 1;
-        TypeInfoWriter.validateXML();
-//        if (ODMEEditor.errorPresentInSES == 1) {
-//            sesview.textArea.setText("Error presents in the SES. Check console output for details.");
-//            ODMEEditor.errorPresentInSES = 0;
-//            Console.consoleText.setText(">>");
-//            Console.addConsoleOutput(ODMEEditor.errorMessageInSES);
-//        } 
-//        else {
-            XmlUtils.showViewer(ODMEEditor.fileLocation, ODMEEditor.projName, "xmlforxsd.xml", XmlUtils.sesview);
-//        }
+    public static void validation() {
+        odme.controller.ToolbarController.validation();
     }
 }
 

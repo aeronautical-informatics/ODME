@@ -1,5 +1,7 @@
 package structuretest;
 
+import odme.core.EditorContext;
+import javax.swing.JOptionPane;
 import com.google.common.collect.Multimap;
 import odme.odmeeditor.ODMEEditor;
 
@@ -22,10 +24,11 @@ public class BehaviourCoverageTest {
         behaviourValuesList = new ArrayList<>();
     }
 
+    @SuppressWarnings("unchecked")
     public void checkCodeCoverageForBehaviours(List<String[]> scenariosList) {
 
         // Now get list of all behaviours saved in project.ssdbeh file.
-        File ssdFileBeh = new File(ODMEEditor.fileLocation + "/" +ODMEEditor.projName + ".ssdbeh");
+        File ssdFileBeh = new File(EditorContext.getInstance().getFileLocation() + "/" +EditorContext.getInstance().getProjName() + ".ssdbeh");
         System.out.println("Behaviour file path = " + ssdFileBeh);
 
         if (ssdFileBeh.exists()) {
@@ -37,6 +40,8 @@ public class BehaviourCoverageTest {
                 behaviourValuesList = new ArrayList<>(behavioursList.values());
             } catch (Exception e) {
                 e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
             }
         } else {
             System.out.println("Behaviour file does not exist ");
@@ -49,7 +54,7 @@ public class BehaviourCoverageTest {
         // Checking each scenario's behaviourxml file to check if behaviours are used or not
         for (String[] scenario : scenariosList) {
             try {
-                String path = ODMEEditor.fileLocation + "\\" + scenario[0] + "\\"+"behaviourxml.xml";
+                String path = EditorContext.getInstance().getFileLocation() + "\\" + scenario[0] + "\\"+"behaviourxml.xml";
                 File file = new File(path);
 
                 if (!file.exists()) {
@@ -71,8 +76,12 @@ public class BehaviourCoverageTest {
                 }
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
             } catch (IOException e) {
                 e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
             }
         }
 

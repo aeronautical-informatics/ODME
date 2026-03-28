@@ -1,6 +1,6 @@
 package odme.odmeeditor;
 
-import odeme.behaviour.Behaviour;
+import odme.behaviour.Behaviour;
 
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
@@ -47,6 +47,32 @@ public class PanelSplitor {
         return graphVariable;
     }
     
+    /**
+     * Extended layout including Distribution, InterEntityConstraints and IntraEntityConstraint panels.
+     */
+    public JSplitPane addSplitor(ProjectTree projectPanel, DynamicTree treePanel,
+                                 GraphWindow graphWindow, Console console,
+                                 Variable scenarioVariable, Distribution scenarioDistribution,
+                                 Behaviour scenarioBehaviour,
+                                 InterEntityConstraints scenarioInterEntity,
+                                 IntraEntityConstraint scenarioIntraEntity,
+                                 JTabbedPane tabbedPane) {
+
+        projectPane = createSpliPane(JSplitPane.VERTICAL_SPLIT, projectPanel, treePanel, 250);
+        grapConsole = createSpliPane(JSplitPane.VERTICAL_SPLIT, graphWindow, console, 750);
+        graphtree   = createSpliPane(JSplitPane.HORIZONTAL_SPLIT, projectPane, grapConsole, 200);
+        graphtreeFunc();
+
+        JSplitPane varDist      = createSpliPane(JSplitPane.VERTICAL_SPLIT, scenarioVariable, scenarioDistribution, 120);
+        JSplitPane varDistBeh   = createSpliPane(JSplitPane.VERTICAL_SPLIT, varDist, scenarioBehaviour, 250);
+        JSplitPane withIntra    = createSpliPane(JSplitPane.VERTICAL_SPLIT, varDistBeh, scenarioIntraEntity, 380);
+        variableAndCOnstraint   = createSpliPane(JSplitPane.VERTICAL_SPLIT, withIntra, scenarioInterEntity, 500);
+        xml          = createSpliPane(JSplitPane.VERTICAL_SPLIT, variableAndCOnstraint, tabbedPane, 620);
+        graphVariable = createSpliPane(JSplitPane.HORIZONTAL_SPLIT, graphtree, xml, 1400);
+
+        return graphVariable;
+    }
+
     private void graphtreeFunc() {
     	dividerLocation = graphtree.getDividerLocation();
         graphtree.addPropertyChangeListener(JSplitPane.DIVIDER_LOCATION_PROPERTY, new PropertyChangeListener() {

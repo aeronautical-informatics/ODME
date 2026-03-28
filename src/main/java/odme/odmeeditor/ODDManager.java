@@ -1,6 +1,9 @@
 package odme.odmeeditor;
 
 // import static odme.odmeeditor.XmlUtils.sesview;
+import odme.core.EditorContext;
+import odme.domain.transform.XsdParser;
+import odme.domain.transform.XsdToYamlConverter;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -20,16 +23,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
 import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.w3c.dom.NamedNodeMap;
-
-import org.xml.sax.SAXException;
 
 import odme.jtreetograph.JtreeToGraphConvert;
 import javax.swing.JFileChooser;
@@ -68,15 +61,18 @@ public class ODDManager extends JPanel{
 			"Comments"
 	};
 
+	private static final XsdParser xsdParser = new XsdParser();
+	private static final XsdToYamlConverter xsdToYamlConverter = new XsdToYamlConverter();
+
 	private static String getStateXsdFilePath() {
-		return ODMEEditor.fileLocation+System.getProperty("file.separator")+
-				ODMEEditor.projName+
+		return EditorContext.getInstance().getFileLocation()+System.getProperty("file.separator")+
+				EditorContext.getInstance().getProjName()+
 				System.getProperty("file.separator")+
 				"xsdfromxml.xsd";
 	}
 
 	public static final String getODDsPath() {
-		return ODMEEditor.fileLocation
+		return EditorContext.getInstance().getFileLocation()
 				+System.getProperty("file.separator")
 				+"odd";
 	}
@@ -91,6 +87,7 @@ public class ODDManager extends JPanel{
 	private JButton deleteBtn;
 	private JButton exportYamlBtn;
 	private JButton exportXmlBtn;
+	private JButton lhsBtn;
 	private JLabel currentODDLabel;
 
 	private JPanel oddsPanel;
@@ -105,7 +102,7 @@ public class ODDManager extends JPanel{
 
 	public ODDManager() {
 		this("Generate OD");
-		this.currentProjName=ODMEEditor.projName;
+		this.currentProjName=EditorContext.getInstance().getProjName();
 		this.mode=mode;
 	}
 
@@ -150,7 +147,7 @@ public class ODDManager extends JPanel{
 		else this.add(jtPanel);
 		populateInitialTable(); // out of the current xsd open
 		reDoTableInitials();
-		updateCurrentODD(ODMEEditor.projName);
+		updateCurrentODD(EditorContext.getInstance().getProjName());
 	}
 
 	/**
@@ -166,6 +163,7 @@ public class ODDManager extends JPanel{
 		if (mode.equals("ODD Manager")) {
 			initExportXmlBtn();
 			initExportYamlBtn();
+			initLhsBtn();
 			initDeleteBtn();
 		}
 		btnsPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
@@ -272,7 +270,7 @@ public class ODDManager extends JPanel{
 			if(mode=="Generate OD")javax.swing.JOptionPane.showMessageDialog(null,filename+" saved.");
 		}catch(IOException ioe) {
 			ioe.printStackTrace();
-			// javax.swing.JOptionPane.showMessageDialog(null,"Could not write the serialized Object");
+			javax.swing.JOptionPane.showMessageDialog(null,"Could not write the serialized Object: " + ioe.getMessage(), "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
 		}
 	}
 
@@ -327,6 +325,73 @@ public class ODDManager extends JPanel{
 			}
 		});
 	}
+	private void initLhsBtn() {
+		this.lhsBtn = new JButton("Generate LHS Test Cases");
+		btnsPanel.add(lhsBtn);
+		lhsBtn.addActionListener(new ActionListener() {
+			@Override public void actionPerformed(ActionEvent ae) {
+				generateLhsTestCases();
+			}
+		});
+	}
+
+	/**
+	 * Read parameters from the ODD table, run Latin Hypercube Sampling,
+	 * and let the user save the resulting CSV of test cases.
+	 */
+	private void generateLhsTestCases() {
+		EditableDataModel model = (EditableDataModel) jt.getModel();
+		int rowCount = model.getRowCount();
+
+		// Collect parameters that have numeric bounds
+		List<LatinHypercubeSampler.Parameter> params = new ArrayList<>();
+		for (int r = 0; r < rowCount; r++) {
+			String name      = Objects.toString(model.getValueAt(r, 0), "").trim();
+			String type      = Objects.toString(model.getValueAt(r, 1), "").trim();
+			String dataType  = Objects.toString(model.getValueAt(r, 2), "").trim();
+			String lowerStr  = Objects.toString(model.getValueAt(r, 3), "").trim();
+			String upperStr  = Objects.toString(model.getValueAt(r, 4), "").trim();
+
+			if (name.isEmpty() || lowerStr.isEmpty() || upperStr.isEmpty()) continue;
+			try {
+				double lower = Double.parseDouble(lowerStr);
+				double upper = Double.parseDouble(upperStr);
+				if (upper < lower) { double tmp = lower; lower = upper; upper = tmp; }
+				params.add(new LatinHypercubeSampler.Parameter(name, type, dataType, lower, upper));
+			} catch (NumberFormatException ignored) {
+				// skip non-numeric rows
+			}
+		}
+
+		if (params.isEmpty()) {
+			JOptionPane.showMessageDialog(this,
+				"No parameters with valid numeric bounds found in the ODD table.",
+				"LHS Generation", JOptionPane.WARNING_MESSAGE);
+			return;
+		}
+
+		String nStr = JOptionPane.showInputDialog(this,
+			"Number of LHS samples to generate:", "10");
+		if (nStr == null) return; // cancelled
+		int n;
+		try {
+			n = Integer.parseInt(nStr.trim());
+			if (n <= 0) throw new NumberFormatException();
+		} catch (NumberFormatException e) {
+			JOptionPane.showMessageDialog(this,
+				"Please enter a positive integer.", "Invalid Input",
+				JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+
+		LatinHypercubeSampler sampler = new LatinHypercubeSampler();
+		List<LatinHypercubeSampler.TestCase> testCases = sampler.sample(params, n);
+		String csv = LatinHypercubeSampler.toCsv(params, testCases);
+
+		// Let the user choose where to save the CSV
+		chooseAndSaveFile(csv, currentProjName + "_lhs_test_cases.csv", "csv");
+	}
+
 // ======================================================= LEGACY - WORKS FINE, DON'T MODIFY UNLESS NECESSARY!
 // Modified to generate properly structured YAML
 
@@ -334,66 +399,22 @@ public class ODDManager extends JPanel{
 		return xsdToYaml(getStateXsdFilePath());
 	}
 
+	/**
+	 * Like currentXsdToYaml() but takes an explicit XSD path.
+	 * Used by MenuBar for domain-model-based scenario generation.
+	 */
+	public static String currentXsdToYamlTemp(String xsdPath) {
+		return xsdToYaml(xsdPath);
+	}
+
 	public static String xsdToYaml(String path) {
-		StringBuilder curr = new StringBuilder();
-		List<String[]> xsd;
 		try {
-			xsd = readXsd(path);
-			// Stack holds pair: [xsdIndent, yamlIndent]
-			Deque<int[]> indentStack = new ArrayDeque<>();
-			indentStack.push(new int[]{-1, -1});
-
-			for (String[] row : xsd) {
-				int xsdIndent = countLeadingSpaces(row[0]) / 2;
-				String componentName = row[0].replaceAll("^\\s*-?", "").trim();
-				if (componentName.isEmpty()) {
-					continue;  // Skip empty names
-				}
-				String type = row[1].trim();
-
-				// Pop until the current xsdIndent is greater than the one at stack top.
-				while (!indentStack.isEmpty() && indentStack.peek()[0] >= xsdIndent) {
-					indentStack.pop();
-				}
-
-				int parentYamlIndent = indentStack.isEmpty() ? -1 : indentStack.peek()[1];
-				int currentYamlIndent = parentYamlIndent + 1;
-
-				if (type.equals("Node")) {
-					// For nodes, output a mapping key with a colon.
-					curr.append(getIndent(currentYamlIndent))
-							.append(componentName)
-							.append(":\n");
-					indentStack.push(new int[]{xsdIndent, currentYamlIndent});
-				} else if (type.equals("Variable")) {
-					// For variables, output as list item.
-					curr.append(getIndent(currentYamlIndent))
-							.append("- ").append(componentName).append(":\n")
-							.append(getIndent(currentYamlIndent + 1))
-							.append("type: ").append(row[2]).append("\n");
-
-					if (!row[3].isEmpty()) {
-						curr.append(getIndent(currentYamlIndent + 1))
-								.append("min: ").append(row[3]).append("\n");
-					}
-					if (!row[4].isEmpty()) {
-						curr.append(getIndent(currentYamlIndent + 1))
-								.append("max: ").append(row[4]).append("\n");
-					}
-				}
-			}
+			List<String[]> xsd = xsdParser.readXsd(path);
+			return xsdToYamlConverter.convert(xsd);
 		} catch (Exception e) {
 			e.printStackTrace();
+			return "";
 		}
-		return curr.toString();
-	}
-
-	private static int countLeadingSpaces(String s) {
-		return (int) s.chars().takeWhile(c -> c == ' ').count();
-	}
-
-	private static String getIndent(int level) {
-		return "  ".repeat(Math.max(0, level));
 	}
 
 	/**
@@ -406,11 +427,11 @@ public class ODDManager extends JPanel{
 		ODMEEditor.updateState();
 		JtreeToGraphConvert.convertTreeToXML();
 		String xmlContent=XmlUtils.readFile(
-				ODMEEditor.fileLocation,
-				ODMEEditor.projName,
+				EditorContext.getInstance().getFileLocation(),
+				EditorContext.getInstance().getProjName(),
 				"xmlforxsd.xml"
 		);
-		ODMEEditor.chooseAndSaveFile(xmlContent,ODMEEditor.projName+".xml", null); // uncomment for production
+		ODMEEditor.chooseAndSaveFile(xmlContent,EditorContext.getInstance().getProjName()+".xml", null); // uncomment for production
 	}
 
 	public static void chooseAndSaveFile(String content,String suggestedPath,String ext) {
@@ -455,7 +476,7 @@ public class ODDManager extends JPanel{
 		ODMEEditor.updateState();
 		JtreeToGraphConvert.convertTreeToXML();
 		String yamlContent=currentXsdToYaml();
-		ODMEEditor.chooseAndSaveFile(yamlContent,ODMEEditor.projName+".yaml", null); // uncomment for production
+		ODMEEditor.chooseAndSaveFile(yamlContent,EditorContext.getInstance().getProjName()+".yaml", null); // uncomment for production
 	}
 
 	private void reDoTableInitials() { // this method just does some bugfix (don't ask)
@@ -480,7 +501,7 @@ public class ODDManager extends JPanel{
 		EditableDataModel dtm=new EditableDataModel(nodeHeaders,0);
 		List<String[]> data=null;
 		try{
-			data=readCurrentXsd();
+			data=xsdParser.readXsd(getStateXsdFilePath());
 
 			// caveat: if user hasn't saved the whole
 			// progress yet, "data" may be null
@@ -494,145 +515,4 @@ public class ODDManager extends JPanel{
 		}
 	}
 
-	// ======================================================= Reading inital xsd - new format with indents
-
-	private static List<String[]> readCurrentXsd() throws SAXException, IOException, ParserConfigurationException{
-		return readXsd(getStateXsdFilePath());
-	}
-
-	/**
-	 * @author Roy
-	 * read current project's xsd and parse it (manually) to extract the data you want (that is; only the
-	 * columns like lowerBound upperBound etc.) and return a String[] list (list of arrays) so it can
-	 * be assigned to JTable
-	 */
-	private static List<String[]> readXsd(String tablePath) throws SAXException, IOException, ParserConfigurationException {
-
-		// preparing the Document Object Model (DOM)
-		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-		DocumentBuilder db = dbf.newDocumentBuilder();
-		org.w3c.dom.Document doc = db.parse(new File(tablePath));
-		doc.getDocumentElement().normalize();
-
-		// source of data for later consumption by the JTable
-		List<String[]> dataSource=new ArrayList<String[]>();
-		List<Element> processed=new ArrayList<Element>();
-
-		// kick start processing in a recursive manner (xsd in and of itself is recursive!)
-		NodeList nodes=doc.getElementsByTagName("xs:element");
-		processNodeList(nodes,dataSource,processed,0);
-
-		return dataSource;
-	}
-
-	/**
-	 * @author Roy
-	 * processes xs:element tags at one specific level of depth and recursively calls itself
-	 * if that tag has xs:element child tags, until all xs:element tags are processed
-	 * */
-	private static void processNodeList(NodeList nodes,List<String[]> src,List<Element> processed,int indent) {
-		Element curr=null;
-		NodeList kids=null;
-		for (int i=0;i<nodes.getLength();i++) {
-			curr=(Element)nodes.item(i);
-			if(!processed.contains(curr)) {
-				processElementTag(curr, src, indent);
-				kids=curr.getElementsByTagName("xs:element");
-				if(kids.getLength()>0)
-					processNodeList(kids, src,processed,indent+1);
-				processed.add(curr);
-			}
-		}
-	}
-
-
-	/**
-	 * @author Roy
-	 * process one Element Tag, without touching it's children
-	 * */
-	private static void processElementTag(Element e,List<String[]> src,int indent) {
-		src.add(getNodeHeaders(e,indent)); // adding headers
-
-		// processing xs:attribute tags under the current xs:element tag (which is e)
-		NodeList attrs=e.getElementsByTagName("xs:attribute");
-		indent+=2;
-		Element curr=null;
-		String firstParentName=null;
-		for(int i=0;i<attrs.getLength();i++) {
-			curr=(Element)attrs.item(i);
-			firstParentName=findFirstParent(curr, "xs:element");
-			if(firstParentName.equals(e.getAttribute("name")) &&
-					(!curr.hasAttribute("use") || !curr.getAttribute("use").equals("optional"))
-			)src.add(processAttributeTag(curr, indent));
-		}
-	}
-
-	/**
-	 * @author Roy
-	 * find the first parent tag of Element e, that has the tagName as its...well, tag name!
-	 * */
-	private static String findFirstParent(Element e,String tagName) {
-		Node curr=(Node)e;
-		Node n=null;
-		do {
-			n=curr.getParentNode();
-			curr=n;
-		}while(n!=null && !n.getNodeName().equals(tagName));
-		if(n==null)return "[NO_PARENT]";
-		return ((Element)n).getAttribute("name");
-	}
-
-	/**
-	 * @author Roy
-	 * get a node's attributes in a consumable form (based on the child tags)
-	 * */
-	private static String[] processAttributeTag(Element e,int indent) {
-
-		String[] r=new String[6];
-		r[0]=indentStr("-"+e.getAttribute("name"),indent);
-		r[1]="Variable";
-		NodeList nl=e.getElementsByTagName("*");
-		Element temp;
-		for(int i=0;i<nl.getLength();i++) {
-			temp=(Element)nl.item(i);
-			switch(temp.getNodeName()) {
-				case "xs:restriction":r[2]=temp.getAttribute("base").replace("xs:", "");break;
-				case "xs:minInclusive":r[3]=temp.getAttribute("value");break;
-				case "xs:maxInclusive":r[4]=temp.getAttribute("value");break;
-				default:break;
-			}
-		}
-		return r;
-	}
-
-	/**
-	 * @author Roy
-	 * get node name and the fact that it is a node
-	 * */
-	private static String[] getNodeHeaders(Element e,int indent) {
-		String[] r=new String[5];
-		r[0]=indentStr(e.getAttribute("name"),indent,"  ");
-		r[1]="Node";
-		return r;
-	}
-
-	/**
-	 * @author Roy
-	 * puts whitespaces at the start of a String
-	 * */
-	private static String indentStr(String s,int level) {
-		return indentStr(s,level," ");
-	}
-
-	/**
-	 * @author Roy
-	 * puts whitespaces at the start of a String
-	 * */
-	private static String indentStr(String s,int level,String indentStr) {
-		for (int i=0;i<level;i++)
-			s=indentStr+s;
-		return s;
-	}
-
 }
-

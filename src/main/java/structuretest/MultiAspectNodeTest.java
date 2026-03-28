@@ -1,5 +1,7 @@
 package structuretest;
 
+import odme.core.EditorContext;
+import javax.swing.JOptionPane;
 import odme.odmeeditor.ODMEEditor;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -82,6 +84,8 @@ public class MultiAspectNodeTest {
 
         } catch (Exception e) {
             e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
     }
 
@@ -99,11 +103,12 @@ public class MultiAspectNodeTest {
     }
 
 
+    @SuppressWarnings("unchecked")
     public void checkCodeCoverageMultiAspect(List<String[]> scenariosList) {
 
         // Define the file location for the MultiAspect limits file
         File ssdFileLimit = new File(String.format("%s.ssdLimit",
-                ODMEEditor.fileLocation + "/" + ODMEEditor.projName));
+                EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName()));
 
         final Map<TreePath, String> limits = new HashMap<>();
 
@@ -132,7 +137,7 @@ public class MultiAspectNodeTest {
         // Process each scenario
         scenariosList.forEach(scenario -> {
             try {
-                String path = ODMEEditor.fileLocation + "/" + scenario[0] + "/graphxml.xml";
+                String path = EditorContext.getInstance().getFileLocation() + "/" + scenario[0] + "/graphxml.xml";
                 File file = new File(path);
 
                 if (file.exists()) {

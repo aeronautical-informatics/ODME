@@ -1,4 +1,6 @@
 package odme.odmeeditor;
+import odme.core.EditorContext;
+import javax.swing.JOptionPane;
 import javax.swing.*;
 import javax.swing.UIManager.LookAndFeelInfo;
 import java.awt.*;
@@ -28,14 +30,14 @@ public class Main {
       File f = new File("Main");
       f.mkdirs(); 
       
-      File scenarioFile = new File(ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/scenarios.json");
+      File scenarioFile = new File(EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/scenarios.json");
       if(!scenarioFile.exists()){ 
     	  createScenariosJson();
       }
       
       //-------------------------------------
     	
-    	// look and feel
+    	// look and feel (Modern FlatLaf UI)
         setLookAndFeel();
         
         // show splash screen
@@ -43,7 +45,7 @@ public class Main {
         splash.runningPBar();
 
         // Create and set up the main window.
-        frame = new JFrame("Operation Domain Modeling Environment");
+        frame = new JFrame("Operational Design Domain Modelling Environment");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         // Create and set up the content pane.
@@ -64,9 +66,24 @@ public class Main {
       
 //      -------------------------------------
        frame.pack();
-       ImageIcon windowIcon =
-              new ImageIcon(ODMEEditor.class.getClassLoader().getResource("images/tu_clausthal_icon.jpg"));
-       frame.setIconImage(windowIcon.getImage());
+       // Multi-resolution icons for taskbar, title bar, dock, and Alt-Tab
+       java.util.List<Image> icons = new java.util.ArrayList<>();
+       for (String size : new String[]{"16x16", "32x32", "48x48", "64x64", "128x128", "256x256", "512x512"}) {
+           java.net.URL url = ODMEEditor.class.getClassLoader().getResource("logo/odme_icon_" + size + ".png");
+           if (url != null) {
+               icons.add(new ImageIcon(url).getImage());
+           }
+       }
+       if (!icons.isEmpty()) {
+           frame.setIconImages(icons);
+           // Set macOS dock icon (overrides default Java coffee cup)
+           try {
+               Taskbar taskbar = Taskbar.getTaskbar();
+               taskbar.setIconImage(icons.get(icons.size() - 1)); // largest icon
+           } catch (UnsupportedOperationException | SecurityException ignored) {
+               // Not macOS or not supported — frame icons are enough
+           }
+       }
        frame.setExtendedState(java.awt.Frame.MAXIMIZED_BOTH);
        frame.setVisible(true);
 //      -------------------------------------
@@ -75,15 +92,24 @@ public class Main {
     
     private static void setLookAndFeel() {
         try {
-            for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
+            // Deploy the macOS native Flat theme integration natively out-of-the-box
+            com.formdev.flatlaf.themes.FlatMacLightLaf.setup();
+            
+            // Apply professional UX refinements
+            UIManager.put("Button.arc", 10);
+            UIManager.put("Component.arc", 8);
+            UIManager.put("ProgressBar.arc", 8);
+            UIManager.put("TextComponent.arc", 8);
+            UIManager.put("ScrollBar.thumbArc", 10);
+            UIManager.put("ScrollBar.thumbInsets", new java.awt.Insets(2, 2, 2, 2));
+            UIManager.put("TabbedPane.showTabSeparators", true);
+            UIManager.put("TabbedPane.tabSeparatorsFullHeight", true);
+            UIManager.put("SplitPane.dividerSize", 5);
+            UIManager.put("defaultFont", new Font("Helvetica Neue", Font.PLAIN, 13));
         } 
         catch (Exception e) {
-            // If Nimbus is not available, then have to set another look and feel.
+            // Fallback gracefully to default if unsupported
+            System.err.println("Failed to initialize FlatLaf");
         }
     }
     
@@ -100,12 +126,14 @@ public class Main {
 		data.add(jom);
     	
     	try {
-	         FileWriter file = new FileWriter(ODMEEditor.fileLocation + "/" + ODMEEditor.projName + "/scenarios.json");
+	         FileWriter file = new FileWriter(EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/scenarios.json");
 	         file.write(data.toJSONString());
 	         file.close();
 	    } 
     	catch (IOException e) {
 	         e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
 	    }
     }
 }

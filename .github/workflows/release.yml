@@ -1,0 +1,200 @@
+name: ODME Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  verify-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: "17"
+          distribution: "temurin"
+          cache: maven
+
+      - name: Verify release build
+        run: mvn -B package -Dmaven.test.skip=true --file pom.xml
+
+  build-release-assets:
+    needs: verify-release
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            artifact_name: release-windows
+          - os: ubuntu-latest
+            artifact_name: release-linux
+          - os: macos-latest
+            artifact_name: release-macos
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: "17"
+          distribution: "temurin"
+          cache: maven
+
+      - name: Install Linux packaging prerequisites
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y fakeroot rpm
+
+      - name: Make launcher scripts executable
+        if: runner.os != 'Windows'
+        run: chmod +x launcher/*.sh
+
+      - name: Import macOS signing certificate
+        if: runner.os == 'macOS' && secrets.MACOS_CERTIFICATE_P12 != '' && secrets.MACOS_CERTIFICATE_PASSWORD != '' && secrets.MACOS_SIGNING_IDENTITY != '' && secrets.MACOS_PACKAGE_IDENTIFIER != ''
+        shell: bash
+        run: |
+          CERT_PATH="$RUNNER_TEMP/odme-signing.p12"
+          KEYCHAIN_PATH="$RUNNER_TEMP/odme-signing.keychain-db"
+          KEYCHAIN_PASSWORD="${{ secrets.MACOS_CERTIFICATE_PASSWORD }}"
+
+          echo "${{ secrets.MACOS_CERTIFICATE_P12 }}" | base64 --decode > "$CERT_PATH"
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security import "$CERT_PATH" -P "$KEYCHAIN_PASSWORD" -A -t cert -f pkcs12 -k "$KEYCHAIN_PATH"
+          security list-keychains -d user -s "$KEYCHAIN_PATH"
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+
+          {
+            echo "MACOS_KEYCHAIN=$KEYCHAIN_PATH"
+            echo "MACOS_SIGNING_IDENTITY=${{ secrets.MACOS_SIGNING_IDENTITY }}"
+            echo "MACOS_PACKAGE_IDENTIFIER=${{ secrets.MACOS_PACKAGE_IDENTIFIER }}"
+          } >> "$GITHUB_ENV"
+
+      - name: Build Windows release assets
+        if: runner.os == 'Windows'
+        shell: powershell
+        run: |
+          powershell -ExecutionPolicy Bypass -File .\launcher\build-windows-exe.ps1
+          New-Item -ItemType Directory -Path .\release-assets -Force | Out-Null
+
+      - name: Sign Windows executable
+        if: runner.os == 'Windows' && secrets.WIN_CODESIGN_CERT_BASE64 != '' && secrets.WIN_CODESIGN_CERT_PASSWORD != ''
+        shell: powershell
+        run: |
+          $certPath = Join-Path $env:RUNNER_TEMP "odme-codesign.pfx"
+          [System.IO.File]::WriteAllBytes($certPath, [Convert]::FromBase64String("${{ secrets.WIN_CODESIGN_CERT_BASE64 }}"))
+          $signtool = Get-ChildItem "C:\Program Files (x86)\Windows Kits\10\bin" -Recurse -Filter signtool.exe |
+            Sort-Object FullName -Descending |
+            Select-Object -First 1
+          if (-not $signtool) {
+            throw "signtool.exe was not found on the runner."
+          }
+          & $signtool.FullName sign /fd SHA256 /td SHA256 /tr http://timestamp.digicert.com /f $certPath /p "${{ secrets.WIN_CODESIGN_CERT_PASSWORD }}" .\dist\ODME\ODME.exe
+          if ($LASTEXITCODE -ne 0) {
+            throw "signtool failed with exit code $LASTEXITCODE."
+          }
+
+      - name: Archive Windows app image
+        if: runner.os == 'Windows'
+        shell: powershell
+        run: |
+          $assetName = "ODME-windows-x64-${env:GITHUB_REF_NAME}.zip"
+          Compress-Archive -Path .\dist\ODME -DestinationPath ".\release-assets\$assetName" -Force
+
+      - name: Build Linux release assets
+        if: runner.os == 'Linux'
+        run: |
+          ./launcher/build-linux-app.sh
+          ./launcher/build-linux-installer.sh deb
+          ./launcher/build-linux-installer.sh rpm
+          mkdir -p release-assets
+          tar -C dist -czf "release-assets/ODME-linux-x64-${GITHUB_REF_NAME}.tar.gz" ODME
+          cp dist/*.deb release-assets/
+          cp dist/*.rpm release-assets/
+
+      - name: Build macOS release assets
+        if: runner.os == 'macOS'
+        run: |
+          ./launcher/build-macos-app.sh
+          ./launcher/build-macos-dmg.sh
+          mkdir -p release-assets
+
+      - name: Notarize macOS dmg
+        if: runner.os == 'macOS' && secrets.MACOS_CERTIFICATE_P12 != '' && secrets.MACOS_CERTIFICATE_PASSWORD != '' && secrets.MACOS_SIGNING_IDENTITY != '' && secrets.MACOS_PACKAGE_IDENTIFIER != '' && secrets.APPLE_ID != '' && secrets.APPLE_APP_SPECIFIC_PASSWORD != '' && secrets.APPLE_TEAM_ID != ''
+        shell: bash
+        run: |
+          DMG_PATH="$(find dist -maxdepth 1 -type f -name '*.dmg' | head -n 1)"
+          if [[ -z "$DMG_PATH" ]]; then
+            echo "No dmg found for notarization."
+            exit 1
+          fi
+          xcrun notarytool submit "$DMG_PATH" \
+            --apple-id "${{ secrets.APPLE_ID }}" \
+            --password "${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}" \
+            --team-id "${{ secrets.APPLE_TEAM_ID }}" \
+            --wait
+          xcrun stapler staple "$DMG_PATH"
+
+      - name: Archive macOS release assets
+        if: runner.os == 'macOS'
+        run: |
+          mkdir -p release-assets
+          ditto -c -k --sequesterRsrc --keepParent dist/ODME.app "release-assets/ODME-macos-app-${GITHUB_REF_NAME}.zip"
+          cp dist/*.dmg release-assets/
+
+      - name: Upload release asset bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: release-assets/*
+          if-no-files-found: error
+
+  publish-release:
+    needs: build-release-assets
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: "17"
+          distribution: "temurin"
+          cache: maven
+
+      - name: Generate CycloneDX SBOM
+        run: mvn -B -Dmaven.test.skip=true -DoutputFormat=all org.cyclonedx:cyclonedx-maven-plugin:2.9.1:makeAggregateBom --file pom.xml
+
+      - name: Collect SBOM
+        run: |
+          mkdir -p release-assets
+          cp target/bom.xml "release-assets/ODME-${GITHUB_REF_NAME}-bom.xml"
+          cp target/bom.json "release-assets/ODME-${GITHUB_REF_NAME}-bom.json"
+
+      - name: Download packaged release assets
+        uses: actions/download-artifact@v4
+        with:
+          pattern: release-*
+          merge-multiple: true
+          path: release-assets
+
+      - name: Generate release checksums
+        run: |
+          find release-assets -maxdepth 1 -type f -print0 | sort -z | xargs -0 sha256sum > release-assets/SHA256SUMS.txt
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release-assets/*
+          generate_release_notes: true
+          prerelease: ${{ contains(github.ref_name, '-') }}

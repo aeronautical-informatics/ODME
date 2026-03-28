@@ -1,5 +1,6 @@
 package behaviourtreetograph;
 
+import odme.core.EditorContext;
 import com.mxgraph.io.mxCodec;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.util.mxXmlUtils;
@@ -22,7 +23,7 @@ import java.util.Enumeration;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static odeme.behaviour.BehaviourToTree.selectedScenario;
+import static odme.behaviour.BehaviourToTree.selectedScenario;
 import static odme.jtreetograph.JtreeToGraphVariables.*;
 
 public class JtreeToGraphSave {
@@ -59,7 +60,7 @@ public class JtreeToGraphSave {
             String xml = mxXmlUtils.getXml(codec.encode(JTreeToGraphBehaviour.benhaviourGraph.getModel()));
 
             File ssdBehaviourGraph = new File (String.format("%s/%s/%s/%sbehaviourGraph.xml",
-                    ODMEEditor.fileLocation, ODMEEditor.projName,  selectedScenario, projectFileNameGraph));
+                    EditorContext.getInstance().getFileLocation(), EditorContext.getInstance().getProjName(),  selectedScenario, EditorContext.getInstance().getNewFileName()));
             java.io.FileWriter fw = new java.io.FileWriter(ssdBehaviourGraph);
             fw.write(xml);
             fw.close();

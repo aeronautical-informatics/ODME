@@ -1,5 +1,6 @@
 package odme.odmeeditor;
 
+import odme.core.EditorContext;
 import com.google.common.io.Files;
 
 import odme.contextmenus.ProjectTreePopup;
@@ -60,12 +61,14 @@ public class ProjectTree extends JPanel implements MouseListener {
         
         toolkit = Toolkit.getDefaultToolkit();
         clickControl = 0;
-        ssdFileProject = new File(String.format("%s/%sProject.xml", ODMEEditor.projName, JtreeToGraphVariables.newFileName));
+        ssdFileProject = new File(String.format("%s/%sProject.xml",
+                EditorContext.getInstance().getWorkingDir(),
+                EditorContext.getInstance().getProjName()));
 
         if (ssdFileProject.exists()) {
             // restoring jtree from xml
             XmlJTree myTree =
-                    new XmlJTree(ODMEEditor.projName + "/" + JtreeToGraphVariables.newFileName + "Project.xml");
+                    new XmlJTree(EditorContext.getInstance().getWorkingDir() + "/" + EditorContext.getInstance().getProjName() + "Project.xml");
             projectTreeModel = myTree.dtModel;
             projectTreeModel.addTreeModelListener(new ProjectTreeModelListener());
             projectTree = new JTree(projectTreeModel);
@@ -81,7 +84,7 @@ public class ProjectTree extends JPanel implements MouseListener {
             }
 
         } else {
-            projectName = JtreeToGraphVariables.newFileName + ".xml";
+            projectName = EditorContext.getInstance().getNewFileName() + ".xml";
             projectRoot = new DefaultMutableTreeNode("Project");
             mainModule = new DefaultMutableTreeNode("MainModule");
             addedModule = new DefaultMutableTreeNode("AddedModule");
@@ -130,8 +133,8 @@ public class ProjectTree extends JPanel implements MouseListener {
 
         Scanner in = null;
         try {
-        	System.out.println(ODMEEditor.projName + "/" + fileName);
-            in = new Scanner(new File(ODMEEditor.projName + "/" + fileName));
+        	System.out.println(EditorContext.getInstance().getProjName() + "/" + fileName);
+            in = new Scanner(new File(EditorContext.getInstance().getWorkingDir() + "/" + fileName));
         } 
         catch (FileNotFoundException e) {
         	return;
@@ -178,7 +181,7 @@ public class ProjectTree extends JPanel implements MouseListener {
 
                 if (currentNode.toString().equals("MainModule") || currentNode.toString()
                         .equals("AddedModule") || currentNode.toString()
-                            .equals(ODMEEditor.projName + ".xml")) {
+                            .equals(EditorContext.getInstance().getProjName() + ".xml")) {
                     toolkit.beep();
                 } else {
                     projectTreeModel.removeNodeFromParent(currentNode);
@@ -220,7 +223,7 @@ public class ProjectTree extends JPanel implements MouseListener {
 
     @Override
     public void mouseClicked(MouseEvent arg0) {
-    	if (ODMEEditor.toolMode == "pes")
+    	if ("pes".equals(EditorContext.getInstance().getToolMode()))
     		return;
     	
         if (arg0.getClickCount() == 2) // double click
@@ -241,7 +244,7 @@ public class ProjectTree extends JPanel implements MouseListener {
 
     @Override
     public void mouseReleased(MouseEvent e) {
-    	if (ODMEEditor.toolMode == "pes")
+    	if ("pes".equals(EditorContext.getInstance().getToolMode()))
     		return;
     	
         final ProjectTreePopup treePopup = new ProjectTreePopup(projectTree);

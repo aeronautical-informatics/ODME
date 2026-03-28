@@ -5,6 +5,7 @@
  */
 package odme.contextmenus;
 
+import odme.core.EditorContext;
 import com.mxgraph.model.mxCell;
 
 import odme.jtreetograph.JtreeToGraphAdd;
@@ -43,7 +44,7 @@ public class GraphCellPopUp extends JPopupMenu {
     	String [] items = buildMenuItems(pos);
     	JMenuItem item;
                 	
-    	if (ODMEEditor.toolMode == "ses") {
+    	if ("ses".equals(EditorContext.getInstance().getToolMode())) {
     		for (int i=0; i<items.length; i++) {
     			if (items[i]  == null)
     				continue;
