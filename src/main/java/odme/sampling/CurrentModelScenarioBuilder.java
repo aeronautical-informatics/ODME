@@ -350,6 +350,21 @@ public class CurrentModelScenarioBuilder {
     }
 
     public record SamplingModel(Scenario scenario, List<VariableBinding> bindings) {
+        public SamplingModel {
+            scenario = copyScenario(scenario);
+            bindings = List.copyOf(bindings);
+        }
+
+        @Override
+        public Scenario scenario() {
+            return copyScenario(scenario);
+        }
+
+        @Override
+        public List<VariableBinding> bindings() {
+            return List.copyOf(bindings);
+        }
+
         public Map<String, VariableBinding> bindingByParameterName() {
             return bindings.stream().collect(Collectors.toMap(
                     binding -> binding.parameter().getName(),
@@ -365,5 +380,44 @@ public class CurrentModelScenarioBuilder {
                                   String variableName,
                                   String rawVariable,
                                   Parameter parameter) {
+        public VariableBinding {
+            pathSegments = List.copyOf(pathSegments);
+            parameter = copyParameter(parameter);
+        }
+
+        @Override
+        public List<String> pathSegments() {
+            return List.copyOf(pathSegments);
+        }
+
+        @Override
+        public Parameter parameter() {
+            return copyParameter(parameter);
+        }
+    }
+
+    private static Scenario copyScenario(Scenario source) {
+        Scenario copy = new Scenario();
+        copy.setParameters(source.getParameters().stream()
+                .map(CurrentModelScenarioBuilder::copyParameter)
+                .toList());
+        copy.setConstraint(List.copyOf(source.getConstraint()));
+        return copy;
+    }
+
+    private static Parameter copyParameter(Parameter source) {
+        Parameter copy = new Parameter();
+        copy.setName(source.getName());
+        copy.setType(source.getType());
+        copy.setDefaultValue(source.getDefaultValue());
+        copy.setDistributionName(source.getDistributionName());
+        copy.setDistributionDetails(source.getDistributionDetails());
+        copy.setMin(source.getMin());
+        copy.setMax(source.getMax());
+        if (source.getOptions() != null) {
+            copy.setOptions(List.copyOf(source.getOptions()));
+        }
+        copy.setConstraint(source.getConstraint());
+        return copy;
     }
 }
