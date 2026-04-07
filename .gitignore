@@ -5,7 +5,7 @@
 target/
 
 # auto generated project files
-Main/
+/Main/
 .ssdbeh
 .ssdcon
 .ssdflag
