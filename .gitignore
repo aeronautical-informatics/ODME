@@ -1,2 +1,18 @@
 ### IntelliJ IDEA ###
 .idea/
+
+*.class
+target/
+
+# auto generated project files
+Main/
+.ssdbeh
+.ssdcon
+.ssdflag
+.ssdvar
+Graph.xml
+SESEditor.iml
+scenarios.json
+
+.claude
+CLAUDE.md
