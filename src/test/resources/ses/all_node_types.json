@@ -1,0 +1,57 @@
+{
+  "name": "AllTypesModel",
+  "root": {
+    "name": "System",
+    "type": "ENTITY",
+    "variables": [],
+    "constraints": [],
+    "children": [
+      {
+        "name": "SystemDecomposition",
+        "type": "ASPECT",
+        "variables": [],
+        "constraints": [],
+        "children": [
+          {
+            "name": "Component",
+            "type": "ENTITY",
+            "variables": [],
+            "constraints": [],
+            "children": [
+              {
+                "name": "ComponentVariants",
+                "type": "SPECIALIZATION",
+                "variables": [],
+                "constraints": [],
+                "children": [
+                  {
+                    "name": "VariantA",
+                    "type": "ENTITY",
+                    "variables": [],
+                    "constraints": [],
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "name": "ComponentInstances",
+                "type": "MULTI_ASPECT",
+                "variables": [],
+                "constraints": [],
+                "children": [
+                  {
+                    "name": "Instance",
+                    "type": "ENTITY",
+                    "variables": [],
+                    "constraints": [],
+                    "children": []
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

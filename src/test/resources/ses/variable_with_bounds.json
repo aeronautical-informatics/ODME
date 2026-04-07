@@ -1,0 +1,18 @@
+{
+  "name": "VariableModel",
+  "root": {
+    "name": "Vehicle",
+    "type": "ENTITY",
+    "variables": [
+      {
+        "name": "speed",
+        "type": "INT",
+        "defaultValue": "60",
+        "lowerBound": 0.0,
+        "upperBound": 200.0
+      }
+    ],
+    "constraints": [],
+    "children": []
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "name": "VehicleModel",
+  "root": {
+    "name": "Vehicle",
+    "type": "ENTITY",
+    "variables": [],
+    "constraints": [],
+    "children": [
+      {
+        "name": "VehicleDecomposition",
+        "type": "ASPECT",
+        "variables": [],
+        "constraints": [],
+        "children": [
+          {
+            "name": "PowerSource",
+            "type": "ENTITY",
+            "variables": [],
+            "constraints": [],
+            "children": [
+              {
+                "name": "PowerSourceType",
+                "type": "SPECIALIZATION",
+                "variables": [],
+                "constraints": [],
+                "children": [
+                  {
+                    "name": "Electric",
+                    "type": "ENTITY",
+                    "variables": [],
+                    "constraints": [],
+                    "children": []
+                  },
+                  {
+                    "name": "Combustion",
+                    "type": "ENTITY",
+                    "variables": [],
+                    "constraints": [],
+                    "children": []
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "Driver",
+            "type": "ENTITY",
+            "variables": [],
+            "constraints": [],
+            "children": []
+          }
+        ]
+      }
+    ]
+  }
+}

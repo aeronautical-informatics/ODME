@@ -1,4 +1,4 @@
-package ses.fixtures;
+package ses.testdata;
 
 import ses.EntityStructure;
 import ses.Node;
@@ -8,9 +8,9 @@ import ses.VariableType;
 
 /**
  * Pre-built trees for use across test classes.
- * Analogous to pytest fixtures — call the static method to get a fresh instance.
+ * Call the static method to get a fresh instance.
  */
-public class Fixtures {
+public class TestData {
 
     // -------------------------------------------------------------------------
     // Valid trees
