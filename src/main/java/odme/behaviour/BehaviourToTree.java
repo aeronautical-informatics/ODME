@@ -25,9 +25,11 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.JTree;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
@@ -57,16 +59,21 @@ public class BehaviourToTree  extends JPanel implements MouseListener{
 	public  JTree  tree;
 
 	private int clickControl;
+	public static JTable behaviorAttributeTable;
+	public static DefaultTableModel behaviorAttributeModel;
 
 	@SuppressWarnings("unchecked")
 	public BehaviourToTree(){
-		super(new GridLayout(1, 0));
+		super(new GridLayout(1, 2));
 
 		//now construct tree of behaviours
 		ssdFileBeh = new File(EditorContext.getInstance().getFileLocation() + "/"+ EditorContext.getInstance().getProjName() +"/"+ selectedScenario + "/"+ EditorContext.getInstance().getProjName()+".ssdbeh" );
 
 //		System.out.println("Path  = "+EditorContext.getInstance().getFileLocation() + "/"+ EditorContext.getInstance().getProjName() +"/"+ selectedScenario + "/"+ EditorContext.getInstance().getProjName()+".ssdbeh");
 		behavioursList = ArrayListMultimap.create();
+		String[] topNames = {"Attribute", "Value"};
+		behaviorAttributeModel = new DefaultTableModel(topNames, 0);
+		behaviorAttributeTable = new JTable(behaviorAttributeModel);
 
 		if(ssdFileBeh.exists()) {
 			//read Node from the  file
@@ -116,15 +123,18 @@ public class BehaviourToTree  extends JPanel implements MouseListener{
 //	              // for cursor change
 
 				tree.addMouseListener(this);
-
-				JScrollPane scrollPane = new JScrollPane(tree);
-				add(scrollPane);
-
 			}catch(Exception e) {
 			}
 		} else {
 			System.out.println("Behaviour file does not exist");
+			tree = new JTree(new DefaultMutableTreeNode(""));
 		}
+
+		JScrollPane treeScrollPane = new JScrollPane(tree);
+		add(treeScrollPane);
+
+		JScrollPane tableScrollPane = new JScrollPane(behaviorAttributeTable);
+		add(tableScrollPane);
 	}
 
 	public static String[][] convert(Multimap<TreePath ,String> multiMap) {
@@ -146,18 +156,15 @@ public class BehaviourToTree  extends JPanel implements MouseListener{
 			TreePath treePath = entry.getKey();
 			Collection<String> values = entry.getValue();
 
-			String[] row = new String[treePath.getPathCount() + values.size()];
-
-			int index = 0;
-			for (Object pathComponent : treePath.getPath()) {
-				row[index++] = pathComponent.toString();
-			}
-
 			for (String value : values) {
-				row[index++] = value;
+				String[] row = new String[treePath.getPathCount() + 1];
+				int index = 0;
+				for (Object pathComponent : treePath.getPath()) {
+					row[index++] = pathComponent.toString();
+				}
+				row[index] = value;
+				resultList.add(row);
 			}
-
-			resultList.add(row);
 		}
 
 		return resultList.toArray(new String[0][0]);
@@ -211,8 +218,14 @@ public class BehaviourToTree  extends JPanel implements MouseListener{
             tree.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
             clickControl = 1;
             String name = path.getLastPathComponent().toString();
-                       
-            ODMEBehaviourEditor.nodeBehaviour = name;
+
+            DefaultMutableTreeNode selectedNode =
+                    (DefaultMutableTreeNode) path.getLastPathComponent();
+            if (selectedNode.isLeaf()) {
+                ODMEBehaviourEditor.nodeBehaviour = name;
+            } else {
+                ODMEBehaviourEditor.nodeBehaviour = "";
+            }
             System.out.println(name);
         }
 	}

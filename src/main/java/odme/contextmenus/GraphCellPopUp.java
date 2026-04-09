@@ -63,6 +63,12 @@ public class GraphCellPopUp extends JPopupMenu {
     					case "Add Behaviour":
     						JtreeToGraphAdd.addBehaviourFromGraphPopup(pos);
     						break;
+    					case "Delete Behaviour":
+    						JtreeToGraphDelete.deleteBehaviourFromGraphPopup(pos);
+    						break;
+    					case "Delete All Behaviours":
+    						JtreeToGraphDelete.deleteAllBehavioursFromGraphPopup(pos);
+    						break;
     					case "Delete Variable":
     						JtreeToGraphDelete.deleteVariableFromGraphPopup(pos);
     						break;
@@ -131,7 +137,7 @@ public class GraphCellPopUp extends JPopupMenu {
         JtreeToGraphVariables.connectedToRoot = false; // have to assign false because isConnectedToRoot() function
         // assign true during calling
 
-    	String[] items = new String[10];
+    	String[] items = new String[12];
     	
     	if (cell.isVertex()) {
     		if (cell.getId().startsWith("uniformity") && connected) {
@@ -140,17 +146,19 @@ public class GraphCellPopUp extends JPopupMenu {
     		}
     		else {
     			items[0] = "Add Variable";
-    			items[1] = "Rename";
-    			items[2] = "Delete Variable";
-    			items[3] = "Delete All Variables";
-    			items[4] = "Delete Branch";
-    			items[5] = "Add Module";
-    			items[6] = "Save Module";
-    			items[7] = "Add Behaviour";
+    			items[1] = "Add Behaviour";
+    			items[2] = "Delete Behaviour";
+    			items[3] = "Delete All Behaviours";
+    			items[4] = "Rename";
+    			items[5] = "Delete Variable";
+    			items[6] = "Delete All Variables";
+    			items[7] = "Delete Branch";
+    			items[8] = "Add Module";
+    			items[9] = "Save Module";
 
     			if (cellName.endsWith("Dec")) {
-        			items[8] = "Add Constraint";
-        			items[9] = "Delete All Constraint";
+        			items[10] = "Add Constraint";
+        			items[11] = "Delete All Constraint";
     			}
     		}
     	}

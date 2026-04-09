@@ -147,14 +147,14 @@ public class Behaviour extends JPanel {
         behavioursField.setText(behaviour);
         
         String behaviourOld = behaviour;
-        Object[] message = {"Behaviours:", behavioursField};
+        Object[] message = {"Behaviours (leave empty to delete):", behavioursField};
         
         int option = JOptionPane
-                .showConfirmDialog(Main.frame, message, "Please Update", JOptionPane.OK_CANCEL_OPTION,
+                .showConfirmDialog(Main.frame, message, "Update Behaviour", JOptionPane.OK_CANCEL_OPTION,
                         JOptionPane.PLAIN_MESSAGE);
         
         if (option == JOptionPane.OK_OPTION) {
-            behaviour = behavioursField.getText();
+            behaviour = behavioursField.getText().trim();
             JtreeToGraphDelete.deleteBehaviourFromScenarioTableForUpdate(
                     JtreeToGraphVariables.selectedNodeCellForVariableUpdate, behaviourOld, behaviour);
         }

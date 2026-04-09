@@ -8,7 +8,7 @@ MAVEN_REPO_DIR="${REPO_ROOT}/build/.m2/repository"
 DIST_DIR="${REPO_ROOT}/dist"
 APP_DIR="${DIST_DIR}/ODME"
 
-PROJECT_VERSION="$(sed -n '0,/<version>/{s:.*<version>\(.*\)<\/version>.*:\1:p}' "${REPO_ROOT}/pom.xml")"
+PROJECT_VERSION="$(grep -m1 '<version>' "${REPO_ROOT}/pom.xml" | sed -E 's|.*<version>([^<]+)</version>.*|\1|')"
 APP_VERSION="${PROJECT_VERSION%-SNAPSHOT}"
 
 if [[ "$(uname -s)" != "Linux" ]]; then

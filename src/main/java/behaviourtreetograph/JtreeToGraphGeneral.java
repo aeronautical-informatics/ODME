@@ -21,6 +21,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import static behaviourtreetograph.JTreeToGraphBehaviour.behaviorsWithAttributes;
 import static behaviourtreetograph.JTreeToGraphBehaviour.benhaviourGraph;
 import static odme.jtreetograph.JtreeToGraphVariables.*;
 
@@ -65,10 +66,7 @@ public class JtreeToGraphGeneral {
     }
     
     public static Element childNodes(Document thisDoc, mxCell cell) {
-        Element thisElement = null;
-
-        String nodeName = benhaviourGraph.getModel().getValue(cell).toString();
-        thisElement = thisDoc.createElement(nodeName);
+        Element thisElement = createBehaviourElement(thisDoc, cell);
 
         Object[] outgoing = benhaviourGraph.getOutgoingEdges(cell);
 
@@ -84,10 +82,7 @@ public class JtreeToGraphGeneral {
     }
 
     public static Element behaviourChildNodes(Document thisDoc, mxCell cell) {
-        Element thisElement = null;
-
-        String nodeName = benhaviourGraph.getModel().getValue(cell).toString();
-        thisElement = thisDoc.createElement(nodeName);
+        Element thisElement = createBehaviourElement(thisDoc, cell);
 
         Object[] outgoing = benhaviourGraph.getOutgoingEdges(cell);
 
@@ -105,10 +100,7 @@ public class JtreeToGraphGeneral {
 
 
     public static Element childNodesWithUniformity(Document thisDoc, mxCell cell) {
-        Element thisElement = null;
-
-        String nodeName = benhaviourGraph.getModel().getValue(cell).toString();
-        thisElement = thisDoc.createElement(nodeName);
+        Element thisElement = createBehaviourElement(thisDoc, cell);
 
         Object[] outgoing = benhaviourGraph.getOutgoingEdges(cell);
 
@@ -131,6 +123,48 @@ public class JtreeToGraphGeneral {
             }
         }
         return thisElement;
+    }
+
+    private static Element createBehaviourElement(Document thisDoc, mxCell cell) {
+        String nodeName = String.valueOf(benhaviourGraph.getModel().getValue(cell));
+
+        if (nodeName.startsWith("Decorator")) {
+            Element decoratorElement = thisDoc.createElement("Decorator");
+            if (nodeName.startsWith("Decorator_")) {
+                decoratorElement.setAttribute("condition",
+                        nodeName.substring("Decorator_".length()));
+            }
+            return decoratorElement;
+        }
+
+        Element element = thisDoc.createElement(nodeName);
+        if ("Entity".equals(cell.getStyle())) {
+            addBehaviorAttributes(element, nodeName);
+        }
+        return element;
+    }
+
+    private static void addBehaviorAttributes(Element element, String nodeName) {
+        for (BehaviorAttributeOverview overview : behaviorsWithAttributes) {
+            if (!overview.getBehaviorName().equals(nodeName)) {
+                continue;
+            }
+
+            StringBuilder attributes = new StringBuilder();
+            for (BehaviorAttribute attribute : overview.getAttributes()) {
+                if (attributes.length() > 0) {
+                    attributes.append("; ");
+                }
+                attributes.append(attribute.getName())
+                        .append(" = ")
+                        .append(attribute.getValue());
+            }
+
+            if (attributes.length() > 0) {
+                element.setAttribute("Attributes", attributes.toString());
+            }
+            return;
+        }
     }
     
  // for modifying the generated xml output

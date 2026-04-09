@@ -7,7 +7,7 @@ STAGE_DIR="${REPO_ROOT}/build/jpackage-input"
 MAVEN_REPO_DIR="${REPO_ROOT}/build/.m2/repository"
 DIST_DIR="${REPO_ROOT}/dist"
 
-PROJECT_VERSION="$(sed -n '0,/<version>/{s:.*<version>\(.*\)<\/version>.*:\1:p}' "${REPO_ROOT}/pom.xml")"
+PROJECT_VERSION="$(grep -m1 '<version>' "${REPO_ROOT}/pom.xml" | sed -E 's|.*<version>([^<]+)</version>.*|\1|')"
 APP_VERSION="${PROJECT_VERSION%-SNAPSHOT}"
 JPACKAGE_SIGN_ARGS=()
 
@@ -52,17 +52,30 @@ mkdir -p "${STAGE_DIR}"
 cp "${TARGET_JAR}" "${STAGE_DIR}/"
 
 echo "Creating macOS dmg installer..."
-jpackage \
-  --type dmg \
-  --name ODME \
-  --app-version "${APP_VERSION}" \
-  --input "${STAGE_DIR}" \
-  --main-jar "$(basename "${TARGET_JAR}")" \
-  --main-class odme.odmeeditor.Main \
-  --dest "${DIST_DIR}" \
-  --vendor "DLR SES" \
-  --description "Operation Domain Modeling Environment" \
-  "${JPACKAGE_SIGN_ARGS[@]}"
+if [[ -n "${MACOS_SIGNING_IDENTITY:-}" ]]; then
+  jpackage \
+    --type dmg \
+    --name ODME \
+    --app-version "${APP_VERSION}" \
+    --input "${STAGE_DIR}" \
+    --main-jar "$(basename "${TARGET_JAR}")" \
+    --main-class odme.odmeeditor.Main \
+    --dest "${DIST_DIR}" \
+    --vendor "DLR SES" \
+    --description "Operation Domain Modeling Environment" \
+    "${JPACKAGE_SIGN_ARGS[@]}"
+else
+  jpackage \
+    --type dmg \
+    --name ODME \
+    --app-version "${APP_VERSION}" \
+    --input "${STAGE_DIR}" \
+    --main-jar "$(basename "${TARGET_JAR}")" \
+    --main-class odme.odmeeditor.Main \
+    --dest "${DIST_DIR}" \
+    --vendor "DLR SES" \
+    --description "Operation Domain Modeling Environment"
+fi
 
 echo
 echo "macOS installer created in:"
