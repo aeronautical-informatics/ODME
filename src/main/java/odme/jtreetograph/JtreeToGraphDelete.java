@@ -144,12 +144,193 @@ public class JtreeToGraphDelete {
 			}
 
 			// have to call a function to refresh the table view
-			DynamicTree.behavioursList.put(treePathForVariable, variableNameNew);
+			if ((variableNameNew != null) && (!variableNameNew.trim().isEmpty())) {
+				DynamicTree.behavioursList.put(treePathForVariable, variableNameNew);
+			}
 			// ---------------------------------------------------end
 
 			pathToRoot.clear();
 			ODMEEditor.treePanel.showBehavioursInTable(treePathForVariable);
 		}
+	}
+
+	public static void deleteBehaviourFromGraphPopup(Object pos) {
+		String behaviourName = null;
+		mxCell cell = (mxCell) pos;
+
+		pathToRoot.add((String) cell.getValue());
+		JtreeToGraphConvert.nodeToRootPathVar(cell);
+
+		String[] stringArray = pathToRoot.toArray(new String[0]);
+		ArrayList<String> pathToRootRev = new ArrayList<String>();
+
+		for (int i = stringArray.length - 1; i >= 0; i--) {
+			pathToRootRev.add(stringArray[i]);
+		}
+
+		String[] stringArrayRev = pathToRootRev.toArray(new String[0]);
+		TreePath treePathForBehaviour = JtreeToGraphGeneral.getTreeNodePath(stringArrayRev);
+
+		int b = 0;
+		String[] nodesToSelectedNode = new String[100];
+		nodesToSelectedNode[b] = "Select Behaviour:";
+		b++;
+
+		if (treePathForBehaviour != null) {
+			DefaultMutableTreeNode currentNode =
+					(DefaultMutableTreeNode) (treePathForBehaviour.getLastPathComponent());
+			TreeNode[] nodes = currentNode.getPath();
+
+			for (TreePath key : DynamicTree.behavioursList.keySet()) {
+				int a = 0;
+
+				for (String value : DynamicTree.behavioursList.get(key)) {
+					DefaultMutableTreeNode currentNode2 =
+							(DefaultMutableTreeNode) (key.getLastPathComponent());
+					TreeNode[] nodes2 = currentNode2.getPath();
+
+					if (nodes.length == nodes2.length) {
+						int aa = 1;
+						for (int i = 0; i < nodes.length; i++) {
+							if (!nodes[i].toString().equals(nodes2[i].toString())) {
+								aa = 0;
+								break;
+							}
+						}
+						a = aa;
+					}
+
+					if (a == 1) {
+						nodesToSelectedNode[b] = value;
+						b++;
+					}
+				}
+			}
+		}
+
+		nodesToSelectedNode = Arrays.stream(nodesToSelectedNode).filter(s -> (s != null && s.length() > 0))
+				.toArray(String[]::new);
+
+		if (nodesToSelectedNode.length <= 1) {
+			pathToRoot.clear();
+			JOptionPane.showMessageDialog(Main.frame, "No behaviours found for this node.");
+			return;
+		}
+
+		JComboBox<String> behaviourList = new JComboBox<String>(nodesToSelectedNode);
+		behaviourList.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				selectedVariable = behaviourList.getSelectedItem().toString().trim();
+			}
+		});
+
+		Object[] message = {"Behaviour:", behaviourList};
+
+		int option = JOptionPane
+				.showConfirmDialog(Main.frame, message, "Please Select", JOptionPane.OK_CANCEL_OPTION,
+						JOptionPane.PLAIN_MESSAGE);
+
+		if (option == JOptionPane.OK_OPTION) {
+			behaviourName = selectedVariable;
+
+			if ((behaviourName != null) && (!behaviourName.trim().isEmpty())) {
+				DefaultMutableTreeNode currentNode =
+						(DefaultMutableTreeNode) (treePathForBehaviour.getLastPathComponent());
+				TreeNode[] nodes = currentNode.getPath();
+
+				int yv = 0;
+				TreePath keyDel = null;
+				for (TreePath key : DynamicTree.behavioursList.keySet()) {
+					int a = 0;
+					DefaultMutableTreeNode currentNode2 =
+							(DefaultMutableTreeNode) (key.getLastPathComponent());
+					TreeNode[] nodes2 = currentNode2.getPath();
+
+					if (nodes.length == nodes2.length) {
+						int aa = 1;
+						for (int i = 0; i < nodes.length; i++) {
+							if (!nodes[i].toString().equals(nodes2[i].toString())) {
+								aa = 0;
+								break;
+							}
+						}
+						a = aa;
+					}
+					if (a == 1) {
+						for (String value : DynamicTree.behavioursList.get(key)) {
+							if (value.equals(behaviourName)) {
+								yv = 1;
+								keyDel = key;
+							}
+						}
+					}
+				}
+				if (yv == 1) {
+					DynamicTree.behavioursList.remove(keyDel, behaviourName);
+				}
+
+				ODMEEditor.treePanel.showBehavioursInTable(treePathForBehaviour);
+			}
+		}
+
+		pathToRoot.clear();
+		selectedVariable = "";
+	}
+
+	public static void deleteAllBehavioursFromGraphPopup(Object pos) {
+		mxCell cellForAddingBehaviour = (mxCell) pos;
+		pathToRoot.add((String) cellForAddingBehaviour.getValue());
+		JtreeToGraphConvert.nodeToRootPathVar(cellForAddingBehaviour);
+
+		String[] stringArray = pathToRoot.toArray(new String[0]);
+		ArrayList<String> pathToRootRev = new ArrayList<String>();
+
+		for (int i = stringArray.length - 1; i >= 0; i--) {
+			pathToRootRev.add(stringArray[i]);
+		}
+
+		String[] stringArrayRev = pathToRootRev.toArray(new String[0]);
+		TreePath treePathForBehaviour = JtreeToGraphGeneral.getTreeNodePath(stringArrayRev);
+
+		DefaultMutableTreeNode currentNode =
+				(DefaultMutableTreeNode) (treePathForBehaviour.getLastPathComponent());
+		TreeNode[] nodes = currentNode.getPath();
+
+		List<TreePath> delKeys = new ArrayList<TreePath>();
+		int yv = 0;
+
+		for (TreePath key : DynamicTree.behavioursList.keySet()) {
+			int a = 0;
+			DefaultMutableTreeNode currentNode2 = (DefaultMutableTreeNode) (key.getLastPathComponent());
+			TreeNode[] nodes2 = currentNode2.getPath();
+
+			if (nodes.length == nodes2.length) {
+				int aa = 1;
+				for (int i = 0; i < nodes.length; i++) {
+					if (!nodes[i].toString().equals(nodes2[i].toString())) {
+						aa = 0;
+						break;
+					}
+				}
+				a = aa;
+			}
+			if (a == 1) {
+				yv = 1;
+				delKeys.add(key);
+			}
+		}
+
+		if (yv == 1) {
+			for (TreePath k : delKeys) {
+				DynamicTree.behavioursList.asMap().remove(k);
+			}
+		} else {
+			JOptionPane.showMessageDialog(Main.frame, "No behaviours found for this node.");
+		}
+
+		ODMEEditor.treePanel.showBehavioursInTable(treePathForBehaviour);
+		pathToRoot.clear();
 	}
 
 	public static void deleteVariableFromGraphPopup(Object pos) {

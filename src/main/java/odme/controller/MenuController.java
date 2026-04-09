@@ -107,6 +107,7 @@ public class MenuController {
                 System.exit(1);
                 break;
             case "Manual":
+            case "User Manual":
                 manualFunc();
                 break;
             case "About":

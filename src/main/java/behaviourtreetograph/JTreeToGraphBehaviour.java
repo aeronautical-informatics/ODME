@@ -3,10 +3,14 @@ package behaviourtreetograph;
 
 import java.awt.*;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.List;
 
 import javax.swing.*;
 import javax.swing.event.TreeModelEvent;
@@ -27,6 +31,7 @@ import com.mxgraph.util.mxEventSource.mxIEventListener;
 import com.mxgraph.view.mxGraph;
 import com.mxgraph.view.mxStylesheet;
 
+import odme.behaviour.BehaviourToTree;
 import odme.behaviour.ODMEBehaviourEditor;
 
 import odme.core.UndoableTreeModel;
@@ -45,6 +50,7 @@ public class JTreeToGraphBehaviour {
 	public JTree tree;
 
 	private Toolkit toolkit;
+	public static final List<BehaviorAttributeOverview> behaviorsWithAttributes = new ArrayList<>();
 
 	JTreeToGraphBehaviour(){
 
@@ -56,6 +62,11 @@ public class JTreeToGraphBehaviour {
 
 	}
 	public static void createGraph(JInternalFrame frame) {
+
+		behaviorsWithAttributes.clear();
+		if (BehaviourToTree.behaviorAttributeModel != null) {
+			BehaviourToTree.behaviorAttributeModel.setRowCount(0);
+		}
 
 		benhaviourGraph = new mxGraph();
 		undoManager = new mxUndoManager();
@@ -190,7 +201,7 @@ public class JTreeToGraphBehaviour {
 										80, 30, "Entity");
 								behaviourNodeNumber++;
 							} else if (ODMEBehaviourEditor.nodeAddDecorator.equals("Decorator")) {
-								benhaviourGraph.insertVertex(behaviourParent, "Loop repeat ",  "Loop", e.getX() - 40,
+								benhaviourGraph.insertVertex(behaviourParent, "Decorator",  "Decorator", e.getX() - 40,
 										e.getY(), 80, 30, "Decorator");
 								behaviourNodeNumber++;
 							} else if (ODMEBehaviourEditor.nodeAddDecorator.equals("Selector")) {
@@ -253,19 +264,38 @@ public class JTreeToGraphBehaviour {
 					callAfterEdgeConnectionComplete();
 				} // button 1 end
 
-				// right click events using pop up menu
-//				if (e.getButton() == MouseEvent.BUTTON3) {
-////                        	// double click handling
-//					if (e.getClickCount() == 2) {
-//						mxCell clikedCell = (mxCell) cell;
-//						if (clikedCell.isVertex()) {
-//
-//							Object position = behaviourGraphComponent.getCellAt(e.getX(), e.getY());
-//							JtreeToGraphGeneral.renameCell(position);
-//
-//						}
-//					}
-//				}
+				if (e.getButton() == MouseEvent.BUTTON1) {
+					if (cell instanceof mxCell) {
+						mxCell clickedCell = (mxCell) cell;
+						if (e.getClickCount() == 2 && "Decorator".equals(clickedCell.getStyle())) {
+							String currentValue = String.valueOf(clickedCell.getValue());
+							String currentCondition = currentValue.startsWith("Decorator_")
+									? currentValue.replaceFirst("Decorator_", "")
+									: ("Decorator".equals(currentValue) ? "" : currentValue);
+							String condition = JOptionPane.showInputDialog("Condition / Loop", currentCondition);
+							if (condition != null) {
+								String trimmedCondition = condition.trim();
+								clickedCell.setValue(trimmedCondition.isEmpty()
+										? "Decorator"
+										: "Decorator_" + trimmedCondition);
+								behaviourGraphComponent.refresh();
+							}
+						} else if (isBehaviorEntity(clickedCell)) {
+							populateBehaviorAttributesTable(String.valueOf(clickedCell.getValue()));
+						} else if (BehaviourToTree.behaviorAttributeModel != null) {
+							BehaviourToTree.behaviorAttributeModel.setRowCount(0);
+						}
+					} else if (BehaviourToTree.behaviorAttributeModel != null) {
+						BehaviourToTree.behaviorAttributeModel.setRowCount(0);
+					}
+				}
+
+				if (e.getButton() == MouseEvent.BUTTON3 && cell instanceof mxCell) {
+					mxCell clickedCell = (mxCell) cell;
+					if (isBehaviorEntity(clickedCell)) {
+						showAttributePopup(e, clickedCell);
+					}
+				}
 
 			}
 			// mouse event 2
@@ -312,6 +342,78 @@ public class JTreeToGraphBehaviour {
 				lastAddedCell = null;
 			}
 		}
+	}
+
+	private static boolean isBehaviorEntity(mxCell cell) {
+		return cell != null
+				&& "Entity".equals(cell.getStyle())
+				&& !"Events".equals(String.valueOf(cell.getValue()));
+	}
+
+	private static void populateBehaviorAttributesTable(String behaviorName) {
+		if (BehaviourToTree.behaviorAttributeModel == null) {
+			return;
+		}
+
+		BehaviourToTree.behaviorAttributeModel.setRowCount(0);
+		BehaviorAttributeOverview overview = findBehaviorAttributes(behaviorName);
+		if (overview == null) {
+			return;
+		}
+
+		for (BehaviorAttribute attribute : overview.getAttributes()) {
+			Object[] behaviorAttributeSet = {attribute.getName(), attribute.getValue()};
+			BehaviourToTree.behaviorAttributeModel.addRow(behaviorAttributeSet);
+		}
+	}
+
+	private static BehaviorAttributeOverview findBehaviorAttributes(String behaviorName) {
+		for (BehaviorAttributeOverview overview : behaviorsWithAttributes) {
+			if (overview.getBehaviorName().equals(behaviorName)) {
+				return overview;
+			}
+		}
+		return null;
+	}
+
+	private static void addBehaviorAttribute(String behaviorName, BehaviorAttribute attribute) {
+		BehaviorAttributeOverview overview = findBehaviorAttributes(behaviorName);
+		if (overview == null) {
+			overview = new BehaviorAttributeOverview(behaviorName);
+			behaviorsWithAttributes.add(overview);
+		}
+		overview.addAttribute(attribute);
+	}
+
+	private static void showAttributePopup(MouseEvent event, mxCell clickedCell) {
+		JPopupMenu popupMenu = new JPopupMenu();
+		JMenuItem menuItem = new JMenuItem("Add attribute");
+		menuItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JTextField attributeName = new JTextField();
+				JTextField attributeValue = new JTextField();
+				Object[] message = {"name", attributeName, "value", attributeValue};
+				int input = JOptionPane.showConfirmDialog(null, message, "Add Behavior Attribute",
+						JOptionPane.OK_CANCEL_OPTION);
+
+				if (input != JOptionPane.OK_OPTION) {
+					return;
+				}
+
+				String name = attributeName.getText().trim();
+				if (name.isEmpty()) {
+					return;
+				}
+
+				BehaviorAttribute newAttribute = new BehaviorAttribute(name, attributeValue.getText().trim());
+				String behaviorName = String.valueOf(clickedCell.getValue());
+				addBehaviorAttribute(behaviorName, newAttribute);
+				populateBehaviorAttributesTable(behaviorName);
+			}
+		});
+		popupMenu.add(menuItem);
+		popupMenu.show(event.getComponent(), event.getX(), event.getY());
 	}
 
 	class MyTreeModelListener implements TreeModelListener {

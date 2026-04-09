@@ -100,7 +100,7 @@ public class MenuBar {
 		addMenu("Tools", 0, items_tools, keyevents_tools, keys_tools, images_tools);
 		
 		// Help Menu
-		final String[] items_help =  {"Manual"     , "About"   };
+		final String[] items_help =  {"User Manual", "About"   };
 		final int[] keyevents_help = {KeyEvent.VK_M, KeyEvent.VK_B};
 		final String[] keys_help =   {"control M"  , "control B"  };
 		final String[] images_help = {"manual_icon", "about_icon"  };
