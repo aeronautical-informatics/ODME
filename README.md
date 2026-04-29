@@ -1,135 +1,296 @@
 # Operational Design Domain Modeling Environment (ODME)
 
-### Table of Contents
-
-* [Overview](#overview)
-* [Key Features](#key-features)
-* [Getting Started](#getting-started)
-* [Example: Runway Sign Classifier](#example-runway-sign-classifier)
-* [Workflow](#workflow)
-* [Architecture](#architecture)
-* [Contributing](#contributing)
-* [License](#license)
-
 ## Overview
 
-The **Operational Design Domain Modeling Environment (ODME)** is a desktop application for authoring, validating, and managing Operational Design Domain (ODD) models for AI-based systems in safety-critical domains, with a focus on aviation.
+The **Operational Design Domain Modeling Environment (ODME)** is a desktop application for authoring, validating, and managing **Operational Design Domain (ODD)** models for AI-based systems in safety-critical domains, with a strong focus on aviation use cases.
 
-ODME implements the **System Entity Structure (SES)** formalism to model the operational conditions under which an AI/ML system is designed to function. From a single SES model, users can derive **Pruned Entity Structures (PES)** representing concrete test scenarios, attach variables with ranges to define the continuous parameter space, and generate test cases using **Latin Hypercube Sampling (LHS)** for efficient coverage of the ODD.
+ODME uses the **System Entity Structure (SES)** formalism to model the operational conditions under which an AI or ML system is intended to function. From a single SES model, users can derive **Pruned Entity Structures (PES)** for concrete scenarios, attach variables and constraints, define behavior information, generate ODD views, and create scenario samples for downstream analysis.
 
-The tool supports the AI Learning Assurance workflow defined in the **EASA AI Roadmap 2.0** and is designed to produce evidence artifacts for certification of ML-based airborne systems.
+The current codebase contains:
 
-## Key Features
+- a Swing desktop editor for domain and scenario modelling
+- a behavior modelling editor for scenario-linked behaviors
+- an ODD manager and sampling workflow
+- execution and Python plugin support
+- native packaging scripts for Windows, Linux, and macOS
 
-| Mode | Description | Status |
-|------|-------------|--------|
-| **Domain Modeling Editor** | SES tree construction with synchronized graph view, variable/constraint attachment, XSD validation | Stable |
-| **Scenario Modelling Editor** | Interactive SES→PES pruning to derive concrete test scenarios | Stable |
-| **ODD Manager** | Generate, save, edit, and export Operational Design Domains in XML/YAML/CSV, with distribution metadata columns | Stable |
-| **LHS Test Case Generation** | Latin Hypercube Sampling over ODD parameter ranges for coverage-efficient test vectors | Stable |
-| **Constrained Sampling Pipeline** | YAML-driven sampling with constraint-based rejection sampling, distribution-aware generation, and CSV export | Stable |
-| **Scenario Generation from CSV** | Bulk-generate individual XML scenario files from a sampled CSV (column format: `EntityName_Variable`) | Stable |
-| **Intra/Inter-Entity Constraints** | Split constraint panels: intra-entity (within one entity) and inter-entity (across entities) with double-click editing | Stable |
-| **Distribution Panel** | Per-variable probability distribution metadata panel (distribution name + details) in the right-side data view | Stable |
-| **Behavior Modelling Editor** | Behavior tree editor for entity functions, XML export | Work in Progress |
-| **Scenario Manager** | Scenario catalogue with risk factors and lifecycle states | Work in Progress |
-| **CAMEO Import Plugin** | Import SysML operational scenarios from CAMEO into ODME | Work in Progress |
-| **Scripting Add-On** | Translate scenarios to executable Python scripts for simulation | Work in Progress |
+## Table of Contents
+
+- [Overview](#overview)
+- [What ODME Currently Supports](#what-odme-currently-supports)
+- [Application Modes and Menus](#application-modes-and-menus)
+- [Getting Started](#getting-started)
+- [Run ODME on Windows](#run-odme-on-windows)
+- [Run ODME from Git Bash](#run-odme-from-git-bash)
+- [Run Tests](#run-tests)
+- [Example Project: Runway Sign Classifier](#example-project-runway-sign-classifier)
+- [Architecture](#architecture)
+- [Contributing](#contributing)
+- [License](#license)
+
+## What ODME Currently Supports
+
+| Area | Current functionality | Status |
+|------|------------------------|--------|
+| **Domain Modelling** | SES tree construction with synchronized graph view, node editing, variables, constraints, behaviors, distributions, XML/XSD generation | Stable |
+| **Scenario Modelling** | Save scenarios, derive scenario-specific structures, generate scenarios from CSV input | Stable |
+| **Behavior Modelling** | Sync behaviors from scenarios, build behavior trees and behavior graphs, decorator conditions, behavior attributes, XML export | Stable for core workflows |
+| **Operation Design Domain** | Generate OD view and manage ODD data in the ODD Manager | Stable |
+| **Sampling** | YAML-driven constrained sampling, Latin Hypercube Sampling, CSV export | Stable |
+| **Execution** | Open the execution window for XML, YAML, and Python-oriented workflows | Available |
+| **Python Plugin Support** | Run a Python plugin against the current project context | Available |
+| **Import From Cameo** | Import external model data through the Cameo import flow | Available |
+| **Help System** | Bundled user manual available from the Help menu | Stable |
+
+## Application Modes and Menus
+
+The top-level menus in the current application are the clearest way to understand what ODME does. The README below mirrors the actual menu structure in the code.
+
+### File
+
+- `Save`: saves the current project and generated artifacts
+- `Save As`: saves the project under a new project name
+- `Save as PNG`: exports the current graph canvas as an image
+- `Exit`: closes the application
+
+### Domain Modelling
+
+This is the main authoring mode for the SES model.
+
+- `New Project`: create a new ODME project
+- `Open`: open an existing project folder
+- `Import Template`: import a template project
+- `Save as Template`: export the current model as a template
+- `Import From Cameo`: start the Cameo import workflow
+
+Typical work in this mode includes:
+
+- building the SES structure in the graph and tree views
+- adding entity variables
+- adding and deleting behaviors on entity nodes
+- editing constraints and metadata
+- saving project XML and graph artifacts
+
+### Scenario Modelling
+
+This menu is used for scenario creation from the currently open domain model.
+
+- `Save Scenario`: create or save a scenario entry
+- `Generate Scenario -> From CSV`: create scenario files from CSV rows
+
+### Behavior Modelling
+
+This menu opens the separate behavior editor flow.
+
+- `Sync Behaviour`: open the scenario-linked behavior workflow
+
+From there, the current code supports:
+
+- selecting behavior leaves from the left tree
+- placing them into the behavior graph
+- adding selector, sequence, parallel, and decorator nodes
+- editing decorator conditions
+- attaching behavior attributes to behavior entities
+- saving and exporting behavior graph data
+
+### Operation Design Domain
+
+This menu contains the ODD-specific workflow.
+
+- `Generate OD`: generate the current OD view from the model
+- `ODD Manager`: inspect and manage ODD data, ranges, and exports
+
+### Scenario Manager
+
+This menu groups downstream scenario tools.
+
+- `Scenarios List`: open saved scenarios
+- `Execution`: open the execution window
+- `Feedback Loop`: reserved scenario workflow entry point
+- `Generate Samples`: open the constrained sample generation panel
+
+Some scenario-related actions stay disabled until a project is open.
+
+### Tools
+
+- `Run Python Plugin...`: run a Python script with access to the current project session
+
+### Help
+
+- `User Manual`: open the bundled ODME user manual
+- `About`: open the about dialog
 
 ## Getting Started
 
 ### Prerequisites
 
-- **Java 17+** (tested with OpenJDK 17 and 21)
-- **Maven 3.8+**
+- **Java 17 or newer**
+- **Maven 3.8 or newer**
 
-### Build and Run
+If you want to build a native desktop app image:
+
+- use a full JDK that includes `jpackage`
+
+### Recommended first run
+
+If you simply want to try the editor:
+
+1. clone the repository
+2. build the project
+3. launch the JAR or the packaged app
+4. open the bundled example project `examples/RunwaySignClassifier`
+5. review `Help -> User Manual`
+
+Clone command:
 
 ```bash
-git clone https://github.com/umutdurak/ODME.git
+git clone https://github.com/aeronautical-informatics/ODME.git
 cd ODME
+```
+
+## Run ODME on Windows
+
+There are two common ways to run ODME on Windows.
+
+### Option 1: Run from source as a JAR
+
+From PowerShell:
+
+```powershell
+cd C:\path\to\ODME
+$env:MAVEN_OPTS='-Dmaven.repo.local=C:\path\to\ODME\build\.m2\repository -Dmaven.user.home=C:\path\to\ODME\build\.m2'
+mvn clean package -DskipTests
+java -jar .\target\SESEditor-2.0.0-SNAPSHOT.jar
+```
+
+What this does:
+
+- downloads dependencies
+- builds the shaded application JAR
+- launches the desktop application directly
+
+### Option 2: Build the Windows app image
+
+From PowerShell:
+
+```powershell
+cd C:\path\to\ODME
+powershell -ExecutionPolicy Bypass -File .\launcher\build-windows-exe.ps1
+```
+
+This creates:
+
+- `dist\ODME\ODME.exe`
+
+Then run:
+
+```powershell
+.\dist\ODME\ODME.exe
+```
+
+Important:
+
+- the `dist` folder does **not** exist until you build the native app image
+- keep the full `dist\ODME` folder together when launching the packaged app
+
+## Run ODME from Git Bash
+
+If you use Git Bash on Windows, the easiest source-based launch is:
+
+```bash
+cd /c/path/to/ODME
+export MAVEN_OPTS="-Dmaven.repo.local=$PWD/build/.m2/repository -Dmaven.user.home=$PWD/build/.m2"
 mvn clean package -DskipTests
 java -jar target/SESEditor-2.0.0-SNAPSHOT.jar
 ```
 
-### Run Tests
+If Git Bash does not find Maven on your PATH, try:
 
 ```bash
-mvn test                  # Unit tests + JaCoCo coverage
-mvn jacoco:report         # HTML coverage report → target/site/jacoco/
-mvn spotbugs:check        # Static analysis
-mvn checkstyle:check      # Code style checks
+mvn.cmd clean package -DskipTests
 ```
 
-## Example: Runway Sign Classifier
+If you want the native Windows app from Git Bash, call the PowerShell packager:
+
+```bash
+cd /c/path/to/ODME
+powershell.exe -ExecutionPolicy Bypass -File ./launcher/build-windows-exe.ps1
+./dist/ODME/ODME.exe
+```
+
+## Run Tests
+
+Standard test run:
+
+```bash
+mvn test
+```
+
+Useful additional checks:
+
+```bash
+mvn jacoco:report
+mvn spotbugs:check
+mvn checkstyle:check
+```
+
+Notes:
+
+- `mvn test` runs unit tests and produces JaCoCo data
+- `mvn jacoco:report` writes the HTML report to `target/site/jacoco/`
+- SpotBugs and Checkstyle are configured in the current Maven build
+
+## Example Project: Runway Sign Classifier
 
 ODME ships with a complete example based on:
 
-> K. Dmitriev et al., "Runway Sign Classifier: A DAL C Certifiable Machine Learning System,"
+> K. Dmitriev et al., "Runway Sign Classifier: A DAL C Certifiable Machine Learning System,"  
 > *IEEE/AIAA 42nd DASC*, Barcelona, 2023.
 
 The example models an airborne DNN system for airport sign detection and classification, with:
 
-- **23 leaf entities** across Environment (airport, weather, time-of-day), Sensor (distance, elevation, offset), and SystemArchitecture (Faster R-CNN, YOLOv2, SafetyMonitor)
-- **43 ODD parameters** (21 with continuous ranges for LHS sampling)
-- **2,592 possible PES combinations** from 7 specialization nodes
-- Full variable parameterization sourced from the paper's Table II and established aviation standards (ICAO, WMO, CIE)
+- **23 leaf entities** across environment, sensor, and system architecture branches
+- **43 ODD parameters**
+- **21 continuous parameters** suitable for LHS-based sampling
+- **2,592 possible PES combinations** derived from specialization choices
 
-To try it:
-```bash
-cp -r examples/RunwaySignClassifier .
-# Launch ODME → File → Open → select RunwaySignClassifier
-```
+To open it after launching ODME:
 
-See [`examples/RunwaySignClassifier/README.md`](examples/RunwaySignClassifier/README.md) for the complete variable catalog.
+1. choose `Domain Modelling -> Open`
+2. select the folder `examples/RunwaySignClassifier`
+3. inspect the graph, variables, scenarios, and ODD workflow
 
-## Workflow
-
-This repository uses GitHub Actions to automate build, testing, and release:
-
-1. **Build and Test**: Compiles with Maven, runs unit tests with JaCoCo coverage
-2. **Static Analysis**: SpotBugs + Checkstyle quality gates on `odme.domain.*` packages
-3. **Publish Artifact**: Stages the built JAR and uploads it as a package
-4. **Automate Release**: Creates a GitHub release based on the uploaded artifact
+For the example-specific details, see [examples/RunwaySignClassifier/README.md](examples/RunwaySignClassifier/README.md).
 
 ## Architecture
 
-ODME follows a **strangler-fig architecture** with a clean domain layer:
+ODME follows a mixed architecture:
 
-```
+- a modernized domain and application layer for testable core logic
+- a legacy Swing and mxGraph-based desktop UI for interactive editing
+- dedicated sampling, export, execution, and plugin flows layered around the editor
+
+At a high level:
+
+```text
 odme/
-├── domain/          ← Pure Java, no Swing/mxGraph. Fully unit-testable.
-│   ├── model/       ← SESNode, SESTree, PESTree, Scenario
-│   ├── operations/  ← Command pattern (Add/Delete/Prune/Rename)
-│   ├── persistence/ ← XML serializer, JSON scenario store
-│   ├── validation/  ← SES structure validator, FieldValidators
-│   ├── coverage/    ← ODD coverage analyzer
-│   ├── enumeration/ ← PES enumerator (exhaustive + coverage-guided)
-│   ├── traceability/← EASA traceability matrix, CSV/HTML exporters
-│   ├── transform/   ← XSD/YAML/Python translators
-│   ├── graph/       ← SESGraph abstraction (decouples from mxGraph)
-│   └── audit/       ← Structured event logging
-├── application/     ← ProjectService, ProjectSession
-├── sampling/        ← Constrained LHS sampling pipeline (new)
-│   ├── LatinHypercubeSampler  ← Space-filling normalized samples
-│   ├── ConstraintEvaluator    ← mXparser-based constraint evaluation
-│   ├── ScenarioParser         ← SnakeYAML scenario file parser
-│   ├── SamplingManager        ← Full pipeline: YAML → sample → CSV
-│   ├── GenerateSamplesPanel   ← Swing UI panel for sampling workflow
-│   ├── distribution/          ← Normal and uniform distribution sampling
-│   └── model/                 ← Parameter, Scenario data classes
-└── [legacy]         ← Swing UI (odmeeditor, jtreetograph, core, behaviour)
-    └── odmeeditor/  ← Now includes: BackgroundTaskRunner, Distribution,
-                        IntraEntityConstraint, InterEntityConstraints,
-                        ScenarioGeneration
+|-- domain/        core SES, scenario, validation, transformation, coverage
+|-- application/   project services and plugin runner support
+|-- sampling/      constrained sampling and CSV generation pipeline
+|-- odmeeditor/    Swing desktop application and windows
+|-- jtreetograph/  graph and tree synchronization logic
+|-- behaviour/     behavior modelling editor support
 ```
 
-See [`ARCHITECTURE.md`](ARCHITECTURE.md) for design decisions and data flow.
-See [`DEVELOPER_GUIDE.md`](DEVELOPER_GUIDE.md) for development workflow.
+Additional project documentation:
+
+- [ARCHITECTURE.md](ARCHITECTURE.md)
+- [DEVELOPER_GUIDE.md](DEVELOPER_GUIDE.md)
+- [launcher/README-packaging.md](launcher/README-packaging.md)
 
 ## Contributing
 
-Contributions to ODME are welcome! See [`CONTRIBUTING.md`](CONTRIBUTING.md) for guidelines.
+Contributions are welcome. Please see [CONTRIBUTING.md](CONTRIBUTING.md) for development and contribution guidelines.
 
 ## License
 
