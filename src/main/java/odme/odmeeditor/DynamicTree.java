@@ -80,14 +80,22 @@ public class DynamicTree extends JPanel implements MouseListener {
     public File ssdFileBeh;
     public File ssdFileFlag;
     @SuppressWarnings("unchecked")
-    private Multimap<TreePath, String> readSerializedMultimap(File file)
+    static Multimap<TreePath, String> readSerializedMultimap(File file)
             throws IOException, ClassNotFoundException {
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
             return (Multimap<TreePath, String>) ois.readObject();
         }
     }
 
-    private Multimap<TreePath, String> loadConstraintsWithFallback(String basePath)
+    static Multimap<TreePath, String> readSerializedMultimapIfExists(File file)
+            throws IOException, ClassNotFoundException {
+        if (file == null || !file.exists()) {
+            return ArrayListMultimap.create();
+        }
+        return readSerializedMultimap(file);
+    }
+
+    static Multimap<TreePath, String> loadConstraintsWithFallback(String basePath)
             throws IOException, ClassNotFoundException {
         File combinedConstraints = new File(basePath + ".ssdcon");
         if (combinedConstraints.exists()) {
@@ -188,21 +196,11 @@ public class DynamicTree extends JPanel implements MouseListener {
                     ois.close();
                 }
                 else {
-                    // for variable
-                    if (ssdFileVar.exists() && ssdFileCon.exists() && ssdFileFlag.exists() && ssdFileBeh.exists()) {
-                        ObjectInputStream oisvar = new ObjectInputStream(new FileInputStream(ssdFileVar));
-                        varMap = (Multimap<TreePath, String>) oisvar.readObject();
-                        oisvar.close();
-
-                        ObjectInputStream oiscon = new ObjectInputStream(new FileInputStream(ssdFileCon));
-                        constraintsList = (Multimap<TreePath, String>) oiscon.readObject();
-                        oiscon.close();
-
-                        //it reads behaviours from the file
-                        ObjectInputStream oisbeh = new ObjectInputStream(new FileInputStream(ssdFileBeh));
-                        behavioursList = (Multimap<TreePath , String>) oisbeh.readObject();
-                        oisbeh.close();
-                    }
+                    String basePath = EditorContext.getInstance().getFileLocation() + "/"
+                            + EditorContext.getInstance().getProjName() + "/" + projectFileName;
+                    varMap = readSerializedMultimapIfExists(ssdFileVar);
+                    constraintsList = loadConstraintsWithFallback(basePath);
+                    behavioursList = readSerializedMultimapIfExists(ssdFileBeh);
 
                     if (ssdFileFlag.exists()) {
 
@@ -314,27 +312,10 @@ public class DynamicTree extends JPanel implements MouseListener {
         ODMEEditor.treePanel.ssdFileBeh = new File(baseDir + "/" + newProjectName + ".ssdbeh");
         ODMEEditor.treePanel.ssdFileFlag = new File(baseDir + "/" + newProjectName + ".ssdflag");
         try {
-        	
-        	path = EditorContext.getInstance().getWorkingDir() + "/" + newProjectName + ".ssdvar";
-        	
-            ObjectInputStream oisvar;
-            oisvar = new ObjectInputStream(new FileInputStream(path));
-            varMap = (Multimap<TreePath, String>) oisvar.readObject();
-            oisvar.close();
-
-            path = EditorContext.getInstance().getWorkingDir() + "/" + newProjectName + ".ssdbeh";
-
-            ObjectInputStream oisbehaviour;
-            oisbehaviour = new ObjectInputStream(new FileInputStream(path));
-            behavioursList = (Multimap<TreePath, String>) oisbehaviour.readObject();
-            oisbehaviour.close();
-            
-            
-            path = EditorContext.getInstance().getWorkingDir() + "/" + newProjectName + ".ssdcon";
-
-            ObjectInputStream oiscon = new ObjectInputStream(new FileInputStream(path));
-            constraintsList = (Multimap<TreePath, String>) oiscon.readObject();
-            oiscon.close();
+            String basePath = EditorContext.getInstance().getWorkingDir() + "/" + newProjectName;
+            varMap = readSerializedMultimapIfExists(ODMEEditor.treePanel.ssdFileVar);
+            behavioursList = readSerializedMultimapIfExists(ODMEEditor.treePanel.ssdFileBeh);
+            constraintsList = loadConstraintsWithFallback(basePath);
 
             if (ssdFileFlag.exists()) {
             	

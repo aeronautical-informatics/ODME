@@ -1,6 +1,7 @@
 package behaviourtreetograph;
 
 import odme.core.EditorContext;
+import odme.behaviour.ODMEBehaviourEditor;
 import javax.swing.JOptionPane;
 import com.mxgraph.model.mxCell;
 import odme.core.FindByName;
@@ -341,8 +342,11 @@ public class JtreeToGraphGeneral {
      * Receives a array of string and return the TreePath of the specific node.
      */
     public static TreePath getTreeNodePath(String[] nodePath) {
+        if (ODMEBehaviourEditor.treePanel == null || ODMEBehaviourEditor.treePanel.tree == null) {
+            return null;
+        }
         TreePath parentPath;
-        new FindByName(ODMEEditor.treePanel.tree, nodePath);
+        new FindByName(ODMEBehaviourEditor.treePanel.tree, nodePath);
         parentPath = FindByName.path;
         return parentPath;
     }

@@ -2,6 +2,8 @@ package behaviourtreetograph;
 
 import com.mxgraph.model.mxCell;
 import odme.behaviour.MainWindow;
+import odme.behaviour.ODMEBehaviourEditor;
+import odme.behaviour.BehaviourToTree;
 
 import odme.odmeeditor.DynamicTree;
 
@@ -16,6 +18,7 @@ import java.util.ArrayList;
 
 
 import static behaviourtreetograph.JTreeToGraphBehaviour.benhaviourGraph;
+import static behaviourtreetograph.JTreeToGraphBehaviour.behaviorsWithAttributes;
 import static odme.jtreetograph.JtreeToGraphVariables.*;
 
 public class JtreeToGraphDelete {
@@ -87,104 +90,38 @@ public class JtreeToGraphDelete {
 
 
 	public static void deleteNodeFromGraphPopup(Object pos) {
-		// for deleting from tree at the same time
-		mxCell cellForAddingVariable = (mxCell) pos;
+		mxCell deleteCell = (mxCell) pos;
+		if (deleteCell == null) {
+			return;
+		}
 
-		if (cellForAddingVariable.getId().startsWith("uniformity") && !cellForAddingVariable.getId()
-				.endsWith("RefNode")) {
+		String cellId = deleteCell.getId();
+		if (cellId != null && cellId.startsWith("uniformity") && !cellId.endsWith("RefNode")) {
 
-			boolean connected = JtreeToGraphCheck.isConnectedToRoot(cellForAddingVariable);
+			boolean connected = JtreeToGraphCheck.isConnectedToRoot(deleteCell);
 			connectedToRoot = false;
 			if (!connected) {
-
-				benhaviourGraph.getModel().beginUpdate();
-				try {
-					benhaviourGraph.removeCells(new Object[] {cellForAddingVariable});
-				} finally {
-					benhaviourGraph.getModel().endUpdate();
-				}
+				removeBehaviourSubtree(deleteCell);
 			} else {
 				JOptionPane.showMessageDialog(MainWindow.frame,
 						"You can not delete from here. Delete from the reference node.");
 			}
+			return;
+		}
 
-		} else {
-			pathToRoot.add((String) cellForAddingVariable.getValue());
-			JtreeToGraphConvert.nodeToRootPathVar(cellForAddingVariable);
-
-			String[] stringArray = pathToRoot.toArray(new String[0]);
-			ArrayList<String> pathToRootRev = new ArrayList<String>();
-
-			for (int i = stringArray.length - 1; i >= 0; i--) {
-				pathToRootRev.add(stringArray[i]);
-			}
-
-			String[] stringArrayRev = pathToRootRev.toArray(new String[0]);
-
-			TreePath treePathForVariable = JtreeToGraphGeneral.getTreeNodePath(stringArrayRev);
-
-			// calling function for deleting the node
-//			ODMEEditor.treePanel.removeCurrentNodeWithGraphDelete(treePathForVariable);
-
-			pathToRoot.clear();
-
-			// reference delete syn
-			if (!cellForAddingVariable.getId().endsWith("RefNode")) {
-				JtreeToGraphCheck.checkSubtreeNodeForSyncDelete(cellForAddingVariable);
-			}
-
-			// if i put these delete section above tree node delete then it will not work
-			// because before detecting it is deleting the node and could not find tree path
-
-			// Object delcell = pos;
-			final Toolkit toolkit = Toolkit.getDefaultToolkit();
-
-			if (cellForAddingVariable != null) {
-
-				benhaviourGraph.getModel().beginUpdate();
-				try {
-					if ("rootnode".equals(cellForAddingVariable.getId())) {
-						toolkit.beep();
-
-					} else {
-						deletableChildNodes.add(cellForAddingVariable);
-						deleteAllChildNode(cellForAddingVariable);
-						mxCell[] allnodes = deletableChildNodes.toArray(new mxCell[0]);
-						for (int i = 0; i < allnodes.length; i++) {
-							mxCell a = allnodes[i];
-							benhaviourGraph.removeCells(new Object[] {a});
-							deletableChildNodes.clear();
-						}
-					}
-				} finally {
-					benhaviourGraph.getModel().endUpdate();
-				}
+		if (cellId != null && !cellId.endsWith("RefNode")) {
+			try {
+				JtreeToGraphCheck.checkSubtreeNodeForSyncDelete(deleteCell);
+			} catch (RuntimeException ignored) {
+				// Reference-node sync is legacy behavior; deletion of the clicked node should still succeed.
 			}
 		}
+
+		removeBehaviourSubtree(deleteCell);
 	}
 
 
 	public static void deleteEdgeFromGraphPopup(Object pos) {
-		Object cell = benhaviourGraph.getModel().getTerminal(pos, false);
-		mxCell targetCell = (mxCell) cell;
-
-		// for deleting from tree at the same time
-		pathToRoot.add((String) targetCell.getValue());
-		JtreeToGraphConvert.nodeToRootPathVar(targetCell);
-
-		String[] stringArray = pathToRoot.toArray(new String[0]);
-		ArrayList<String> pathToRootRev = new ArrayList<String>();
-
-		for (int i = stringArray.length - 1; i >= 0; i--) {
-			pathToRootRev.add(stringArray[i]);
-		}
-
-		String[] stringArrayRev = pathToRootRev.toArray(new String[0]);
-		TreePath treePathForVariable = JtreeToGraphGeneral.getTreeNodePath(stringArrayRev);
-
-//		// calling function for deleting the node
-//		ODMEEditor.treePanel.removeCurrentNodeWithGraphDelete(treePathForVariable);
-		pathToRoot.clear();
 		benhaviourGraph.getModel().beginUpdate();
 		try {
 			benhaviourGraph.removeCells(new Object[] {pos});
@@ -207,52 +144,58 @@ public class JtreeToGraphDelete {
 	}
 
 	public static void deleteNodeFromGraphPopupReferenceDeleteSync(Object pos) {
-		// for deleting from tree at the same time
-		mxCell cellForAddingVariable = (mxCell) pos;
+		removeBehaviourSubtree((mxCell) pos);
+	}
 
-		pathToRoot.add((String) cellForAddingVariable.getValue());
-		odme.jtreetograph.JtreeToGraphConvert.nodeToRootPathVar(cellForAddingVariable);
 
-		String[] stringArray = pathToRoot.toArray(new String[0]);
-		ArrayList<String> pathToRootRev = new ArrayList<String>();
-
-		for (int i = stringArray.length - 1; i >= 0; i--) {
-			pathToRootRev.add(stringArray[i]);
+	private static void removeBehaviourSubtree(mxCell cell) {
+		if (cell == null) {
+			return;
 		}
 
-		String[] stringArrayRev = pathToRootRev.toArray(new String[0]);
-		TreePath treePathForVariable = odme.jtreetograph.JtreeToGraphGeneral.getTreeNodePath(stringArrayRev);
-
-		// calling function for deleting the node
-//		ODMEEditor.treePanel.removeCurrentNodeWithGraphDelete(treePathForVariable);
-		pathToRoot.clear();
-
-		// if i put these delete section above tree node delete then it will not work
-		// because before detecting it is deleting the node and could not find tree path
-
 		final Toolkit toolkit = Toolkit.getDefaultToolkit();
+		if (isProtectedCanvasNode(cell)) {
+			toolkit.beep();
+			return;
+		}
 
-		if (cellForAddingVariable != null) {
-
-			benhaviourGraph.getModel().beginUpdate();
-			try {
-				if ("rootnode".equals(cellForAddingVariable.getId())) {
-					toolkit.beep();
-				} else {
-					deletableChildNodes.add(cellForAddingVariable);
-					deleteAllChildNode(cellForAddingVariable);
-					mxCell[] allnodes = deletableChildNodes.toArray(new mxCell[0]);
-					for (int i = 0; i < allnodes.length; i++) {
-						mxCell a = allnodes[i];
-						benhaviourGraph.removeCells(new Object[] {a});
-						deletableChildNodes.clear();
-					}
-				}
-			} finally {
-				benhaviourGraph.getModel().endUpdate();
-			}
+		removeBehaviorAttributesForSubtree(cell);
+		deletableChildNodes.clear();
+		deletableChildNodes.add(cell);
+		deleteAllChildNode(cell);
+		mxCell[] subtreeCells = deletableChildNodes.toArray(new mxCell[0]);
+		benhaviourGraph.getModel().beginUpdate();
+		try {
+			benhaviourGraph.removeCells(subtreeCells, true);
+		} finally {
+			deletableChildNodes.clear();
+			benhaviourGraph.getModel().endUpdate();
 		}
 	}
 
+	private static boolean isProtectedCanvasNode(mxCell cell) {
+		String cellId = cell.getId();
+		return "rootnode".equals(cellId) || "hideV".equals(cellId) || "hideH".equals(cellId);
+	}
+
+	private static void removeBehaviorAttributesForSubtree(mxCell cell) {
+		String behaviorName = cell.getStyle() != null && cell.getStyle().equals("Entity")
+				? String.valueOf(cell.getValue())
+				: null;
+		if (behaviorName != null) {
+			behaviorsWithAttributes.removeIf(overview -> overview.getBehaviorName().equals(behaviorName));
+			if (BehaviourToTree.behaviorAttributeModel != null && ODMEBehaviourEditor.treePanel != null) {
+				BehaviourToTree.behaviorAttributeModel.setRowCount(0);
+			}
+		}
+
+		Object[] outgoing = benhaviourGraph.getOutgoingEdges(cell);
+		for (Object edge : outgoing) {
+			Object targetCell = benhaviourGraph.getModel().getTerminal(edge, false);
+			if (targetCell instanceof mxCell mxTargetCell) {
+				removeBehaviorAttributesForSubtree(mxTargetCell);
+			}
+		}
+	}
 
 }

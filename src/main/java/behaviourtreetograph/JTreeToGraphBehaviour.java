@@ -257,8 +257,13 @@ public class JTreeToGraphBehaviour {
 									JtreeToGraphDelete.deleteNodeFromGraphPopup(delcell);
 								}
 							}
+							currentSelectedCell = null;
+							if (BehaviourToTree.behaviorAttributeModel != null) {
+								BehaviourToTree.behaviorAttributeModel.setRowCount(0);
+							}
 							// De-Selecting mouse selection from menu items
 							ODMEBehaviourEditor.nodeAddDecorator = "";
+							return;
 						}
 					} // end of else from if cell==null
 					callAfterEdgeConnectionComplete();

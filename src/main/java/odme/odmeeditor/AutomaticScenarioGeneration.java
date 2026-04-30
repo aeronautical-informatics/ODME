@@ -9,8 +9,10 @@ import odme.core.EditorContext;
 import odme.core.FlagVariables;
 import odme.core.XmlJTree;
 import odme.jtreetograph.JtreeToGraphSave;
+import odme.sampling.ConstraintEvaluator;
 import odme.sampling.CurrentModelScenarioBuilder;
 import odme.sampling.SamplingManager;
+import odme.sampling.model.Parameter;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -184,6 +186,97 @@ public final class AutomaticScenarioGeneration {
                 projectModel.projectName,
                 preview.totalCombinations(),
                 samplesPerCombination,
+                createdScenarioNames
+        );
+    }
+
+    public static CartesianGenerationPreview inspectCartesianProject(int levelsPerVariable)
+            throws Exception {
+        if (levelsPerVariable <= 0) {
+            throw new IllegalArgumentException("Levels per variable must be positive.");
+        }
+
+        ProjectModel projectModel = loadProjectModel();
+        GenerationPreview preview = inspectProject(projectModel);
+        return inspectCartesianProject(projectModel, preview, levelsPerVariable);
+    }
+
+    public static GenerationResult generateCartesian(String requestedPrefix, int levelsPerVariable)
+            throws Exception {
+        if (levelsPerVariable <= 0) {
+            throw new IllegalArgumentException("Levels per variable must be positive.");
+        }
+
+        ProjectModel projectModel = loadProjectModel();
+        GenerationPreview preview = inspectProject(projectModel);
+
+        if (preview.multiAspectCount() > 0) {
+            throw new IllegalStateException(
+                    "Automatic scenario generation currently supports specialization pruning only. "
+                            + "Detected " + preview.multiAspectCount() + " multi-aspect node(s) in the domain model.");
+        }
+
+        CartesianGenerationPreview cartesianPreview =
+                inspectCartesianProject(projectModel, preview, levelsPerVariable);
+        if (cartesianPreview.exceedsScenarioLimit()) {
+            throw new IllegalStateException(
+                    "The requested Cartesian generation would create more than " + MAX_AUTO_SCENARIOS
+                            + " scenario models. Reduce the levels per variable or refine the domain model.");
+        }
+
+        String prefix = sanitizePrefix(requestedPrefix);
+        JSONArray scenarioCatalog = loadScenarioCatalog(projectModel.projectDirectory);
+        Set<String> existingScenarioNames = loadScenarioNames(scenarioCatalog);
+        int nextIndex = nextScenarioIndex(existingScenarioNames, prefix);
+        CurrentModelScenarioBuilder samplingBuilder = new CurrentModelScenarioBuilder();
+
+        List<String> createdScenarioNames = new ArrayList<>();
+        int[] createdCounter = {0};
+
+        forEachCombination(preview.specializations(), 0, new LinkedHashMap<>(), selectedChildren -> {
+            GenerationContext generationContext = new GenerationContext(
+                    projectModel.metadataBundle,
+                    selectedChildren
+            );
+            DefaultMutableTreeNode prunedRoot = pruneTree(projectModel.root, null, new ArrayList<>(), generationContext);
+            CurrentModelScenarioBuilder.SamplingModel samplingModel =
+                    samplingBuilder.buildFromMetadata(
+                            generationContext.generatedVariables,
+                            generationContext.generatedConstraints
+                    );
+            List<Map<String, String>> sampleRows = generateCartesianRows(samplingModel, levelsPerVariable);
+            String baseRemarks = buildRemarks(preview.specializations(), selectedChildren);
+
+            for (int rowIndex = 0; rowIndex < sampleRows.size(); rowIndex++) {
+                String scenarioName = nextAvailableScenarioName(
+                        prefix,
+                        existingScenarioNames,
+                        projectModel.projectDirectory,
+                        nextIndex + createdCounter[0]
+                );
+                createdCounter[0]++;
+
+                Path scenarioDirectory = projectModel.projectDirectory.resolve(scenarioName);
+                Files.createDirectories(scenarioDirectory);
+
+                Multimap<TreePath, String> sampledVariables =
+                        applySampleValues(generationContext.generatedVariables, samplingModel, sampleRows.get(rowIndex));
+                writeScenarioFiles(projectModel.projectName, scenarioDirectory, prunedRoot,
+                        sampledVariables, generationContext.generatedConstraints, generationContext.generatedBehaviours);
+                appendScenarioRecord(scenarioCatalog, scenarioName,
+                        buildCartesianRemarks(baseRemarks, rowIndex + 1, sampleRows.size(), levelsPerVariable));
+
+                existingScenarioNames.add(scenarioName);
+                createdScenarioNames.add(scenarioName);
+            }
+        });
+
+        saveScenarioCatalog(projectModel.projectDirectory, scenarioCatalog);
+
+        return new GenerationResult(
+                projectModel.projectName,
+                preview.totalCombinations(),
+                levelsPerVariable,
                 createdScenarioNames
         );
     }
@@ -389,6 +482,238 @@ public final class AutomaticScenarioGeneration {
             return defaultRows;
         }
         return samplingManager.generateSampleRows(samplingModel.scenario(), samplesPerCombination, false);
+    }
+
+    static List<Map<String, String>> generateCartesianRows(
+            CurrentModelScenarioBuilder.SamplingModel samplingModel,
+            int levelsPerVariable) {
+        if (levelsPerVariable <= 0) {
+            throw new IllegalArgumentException("Levels per variable must be positive.");
+        }
+
+        List<CartesianParameterDomain> parameterDomains = buildCartesianDomains(samplingModel, levelsPerVariable);
+        List<String> constraints = normalizedConstraints(samplingModel);
+        ConstraintEvaluator constraintEvaluator = new ConstraintEvaluator();
+        List<Map<String, String>> rows = new ArrayList<>();
+        buildCartesianRows(
+                parameterDomains,
+                constraints,
+                constraintEvaluator,
+                0,
+                new LinkedHashMap<>(),
+                new LinkedHashMap<>(),
+                rows
+        );
+        return rows;
+    }
+
+    static long projectedCartesianRowCount(CurrentModelScenarioBuilder.SamplingModel samplingModel,
+                                           int levelsPerVariable) {
+        if (levelsPerVariable <= 0) {
+            throw new IllegalArgumentException("Levels per variable must be positive.");
+        }
+
+        long total = 1L;
+        for (CartesianParameterDomain parameterDomain : buildCartesianDomains(samplingModel, levelsPerVariable)) {
+            total = safeMultiply(total, parameterDomain.values().size());
+        }
+        return total;
+    }
+
+    static int expandedCartesianVariableCount(CurrentModelScenarioBuilder.SamplingModel samplingModel,
+                                              int levelsPerVariable) {
+        int count = 0;
+        for (CartesianParameterDomain parameterDomain : buildCartesianDomains(samplingModel, levelsPerVariable)) {
+            if (parameterDomain.values().size() > 1) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    private static List<CartesianParameterDomain> buildCartesianDomains(
+            CurrentModelScenarioBuilder.SamplingModel samplingModel,
+            int levelsPerVariable) {
+        Map<String, CurrentModelScenarioBuilder.VariableBinding> bindingsByParameterName =
+                samplingModel.bindingByParameterName();
+        List<CartesianParameterDomain> parameterDomains = new ArrayList<>();
+
+        for (Parameter parameter : samplingModel.scenario().getParameters()) {
+            CurrentModelScenarioBuilder.VariableBinding binding = bindingsByParameterName.get(parameter.getName());
+            if (binding == null) {
+                continue;
+            }
+            parameterDomains.add(new CartesianParameterDomain(
+                    parameter.getName(),
+                    buildCartesianValues(parameter, levelsPerVariable)
+            ));
+        }
+
+        return parameterDomains;
+    }
+
+    private static List<CartesianDomainValue> buildCartesianValues(Parameter parameter, int levelsPerVariable) {
+        String type = normalizeParameterType(parameter);
+        return switch (type) {
+            case "int" -> buildNumericCartesianValues(parameter, levelsPerVariable, true);
+            case "float", "double", "distribution" -> buildNumericCartesianValues(parameter, levelsPerVariable, false);
+            case "boolean" -> buildBooleanCartesianValues(parameter, levelsPerVariable);
+            default -> List.of(new CartesianDomainValue(defaultString(parameter.getDefaultValue(), ""), null));
+        };
+    }
+
+    private static List<CartesianDomainValue> buildNumericCartesianValues(Parameter parameter,
+                                                                          int levelsPerVariable,
+                                                                          boolean integerType) {
+        double min = parameter.getMin();
+        double max = parameter.getMax();
+        if (max < min) {
+            double swap = min;
+            min = max;
+            max = swap;
+        }
+
+        if (levelsPerVariable <= 1 || Math.abs(max - min) < 1e-9) {
+            double singleValue = clamp(parseDefaultNumeric(parameter, min), min, max);
+            if (integerType) {
+                long rounded = Math.round(singleValue);
+                return List.of(new CartesianDomainValue(Long.toString(rounded), (double) rounded));
+            }
+            return List.of(new CartesianDomainValue(Double.toString(singleValue), singleValue));
+        }
+
+        List<CartesianDomainValue> values = new ArrayList<>();
+        Set<String> seen = new LinkedHashSet<>();
+        for (int index = 0; index < levelsPerVariable; index++) {
+            double normalized = levelsPerVariable == 1 ? 0.0 : (double) index / (levelsPerVariable - 1);
+            double rawValue = min + normalized * (max - min);
+            if (integerType) {
+                long rounded = Math.round(rawValue);
+                String csvValue = Long.toString(rounded);
+                if (seen.add(csvValue)) {
+                    values.add(new CartesianDomainValue(csvValue, (double) rounded));
+                }
+            } else {
+                String csvValue = Double.toString(rawValue);
+                if (seen.add(csvValue)) {
+                    values.add(new CartesianDomainValue(csvValue, rawValue));
+                }
+            }
+        }
+
+        if (values.isEmpty()) {
+            double fallback = clamp(parseDefaultNumeric(parameter, min), min, max);
+            if (integerType) {
+                long rounded = Math.round(fallback);
+                return List.of(new CartesianDomainValue(Long.toString(rounded), (double) rounded));
+            }
+            return List.of(new CartesianDomainValue(Double.toString(fallback), fallback));
+        }
+
+        return values;
+    }
+
+    private static List<CartesianDomainValue> buildBooleanCartesianValues(Parameter parameter, int levelsPerVariable) {
+        boolean defaultValue = Boolean.parseBoolean(defaultString(parameter.getDefaultValue(), "false"));
+        if (levelsPerVariable <= 1) {
+            return List.of(new CartesianDomainValue(Boolean.toString(defaultValue), defaultValue ? 1.0 : 0.0));
+        }
+
+        List<CartesianDomainValue> values = new ArrayList<>(2);
+        values.add(new CartesianDomainValue(Boolean.toString(defaultValue), defaultValue ? 1.0 : 0.0));
+        values.add(new CartesianDomainValue(Boolean.toString(!defaultValue), !defaultValue ? 1.0 : 0.0));
+        return values;
+    }
+
+    private static void buildCartesianRows(List<CartesianParameterDomain> parameterDomains,
+                                           List<String> constraints,
+                                           ConstraintEvaluator constraintEvaluator,
+                                           int index,
+                                           LinkedHashMap<String, String> currentValues,
+                                           LinkedHashMap<String, Double> currentConstraintValues,
+                                           List<Map<String, String>> rows) {
+        if (index >= parameterDomains.size()) {
+            if (constraints.isEmpty() || satisfiesAllConstraints(constraints, currentConstraintValues, constraintEvaluator)) {
+                rows.add(new LinkedHashMap<>(currentValues));
+            }
+            return;
+        }
+
+        CartesianParameterDomain parameterDomain = parameterDomains.get(index);
+        for (CartesianDomainValue value : parameterDomain.values()) {
+            currentValues.put(parameterDomain.parameterName(), value.csvValue());
+            Double previousConstraintValue = currentConstraintValues.get(parameterDomain.parameterName());
+            if (value.constraintValue() != null) {
+                currentConstraintValues.put(parameterDomain.parameterName(), value.constraintValue());
+            } else {
+                currentConstraintValues.remove(parameterDomain.parameterName());
+            }
+
+            buildCartesianRows(parameterDomains, constraints, constraintEvaluator, index + 1,
+                    currentValues, currentConstraintValues, rows);
+
+            currentValues.remove(parameterDomain.parameterName());
+            if (previousConstraintValue != null) {
+                currentConstraintValues.put(parameterDomain.parameterName(), previousConstraintValue);
+            } else {
+                currentConstraintValues.remove(parameterDomain.parameterName());
+            }
+        }
+    }
+
+    private static boolean satisfiesAllConstraints(List<String> constraints,
+                                                   Map<String, Double> currentConstraintValues,
+                                                   ConstraintEvaluator constraintEvaluator) {
+        for (String constraint : constraints) {
+            if (!constraintEvaluator.evaluate(constraint, currentConstraintValues)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static List<String> normalizedConstraints(CurrentModelScenarioBuilder.SamplingModel samplingModel) {
+        List<String> constraints = new ArrayList<>();
+        for (String constraint : samplingModel.scenario().getConstraint()) {
+            if (constraint == null) {
+                continue;
+            }
+            String trimmed = constraint.trim();
+            if (!trimmed.isEmpty()) {
+                constraints.add(trimmed);
+            }
+        }
+        return constraints;
+    }
+
+    private static double parseDefaultNumeric(Parameter parameter, double fallback) {
+        String defaultValue = parameter.getDefaultValue();
+        if (defaultValue == null || defaultValue.isBlank()) {
+            return fallback;
+        }
+        try {
+            return Double.parseDouble(defaultValue);
+        } catch (NumberFormatException ignored) {
+            return fallback;
+        }
+    }
+
+    private static double clamp(double value, double min, double max) {
+        if (value < min) {
+            return min;
+        }
+        if (value > max) {
+            return max;
+        }
+        return value;
+    }
+
+    private static String normalizeParameterType(Parameter parameter) {
+        return parameter.getType() == null ? "" : parameter.getType().toLowerCase(Locale.ROOT);
+    }
+
+    private static String defaultString(String value, String fallback) {
+        return value == null || value.isBlank() ? fallback : value;
     }
 
     private static Multimap<TreePath, String> applySampleValues(
@@ -783,6 +1108,14 @@ public final class AutomaticScenarioGeneration {
                 + " via constrained Latin Hypercube sampling.";
     }
 
+    private static String buildCartesianRemarks(String baseRemarks,
+                                                int combinationIndex,
+                                                int totalCombinations,
+                                                int levelsPerVariable) {
+        return baseRemarks + " Cartesian variable combination " + combinationIndex + " of " + totalCombinations
+                + " using " + levelsPerVariable + " level(s) per sampled variable.";
+    }
+
     private static int nextScenarioIndex(Set<String> existingScenarioNames, String prefix) {
         int maxIndex = 0;
         String normalizedPrefix = prefix.toLowerCase(Locale.ROOT) + "_";
@@ -849,6 +1182,22 @@ public final class AutomaticScenarioGeneration {
         return structuralCombinations > MAX_AUTO_SCENARIOS / (long) samplesPerCombination;
     }
 
+    private static long safeMultiply(long left, int right) {
+        try {
+            return Math.multiplyExact(left, (long) right);
+        } catch (ArithmeticException ex) {
+            return Long.MAX_VALUE;
+        }
+    }
+
+    private static long safeAdd(long left, long right) {
+        try {
+            return Math.addExact(left, right);
+        } catch (ArithmeticException ex) {
+            return Long.MAX_VALUE;
+        }
+    }
+
     private static List<String> appendPath(List<String> parentPath, String label) {
         List<String> result = new ArrayList<>(parentPath);
         result.add(label);
@@ -878,6 +1227,19 @@ public final class AutomaticScenarioGeneration {
 
         public boolean exceedsScenarioLimit(int samplesPerCombination) {
             return AutomaticScenarioGeneration.exceedsScenarioLimit(totalCombinations, samplesPerCombination);
+        }
+    }
+
+    public record CartesianGenerationPreview(String projectName,
+                                             List<SpecializationDescriptor> specializations,
+                                             int multiAspectCount,
+                                             long structuralCombinationCount,
+                                             long projectedScenarioModels,
+                                             int minExpandedVariableCount,
+                                             int maxExpandedVariableCount,
+                                             int levelsPerVariable) {
+        public boolean exceedsScenarioLimit() {
+            return projectedScenarioModels > MAX_AUTO_SCENARIOS;
         }
     }
 
@@ -917,5 +1279,56 @@ public final class AutomaticScenarioGeneration {
             this.metadataBundle = metadataBundle;
             this.selectedChildrenBySpecPath = selectedChildrenBySpecPath;
         }
+    }
+
+    private record CartesianParameterDomain(String parameterName, List<CartesianDomainValue> values) {}
+
+    private record CartesianDomainValue(String csvValue, Double constraintValue) {}
+
+    private static CartesianGenerationPreview inspectCartesianProject(ProjectModel projectModel,
+                                                                     GenerationPreview preview,
+                                                                     int levelsPerVariable)
+            throws Exception {
+        CurrentModelScenarioBuilder samplingBuilder = new CurrentModelScenarioBuilder();
+        long[] projectedScenarioModels = {0L};
+        int[] minExpandedVariables = {Integer.MAX_VALUE};
+        int[] maxExpandedVariables = {0};
+
+        forEachCombination(preview.specializations(), 0, new LinkedHashMap<>(), selectedChildren -> {
+            GenerationContext generationContext = new GenerationContext(
+                    projectModel.metadataBundle,
+                    selectedChildren
+            );
+            pruneTree(projectModel.root, null, new ArrayList<>(), generationContext);
+            CurrentModelScenarioBuilder.SamplingModel samplingModel =
+                    samplingBuilder.buildFromMetadata(
+                            generationContext.generatedVariables,
+                            generationContext.generatedConstraints
+                    );
+
+            projectedScenarioModels[0] = safeAdd(
+                    projectedScenarioModels[0],
+                    projectedCartesianRowCount(samplingModel, levelsPerVariable)
+            );
+
+            int expandedVariables = expandedCartesianVariableCount(samplingModel, levelsPerVariable);
+            minExpandedVariables[0] = Math.min(minExpandedVariables[0], expandedVariables);
+            maxExpandedVariables[0] = Math.max(maxExpandedVariables[0], expandedVariables);
+        });
+
+        if (minExpandedVariables[0] == Integer.MAX_VALUE) {
+            minExpandedVariables[0] = 0;
+        }
+
+        return new CartesianGenerationPreview(
+                projectModel.projectName,
+                preview.specializations(),
+                preview.multiAspectCount(),
+                preview.totalCombinations(),
+                projectedScenarioModels[0],
+                minExpandedVariables[0],
+                maxExpandedVariables[0],
+                levelsPerVariable
+        );
     }
 }

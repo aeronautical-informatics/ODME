@@ -71,6 +71,14 @@ public class ScenarioList extends JPanel {
 			}
 		});
 
+		JButton cartesianScenarioGenerationBtn = new JButton("Cartesian Scenario Generation");
+		cartesianScenarioGenerationBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				performCartesianScenarioGeneration();
+			}
+		});
+
 		JButton structuralCoverageBtn = new JButton("Estimate Coverage");
 		structuralCoverageBtn.addActionListener(new ActionListener() {
 			@Override
@@ -104,6 +112,8 @@ public class ScenarioList extends JPanel {
 		});
 
 		toolBar.add(automaticScenarioGenerationBtn);
+		toolBar.addSeparator();
+		toolBar.add(cartesianScenarioGenerationBtn);
 		toolBar.addSeparator();
 		toolBar.add(deleteSelectedBtn);
 		toolBar.addSeparator();
@@ -212,7 +222,7 @@ public class ScenarioList extends JPanel {
 
 		frame.add(toolBar, BorderLayout.NORTH);
 
-        int width = 760;
+        int width = 1080;
         int height = 280;
         Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
         int x = (screen.width - width) / 2;
@@ -267,8 +277,61 @@ public class ScenarioList extends JPanel {
                     focusScenarioListWindow();
                     JOptionPane.showMessageDialog(
                             frame != null ? frame : Main.frame,
-                            buildSuccessMessage(result),
+                            buildSuccessMessage(
+                                    result,
+                                    "using constrained Latin Hypercube sampling",
+                                    "Variable samples per combination"
+                            ),
                             "Automatic Scenario Generation",
+                            JOptionPane.INFORMATION_MESSAGE
+                    );
+                }
+        );
+    }
+
+    private void performCartesianScenarioGeneration() {
+        AutomaticScenarioGeneration.GenerationPreview preview;
+        try {
+            preview = AutomaticScenarioGeneration.inspectProject();
+        }
+        catch (Exception ex) {
+            JOptionPane.showMessageDialog(frame != null ? frame : Main.frame,
+                    "Unable to inspect the current domain model.\n" + ex.getMessage(),
+                    "Cartesian Scenario Generation",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        if (preview.multiAspectCount() > 0) {
+            JOptionPane.showMessageDialog(frame != null ? frame : Main.frame,
+                    "Cartesian Scenario Generation currently supports specialization pruning only.\n"
+                            + "Detected " + preview.multiAspectCount() + " multi-aspect node(s) in the domain model.",
+                    "Cartesian Scenario Generation",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        CartesianGenerationOptions options = showCartesianScenarioGenerationDialog(preview);
+        if (options == null) {
+            return;
+        }
+
+        BackgroundTaskRunner.run(
+                this,
+                "Cartesian Scenario Generation",
+                "Generating pruned scenario models with Cartesian variable combinations...",
+                () -> AutomaticScenarioGeneration.generateCartesian(options.prefix(), options.levelsPerVariable()),
+                result -> {
+                    reloadTableData();
+                    focusScenarioListWindow();
+                    JOptionPane.showMessageDialog(
+                            frame != null ? frame : Main.frame,
+                            buildSuccessMessage(
+                                    result,
+                                    "using Cartesian variable combinations",
+                                    "Levels per sampled variable"
+                            ),
+                            "Cartesian Scenario Generation",
                             JOptionPane.INFORMATION_MESSAGE
                     );
                 }
@@ -343,12 +406,22 @@ public class ScenarioList extends JPanel {
     }
 
     private String buildSuccessMessage(AutomaticScenarioGeneration.GenerationResult result) {
+        return buildSuccessMessage(result, "", "Variable samples per combination");
+    }
+
+    private String buildSuccessMessage(AutomaticScenarioGeneration.GenerationResult result,
+                                       String modeDescription,
+                                       String settingLabel) {
         StringBuilder message = new StringBuilder();
         message.append("Created ").append(result.createdCount())
-                .append(" scenario model(s) for ").append(result.projectName()).append('.');
+                .append(" scenario model(s) for ").append(result.projectName());
+        if (modeDescription != null && !modeDescription.isBlank()) {
+            message.append(' ').append(modeDescription);
+        }
+        message.append('.');
         message.append('\n').append('\n')
                 .append("Structural combinations: ").append(result.structuralCombinationCount()).append('\n')
-                .append("Variable samples per combination: ").append(result.samplesPerCombination());
+                .append(settingLabel).append(": ").append(result.samplesPerCombination());
 
         if (!result.createdScenarioNames().isEmpty()) {
             message.append('\n').append('\n').append("First generated scenarios:\n");
@@ -365,6 +438,114 @@ public class ScenarioList extends JPanel {
     }
 
     private record AutomaticGenerationOptions(String prefix, int samplesPerCombination) {
+    }
+
+    private CartesianGenerationOptions showCartesianScenarioGenerationDialog(
+            AutomaticScenarioGeneration.GenerationPreview preview) {
+        JTextField prefixField = new JTextField("CartesianScenario");
+        JSpinner levelsSpinner = new JSpinner(new SpinnerNumberModel(2, 1, 1000, 1));
+        JLabel totalLabel = new JLabel();
+        JLabel variableLabel = new JLabel();
+        JLabel limitLabel = new JLabel(" ");
+
+        Runnable refreshSummary = () -> {
+            int levels = ((Number) levelsSpinner.getValue()).intValue();
+            try {
+                AutomaticScenarioGeneration.CartesianGenerationPreview cartesianPreview =
+                        AutomaticScenarioGeneration.inspectCartesianProject(levels);
+                totalLabel.setText("Projected scenario models to create: "
+                        + cartesianPreview.projectedScenarioModels());
+                variableLabel.setText("Variables expanded per pruned structure: "
+                        + formatExpandedVariableRange(cartesianPreview.minExpandedVariableCount(),
+                        cartesianPreview.maxExpandedVariableCount()));
+                if (cartesianPreview.exceedsScenarioLimit()) {
+                    limitLabel.setText("This exceeds the current limit of "
+                            + AutomaticScenarioGeneration.maxGeneratedScenarioModels() + " scenario models.");
+                }
+                else {
+                    limitLabel.setText(" ");
+                }
+            }
+            catch (Exception ex) {
+                totalLabel.setText("Projected scenario models to create: unavailable");
+                variableLabel.setText("Variables expanded per pruned structure: unavailable");
+                limitLabel.setText("Inspection will be validated when you click OK.");
+            }
+        };
+        ChangeListener changeListener = e -> refreshSummary.run();
+        levelsSpinner.addChangeListener(changeListener);
+        refreshSummary.run();
+
+        JPanel summaryPanel = new JPanel(new GridLayout(0, 1, 0, 4));
+        summaryPanel.add(new JLabel("Project: " + preview.projectName()));
+        summaryPanel.add(new JLabel("Structural combinations after pruning: " + preview.totalCombinations()));
+        summaryPanel.add(new JLabel("Specialization nodes: " + preview.specializations().size()));
+        summaryPanel.add(totalLabel);
+        summaryPanel.add(variableLabel);
+        summaryPanel.add(limitLabel);
+
+        JPanel inputPanel = new JPanel(new GridLayout(0, 1, 0, 4));
+        inputPanel.add(new JLabel("Scenario name prefix"));
+        inputPanel.add(prefixField);
+        inputPanel.add(new JLabel("Levels per sampled variable"));
+        inputPanel.add(levelsSpinner);
+        inputPanel.add(new JLabel("Numeric variables use evenly spaced min/max levels. "
+                + "Boolean variables expand to true/false when levels > 1."));
+
+        JPanel container = new JPanel(new BorderLayout(0, 12));
+        container.add(summaryPanel, BorderLayout.NORTH);
+        container.add(inputPanel, BorderLayout.CENTER);
+
+        while (true) {
+            int option = JOptionPane.showConfirmDialog(
+                    frame != null ? frame : Main.frame,
+                    container,
+                    "Cartesian Scenario Generation",
+                    JOptionPane.OK_CANCEL_OPTION,
+                    JOptionPane.PLAIN_MESSAGE
+            );
+            if (option != JOptionPane.OK_OPTION) {
+                return null;
+            }
+
+            int levels = ((Number) levelsSpinner.getValue()).intValue();
+            AutomaticScenarioGeneration.CartesianGenerationPreview cartesianPreview;
+            try {
+                cartesianPreview = AutomaticScenarioGeneration.inspectCartesianProject(levels);
+            }
+            catch (Exception ex) {
+                JOptionPane.showMessageDialog(
+                        frame != null ? frame : Main.frame,
+                        "Unable to inspect the current domain model for Cartesian generation.\n" + ex.getMessage(),
+                        "Cartesian Scenario Generation",
+                        JOptionPane.ERROR_MESSAGE
+                );
+                continue;
+            }
+
+            if (!cartesianPreview.exceedsScenarioLimit()) {
+                return new CartesianGenerationOptions(prefixField.getText(), levels);
+            }
+
+            JOptionPane.showMessageDialog(
+                    frame != null ? frame : Main.frame,
+                    "Requested generation exceeds the current limit of "
+                            + AutomaticScenarioGeneration.maxGeneratedScenarioModels()
+                            + " scenario models.\nReduce the levels per sampled variable and try again.",
+                    "Cartesian Scenario Generation",
+                    JOptionPane.WARNING_MESSAGE
+            );
+        }
+    }
+
+    private String formatExpandedVariableRange(int minExpandedVariables, int maxExpandedVariables) {
+        if (minExpandedVariables == maxExpandedVariables) {
+            return Integer.toString(maxExpandedVariables);
+        }
+        return minExpandedVariables + " to " + maxExpandedVariables;
+    }
+
+    private record CartesianGenerationOptions(String prefix, int levelsPerVariable) {
     }
 
     private int getSelectedModelRow() {
@@ -566,14 +747,14 @@ public class ScenarioList extends JPanel {
     private void deleteGeneratedScenarios() {
         List<String> generatedScenarios = new ArrayList<>();
         for (String[] scenario : getJsonData()) {
-            if (isGeneratedScenario(scenario[0])) {
+            if (isGeneratedScenarioRecord(scenario)) {
                 generatedScenarios.add(scenario[0]);
             }
         }
 
         if (generatedScenarios.isEmpty()) {
             JOptionPane.showMessageDialog(frame != null ? frame : Main.frame,
-                    "No generated AutoScenario_* scenarios were found.",
+                    "No automatically generated scenarios were found.",
                     "Delete Generated Scenarios",
                     JOptionPane.INFORMATION_MESSAGE);
             return;
@@ -644,7 +825,27 @@ public class ScenarioList extends JPanel {
     }
 
     private boolean isGeneratedScenario(String scenarioName) {
-        return scenarioName != null && scenarioName.startsWith("AutoScenario_");
+        return isGeneratedScenarioRecord(scenarioName, null);
+    }
+
+    static boolean isGeneratedScenarioRecord(String[] scenarioRow) {
+        if (scenarioRow == null || scenarioRow.length == 0) {
+            return false;
+        }
+
+        String scenarioName = scenarioRow[0];
+        String remarks = scenarioRow.length > 2 ? scenarioRow[2] : null;
+        return isGeneratedScenarioRecord(scenarioName, remarks);
+    }
+
+    static boolean isGeneratedScenarioRecord(String scenarioName, String remarks) {
+        if (scenarioName != null
+                && (scenarioName.startsWith("AutoScenario_") || scenarioName.startsWith("CartesianScenario_"))) {
+            return true;
+        }
+
+        return remarks != null
+                && remarks.startsWith("Automatically generated specialization combination:");
     }
 
     private String buildDeleteConfirmationMessage(List<String> deletableScenarios, List<String> skippedScenarios) {
