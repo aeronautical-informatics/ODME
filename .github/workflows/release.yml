@@ -193,7 +193,7 @@ jobs:
           find release-assets -maxdepth 1 -type f -print0 | sort -z | xargs -0 sha256sum > release-assets/SHA256SUMS.txt
 
       - name: Create GitHub release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: release-assets/*
           generate_release_notes: true
