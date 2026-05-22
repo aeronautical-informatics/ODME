@@ -182,7 +182,7 @@ jobs:
           cp target/bom.json "release-assets/ODME-${GITHUB_REF_NAME}-bom.json"
 
       - name: Download packaged release assets
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           pattern: release-*
           merge-multiple: true
