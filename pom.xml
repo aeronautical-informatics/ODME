@@ -90,7 +90,7 @@
         <dependency>
             <groupId>com.fifesoft</groupId>
             <artifactId>rsyntaxtextarea</artifactId>
-            <version>3.0.8</version>
+            <version>3.6.2</version>
         </dependency>
 
         <dependency>
