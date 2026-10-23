@@ -8,8 +8,6 @@ import java.awt.event.MouseListener;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.ObjectInputStream;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -21,8 +19,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -42,7 +38,6 @@ import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
 
 import odme.behaviour.ODMEBehaviourEditor;
-import odme.core.CustomIconRenderer;
 
 import odme.core.UndoableTreeModel;
 import odme.odmeeditor.ODMEEditor;
@@ -108,17 +103,7 @@ public class BehaviourToTree  extends JPanel implements MouseListener{
 					tree.expandRow(i);
 				}
 
-				Path path = Paths.get("").toAbsolutePath();
-				String repFslas = path.toString().replace("\\", "/");
-
-				Icon entityIcon = new ImageIcon(repFslas + "/resources/images/en.png");
-
-				CustomIconRenderer customIconRenderer = new CustomIconRenderer();
-				tree.setCellRenderer(customIconRenderer);
-
-				customIconRenderer.setLeafIcon(entityIcon);
-				tree.setCellRenderer(new CustomIconRenderer());
-				tree.setCellRenderer(customIconRenderer);
+				tree.setCellRenderer(new BehaviourTreeCellRenderer());
 
 //	              // for cursor change
 

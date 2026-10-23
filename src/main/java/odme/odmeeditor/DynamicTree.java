@@ -82,7 +82,8 @@ public class DynamicTree extends JPanel implements MouseListener {
     @SuppressWarnings("unchecked")
     static Multimap<TreePath, String> readSerializedMultimap(File file)
             throws IOException, ClassNotFoundException {
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
+        try (FileInputStream input = new FileInputStream(file);
+             ObjectInputStream ois = new ObjectInputStream(input)) {
             return (Multimap<TreePath, String>) ois.readObject();
         }
     }
@@ -281,69 +282,41 @@ public class DynamicTree extends JPanel implements MouseListener {
 
     @SuppressWarnings("unchecked")
 	public void openExistingProject(String filename, String oldProjectTreeProjectName) {
-        // restoring jtree from xml
-    	
-    	String path = EditorContext.getInstance().getWorkingDir() + "/" + filename + ".xml";
-
-        XmlJTree myTree =
-                new XmlJTree(path);
-        treeModel = myTree.dtModel;
-        DefaultMutableTreeNode root = (DefaultMutableTreeNode) treeModel.getRoot();
-        treeModel.addTreeModelListener(new MyTreeModelListener());
-        treeModel.reload(root);
-
-        // opening only child node is allowing insertion
-        tree.setModel(treeModel);
-
-        // for expanding the tree on starting
-        for (int i = 0; i < tree.getRowCount(); i++) {
-            tree.expandRow(i);
+        try {
+            applyLoadedProject(ProjectLoadData.load(Path.of(EditorContext.getInstance().getWorkingDir()), filename),
+                    oldProjectTreeProjectName);
+        } catch (Exception error) {
+            JOptionPane.showMessageDialog(this, error.getMessage(), "Open Project", JOptionPane.ERROR_MESSAGE);
         }
-        String newProjectName = filename;
+    }
+
+    public void applyLoadedProject(ProjectLoadData loaded, String oldProjectTreeProjectName) {
+        if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+            throw new IllegalStateException("Project views must be updated on the Swing event thread");
+        }
+        treeModel = loaded.treeModel();
+        treeModel.addTreeModelListener(new MyTreeModelListener());
+        varMap = loaded.variables();
+        behavioursList = loaded.behaviours();
+        constraintsList = loaded.constraints();
+        tree.setModel(treeModel);
+        // Start with the root visible; deep expansion is driven by the user.
+        tree.expandRow(0);
+        String newProjectName = loaded.name();
         EditorContext.getInstance().setProjName(newProjectName);
         EditorContext.getInstance().setNewFileName(newProjectName);
         projectFileName = newProjectName;
 
-        String baseDir = EditorContext.getInstance().getWorkingDir();
+        String baseDir = loaded.directory().toString();
         ODMEEditor.treePanel.ssdFile =
                 new File(baseDir + "/" + newProjectName + ".xml");
         ODMEEditor.treePanel.ssdFileVar = new File(baseDir + "/" + newProjectName + ".ssdvar");
         ODMEEditor.treePanel.ssdFileCon = new File(baseDir + "/" + newProjectName + ".ssdcon");
         ODMEEditor.treePanel.ssdFileBeh = new File(baseDir + "/" + newProjectName + ".ssdbeh");
         ODMEEditor.treePanel.ssdFileFlag = new File(baseDir + "/" + newProjectName + ".ssdflag");
-        try {
-            String basePath = EditorContext.getInstance().getWorkingDir() + "/" + newProjectName;
-            varMap = readSerializedMultimapIfExists(ODMEEditor.treePanel.ssdFileVar);
-            behavioursList = readSerializedMultimapIfExists(ODMEEditor.treePanel.ssdFileBeh);
-            constraintsList = loadConstraintsWithFallback(basePath);
-
-            if (ssdFileFlag.exists()) {
-            	
-            	path = EditorContext.getInstance().getWorkingDir() + "/" + newProjectName + ".ssdflag";
-            	
-                ObjectInputStream oisflag = new ObjectInputStream(new FileInputStream(path));
-                FlagVariables flags = new FlagVariables();
-                flags = (FlagVariables) oisflag.readObject();
-                System.out.println("flags.nodeNumber:" + flags.nodeNumber);
-                JtreeToGraphVariables.uniformityNodeNumber = flags.uniformityNodeNumber;
-                oisflag.close();
-            }
-
-        } 
-        catch (FileNotFoundException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        } 
-        catch (IOException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        } 
-        catch (ClassNotFoundException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            return;
+        if (loaded.flags() != null) {
+            JtreeToGraphVariables.nodeNumber = loaded.flags().nodeNumber;
+            JtreeToGraphVariables.uniformityNodeNumber = loaded.flags().uniformityNodeNumber;
         }
 
         ProjectTree.projectName = newProjectName;
@@ -355,6 +328,10 @@ public class DynamicTree extends JPanel implements MouseListener {
 
         Variable.setNullToAllRows();
         Constraint.setNullToAllRows();
+        odme.behaviour.Behaviour.setNullToAllRows();
+        Distribution.setNullToAllRows();
+        IntraEntityConstraint.setNullToAllRows();
+        InterEntityConstraints.setNullToAllRows();
     }
 
     // for expanding the tree after changes

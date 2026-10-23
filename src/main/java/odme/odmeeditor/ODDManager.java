@@ -474,8 +474,9 @@ public class ODDManager extends JPanel{
 		// javax.swing.JOptionPane.showMessageDialog(null,ODDManager.getODDsPath());
 		ODMEEditor.saveFunc(false);
 		ODMEEditor.updateState();
-		JtreeToGraphConvert.convertTreeToXML();
-		String yamlContent=currentXsdToYaml();
+
+		List<String[]> updatedValues = getUpdatedValues();
+		String yamlContent = xsdToYamlConverter.convert(updatedValues);
 		ODMEEditor.chooseAndSaveFile(yamlContent,EditorContext.getInstance().getProjName()+".yaml", null); // uncomment for production
 	}
 
@@ -513,6 +514,22 @@ public class ODDManager extends JPanel{
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	private List<String[]> getUpdatedValues() {
+		EditableDataModel model = (EditableDataModel) jt.getModel();
+		int rowCount = model.getRowCount();
+		List<String[]> values = new ArrayList<>();
+
+		for (int i = 0; i < rowCount; i++) {
+			String[] row = new String[nodeHeaders.length];
+			for (int j = 0; j < nodeHeaders.length; j++) {
+				Object value = model.getValueAt(i, j);
+				row[j] = value == null ? "" : value.toString();
+			}
+			values.add(row);
+		}
+		return values;
 	}
 
 }

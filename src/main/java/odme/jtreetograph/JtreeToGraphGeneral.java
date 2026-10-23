@@ -10,6 +10,9 @@ import odme.core.FindByName;
 import odme.odmeeditor.DynamicTree;
 import odme.odmeeditor.Main;
 import odme.odmeeditor.ODMEEditor;
+import odme.odmeeditor.ProjectLoadData;
+import java.nio.file.Path;
+import javax.swing.SwingUtilities;
 
 import static behaviourtreetograph.JTreeToGraphBehaviour.benhaviourGraph;
 import static odme.jtreetograph.JtreeToGraphVariables.*;
@@ -366,52 +369,30 @@ public class JtreeToGraphGeneral {
      * @param oldProjectTreeProjectName
      */
     public static void openExistingProject(String filename, String oldProjectTreeProjectName) {
-        parent = graph.getDefaultParent();
-        EditorContext.getInstance().setNewFileName(filename);
-
-        String path = EditorContext.getInstance().getWorkingDir() + "/" + filename + "Graph.xml";
-        File graphFile = new File(path);
-
-        if (!graphFile.exists()) {
-            JOptionPane.showMessageDialog(null,
-                    "Graph model not found: " + graphFile.getAbsolutePath(),
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        graph.getModel().beginUpdate();
         try {
-            Object[] existingCells = graph.getChildCells(graph.getDefaultParent(), true, true);
-            if (existingCells != null && existingCells.length > 0) {
-                graph.removeCells(existingCells, true);
-            }
-
-            Document xml = mxXmlUtils.parseXml(mxUtils.readFile(graphFile.getAbsolutePath()));
-            mxCodec codec = new mxCodec(xml);
-            codec.decode(xml.getDocumentElement(), graph.getModel());
-            List<Object> legacyCanvasMarkers = new ArrayList<>();
-            for (Object vertex : graph.getChildVertices(graph.getDefaultParent())) {
-                if (vertex instanceof mxCell cell
-                        && ("hideV".equals(cell.getId()) || "hideH".equals(cell.getId()))) {
-                    legacyCanvasMarkers.add(vertex);
-                }
-            }
-            if (!legacyCanvasMarkers.isEmpty()) {
-                graph.removeCells(legacyCanvasMarkers.toArray());
-            }
-            parent = graph.getDefaultParent();
-
+            ProjectLoadData loaded = ProjectLoadData.load(
+                    Path.of(EditorContext.getInstance().getWorkingDir()), filename);
+            applyLoadedProject(loaded, oldProjectTreeProjectName);
         }
         catch (Exception ex) {
             ex.printStackTrace();
             JOptionPane.showMessageDialog(null, "An error occurred: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        finally {
+    }
+
+    /** Attaches prepared data to the live views; disk access belongs in ProjectLoadData.load. */
+    public static void applyLoadedProject(ProjectLoadData loaded, String oldProjectTreeProjectName) {
+        if (!SwingUtilities.isEventDispatchThread()) {
+            throw new IllegalStateException("Project views must be updated on the Swing event thread");
+        }
+        graph.getModel().beginUpdate();
+        try {
+            graph.getModel().setRoot(loaded.graphModel().getRoot());
+            parent = graph.getDefaultParent();
+        } finally {
             graph.getModel().endUpdate();
         }
-
-        ODMEEditor.treePanel.openExistingProject(filename, oldProjectTreeProjectName);
-    }   
+        ODMEEditor.treePanel.applyLoadedProject(loaded, oldProjectTreeProjectName);
+    }
 }

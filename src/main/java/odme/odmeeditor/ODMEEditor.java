@@ -417,10 +417,6 @@ public class ODMEEditor extends JPanel {
      * the latest version of the projet is being read
      * */
     public static void updateState() {
-        ODMEEditor.treePanel.saveTreeModel();
-        JtreeToGraphConvert.convertTreeToXML();
-        JtreeToGraphConvert.graphToXML();
-        JtreeToGraphConvert.graphToXMLWithUniformity();
         ODMEEditor.graphWindow.setTitle( EditorContext.getInstance().getCurrentScenario());
 
         ODMEEditor.saveChanges();

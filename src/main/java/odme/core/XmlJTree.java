@@ -28,21 +28,12 @@ public class XmlJTree extends JTree {
 
 	private static final long serialVersionUID = 1L;
 	public UndoableTreeModel dtModel;
-    private Node root;
 
     public XmlJTree(String filePath) {
     	dtModel = null;
-    	root = null;
-
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder builder;
-        Document doc = null;
 
         try {
-            builder = factory.newDocumentBuilder();
-            doc = builder.parse(filePath);
-            root = unwrapEditorRoot(doc.getDocumentElement());
-
+            dtModel = readModel(filePath);
         }
         catch (ParserConfigurationException e) {
             e.printStackTrace();
@@ -60,13 +51,24 @@ public class XmlJTree extends JTree {
             return;
         }
 
-        if (root != null) {
-            dtModel = new UndoableTreeModel(builtTreeNode(root));
+        if (dtModel != null) {
             this.setModel(dtModel);
         }
     }
 
-    private Node unwrapEditorRoot(Node documentRoot) {
+    /** Builds a detached model without constructing or updating any Swing component. */
+    public static UndoableTreeModel readModel(String filePath)
+            throws ParserConfigurationException, SAXException, IOException {
+        DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        Document document = builder.parse(filePath);
+        Node documentRoot = unwrapEditorRoot(document.getDocumentElement());
+        if (documentRoot == null) {
+            throw new IOException("Tree model has no root: " + filePath);
+        }
+        return new UndoableTreeModel(builtTreeNode(documentRoot));
+    }
+
+    private static Node unwrapEditorRoot(Node documentRoot) {
         if (documentRoot == null) {
             return null;
         }
@@ -84,7 +86,7 @@ public class XmlJTree extends JTree {
         return documentRoot;
     }
 
-    private DefaultMutableTreeNode builtTreeNode(Node root) {
+    private static DefaultMutableTreeNode builtTreeNode(Node root) {
         DefaultMutableTreeNode dmtNode;
         dmtNode = new DefaultMutableTreeNode(root.getNodeName());
         NodeList nodeList = root.getChildNodes();

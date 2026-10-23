@@ -4,6 +4,7 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import odme.core.EditorContext;
 import odme.core.XmlJTree;
+import odme.domain.coverage.ParameterCoverageMapAnalyzer;
 import odme.sampling.CurrentModelScenarioBuilder;
 import odme.sampling.model.Parameter;
 
@@ -180,6 +181,91 @@ final class StructuralCoverageSupport {
                 structuralResults,
                 parameterResults
         );
+    }
+
+    static ParameterCoverageMapAnalyzer.Result analyzeCoverageMap(
+            CoverageContext context,
+            ParameterDefinition definition,
+            List<Double> regionEdges,
+            ParameterCoverageMapAnalyzer.Kernel kernel,
+            double bandwidth,
+            double adequacyTarget,
+            double coldThreshold,
+            ParameterCoverageMapAnalyzer.Weighting weighting,
+            List<Double> priorityWeights) {
+        List<ScenarioSnapshot> scenarios = loadScenarioSnapshots(
+                context.projectDirectory(), context.projectName(), context.scenarioReferences());
+        List<ParameterCoverageMapAnalyzer.Sample> samples = new ArrayList<>();
+        for (ScenarioSnapshot scenario : scenarios) {
+            for (ScenarioVariableValue value : scenario.variableValues()) {
+                if (definition.variableName().equals(value.variableName())
+                        && intersects(definition.coveragePathVariants(), value.pathVariants())) {
+                    samples.add(new ParameterCoverageMapAnalyzer.Sample(scenario.scenarioName(), value.numericValue()));
+                }
+            }
+        }
+        ParameterCoverageMapAnalyzer.Configuration configuration = new ParameterCoverageMapAnalyzer.Configuration(
+                definition.min(), definition.max(), regionEdges, kernel, bandwidth, adequacyTarget,
+                coldThreshold, weighting, priorityWeights);
+        return new ParameterCoverageMapAnalyzer().analyze(configuration, samples);
+    }
+
+    static List<Double> defaultRegionEdges(ParameterDefinition definition) {
+        List<Double> edges = new ArrayList<>();
+        double step = (definition.max() - definition.min()) / 5.0;
+        for (int index = 0; index < 5; index++) {
+            edges.add(definition.min() + index * step);
+        }
+        edges.add(definition.max());
+        return edges;
+    }
+
+    record MapOverviewRow(ParameterDefinition definition, ParameterCoverageMapAnalyzer.Result result) { }
+
+    static List<MapOverviewRow> analyzeAllCoverageMaps(CoverageContext context, double bandwidthFraction,
+                                                       double adequacyTarget) {
+        if (!Double.isFinite(bandwidthFraction) || bandwidthFraction <= 0 || bandwidthFraction > 1
+                || !Double.isFinite(adequacyTarget) || adequacyTarget <= 0) {
+            throw new IllegalArgumentException("Bandwidth must be 0–100% of range and adequacy must be positive.");
+        }
+        List<ScenarioSnapshot> scenarios = loadScenarioSnapshots(
+                context.projectDirectory(), context.projectName(), context.scenarioReferences());
+        List<MapOverviewRow> rows = new ArrayList<>();
+        for (ParameterDefinition definition : context.parameterDefinitions()) {
+            List<ParameterCoverageMapAnalyzer.Sample> samples = new ArrayList<>();
+            for (ScenarioSnapshot scenario : scenarios) {
+                for (ScenarioVariableValue value : scenario.variableValues()) {
+                    if (definition.variableName().equals(value.variableName())
+                            && intersects(definition.coveragePathVariants(), value.pathVariants())) {
+                        samples.add(new ParameterCoverageMapAnalyzer.Sample(scenario.scenarioName(), value.numericValue()));
+                    }
+                }
+            }
+            var configuration = new ParameterCoverageMapAnalyzer.Configuration(
+                    definition.min(), definition.max(), defaultRegionEdges(definition),
+                    ParameterCoverageMapAnalyzer.Kernel.TRIANGULAR,
+                    (definition.max() - definition.min()) * bandwidthFraction,
+                    adequacyTarget, 0.25, ParameterCoverageMapAnalyzer.Weighting.GEOMETRIC, List.of());
+            rows.add(new MapOverviewRow(definition, new ParameterCoverageMapAnalyzer().analyze(configuration, samples)));
+        }
+        return List.copyOf(rows);
+    }
+
+    static List<Double> parseRegionEdges(String rawEdges, ParameterDefinition definition) {
+        if (rawEdges == null || rawEdges.isBlank()) {
+            return defaultRegionEdges(definition);
+        }
+        List<Double> edges = new ArrayList<>();
+        for (String token : rawEdges.split("[,;\\s]+")) {
+            if (!token.isBlank()) {
+                try {
+                    edges.add(Double.parseDouble(token));
+                } catch (NumberFormatException e) {
+                    throw new IllegalArgumentException("Invalid region edge for " + definition.variableName() + ": " + token);
+                }
+            }
+        }
+        return edges;
     }
 
     private static List<ParameterDefinition> buildParameterDefinitions(List<CurrentModelScenarioBuilder.VariableBinding> bindings) {

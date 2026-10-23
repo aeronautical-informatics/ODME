@@ -55,6 +55,8 @@ import odme.odmeeditor.ODMEEditor;
 import odme.odmeeditor.ProjectTree;
 import odme.odmeeditor.ScenarioList;
 import odme.odmeeditor.Variable;
+import odme.odmeeditor.BackgroundTaskRunner;
+import odme.odmeeditor.ProjectLoadData;
 
 import static odme.odmeeditor.XmlUtils.sesview;
 
@@ -132,7 +134,7 @@ public class MenuController {
     }
 
     private void openODDManager(String mode) {
-        ODMEEditor.saveFunc(false); 
+        JtreeToGraphSave.saveGraph();
         ODMEEditor.updateState();
         ODDManager nt=new ODDManager(mode);
         JFrame jd = new JFrame();
@@ -227,7 +229,7 @@ public class MenuController {
     }
     
     private void openFunc() {
-        JFileChooser fileChooser = new JFileChooser();
+        JFileChooser fileChooser = new JFileChooser(ODMEEditor.repFslas);
         fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         fileChooser.setAcceptAllFileFilterUsed(false);
         fileChooser.setCurrentDirectory(new File(ODMEEditor.repFslas));
@@ -237,19 +239,25 @@ public class MenuController {
             File selectedFile = fileChooser.getSelectedFile();
             String fileName = selectedFile.getName();
             String oldProjectTreeProjectName = EditorContext.getInstance().getProjName();
-            EditorContext.getInstance().setProjName(fileName);
-            EditorContext.getInstance().setNewFileName(fileName);
-            EditorContext.getInstance().setFileLocation(selectedFile.getParentFile().getAbsolutePath());
-            JtreeToGraphGeneral.openExistingProject(fileName, oldProjectTreeProjectName);
-
-            JtreeToGraphVariables.undoManager = new mxUndoManager();
-            sesview.textArea.setText("");
-            Console.consoleText.setText(">>");
-            Variable.setNullToAllRows();
-            Constraint.setNullToAllRows();
-            
-            if ("pes".equals(EditorContext.getInstance().getToolMode()))
-                ODMEEditor.applyGuiSES();
+            boolean wasScenarioMode = "pes".equals(EditorContext.getInstance().getToolMode());
+            BackgroundTaskRunner.run(mainFrame, "Open Project", "Loading " + fileName + "...",
+                    () -> ProjectLoadData.load(selectedFile.toPath(), fileName),
+                    loaded -> {
+                        // Commit context only after every input has loaded successfully.
+                        EditorContext context = EditorContext.getInstance();
+                        context.setToolMode("ses");
+                        context.setFileLocation(selectedFile.getParentFile().getAbsolutePath());
+                        ODMEEditor.fileLocation = context.getFileLocation();
+                        JtreeToGraphGeneral.applyLoadedProject(loaded, oldProjectTreeProjectName);
+                        JtreeToGraphVariables.undoManager = new mxUndoManager();
+                        ODMEEditor.undoJtree.discardAllEdits();
+                        sesview.textArea.setText("");
+                        Console.consoleText.setText(">>");
+                        if (wasScenarioMode) {
+                            ODMEEditor.applyGuiSES();
+                        }
+                        ODMEEditor.graphWindow.setTitle(fileName);
+                    });
         }
     }
     

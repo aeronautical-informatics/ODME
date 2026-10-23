@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,12 +14,16 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JToolBar;
+import javax.swing.JFileChooser;
 import javax.swing.border.EtchedBorder;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 
 import behaviourtreetograph.JtreeToGraphConvert;
 import behaviourtreetograph.JtreeToGraphGeneral;
+import behaviourtreetograph.BehaviourGraphLoader;
+import odme.core.EditorContext;
 
 
 
@@ -37,8 +42,8 @@ public class ToolBarBehaviour {
 
 	public void show() {
 
-		String[] names = {"Selector", "Add Decorator", "Add Selector", "Add Sequence","Add Parallel", "Delete Node", "Save Graph", "Undo", "Redo", "Zoom In", "Zoom Out", "Merge"};
-		String[] images = {"cursor", "decoratorT", "selectorT", "sequenceT","parallelT", "delete", "save", "undo", "redo", "zoom-in", "zoom-out", "merge"};
+		String[] names = {"Selector", "Add Decorator", "Add Selector", "Add Sequence","Add Parallel", "Delete Node", "Open Graph", "Save Graph", "Undo", "Redo", "Zoom In", "Zoom Out", "Merge"};
+		String[] images = {"cursor", "decoratorT", "selectorT", "sequenceT","parallelT", "delete", "open_icon", "save", "undo", "redo", "zoom-in", "zoom-out", "merge"};
 
 		for (int i=0; i<names.length; i++) {
 			ImageIcon Icon =
@@ -73,6 +78,9 @@ public class ToolBarBehaviour {
 						case "Save Graph":
 							saveGraph();
 
+							break;
+						case "Open Graph":
+							openGraph();
 							break;
 						case "Undo":
 							undo();
@@ -130,6 +138,34 @@ public class ToolBarBehaviour {
 		JtreeToGraphConvert.behaviourGraphToXML();
 		JOptionPane.showMessageDialog(MainWindow.frame, "Saved Successfully.", "Save",
 				JOptionPane.INFORMATION_MESSAGE);
+	}
+
+	private void openGraph() {
+		String scenario = BehaviourToTree.selectedScenario;
+		if (scenario == null || scenario.isBlank()) {
+			JOptionPane.showMessageDialog(MainWindow.frame, "Choose a scenario from Sync Behaviour first.",
+					"Open Behavior Tree", JOptionPane.WARNING_MESSAGE);
+			return;
+		}
+		File scenarioDirectory = new File(EditorContext.getInstance().getProjectDir(), scenario);
+		JFileChooser fileChooser = new JFileChooser(scenarioDirectory);
+		fileChooser.setDialogTitle("Open Behavior Graph or Behavior Tree");
+		fileChooser.setFileFilter(new FileNameExtensionFilter("XML files (*.xml)", "xml"));
+		fileChooser.setSelectedFile(new File(scenarioDirectory,
+				EditorContext.getInstance().getProjName() + "behaviourGraph.xml"));
+		if (fileChooser.showOpenDialog(MainWindow.frame) != JFileChooser.APPROVE_OPTION) {
+			return;
+		}
+		try {
+			BehaviourGraphLoader.open(fileChooser.getSelectedFile());
+			JOptionPane.showMessageDialog(MainWindow.frame, "Behavior tree loaded successfully.",
+					"Open Behavior Tree", JOptionPane.INFORMATION_MESSAGE);
+		} catch (Exception exception) {
+			exception.printStackTrace();
+			JOptionPane.showMessageDialog(MainWindow.frame,
+					"Unable to open behavior tree:\n" + exception.getMessage(),
+					"Open Behavior Tree", JOptionPane.ERROR_MESSAGE);
+		}
 	}
 
 

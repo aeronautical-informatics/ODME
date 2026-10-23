@@ -49,7 +49,8 @@ public final class BackgroundTaskRunner {
                                Task<T> task,
                                Consumer<T> onSuccess,
                                Consumer<Throwable> onError) {
-        Window owner = parent == null ? null : SwingUtilities.getWindowAncestor(parent);
+        Window owner = parent instanceof Window window ? window
+                : parent == null ? null : SwingUtilities.getWindowAncestor(parent);
         JDialog progressDialog = createProgressDialog(owner, title, message);
         Cursor previousCursor = owner != null ? owner.getCursor() : null;
 
@@ -69,7 +70,6 @@ public final class BackgroundTaskRunner {
                 if (owner != null && previousCursor != null) {
                     owner.setCursor(previousCursor);
                 }
-
                 try {
                     T result = get();
                     if (onSuccess != null) {

@@ -19,6 +19,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import java.io.*;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
@@ -286,10 +287,7 @@ public class JtreeToGraphConvert {
 
         Document calendarDOMDoc = null;
         try {
-            DOMImplementation domImpl =
-                    DocumentBuilderFactory.newInstance().newDocumentBuilder().getDOMImplementation();
-
-            calendarDOMDoc = domImpl.createDocument(null, "start", null);
+            calendarDOMDoc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
 
         }
         catch (ParserConfigurationException e1) {
@@ -299,7 +297,10 @@ public class JtreeToGraphConvert {
             e2.printStackTrace(System.err);
         }
 
-        calendarDOMDoc.getDocumentElement().appendChild(JtreeToGraphGeneral.behaviourChildNodes(calendarDOMDoc, rootcell));
+        if (rootcell == null) {
+            throw new IllegalStateException("Behaviour graph does not contain a root node");
+        }
+        calendarDOMDoc.appendChild(JtreeToGraphGeneral.behaviourChildNodes(calendarDOMDoc, rootcell));
 
         try {
             String path = new String();
@@ -318,69 +319,18 @@ public class JtreeToGraphConvert {
     }
 
     public static void mergeBehaviourWithXSD(){
-            PrintWriter f0 = null;
-
-            try {
-                String path = new String();
-
-                path = EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() +  "/" +selectedScenario+ "/MergedXMLforxsd.xml";
-
-                f0 = new PrintWriter(new FileWriter(path));
-            }
-
-            catch (IOException e1) {
-                e1.printStackTrace();
-            JOptionPane.showMessageDialog(null, "An error occurred: " + e1.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-            }
-
-            Scanner in = null;
-            Scanner beh = null;
-            try{
-
-                String path = new String();
-                String secondFile = new String();
-
-                path = EditorContext.getInstance().getFileLocation() +"/" + EditorContext.getInstance().getProjName() +  "/" +selectedScenario+"/xmlforxsd.xml";
-                secondFile = EditorContext.getInstance().getFileLocation() +"/" + EditorContext.getInstance().getProjName() +  "/" +selectedScenario+"/OutputBehaviourxml.xml";
-
-                File file = new File (path);
-                File f = new File(secondFile);
-
-                if (!file.exists()) {
-                    file.createNewFile();
-                }
-                in = new Scanner(file);
-                beh = new Scanner(f);
-                while (in.hasNext()){
-                    String line = in.nextLine();
-                    if (line.equals("</entity>")){
-
-                    }
-                    if (!in.hasNext()){
-                        while (beh.hasNext()){
-                            String second = beh.nextLine();
-                            if(second.startsWith("<?xml")){
-
-                            }else {
-                                f0.print(second);
-                            }
-                        }
-                    }
-                    f0.print(line);
-                }
-                in.close();
-                beh.close();
-                f0.close();
-            }catch (FileNotFoundException e) {
-                e.printStackTrace();
-            JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-            } catch (IOException e) {
-                e.printStackTrace();
-            JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-            }
+        Path scenarioDirectory = Path.of(EditorContext.getInstance().getFileLocation(),
+                EditorContext.getInstance().getProjName(), selectedScenario);
+        try {
+            BehaviourXmlWorkflow.mergeIntoScenario(
+                    scenarioDirectory.resolve("xmlforxsd.xml"),
+                    scenarioDirectory.resolve("OutputBehaviourxml.xml"),
+                    scenarioDirectory.resolve("MergedXMLforxsd.xml"));
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred: " + exception.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
 }

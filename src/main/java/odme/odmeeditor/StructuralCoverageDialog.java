@@ -89,7 +89,13 @@ final class StructuralCoverageDialog extends JDialog {
 
         JScrollPane tableScroll = new JScrollPane(parameterTable);
         tableScroll.setPreferredSize(new Dimension(980, 420));
-        add(tableScroll, BorderLayout.CENTER);
+        JTabbedPane coverageTabs = new JTabbedPane();
+        coverageTabs.addTab("Coverage Estimate", tableScroll);
+        JTabbedPane mapTabs = new JTabbedPane();
+        mapTabs.addTab("All parameters", new CoverageMapOverviewPanel(context));
+        mapTabs.addTab("Advanced: single parameter", new ParameterCoverageMapPanel(context));
+        coverageTabs.addTab("Parameter Coverage Map", mapTabs);
+        add(coverageTabs, BorderLayout.CENTER);
 
         JPanel bottomPanel = new JPanel(new BorderLayout());
         if (context.parameterDefinitions().isEmpty()) {
@@ -112,7 +118,7 @@ final class StructuralCoverageDialog extends JDialog {
         add(bottomPanel, BorderLayout.SOUTH);
 
         pack();
-        setMinimumSize(new Dimension(1000, 620));
+        setMinimumSize(new Dimension(1100, 720));
         setLocationRelativeTo(parent);
     }
 

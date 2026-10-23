@@ -11,7 +11,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JFrame;
@@ -29,6 +28,8 @@ import com.mxgraph.util.svg.ParseException;
 import odme.behaviour.MainWindow;
 import odme.core.EditorContext;
 import javax.swing.JOptionPane;
+import com.google.common.collect.Multimap;
+import javax.swing.tree.TreePath;
 
 public class BehaviourList extends JPanel{
 
@@ -73,7 +74,7 @@ public class BehaviourList extends JPanel{
 
 					try {
 
-						int row = table.getSelectedRow();
+						int row = table.convertRowIndexToModel(table.getSelectedRow());
 						String[] h =  dataList1.get(row);
 						BehaviourToTree.selectedScenario = h[0];
 						MainWindow window = new MainWindow();
@@ -118,7 +119,6 @@ public class BehaviourList extends JPanel{
 
 		try {
 
-			Path path = Path.of("").toAbsolutePath();
 			FileReader reader = new FileReader(EditorContext.getInstance().getFileLocation() + "/" + EditorContext.getInstance().getProjName() + "/scenarios.json");
 
 			Object obj = null;
@@ -158,14 +158,28 @@ public class BehaviourList extends JPanel{
 		return arr;
 	}
 	private String scenaiorsName(String[] scenaiorsList) {
-		String s = null;
-		Path path = Path.of("").toAbsolutePath();
-		for(String folder: scenaiorsList) {
-			File f =  new File(EditorContext.getInstance().getProjectDir() + "/" + folder + "/" + EditorContext.getInstance().getProjName() + ".ssdbeh" );
-			if(f.exists()) {
-				s = folder;
+		for (String folder : scenaiorsList) {
+			File file = new File(EditorContext.getInstance().getProjectDir() + "/" + folder + "/"
+					+ EditorContext.getInstance().getProjName() + ".ssdbeh");
+			if (containsBehaviour(file)) {
+				return folder;
 			}
 		}
-		return s;
+		return null;
+	}
+
+	/**
+	 * A scenario is eligible for behavior modelling only when its serialized
+	 * behavior metadata contains at least one non-blank behavior name. Scenario
+	 * generation always creates a .ssdbeh sidecar, so testing only its presence
+	 * incorrectly exposes every generated scenario in the Sync Behaviour list.
+	 */
+	static boolean containsBehaviour(File file) {
+		try {
+			Multimap<TreePath, String> behaviours = DynamicTree.readSerializedMultimapIfExists(file);
+			return behaviours.values().stream().anyMatch(value -> value != null && !value.isBlank());
+		} catch (IOException | ClassNotFoundException | ClassCastException exception) {
+			return false;
+		}
 	}
 }

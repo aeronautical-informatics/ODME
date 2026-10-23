@@ -877,7 +877,7 @@ public class FileConvertion {
                      + "        <xs:attribute name=\"upper\" use=\"optional\"/>\r\n" + "        \r\n"
                      + "    </xs:complexType>\r\n" + "\r\n" + "\r\n"
                      + "    <xs:complexType name=\"behaviourType\"> \r\n" + "        <xs:sequence>\r\n"
-                     + "            <xs:element minOccurs=\"0\" maxOccurs=\"unbounded\" ref=\"entity\"/>\r\n"
+                     + "            <xs:any minOccurs=\"0\" maxOccurs=\"unbounded\" processContents=\"lax\"/>\r\n"
                      + "        </xs:sequence>\r\n"
                      + "        <xs:attribute name=\"name\" use=\"required\"/>\r\n" + "        \r\n"
                      + "    </xs:complexType>\r\n" + "\r\n" + "\r\n" + "    <xs:element name=\"entity\">\r\n"
