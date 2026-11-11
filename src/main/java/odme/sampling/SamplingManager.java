@@ -147,7 +147,7 @@ public class SamplingManager {
         return switch (normalizeType(parameter)) {
             case "int", "float", "double" -> true;
             case "distribution" -> includeDistributionParameters;
-            case "categorical" -> false;
+            case "categorical" -> hasCategoricalOptions(parameter.getOptions());
             case "boolean" -> false;
             default -> false;
         };
@@ -185,7 +185,15 @@ public class SamplingManager {
                     constraintValues.put(parameter.getName(), sampledValue);
                 }
                 case "categorical" -> {
-                    String categoricalValue = pickCategoricalValue(parameter);
+                    List<String> options = parameter.getOptions();
+                    String categoricalValue;
+                    if (hasCategoricalOptions(options)) {
+                        double designValue = normalizedSample[sampledIndex++];
+                        int optionIndex = (int) IntegerMapping.toInteger(designValue, 0, options.size() - 1);
+                        categoricalValue = options.get(optionIndex);
+                    } else {
+                        categoricalValue = defaultString(parameter.getDefaultValue(), "");
+                    }
                     csvValues.put(parameter.getName(), categoricalValue);
                 }
                 case "boolean" -> {
@@ -236,12 +244,8 @@ public class SamplingManager {
         throw new IllegalArgumentException("Unsupported distribution: " + parameter.getDistributionName());
     }
 
-    private String pickCategoricalValue(Parameter parameter) {
-        if (parameter.getOptions() == null || parameter.getOptions().isEmpty()) {
-            return defaultString(parameter.getDefaultValue(), "");
-        }
-        int index = (int) (Math.random() * parameter.getOptions().size());
-        return parameter.getOptions().get(index);
+    private boolean hasCategoricalOptions(List<String> options) {
+        return options != null && !options.isEmpty();
     }
 
     private String formatNumericForCsv(String type, double value) {

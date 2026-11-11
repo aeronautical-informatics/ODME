@@ -2,6 +2,8 @@ package odme.sampling;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
+import odme.sampling.model.Parameter;
+import odme.sampling.model.Scenario;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -181,6 +183,76 @@ class SamplingManagerTest {
             assertTrue(val.equals("Clear") || val.equals("Rainy") || val.equals("Foggy"),
                     "Unexpected categorical value: " + val);
         }
+    }
+
+    @Test
+    void generateSamples_withCategoricalAndDouble_balancesThreeOptions() throws Exception {
+        Path yaml = writeYaml("""
+                Scenario:
+                  Sensor:
+                    Mode:
+                      options: [A, B, C]
+                    Range:
+                      type: double
+                      min: 0
+                      max: 1
+                """);
+        Path csv = outputCsv();
+
+        manager.generateSamples(yaml.toString(), 300, csv.toString());
+
+        List<String> lines = Files.readAllLines(csv);
+        assertEquals("Sensor_Mode,Sensor_Range", lines.get(0));
+        Map<String, Long> counts = lines.stream().skip(1)
+                .collect(Collectors.groupingBy(row -> row.split(",", 2)[0], Collectors.counting()));
+        assertEquals(Map.of("A", 100L, "B", 100L, "C", 100L), counts);
+    }
+
+    @Test
+    void generateSamples_withFourOptions_samplesEachOptionOnce() throws Exception {
+        Path yaml = writeYaml("""
+                Scenario:
+                  Sensor:
+                    Mode:
+                      options: [A, B, C, D]
+                """);
+        Path csv = outputCsv();
+
+        manager.generateSamples(yaml.toString(), 4, csv.toString());
+
+        Map<String, Long> counts = Files.readAllLines(csv).stream().skip(1)
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+        assertEquals(Map.of("A", 1L, "B", 1L, "C", 1L, "D", 1L), counts);
+    }
+
+    @Test
+    void generateSampleRows_withoutCategoricalOptions_preservesDefaultAndDoubleStrata() throws Exception {
+        Parameter mode = new Parameter();
+        mode.setName("Mode");
+        mode.setType("categorical");
+        mode.setOptions(List.of());
+        mode.setDefaultValue("Fallback");
+        Parameter range = new Parameter();
+        range.setName("Range");
+        range.setType("double");
+        range.setMin(0.0);
+        range.setMax(1.0);
+        Scenario scenario = new Scenario();
+        scenario.setParameters(List.of(mode, range));
+        int sampleCount = 300;
+
+        List<Map<String, String>> rows = manager.generateSampleRows(scenario, sampleCount, false);
+
+        assertEquals(sampleCount, rows.size());
+        Set<Integer> occupiedStrata = new HashSet<>();
+        for (Map<String, String> row : rows) {
+            assertEquals("Fallback", row.get("Mode"));
+            double value = Double.parseDouble(row.get("Range"));
+            int stratum = (int) Math.floor(value * sampleCount);
+            assertTrue(stratum >= 0 && stratum < sampleCount, "Value outside [0, 1): " + value);
+            occupiedStrata.add(stratum);
+        }
+        assertEquals(sampleCount, occupiedStrata.size(), "Expected one sample in each double stratum");
     }
 
     // ────────────────────────────────────────────────────────────────────────
