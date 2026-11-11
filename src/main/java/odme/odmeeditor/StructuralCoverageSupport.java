@@ -479,7 +479,8 @@ final class StructuralCoverageSupport {
         return buildUniformBins(definition.min(), definition.max(), binSize);
     }
 
-    private static List<CoverageBin> buildUniformBins(double min, double max, double binSize) {
+    // Package-private for testing.
+    static List<CoverageBin> buildUniformBins(double min, double max, double binSize) {
         if (max < min) {
             throw new IllegalArgumentException("Upper bound must be >= lower bound.");
         }
@@ -490,20 +491,20 @@ final class StructuralCoverageSupport {
             return bins;
         }
 
-        double cursor = min;
-        int guard = 0;
-        while (cursor < max && guard < 10000) {
-            guard++;
-            double next = Math.min(max, cursor + binSize);
-            bins.add(new CoverageBin(cursor, next, formatRange(cursor, next)));
-            if (next == max) {
-                break;
-            }
-            cursor = next;
+        double ratio = (max - min) / binSize;
+        double tolerance = Math.max(1e-9, 1e-9 * ratio);
+        double roundedCount = Math.ceil(ratio - tolerance);
+        int maxBins = 10000;
+        if (ratio == Double.POSITIVE_INFINITY || roundedCount > maxBins) {
+            throw new IllegalArgumentException("Uniform coverage bins exceed the limit of " + maxBins + ".");
         }
 
-        if (bins.isEmpty()) {
-            bins.add(new CoverageBin(min, max, formatRange(min, max)));
+        int binCount = Math.max(1, (int) roundedCount);
+        double lower = min;
+        for (int i = 1; i <= binCount; i++) {
+            double upper = i == binCount ? max : min + i * binSize;
+            bins.add(new CoverageBin(lower, upper, formatRange(lower, upper)));
+            lower = upper;
         }
 
         return bins;
