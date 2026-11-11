@@ -11,8 +11,10 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -108,6 +110,33 @@ class SamplingManagerTest {
         Map<String, Long> counts = Files.readAllLines(csv).stream().skip(1)
                 .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
         assertEquals(Map.of("0", 100L, "1", 100L, "2", 100L, "3", 100L), counts);
+    }
+
+    @Test
+    void generateSamples_noConstraint_usesEveryRealValuedStratumExactlyOnce() throws Exception {
+        Path yaml = writeYaml("""
+                Scenario:
+                  Sensor:
+                    Range:
+                      type: double
+                      min: 0
+                      max: 1
+                """);
+        Path csv = outputCsv();
+        int sampleCount = 400;
+
+        manager.generateSamples(yaml.toString(), sampleCount, csv.toString());
+
+        List<String> rows = Files.readAllLines(csv).stream().skip(1).toList();
+        assertEquals(sampleCount, rows.size());
+        Set<Integer> occupiedStrata = new HashSet<>();
+        for (String row : rows) {
+            double value = Double.parseDouble(row);
+            int stratum = (int) Math.floor(value * sampleCount);
+            assertTrue(stratum >= 0 && stratum < sampleCount, "Value outside [0, 1): " + value);
+            occupiedStrata.add(stratum);
+        }
+        assertEquals(sampleCount, occupiedStrata.size(), "Expected one sample in each stratum");
     }
 
     @Test

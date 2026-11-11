@@ -96,7 +96,7 @@ public class SamplingManager {
                         .filter(constraint -> !constraint.isEmpty())
                         .toList();
 
-        if (constraints.isEmpty() && sampledParameters.stream().anyMatch(p -> "int".equals(normalizeType(p)))) {
+        if (constraints.isEmpty()) {
             // Keep every stratum of the requested design when no samples need to be rejected.
             return generateNormalizedBatch(sampledParameters.size(), numberOfSamples).stream()
                     .map(sample -> buildSampleRow(outputParameters, sampledParameters, sample))
