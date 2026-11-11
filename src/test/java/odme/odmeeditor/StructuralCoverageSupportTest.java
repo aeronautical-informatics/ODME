@@ -8,6 +8,7 @@ import odme.odmeeditor.StructuralCoverageSupport.ParameterCoverageResult;
 import odme.odmeeditor.StructuralCoverageSupport.ParameterDefinition;
 import odme.odmeeditor.StructuralCoverageSupport.ParameterSelectionRow;
 import odme.odmeeditor.StructuralCoverageSupport.ScenarioReference;
+import odme.odmeeditor.StructuralCoverageSupport.StructuralOption;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -27,6 +28,7 @@ import java.util.stream.IntStream;
 import static odme.odmeeditor.StructuralCoverageSupport.buildUniformBins;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -161,6 +163,33 @@ class StructuralCoverageSupportTest {
         assertEquals("[1 - 2); [2 - 3)", report.parameterResults().get(0).coveredBinLabels());
     }
 
+    @ParameterizedTest
+    @CsvSource({
+            "60.0, 10, 44.1, 1404, 52.05",
+            "0.0, 0, 70.0, 100, 70.0",
+            "80.0, 5, 0.0, 0, 80.0",
+            "0.0, 0, 0.0, 0, 0.0"
+    })
+    void overallCoverage_averagesOnlyComponentsWithItems(double structuralPercent, int structuralTotal,
+                                                          double parameterPercent, int parameterTotal, double expected) {
+        assertEquals(expected, StructuralCoverageSupport.overallCoverage(
+                structuralPercent, structuralTotal, parameterPercent, parameterTotal), 1e-9);
+    }
+
+    @Test
+    void analyze_averagesPruningAndParameterCoverage(@TempDir Path directory) throws IOException {
+        List<StructuralOption> options = List.of(
+                new StructuralOption("ModeSpec=A", "ModeSpec", "A", "Root > ModeSpec > A", Set.of("Root>ModeSpec>A")),
+                new StructuralOption("ModeSpec=B", "ModeSpec", "B", "Root > ModeSpec > B", Set.of("Root>ModeSpec>B"))
+        );
+        CoverageReport report = analyzeCoverage(directory, "", options, Set.of("ModeSpec=A"), 1, 2);
+
+        assertEquals(50.0, report.structuralCoveragePercent());
+        assertEquals(20.0, report.parameterCoveragePercent());
+        assertEquals(35.0, report.overallCoveragePercent(), 1e-9);
+        assertNotEquals(25.0, report.overallCoveragePercent(), 1e-9); // Pooled coverage was 3 of 12.
+    }
+
     private static ParameterCoverageResult assertCustomBinMatch(Path directory, String customBins, int sample,
                                                                  String label) throws IOException {
         ParameterCoverageResult result = analyzeParameter(directory, customBins, sample).parameterResults().get(0);
@@ -170,6 +199,11 @@ class StructuralCoverageSupportTest {
     }
 
     private static CoverageReport analyzeParameter(Path directory, String customBins, int... samples) throws IOException {
+        return analyzeCoverage(directory, customBins, List.of(), Set.of(), samples);
+    }
+
+    private static CoverageReport analyzeCoverage(Path directory, String customBins, List<StructuralOption> options,
+                                                  Set<String> selectedStructuralKeys, int... samples) throws IOException {
         List<ScenarioReference> scenarios = new ArrayList<>();
         for (int i = 0; i < samples.length; i++) {
             String scenarioName = "Scenario" + i;
@@ -180,11 +214,11 @@ class StructuralCoverageSupportTest {
                     Files.newOutputStream(scenarioDirectory.resolve("Demo.ssdvar")))) {
                 output.writeObject(variables);
             }
-            scenarios.add(new ScenarioReference(scenarioName, Set.of()));
+            scenarios.add(new ScenarioReference(scenarioName, selectedStructuralKeys));
         }
 
         ParameterDefinition definition = new ParameterDefinition("count", "Root", "count", "int", 0, 10, Set.of("Root"));
-        CoverageContext context = new CoverageContext("Demo", directory, List.of(definition), List.of(), scenarios);
+        CoverageContext context = new CoverageContext("Demo", directory, List.of(definition), options, scenarios);
         ParameterSelectionRow selection = new ParameterSelectionRow("count", "Root", "count", "int", 0, 10, "1", customBins);
         return StructuralCoverageSupport.analyze(context, List.of(selection));
     }

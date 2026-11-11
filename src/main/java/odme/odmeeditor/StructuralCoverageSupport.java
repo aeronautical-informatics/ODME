@@ -163,9 +163,8 @@ final class StructuralCoverageSupport {
 
         double structuralCoverage = percentage(coveredStructural, structuralResults.size());
         double parameterCoverage = percentage(coveredBins, totalBins);
-        int overallCovered = coveredStructural + coveredBins;
-        int overallTotal = structuralResults.size() + totalBins;
-        double overallCoverage = percentage(overallCovered, overallTotal);
+        double overallCoveragePercent = overallCoverage(
+                structuralCoverage, structuralResults.size(), parameterCoverage, totalBins);
 
         return new CoverageReport(
                 context.projectName(),
@@ -176,9 +175,7 @@ final class StructuralCoverageSupport {
                 totalBins,
                 coveredBins,
                 parameterCoverage,
-                overallCovered,
-                overallTotal,
-                overallCoverage,
+                overallCoveragePercent,
                 structuralResults,
                 parameterResults
         );
@@ -646,6 +643,14 @@ final class StructuralCoverageSupport {
         return total <= 0 ? 0.0 : (covered * 100.0) / total;
     }
 
+    static double overallCoverage(double structuralPercent, int structuralTotal,
+                                  double parameterPercent, int parameterTotal) {
+        if (structuralTotal > 0) {
+            return parameterTotal > 0 ? (structuralPercent + parameterPercent) / 2.0 : structuralPercent;
+        }
+        return parameterTotal > 0 ? parameterPercent : 0.0;
+    }
+
     private static String formatRange(double lower, double upper, boolean upperClosed) {
         return "[" + formatNumber(lower) + " - " + formatNumber(upper) + (upperClosed ? "]" : ")");
     }
@@ -764,8 +769,6 @@ final class StructuralCoverageSupport {
                           int totalParameterBins,
                           int coveredParameterBins,
                           double parameterCoveragePercent,
-                          int overallCoveredItems,
-                          int overallTotalItems,
                           double overallCoveragePercent,
                           List<StructuralCoverageResult> structuralResults,
                           List<ParameterCoverageResult> parameterResults) {

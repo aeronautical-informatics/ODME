@@ -281,9 +281,8 @@ final class StructuralCoverageDialog extends JDialog {
             metricGrid.setOpaque(false);
             metricGrid.add(buildMetricCard(
                     "Overall Coverage",
-                    "Combined pruning and parameter coverage",
-                    report.overallCoveredItems(),
-                    report.overallTotalItems(),
+                    "Mean of pruning and parameter coverage",
+                    null,
                     report.overallCoveragePercent(),
                     OVERALL_COLOR
             ));
@@ -339,9 +338,7 @@ final class StructuralCoverageDialog extends JDialog {
             percent.setFont(percent.getFont().deriveFont(Font.BOLD, 28f));
             percent.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-            JLabel details = new JLabel(
-                    report.overallCoveredItems() + " covered items out of " + report.overallTotalItems()
-                            + " across pruning and parameter space");
+            JLabel details = new JLabel(overallCoverageDetails(report));
             details.setForeground(TEXT_PRIMARY);
             details.setAlignmentX(Component.LEFT_ALIGNMENT);
 
@@ -365,6 +362,14 @@ final class StructuralCoverageDialog extends JDialog {
                                        int total,
                                        double percentage,
                                        Color accentColor) {
+            return buildMetricCard(title, subtitle, covered + " / " + total, percentage, accentColor);
+        }
+
+        private JPanel buildMetricCard(String title,
+                                       String subtitle,
+                                       String ratio,
+                                       double percentage,
+                                       Color accentColor) {
             JPanel card = createCardPanel();
             card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
 
@@ -377,14 +382,11 @@ final class StructuralCoverageDialog extends JDialog {
             subtitleLabel.setForeground(TEXT_SECONDARY);
             subtitleLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-            JLabel ratioLabel = new JLabel(covered + " / " + total);
-            ratioLabel.setForeground(accentColor);
-            ratioLabel.setFont(ratioLabel.getFont().deriveFont(Font.BOLD, 22f));
-            ratioLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-            JLabel percentLabel = new JLabel(formatPercent(percentage));
-            percentLabel.setForeground(TEXT_PRIMARY);
-            percentLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+            String formattedPercentage = formatPercent(percentage);
+            JLabel valueLabel = new JLabel(ratio == null ? formattedPercentage : ratio);
+            valueLabel.setForeground(accentColor);
+            valueLabel.setFont(valueLabel.getFont().deriveFont(Font.BOLD, 22f));
+            valueLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
             JProgressBar progressBar = createProgressBar(percentage, accentColor);
             progressBar.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -393,9 +395,14 @@ final class StructuralCoverageDialog extends JDialog {
             card.add(Box.createVerticalStrut(6));
             card.add(subtitleLabel);
             card.add(Box.createVerticalStrut(12));
-            card.add(ratioLabel);
-            card.add(Box.createVerticalStrut(4));
-            card.add(percentLabel);
+            card.add(valueLabel);
+            if (ratio != null) {
+                JLabel percentLabel = new JLabel(formattedPercentage);
+                percentLabel.setForeground(TEXT_PRIMARY);
+                percentLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+                card.add(Box.createVerticalStrut(4));
+                card.add(percentLabel);
+            }
             card.add(Box.createVerticalStrut(10));
             card.add(progressBar);
 
@@ -442,9 +449,25 @@ final class StructuralCoverageDialog extends JDialog {
             return label;
         }
 
+        private String overallCoverageDetails(StructuralCoverageSupport.CoverageReport report) {
+            boolean hasPruning = report.totalStructuralOptions() > 0;
+            boolean hasParameters = report.totalParameterBins() > 0;
+            if (hasPruning && hasParameters) {
+                return "Mean of pruning coverage (" + formatPercent(report.structuralCoveragePercent())
+                        + ") and parameter coverage (" + formatPercent(report.parameterCoveragePercent()) + ")";
+            }
+            if (hasPruning) {
+                return "Pruning coverage only. The model has no parameter bins.";
+            }
+            if (hasParameters) {
+                return "Parameter coverage only. The model has no pruning choices.";
+            }
+            return "The model has no pruning choices or parameter bins.";
+        }
+
         private String buildInsightText(StructuralCoverageSupport.CoverageReport report) {
             if (report.overallCoveragePercent() >= 90.0) {
-                return "Coverage is strong across both structure and parameter space. Focus next on any remaining uncovered bins or edge-case scenario quality checks.";
+                return "Overall coverage is strong. Focus next on any remaining uncovered pruning choices or parameter bins, and check edge-case scenario quality.";
             }
             if (report.overallCoveragePercent() >= 60.0) {
                 return "Coverage is moderate. The generated set explores a useful part of the design space, but there are still meaningful gaps in pruning choices and/or ODD bins.";
@@ -471,9 +494,9 @@ final class StructuralCoverageDialog extends JDialog {
             });
             model.addRow(new Object[]{
                     "Overall Coverage",
-                    report.overallCoveredItems(),
-                    Math.max(0, report.overallTotalItems() - report.overallCoveredItems()),
-                    report.overallTotalItems(),
+                    "-",
+                    "-",
+                    "-",
                     formatPercent(report.overallCoveragePercent())
             });
             JTable table = new JTable(model);
