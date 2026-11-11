@@ -19,6 +19,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -487,7 +488,7 @@ final class StructuralCoverageSupport {
 
         List<CoverageBin> bins = new ArrayList<>();
         if (Double.compare(min, max) == 0) {
-            bins.add(new CoverageBin(min, max, formatRange(min, max)));
+            bins.add(new CoverageBin(min, max, true));
             return bins;
         }
 
@@ -502,8 +503,9 @@ final class StructuralCoverageSupport {
         int binCount = Math.max(1, (int) roundedCount);
         double lower = min;
         for (int i = 1; i <= binCount; i++) {
-            double upper = i == binCount ? max : min + i * binSize;
-            bins.add(new CoverageBin(lower, upper, formatRange(lower, upper)));
+            boolean last = i == binCount;
+            double upper = last ? max : min + i * binSize;
+            bins.add(new CoverageBin(lower, upper, last));
             lower = upper;
         }
 
@@ -531,13 +533,29 @@ final class StructuralCoverageSupport {
                 throw new IllegalArgumentException(
                         "Custom bin upper bound must be >= lower bound for " + variableName + ": '" + trimmed + "'");
             }
-            bins.add(new CoverageBin(lower, upper, formatRange(lower, upper)));
+            bins.add(new CoverageBin(lower, upper, false));
         }
 
         if (bins.isEmpty()) {
             throw new IllegalArgumentException("At least one custom bin is required when custom bins are provided.");
         }
 
+        bins.sort(Comparator.comparingDouble(CoverageBin::lower));
+        for (int i = 1; i < bins.size(); i++) {
+            CoverageBin previous = bins.get(i - 1);
+            CoverageBin current = bins.get(i);
+            // At this point only degenerate bins are closed, and they cannot share an edge.
+            if (current.lower() < previous.upper()
+                    || (current.lower() == previous.upper() && (previous.upperClosed() || current.upperClosed()))) {
+                throw new IllegalArgumentException(
+                        "Overlapping custom bins for " + variableName + ": " + previous.label() + " and " + current.label());
+            }
+        }
+
+        // Once overlaps are ruled out, the last bin also has the highest upper edge.
+        int lastIndex = bins.size() - 1;
+        CoverageBin last = bins.get(lastIndex);
+        bins.set(lastIndex, new CoverageBin(last.lower(), last.upper(), true));
         return bins;
     }
 
@@ -628,8 +646,8 @@ final class StructuralCoverageSupport {
         return total <= 0 ? 0.0 : (covered * 100.0) / total;
     }
 
-    private static String formatRange(double lower, double upper) {
-        return "[" + formatNumber(lower) + " - " + formatNumber(upper) + "]";
+    private static String formatRange(double lower, double upper, boolean upperClosed) {
+        return "[" + formatNumber(lower) + " - " + formatNumber(upper) + (upperClosed ? "]" : ")");
     }
 
     private static String formatNumber(double value) {
@@ -698,13 +716,21 @@ final class StructuralCoverageSupport {
                                  double numericValue) {
     }
 
-    record CoverageBin(double lowerInclusive, double upperInclusive, String label) {
+    record CoverageBin(double lower, double upper, boolean upperClosed) {
+        CoverageBin {
+            upperClosed = upperClosed || lower == upper;
+        }
+
+        String label() {
+            return formatRange(lower, upper, upperClosed);
+        }
+
         boolean matchesAny(List<Double> values) {
             for (Double value : values) {
                 if (value == null) {
                     continue;
                 }
-                if (value >= lowerInclusive && value <= upperInclusive) {
+                if (value >= lower && (value < upper || (upperClosed && value == upper))) {
                     return true;
                 }
             }
