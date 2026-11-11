@@ -3,8 +3,11 @@ package odme.odmeeditor;
 import odme.odmeeditor.LatinHypercubeSampler.Parameter;
 import odme.odmeeditor.LatinHypercubeSampler.TestCase;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -68,6 +71,18 @@ class LatinHypercubeSamplerTest {
             assertEquals(val, Math.round(val), 0.001, "int parameter not rounded");
             assertTrue(val >= 600 && val <= 1200);
         }
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"int", "integer"})
+    void sample_samplesEachIntegerEqually(String type) {
+        LatinHypercubeSampler sampler = new LatinHypercubeSampler(42);
+        Parameter parameter = new Parameter("count", "Traffic", type, 0, 3);
+
+        Map<Double, Long> counts = sampler.sample(List.of(parameter), 400).stream()
+                .collect(Collectors.groupingBy(testCase -> testCase.values.get(parameter), Collectors.counting()));
+
+        assertEquals(Map.of(0.0, 100L, 1.0, 100L, 2.0, 100L, 3.0, 100L), counts);
     }
 
     @Test

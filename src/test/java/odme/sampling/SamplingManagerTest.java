@@ -12,6 +12,9 @@ import java.io.ObjectOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -86,6 +89,25 @@ class SamplingManagerTest {
 
         String header = Files.readAllLines(csv).get(0);
         assertTrue(header.contains("EgoAC_Speed"), "Header must contain parameter name");
+    }
+
+    @Test
+    void generateSamples_noConstraint_samplesEachIntegerEqually() throws Exception {
+        Path yaml = writeYaml("""
+                Scenario:
+                  Traffic:
+                    Count:
+                      type: int
+                      min: 0
+                      max: 3
+                """);
+        Path csv = outputCsv();
+
+        manager.generateSamples(yaml.toString(), 400, csv.toString());
+
+        Map<String, Long> counts = Files.readAllLines(csv).stream().skip(1)
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+        assertEquals(Map.of("0", 100L, "1", 100L, "2", 100L, "3", 100L), counts);
     }
 
     @Test
@@ -205,6 +227,28 @@ class SamplingManagerTest {
         List<String> lines = Files.readAllLines(csv);
         assertEquals(6, lines.size(), "Expected header + 5 valid samples");
     }
+
+    @Test
+    void generateSamples_integerConstraintUsesTheValueWrittenToCsv() throws Exception {
+        Path yaml = writeYaml("""
+                Scenario:
+                  Traffic:
+                    Count:
+                      type: int
+                      min: 0
+                      max: 3
+                    HasConstraint:
+                      IntraConstraint: if(@Traffic_Count < 3) then (0) else 1
+                """);
+        Path csv = outputCsv();
+
+        manager.generateSamples(yaml.toString(), 8, csv.toString());
+
+        List<String> rows = Files.readAllLines(csv).stream().skip(1).toList();
+        assertEquals(8, rows.size());
+        assertTrue(rows.stream().allMatch("3"::equals));
+    }
+
     @Test
     void generateSamples_withMultipleConstraints_requiresAllConstraints() throws Exception {
         Path yaml = writeYaml(

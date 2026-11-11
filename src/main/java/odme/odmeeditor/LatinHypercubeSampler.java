@@ -1,5 +1,7 @@
 package odme.odmeeditor;
 
+import odme.sampling.IntegerMapping;
+
 import java.util.*;
 
 /**
@@ -86,6 +88,7 @@ public class LatinHypercubeSampler {
         for (int dim = 0; dim < d; dim++) {
             Parameter p = parameters.get(dim);
             double range = p.max - p.min;
+            boolean integer = p.dataType.equalsIgnoreCase("int") || p.dataType.equalsIgnoreCase("integer");
 
             // Create permutation of strata indices
             int[] perm = randomPermutation(n);
@@ -95,15 +98,9 @@ public class LatinHypercubeSampler {
                 // Sample uniformly within this stratum
                 double u = random.nextDouble();
                 double stratumValue = (stratum + u) / n;
-                double value = p.min + stratumValue * range;
-
-                // For integer types, round to nearest int within bounds
-                if (p.dataType.equalsIgnoreCase("int") || p.dataType.equalsIgnoreCase("integer")) {
-                    value = Math.round(value);
-                    value = Math.max(p.min, Math.min(p.max, value));
-                }
-
-                samples[dim][i] = value;
+                samples[dim][i] = integer
+                        ? IntegerMapping.toInteger(stratumValue, p.min, p.max)
+                        : p.min + stratumValue * range;
             }
         }
 

@@ -96,6 +96,13 @@ public class SamplingManager {
                         .filter(constraint -> !constraint.isEmpty())
                         .toList();
 
+        if (constraints.isEmpty() && sampledParameters.stream().anyMatch(p -> "int".equals(normalizeType(p)))) {
+            // Keep every stratum of the requested design when no samples need to be rejected.
+            return generateNormalizedBatch(sampledParameters.size(), numberOfSamples).stream()
+                    .map(sample -> buildSampleRow(outputParameters, sampledParameters, sample))
+                    .toList();
+        }
+
         List<SampleRow> finalSamples = new ArrayList<>();
         int maxAttempts = Math.max(numberOfSamples * 200, 1000);
         int attemptCount = 0;
@@ -207,11 +214,10 @@ public class SamplingManager {
     }
 
     private double scaleNumeric(double normalizedValue, Parameter parameter) {
-        double scaledValue = parameter.getMin() + normalizedValue * (parameter.getMax() - parameter.getMin());
         if ("int".equals(normalizeType(parameter))) {
-            return Math.rint(scaledValue);
+            return IntegerMapping.toInteger(normalizedValue, parameter.getMin(), parameter.getMax());
         }
-        return scaledValue;
+        return parameter.getMin() + normalizedValue * (parameter.getMax() - parameter.getMin());
     }
 
     private double sampleDistribution(Parameter parameter) {
@@ -240,7 +246,7 @@ public class SamplingManager {
 
     private String formatNumericForCsv(String type, double value) {
         if ("int".equals(type)) {
-            return Long.toString(Math.round(value));
+            return Long.toString((long) value);
         }
         return Double.toString(value);
     }
