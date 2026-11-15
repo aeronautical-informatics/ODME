@@ -28,6 +28,17 @@ jobs:
       - name: Build application
         run: mvn -B package -Dmaven.test.skip=true --file pom.xml
 
+      - name: Run tests
+        id: tests
+        run: mvn -B test --file pom.xml -Djava.awt.headless=true
+
+      - name: Upload Surefire reports
+        if: ${{ failure() && steps.tests.outcome == 'failure' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-reports
+          path: target/surefire-reports/
+
       - name: Run SpotBugs
         run: mvn -B spotbugs:check --file pom.xml
 
