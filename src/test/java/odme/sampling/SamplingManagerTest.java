@@ -142,6 +142,55 @@ class SamplingManagerTest {
     }
 
     @Test
+    void generateSamples_booleanAndDouble_preserveBalancedDesign() throws Exception {
+        Path yaml = writeYaml("""
+                Scenario:
+                  Sensor:
+                    Flag:
+                      type: boolean
+                    Range:
+                      type: double
+                      min: 0
+                      max: 1
+                """);
+        Path csv = outputCsv();
+        int sampleCount = 200;
+        manager.generateSamples(yaml.toString(), sampleCount, csv.toString());
+
+        List<String> lines = Files.readAllLines(csv);
+        assertEquals("Sensor_Flag,Sensor_Range", lines.get(0));
+        List<String[]> rows = lines.stream().skip(1).map(row -> row.split(",")).toList();
+        assertEquals(sampleCount, rows.size());
+        Map<String, Long> counts = rows.stream()
+                .collect(Collectors.groupingBy(row -> row[0], Collectors.counting()));
+        assertEquals(Map.of("false", 100L, "true", 100L), counts);
+
+        Set<Integer> occupiedStrata = new HashSet<>();
+        for (String[] row : rows) {
+            double value = Double.parseDouble(row[1]);
+            int stratum = (int) Math.floor(value * sampleCount);
+            assertTrue(stratum >= 0 && stratum < sampleCount, "Value outside [0, 1): " + value);
+            occupiedStrata.add(stratum);
+        }
+        assertEquals(sampleCount, occupiedStrata.size(), "Expected one sample in each double stratum");
+    }
+
+    @Test
+    void generateSampleRows_booleanWithTrueDefault_stillProducesBothValues() throws Exception {
+        Parameter flag = new Parameter();
+        flag.setName("Flag");
+        flag.setType("boolean");
+        flag.setDefaultValue("true");
+        Scenario scenario = new Scenario();
+        scenario.setParameters(List.of(flag));
+
+        List<Map<String, String>> rows = manager.generateSampleRows(scenario, 10, false);
+
+        Set<String> values = rows.stream().map(row -> row.get("Flag")).collect(Collectors.toSet());
+        assertEquals(Set.of("false", "true"), values);
+    }
+
+    @Test
     void generateSamples_noConstraint_valuesWithinBounds() throws Exception {
         double min = 10.0, max = 50.0;
         Path yaml = writeYaml(
@@ -374,6 +423,26 @@ class SamplingManagerTest {
     }
 
     @Test
+    void generateSamples_booleanConstraintUsesTheValueWrittenToCsv() throws Exception {
+        Path yaml = writeYaml("""
+                Scenario:
+                  Sensor:
+                    Flag:
+                      type: boolean
+                    HasConstraint:
+                      IntraConstraint: '@Flag == 1'
+                """);
+        Path csv = outputCsv();
+        manager.generateSamples(yaml.toString(), 10, csv.toString());
+
+        List<String> lines = Files.readAllLines(csv);
+        assertEquals("Sensor_Flag", lines.get(0));
+        List<String> rows = lines.subList(1, lines.size());
+        assertEquals(10, rows.size());
+        assertTrue(rows.stream().allMatch("true"::equals));
+    }
+
+    @Test
     void generateSamples_withMultipleConstraints_requiresAllConstraints() throws Exception {
         Path yaml = writeYaml(
                 "Scenario:\n" +
@@ -399,6 +468,24 @@ class SamplingManagerTest {
             double altitude = Double.parseDouble(values[1]);
             assertTrue(altitude > 40 && altitude < 60, "Altitude must satisfy both constraints.");
         }
+    }
+
+    @Test
+    void generateSamplesForCurrentModel_samplesBooleanFromSerializedMetadata() throws Exception {
+        DefaultMutableTreeNode root = new DefaultMutableTreeNode("Scenario");
+        DefaultMutableTreeNode aircraft = new DefaultMutableTreeNode("Aircraft");
+        root.add(aircraft);
+        Multimap<TreePath, String> variables = ArrayListMultimap.create();
+        variables.put(new TreePath(aircraft.getPath()), "Flag,boolean,false");
+        writeSerializedMultimap(tempDir.resolve("Model.ssdvar"), variables);
+
+        Path csv = outputCsv();
+        manager.generateSamplesForCurrentModel(tempDir, "Model", 10, csv.toString());
+
+        List<String> lines = Files.readAllLines(csv);
+        assertEquals("Aircraft_Flag", lines.get(0));
+        assertEquals(11, lines.size());
+        assertEquals(Set.of("false", "true"), new HashSet<>(lines.subList(1, lines.size())));
     }
 
     @Test
