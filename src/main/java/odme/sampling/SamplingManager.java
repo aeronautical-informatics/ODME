@@ -88,18 +88,7 @@ public class SamplingManager {
                         .filter(Objects::nonNull)
                         .filter(constraint -> !constraint.trim().isEmpty())
                         .toList();
-        if (!constraints.isEmpty()) {
-            Set<String> variableNames = outputParameters.stream()
-                    .filter(parameter -> switch (normalizeType(parameter)) {
-                        case "int", "float", "double", "distribution", "boolean" -> true;
-                        default -> false;
-                    })
-                    .map(Parameter::getName)
-                    .collect(Collectors.toSet());
-            for (String constraint : constraints) {
-                evaluator.validate(constraint, variableNames, scenario.getConstraintSourceText(constraint));
-            }
-        }
+        validateConstraints(scenario, outputParameters, constraints);
 
         if (outputParameters.isEmpty()) {
             throw new IllegalStateException("No sampleable or exportable parameters were found.");
@@ -149,6 +138,22 @@ public class SamplingManager {
         }
 
         return finalSamples;
+    }
+
+    private void validateConstraints(Scenario scenario, List<Parameter> outputParameters, List<String> constraints) {
+        if (constraints.isEmpty()) {
+            return;
+        }
+        Set<String> variableNames = outputParameters.stream()
+                .filter(parameter -> switch (normalizeType(parameter)) {
+                    case "int", "float", "double", "distribution", "boolean" -> true;
+                    default -> false;
+                })
+                .map(Parameter::getName)
+                .collect(Collectors.toSet());
+        for (String constraint : constraints) {
+            evaluator.validate(constraint, variableNames, scenario.getConstraintSourceText(constraint));
+        }
     }
 
     private boolean includeInOutput(Parameter parameter, boolean includeDistributionParameters) {
