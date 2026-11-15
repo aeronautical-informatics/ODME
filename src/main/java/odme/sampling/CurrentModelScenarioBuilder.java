@@ -98,16 +98,19 @@ public class CurrentModelScenarioBuilder {
         scenario.setParameters(parameters);
 
         List<String> constraints = new ArrayList<>();
+        Map<String, String> constraintSourceTexts = new LinkedHashMap<>();
         for (Map.Entry<TreePath, Collection<String>> entry : constraintsByPath.asMap().entrySet()) {
             List<String> contextPath = toSegments(entry.getKey());
             for (String rawConstraint : entry.getValue()) {
                 if (rawConstraint == null || rawConstraint.trim().isEmpty()) {
                     continue;
                 }
-                constraints.add(canonicalizeConstraint(rawConstraint, contextPath, bindings, aliasIndex));
+                String expression = canonicalizeConstraint(rawConstraint, contextPath, bindings, aliasIndex);
+                constraints.add(expression);
+                constraintSourceTexts.putIfAbsent(expression, rawConstraint);
             }
         }
-        scenario.setConstraint(constraints);
+        scenario.setConstraint(constraints, constraintSourceTexts);
         return new SamplingModel(scenario, List.copyOf(bindings));
     }
 
@@ -401,7 +404,7 @@ public class CurrentModelScenarioBuilder {
         copy.setParameters(source.getParameters().stream()
                 .map(CurrentModelScenarioBuilder::copyParameter)
                 .toList());
-        copy.setConstraint(List.copyOf(source.getConstraint()));
+        copy.setConstraint(List.copyOf(source.getConstraint()), source.getConstraintSourceTexts());
         return copy;
     }
 
