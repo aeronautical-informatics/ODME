@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -81,20 +82,31 @@ public class SamplingManager {
         List<Parameter> outputParameters = scenario.getParameters().stream()
                 .filter(parameter -> includeInOutput(parameter, includeDistributionParameters))
                 .collect(Collectors.toList());
-        if (outputParameters.isEmpty()) {
-            throw new IllegalStateException("No sampleable or exportable parameters were found.");
-        }
-
-        List<Parameter> sampledParameters = outputParameters.stream()
-                .filter(parameter -> isSampledParameter(parameter, includeDistributionParameters))
-                .collect(Collectors.toList());
         List<String> constraints = scenario.getConstraint() == null
                 ? List.of()
                 : scenario.getConstraint().stream()
                         .filter(Objects::nonNull)
-                        .map(String::trim)
-                        .filter(constraint -> !constraint.isEmpty())
+                        .filter(constraint -> !constraint.trim().isEmpty())
                         .toList();
+        if (!constraints.isEmpty()) {
+            Set<String> variableNames = outputParameters.stream()
+                    .filter(parameter -> switch (normalizeType(parameter)) {
+                        case "int", "float", "double", "distribution", "boolean" -> true;
+                        default -> false;
+                    })
+                    .map(Parameter::getName)
+                    .collect(Collectors.toSet());
+            for (String constraint : constraints) {
+                evaluator.validate(constraint, variableNames, scenario.getConstraintSourceText(constraint));
+            }
+        }
+
+        if (outputParameters.isEmpty()) {
+            throw new IllegalStateException("No sampleable or exportable parameters were found.");
+        }
+        List<Parameter> sampledParameters = outputParameters.stream()
+                .filter(parameter -> isSampledParameter(parameter, includeDistributionParameters))
+                .collect(Collectors.toList());
 
         if (constraints.isEmpty()) {
             // Keep every stratum of the requested design when no samples need to be rejected.

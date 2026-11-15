@@ -13,6 +13,7 @@ import odme.sampling.ConstraintEvaluator;
 import odme.sampling.CurrentModelScenarioBuilder;
 import odme.sampling.SamplingManager;
 import odme.sampling.model.Parameter;
+import odme.sampling.model.Scenario;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -48,6 +49,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Generates PES scenario folders by exhaustively pruning every specialization
@@ -474,14 +476,16 @@ public final class AutomaticScenarioGeneration {
                                                                 CurrentModelScenarioBuilder.SamplingModel samplingModel,
                                                                 Multimap<TreePath, String> generatedVariables,
                                                                 int samplesPerCombination) throws Exception {
-        if (generatedVariables.isEmpty() || samplingModel.scenario().getParameters().isEmpty()) {
+        Scenario scenario = samplingModel.scenario();
+        if (generatedVariables.isEmpty() || scenario.getParameters().isEmpty()) {
+            validateConstraints(new ConstraintEvaluator(), scenario, normalizedConstraints(scenario), Set.of());
             List<Map<String, String>> defaultRows = new ArrayList<>(samplesPerCombination);
             for (int i = 0; i < samplesPerCombination; i++) {
                 defaultRows.add(new LinkedHashMap<>());
             }
             return defaultRows;
         }
-        return samplingManager.generateSampleRows(samplingModel.scenario(), samplesPerCombination, false);
+        return samplingManager.generateSampleRows(scenario, samplesPerCombination, false);
     }
 
     static List<Map<String, String>> generateCartesianRows(
@@ -492,8 +496,14 @@ public final class AutomaticScenarioGeneration {
         }
 
         List<CartesianParameterDomain> parameterDomains = buildCartesianDomains(samplingModel, levelsPerVariable);
-        List<String> constraints = normalizedConstraints(samplingModel);
+        Scenario scenario = samplingModel.scenario();
+        List<String> constraints = normalizedConstraints(scenario);
         ConstraintEvaluator constraintEvaluator = new ConstraintEvaluator();
+        Set<String> variableNames = parameterDomains.stream()
+                .filter(domain -> domain.values().stream().anyMatch(value -> value.constraintValue() != null))
+                .map(CartesianParameterDomain::parameterName)
+                .collect(Collectors.toSet());
+        validateConstraints(constraintEvaluator, scenario, constraints, variableNames);
         List<Map<String, String>> rows = new ArrayList<>();
         buildCartesianRows(
                 parameterDomains,
@@ -672,15 +682,21 @@ public final class AutomaticScenarioGeneration {
         return true;
     }
 
-    private static List<String> normalizedConstraints(CurrentModelScenarioBuilder.SamplingModel samplingModel) {
+    private static void validateConstraints(ConstraintEvaluator evaluator, Scenario scenario,
+                                            List<String> constraints, Set<String> variableNames) {
+        for (String constraint : constraints) {
+            evaluator.validate(constraint, variableNames, scenario.getConstraintSourceText(constraint));
+        }
+    }
+
+    private static List<String> normalizedConstraints(Scenario scenario) {
         List<String> constraints = new ArrayList<>();
-        for (String constraint : samplingModel.scenario().getConstraint()) {
+        for (String constraint : scenario.getConstraint()) {
             if (constraint == null) {
                 continue;
             }
-            String trimmed = constraint.trim();
-            if (!trimmed.isEmpty()) {
-                constraints.add(trimmed);
+            if (!constraint.trim().isEmpty()) {
+                constraints.add(constraint);
             }
         }
         return constraints;

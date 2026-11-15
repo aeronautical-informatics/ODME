@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -91,6 +92,53 @@ class ConstraintEvaluatorTest {
     void evaluate_plainBooleanExpression_returnsTrue() {
         boolean result = evaluator.evaluate("@x > 5 && @y < 10", Map.of("x", 6.0, "y", 8.0));
         assertTrue(result, "Plain boolean expressions should be evaluated directly");
+    }
+
+    @Test
+    void validate_reportsUnsupportedBooleanSyntax() {
+        String constraint = "x > 5 and y < 10";
+
+        IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
+                () -> evaluator.validate(constraint, Set.of("x", "y")));
+
+        assertTrue(error.getMessage().contains(constraint));
+        assertTrue(error.getMessage().contains("Invalid token"));
+    }
+
+    @Test
+    void validate_acceptsPlainBooleanExpressionWithParameterReferences() {
+        assertDoesNotThrow(() -> evaluator.validate("@x > 5 && @y < 10", Set.of("x", "y")));
+    }
+
+    @Test
+    void validate_reportsMissingElse() {
+        String constraint = "if(@x > 5) then (@y < 3)";
+
+        IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
+                () -> evaluator.validate(constraint, Set.of("x", "y")));
+
+        assertTrue(error.getMessage().contains(constraint));
+        assertTrue(error.getMessage().contains("else fallback"));
+    }
+
+    @Test
+    void validate_namesUnresolvedVariable() {
+        String constraint = "@z > 1";
+
+        IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
+                () -> evaluator.validate(constraint, Set.of("x", "y")));
+
+        assertTrue(error.getMessage().contains(constraint));
+        assertTrue(error.getMessage().contains("variable '@z'"));
+    }
+
+    @Test
+    void validate_acceptsConstraintWithSampleDependentDivisionByZero() {
+        String constraint = "@x / (@y - 5) > 1";
+
+        assertDoesNotThrow(() -> evaluator.validate(constraint, Set.of("x", "y")));
+        assertTrue(evaluator.evaluate(constraint, Map.of("x", 6.0, "y", 6.0)));
+        assertFalse(evaluator.evaluate(constraint, Map.of("x", 6.0, "y", 5.0)));
     }
 
     // ────────────────────────────────────────────────────────────────────────

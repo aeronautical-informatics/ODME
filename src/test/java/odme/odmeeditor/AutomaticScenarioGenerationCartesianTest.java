@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class AutomaticScenarioGenerationCartesianTest {
 
@@ -57,6 +58,23 @@ class AutomaticScenarioGenerationCartesianTest {
         assertThat(rows)
                 .extracting(row -> row.get("Aircraft_Altitude"))
                 .containsOnly("1");
+    }
+
+    @Test
+    void generateCartesianRowsReportsInvalidConstraintWithOriginalVariableName() {
+        Multimap<TreePath, String> variables = ArrayListMultimap.create();
+        Multimap<TreePath, String> constraints = ArrayListMultimap.create();
+        TreePath aircraftPath = treePath("Scenario", "Aircraft");
+        variables.put(aircraftPath, "Speed,int,0,0,1");
+        String constraint = "if(@Speed > 0) then (true)";
+        constraints.put(aircraftPath, constraint);
+
+        CurrentModelScenarioBuilder.SamplingModel samplingModel = builder.buildFromMetadata(variables, constraints);
+
+        assertThatThrownBy(() -> AutomaticScenarioGeneration.generateCartesianRows(samplingModel, 2))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining(constraint)
+                .hasMessageContaining("else fallback");
     }
 
     @Test

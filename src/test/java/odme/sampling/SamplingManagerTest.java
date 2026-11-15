@@ -306,6 +306,29 @@ class SamplingManagerTest {
     // ────────────────────────────────────────────────────────────────────────
 
     @Test
+    void generateSamples_rejectsInvalidYamlConstraintBeforeSampling() throws Exception {
+        String constraint = "if(@Traffic_Count > 1) then (true)";
+        Path yaml = writeYaml("""
+                Scenario:
+                  Traffic:
+                    Count:
+                      type: int
+                      min: 0
+                      max: 3
+                    HasConstraint:
+                      IntraConstraint: %s
+                """.formatted(constraint));
+        Path csv = outputCsv();
+
+        IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
+                () -> manager.generateSamples(yaml.toString(), 5, csv.toString()));
+
+        assertTrue(error.getMessage().contains(constraint));
+        assertTrue(error.getMessage().contains("else fallback"));
+        assertFalse(Files.exists(csv));
+    }
+
+    @Test
     void generateSamples_withAlwaysTrueConstraint_producesCorrectRowCount() throws Exception {
         // Constraint: if(speed > -1) then (altitude > -1) else true → always true
         Path yaml = writeYaml(

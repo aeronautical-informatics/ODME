@@ -4,11 +4,11 @@ import org.mariuszgromada.math.mxparser.Argument;
 import org.mariuszgromada.math.mxparser.Expression;
 import org.mariuszgromada.math.mxparser.License;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -22,37 +22,47 @@ public class ConstraintEvaluator {
 
     private static final Pattern TOKEN_PATTERN = Pattern.compile("@([A-Za-z0-9_@\\-]+)");
 
+    public void validate(String constraint, Set<String> variableNames) {
+        validate(constraint, variableNames, constraint);
+    }
+
+    /** Checks a constraint whose variable references may have been resolved from model metadata. */
+    public void validate(String constraint, Set<String> variableNames, String originalConstraint) {
+        Map<String, Double> placeholderValues = new LinkedHashMap<>();
+        for (String variableName : variableNames) {
+            placeholderValues.put(variableName, 0.0);
+        }
+        Expression expression = prepareExpression(constraint, originalConstraint, placeholderValues);
+        if (!expression.checkSyntax()) {
+            throw invalidConstraint(originalConstraint, expression.getErrorMessage().strip());
+        }
+    }
+
     public boolean evaluate(String rawConstraint, Map<String, Double> sampleValues) {
         License.iConfirmNonCommercialUse("ODME Project - Clausthal University");
 
-        String formattedConstraint = formatExpression(rawConstraint);
-        if (formattedConstraint == null) {
-            System.err.println("Could not parse constraint structure: " + rawConstraint);
+        Expression expression;
+        try {
+            expression = prepareExpression(rawConstraint, rawConstraint, sampleValues);
+        } catch (IllegalArgumentException ex) {
+            System.err.println(ex.getMessage());
             return false;
         }
-
-        PreparedExpression preparedExpression = bindVariables(formattedConstraint, sampleValues);
-        if (preparedExpression == null) {
-            System.err.println("Could not resolve constraint variables: " + rawConstraint);
-            return false;
-        }
-
-        Expression expression = new Expression(
-                preparedExpression.expression(),
-                preparedExpression.arguments().toArray(new Argument[0]));
-        double result = expression.calculate();
-
-        if (Double.isNaN(result)) {
-            System.err.println("Syntax error in constraint: " + expression.getErrorMessage());
-            System.err.println("Formatted expression: " + preparedExpression.expression());
-            return false;
-        }
-
-        return result == 1.0;
+        return expression.calculate() == 1.0;
     }
 
-    private PreparedExpression bindVariables(String expression, Map<String, Double> sampleValues) {
-        Matcher matcher = TOKEN_PATTERN.matcher(expression);
+    private IllegalArgumentException invalidConstraint(String originalConstraint, String reason) {
+        return new IllegalArgumentException("Invalid constraint:\n" + originalConstraint + "\n\n" + reason);
+    }
+
+    private Expression prepareExpression(String constraint, String originalConstraint,
+                                         Map<String, Double> sampleValues) {
+        String formattedConstraint = formatExpression(constraint);
+        if (formattedConstraint == null) {
+            throw invalidConstraint(originalConstraint, "Expected if(condition) then (result) else fallback.");
+        }
+
+        Matcher matcher = TOKEN_PATTERN.matcher(formattedConstraint);
         StringBuffer rewritten = new StringBuffer();
         Map<String, Argument> arguments = new LinkedHashMap<>();
         Map<String, String> aliasesByResolvedKey = new LinkedHashMap<>();
@@ -62,7 +72,7 @@ public class ConstraintEvaluator {
             String tokenBody = matcher.group(1);
             String resolvedKey = resolveSampleKey(tokenBody, sampleValues);
             if (resolvedKey == null) {
-                return null;
+                throw invalidConstraint(originalConstraint, "Unknown or ambiguous variable '@" + tokenBody + "'.");
             }
 
             String alias = aliasesByResolvedKey.get(resolvedKey);
@@ -75,7 +85,7 @@ public class ConstraintEvaluator {
         }
         matcher.appendTail(rewritten);
 
-        return new PreparedExpression(rewritten.toString(), new ArrayList<>(arguments.values()));
+        return new Expression(rewritten.toString(), arguments.values().toArray(Argument[]::new));
     }
 
     private String resolveSampleKey(String tokenBody, Map<String, Double> sampleValues) {
@@ -230,8 +240,5 @@ public class ConstraintEvaluator {
     private String lastSegment(String key) {
         String[] segments = key.split("[_@]");
         return segments.length == 0 ? key : segments[segments.length - 1];
-    }
-
-    private record PreparedExpression(String expression, List<Argument> arguments) {
     }
 }
