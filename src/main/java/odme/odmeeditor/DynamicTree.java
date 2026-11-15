@@ -244,6 +244,7 @@ public class DynamicTree extends JPanel implements MouseListener {
         tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
         tree.setShowsRootHandles(true);
         tree.addMouseListener(this);
+        tree.addTreeSelectionListener(event -> showConstraintsInTable(event.getNewLeadSelectionPath()));
 
         // for expanding the tree on starting
         for (int i = 0; i < tree.getRowCount(); i++) {
@@ -711,7 +712,12 @@ public class DynamicTree extends JPanel implements MouseListener {
     public void showConstraintsInTable(TreePath treePathForVariable) {
         String[] nodePath = toPathSegments(treePathForVariable);
         String[] constraints = getMetadataValues(DynamicTree.constraintsList, nodePath);
-        ODMEEditor.scenarioConstraint.showConstraintsInTable(constraints);
+        if (ODMEEditor.scenarioConstraint != null) {
+            ODMEEditor.scenarioConstraint.showConstraintsInTable(constraints);
+        }
+        if (ODMEEditor.scenarioInterEntityConstraints != null) {
+            ODMEEditor.scenarioInterEntityConstraints.showConstraintsInTable(constraints);
+        }
     }
     public void showBehavioursInTable(TreePath treePathForVariable) {
         String[] nodePath = toPathSegments(treePathForVariable);
