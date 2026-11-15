@@ -162,10 +162,9 @@ public class SamplingManager {
 
     private boolean isSampledParameter(Parameter parameter, boolean includeDistributionParameters) {
         return switch (normalizeType(parameter)) {
-            case "int", "float", "double" -> true;
+            case "int", "float", "double", "boolean" -> true;
             case "distribution" -> includeDistributionParameters;
             case "categorical" -> hasCategoricalOptions(parameter.getOptions());
-            case "boolean" -> false;
             default -> false;
         };
     }
@@ -214,9 +213,9 @@ public class SamplingManager {
                     csvValues.put(parameter.getName(), categoricalValue);
                 }
                 case "boolean" -> {
-                    String booleanValue = defaultString(parameter.getDefaultValue(), "false");
-                    csvValues.put(parameter.getName(), booleanValue);
-                    constraintValues.put(parameter.getName(), "true".equalsIgnoreCase(booleanValue) ? 1.0 : 0.0);
+                    long sampledValue = IntegerMapping.toInteger(normalizedSample[sampledIndex++], 0, 1);
+                    csvValues.put(parameter.getName(), Boolean.toString(sampledValue == 1));
+                    constraintValues.put(parameter.getName(), (double) sampledValue);
                 }
                 default -> csvValues.put(parameter.getName(), defaultString(parameter.getDefaultValue(), ""));
             }
