@@ -89,7 +89,7 @@ class ConstraintEvaluatorTest {
 
     @Test
     void evaluate_plainBooleanExpression_returnsTrue() {
-        boolean result = evaluator.evaluate("x > 5 and y < 10", Map.of("x", 6.0, "y", 8.0));
+        boolean result = evaluator.evaluate("@x > 5 && @y < 10", Map.of("x", 6.0, "y", 8.0));
         assertTrue(result, "Plain boolean expressions should be evaluated directly");
     }
 
