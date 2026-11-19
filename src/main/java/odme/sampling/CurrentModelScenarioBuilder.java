@@ -15,6 +15,7 @@ import java.io.ObjectInputStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -79,7 +80,8 @@ public class CurrentModelScenarioBuilder {
     public SamplingModel buildFromMetadata(Multimap<TreePath, String> variablesByPath,
                                            Multimap<TreePath, String> constraintsByPath) {
         List<VariableBinding> bindings = new ArrayList<>();
-        for (Map.Entry<TreePath, Collection<String>> entry : variablesByPath.asMap().entrySet()) {
+        for (Map.Entry<TreePath, Collection<String>> entry : variablesByPath.asMap().entrySet().stream()
+                .sorted(Comparator.comparing(entry -> String.join("\u0000", toSegments(entry.getKey())))).toList()) {
             for (String rawVariable : entry.getValue()) {
                 VariableBinding binding = toBinding(entry.getKey(), rawVariable);
                 if (binding != null) {

@@ -24,9 +24,21 @@ import java.util.stream.Collectors;
 public class SamplingManager {
 
     private final ScenarioParser parser = new ScenarioParser();
-    private final LatinHypercubeSampler sampler = new LatinHypercubeSampler();
+    private final LatinHypercubeSampler sampler;
     private final ConstraintEvaluator evaluator = new ConstraintEvaluator();
     private final CurrentModelScenarioBuilder currentModelBuilder = new CurrentModelScenarioBuilder();
+
+    public SamplingManager() {
+        sampler = new LatinHypercubeSampler();
+    }
+
+    public SamplingManager(long seed) {
+        sampler = new LatinHypercubeSampler(seed);
+    }
+
+    public long getSeed() {
+        return sampler.getSeed();
+    }
 
     public void generateSamples(String yamlFilePath, int numberOfSamples, String outputCsvPath) throws Exception {
         Scenario scenario = parser.parse(yamlFilePath);

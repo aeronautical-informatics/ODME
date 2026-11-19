@@ -18,6 +18,34 @@ class LatinHypercubeSamplerTest {
     private final LatinHypercubeSampler sampler = new LatinHypercubeSampler();
 
     @Test
+    void seededSamplersProduceIdenticalDesigns() {
+        LatinHypercubeSampler first = new LatinHypercubeSampler(12345L);
+        LatinHypercubeSampler second = new LatinHypercubeSampler(12345L);
+        List<double[]> expected = first.generateNormalizedSamples(4, 20);
+        List<double[]> actual = second.generateNormalizedSamples(4, 20);
+
+        assertEquals(12345L, first.getSeed());
+        for (int row = 0; row < expected.size(); row++) {
+            assertArrayEquals(expected.get(row), actual.get(row));
+        }
+    }
+
+    @Test
+    void differentSeedsProduceDifferentDesigns() {
+        double[] first = new LatinHypercubeSampler(1L).generateNormalizedSamples(4, 20).get(0);
+        double[] second = new LatinHypercubeSampler(2L).generateNormalizedSamples(4, 20).get(0);
+        assertFalse(java.util.Arrays.equals(first, second));
+    }
+
+    @Test
+    void automaticallyChosenSeedCanReplayTheDesign() {
+        LatinHypercubeSampler randomSeed = new LatinHypercubeSampler();
+        LatinHypercubeSampler replay = new LatinHypercubeSampler(randomSeed.getSeed());
+        assertArrayEquals(randomSeed.generateNormalizedSamples(3, 20).get(0),
+                replay.generateNormalizedSamples(3, 20).get(0));
+    }
+
+    @Test
     void generateNormalizedSamples_returnsCorrectCount() {
         List<double[]> samples = sampler.generateNormalizedSamples(3, 10);
         assertEquals(10, samples.size());
