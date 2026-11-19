@@ -92,7 +92,8 @@ final class StructuralCoverageDialog extends JDialog {
         JTabbedPane coverageTabs = new JTabbedPane();
         coverageTabs.addTab("Coverage Estimate", tableScroll);
         JTabbedPane mapTabs = new JTabbedPane();
-        mapTabs.addTab("All parameters", new CoverageMapOverviewPanel(context));
+        mapTabs.addTab("All parameters", new CoverageMapOverviewPanel(context, this::selectionRows));
+        mapTabs.addTab("Advanced: all parameters", new KernelCoverageMapOverviewPanel(context));
         mapTabs.addTab("Advanced: single parameter", new ParameterCoverageMapPanel(context));
         coverageTabs.addTab("Parameter Coverage Map", mapTabs);
         add(coverageTabs, BorderLayout.CENTER);
@@ -149,22 +150,31 @@ final class StructuralCoverageDialog extends JDialog {
         );
     }
 
+    /** Current bin settings of the Coverage Estimate table; the coverage map uses the same bins. */
+    List<StructuralCoverageSupport.ParameterSelectionRow> selectionRows() {
+        if (parameterTable.isEditing() && !parameterTable.getCellEditor().stopCellEditing()) {
+            throw new IllegalArgumentException("Finish editing the bin settings before calculating coverage.");
+        }
+        List<StructuralCoverageSupport.ParameterSelectionRow> rows = new ArrayList<>();
+        for (int row = 0; row < context.parameterDefinitions().size(); row++) {
+            StructuralCoverageSupport.ParameterDefinition definition = context.parameterDefinitions().get(row);
+            rows.add(new StructuralCoverageSupport.ParameterSelectionRow(
+                    definition.id(),
+                    definition.pathDisplay(),
+                    definition.variableName(),
+                    definition.type(),
+                    definition.min(),
+                    definition.max(),
+                    valueAt(row, 5),
+                    valueAt(row, 6)
+            ));
+        }
+        return rows;
+    }
+
     private void calculateCoverage() {
         try {
-            List<StructuralCoverageSupport.ParameterSelectionRow> rows = new ArrayList<>();
-            for (int row = 0; row < context.parameterDefinitions().size(); row++) {
-                StructuralCoverageSupport.ParameterDefinition definition = context.parameterDefinitions().get(row);
-                rows.add(new StructuralCoverageSupport.ParameterSelectionRow(
-                        definition.id(),
-                        definition.pathDisplay(),
-                        definition.variableName(),
-                        definition.type(),
-                        definition.min(),
-                        definition.max(),
-                        valueAt(row, 5),
-                        valueAt(row, 6)
-                ));
-            }
+            List<StructuralCoverageSupport.ParameterSelectionRow> rows = selectionRows();
 
             BackgroundTaskRunner.run(
                     this,

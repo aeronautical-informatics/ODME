@@ -16,6 +16,9 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import javax.swing.tree.TreePath;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.nio.file.Files;
@@ -26,6 +29,7 @@ import java.util.Set;
 import java.util.stream.IntStream;
 
 import static odme.odmeeditor.StructuralCoverageSupport.buildUniformBins;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -188,6 +192,141 @@ class StructuralCoverageSupportTest {
         assertEquals(20.0, report.parameterCoveragePercent());
         assertEquals(35.0, report.overallCoveragePercent(), 1e-9);
         assertNotEquals(25.0, report.overallCoveragePercent(), 1e-9); // Pooled coverage was 3 of 12.
+    }
+
+    @Test
+    void binCoverageMap_usesTheBinsOfTheCoverageEstimate(@TempDir Path directory) throws IOException {
+        CoverageContext context = writeIntegerScenarios(directory, 1, 2, 2, 7);
+        ParameterSelectionRow selection = new ParameterSelectionRow("count", "Root", "count", "int", 0, 10, "1", "");
+
+        CoverageReport report = StructuralCoverageSupport.analyze(context, List.of(selection));
+        StructuralCoverageSupport.BinMapRow row =
+                StructuralCoverageSupport.analyzeBinCoverageMaps(context, List.of(selection)).get(0);
+
+        assertEquals(report.parameterResults().get(0).totalBins(), row.bins().size());
+        assertEquals(report.parameterResults().get(0).coveredBins(), row.coveredBins());
+        assertArrayEquals(new int[]{0, 1, 2, 0, 0, 0, 0, 1, 0, 0}, row.counts());
+        assertEquals(4, row.sampleCount());
+    }
+
+    @Test
+    void binCoverageMap_colours_emptyRed_sampleGreen_farYellow() {
+        CoverageBin bin = new CoverageBin(0, 10, false);
+
+        assertEquals(CoverageMapOverviewPanel.EMPTY, CoverageMapOverviewPanel.colourAt(5, bin, List.of()));
+        assertEquals(CoverageMapOverviewPanel.AT_SAMPLE, CoverageMapOverviewPanel.colourAt(2, bin, List.of(2.0)));
+        assertEquals(CoverageMapOverviewPanel.FAR, CoverageMapOverviewPanel.colourAt(7, bin, List.of(2.0)));
+        assertEquals(CoverageMapOverviewPanel.FAR, CoverageMapOverviewPanel.colourAt(9.9, bin, List.of(2.0)));
+        CoverageBin unit = new CoverageBin(1, 2, false);
+        assertEquals(CoverageMapOverviewPanel.AT_SAMPLE, CoverageMapOverviewPanel.colourAt(1.9, unit, List.of(1.0), true));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"", "0-0.25;0.5-0.5;0.75-1"})
+    void binCoverageMap_mixedParameterTotalsMatchReport(String customBins, @TempDir Path directory)
+            throws IOException {
+        List<ScenarioReference> scenarios = new ArrayList<>();
+        double[][] samples = {{1, 0.25}, {2, 0.5}, {10, 1.0}};
+        for (int i = 0; i < samples.length; i++) {
+            String name = "Scenario" + i;
+            Path scenarioDirectory = Files.createDirectories(directory.resolve(name));
+            ArrayListMultimap<TreePath, String> variables = ArrayListMultimap.create();
+            variables.put(new TreePath("Root"), "count,int," + samples[i][0]);
+            variables.put(new TreePath("Root"), "distance,double," + samples[i][1]);
+            try (ObjectOutputStream output = new ObjectOutputStream(
+                    Files.newOutputStream(scenarioDirectory.resolve("Demo.ssdvar")))) {
+                output.writeObject(variables);
+            }
+            scenarios.add(new ScenarioReference(name, Set.of()));
+        }
+        List<ParameterDefinition> definitions = List.of(
+                new ParameterDefinition("count", "Root", "count", "int", 0, 10, Set.of("Root")),
+                new ParameterDefinition("distance", "Root", "distance", "double", 0, 1, Set.of("Root")));
+        CoverageContext context = new CoverageContext("Demo", directory, definitions, List.of(), scenarios);
+        List<ParameterSelectionRow> selections = List.of(
+                new ParameterSelectionRow("count", "Root", "count", "int", 0, 10, "1", ""),
+                new ParameterSelectionRow("distance", "Root", "distance", "double", 0, 1, "0.25", customBins));
+
+        CoverageReport report = StructuralCoverageSupport.analyze(context, selections);
+        List<StructuralCoverageSupport.BinMapRow> rows =
+                StructuralCoverageSupport.analyzeBinCoverageMaps(context, selections);
+
+        assertEquals(2, rows.size());
+        assertEquals(customBins.isEmpty() ? 14 : 13, report.totalParameterBins());
+        assertEquals(customBins.isEmpty() ? 6 : 5, report.coveredParameterBins());
+        assertEquals(report.totalParameterBins(), rows.stream().mapToInt(row -> row.bins().size()).sum());
+        assertEquals(report.coveredParameterBins(), rows.stream()
+                .mapToInt(StructuralCoverageSupport.BinMapRow::coveredBins).sum());
+    }
+
+    @Test
+    void binCoverageMap_integerUnitsOneAndTwoAreCovered(@TempDir Path directory) throws IOException {
+        CoverageContext context = writeIntegerScenarios(directory, 1, 2);
+        ParameterSelectionRow selection = new ParameterSelectionRow("count", "Root", "count", "int", 0, 10, "1", "");
+        StructuralCoverageSupport.BinMapRow row =
+                StructuralCoverageSupport.analyzeBinCoverageMaps(context, List.of(selection)).get(0);
+
+        assertEquals(2, row.coveredBins());
+        assertArrayEquals(new int[]{0, 1, 1, 0, 0, 0, 0, 0, 0, 0}, row.counts());
+        BufferedImage image = paintBinMap(row);
+        for (int value = 0; value <= 10; value++) {
+            Color expected = value == 1 || value == 2
+                    ? CoverageMapOverviewPanel.AT_SAMPLE : CoverageMapOverviewPanel.EMPTY;
+            assertEquals(expected.getRGB(), image.getRGB(4 + value * 100 + 25, 20), "Unit " + value);
+            assertEquals(expected.getRGB(), image.getRGB(4 + value * 100 + 75, 20), "Unit " + value);
+        }
+    }
+
+    @Test
+    void binCoverageMap_integerUnitColourIsConstantBetweenSamples() {
+        CoverageBin bin = new CoverageBin(0, 5, false);
+
+        assertEquals(CoverageMapOverviewPanel.colourAt(2.1, bin, List.of(1.0), true),
+                CoverageMapOverviewPanel.colourAt(2.9, bin, List.of(1.0), true));
+    }
+
+    @Test
+    void binCoverageMap_integerSingletonAndMaximumAreVisible(@TempDir Path directory) throws IOException {
+        CoverageContext context = writeIntegerScenarios(directory, 5, 10);
+        ParameterSelectionRow selection = new ParameterSelectionRow(
+                "count", "Root", "count", "int", 0, 10, "1", "0-2;5-5;8-10");
+        StructuralCoverageSupport.BinMapRow row =
+                StructuralCoverageSupport.analyzeBinCoverageMaps(context, List.of(selection)).get(0);
+
+        assertArrayEquals(new int[]{0, 1, 1}, row.counts());
+        BufferedImage image = paintBinMap(row);
+        assertEquals(CoverageMapOverviewPanel.AT_SAMPLE.getRGB(), image.getRGB(554, 20));
+        assertEquals(CoverageMapOverviewPanel.AT_SAMPLE.getRGB(), image.getRGB(1054, 20));
+    }
+
+    private static BufferedImage paintBinMap(StructuralCoverageSupport.BinMapRow row) {
+        CoverageMapOverviewPanel.Strip strip = new CoverageMapOverviewPanel.Strip(row);
+        strip.setSize(1108, 40);
+        BufferedImage image = new BufferedImage(1108, 40, BufferedImage.TYPE_INT_RGB);
+        Graphics2D graphics = image.createGraphics();
+        try {
+            strip.paint(graphics);
+        } finally {
+            graphics.dispose();
+        }
+        return image;
+    }
+
+    private static CoverageContext writeIntegerScenarios(Path directory, int... samples) throws IOException {
+        List<ScenarioReference> scenarios = new ArrayList<>();
+        for (int i = 0; i < samples.length; i++) {
+            String scenarioName = "Scenario" + i;
+            Path scenarioDirectory = Files.createDirectories(directory.resolve(scenarioName));
+            ArrayListMultimap<TreePath, String> variables = ArrayListMultimap.create();
+            variables.put(new TreePath("Root"), "count,int," + samples[i]);
+            try (ObjectOutputStream output = new ObjectOutputStream(
+                    Files.newOutputStream(scenarioDirectory.resolve("Demo.ssdvar")))) {
+                output.writeObject(variables);
+            }
+            scenarios.add(new ScenarioReference(scenarioName, Set.of()));
+        }
+        ParameterDefinition definition = new ParameterDefinition("count", "Root", "count", "int", 0, 10, Set.of("Root"));
+        return new CoverageContext("Demo", directory, List.of(definition), List.of(), scenarios);
     }
 
     private static ParameterCoverageResult assertCustomBinMatch(Path directory, String customBins, int sample,

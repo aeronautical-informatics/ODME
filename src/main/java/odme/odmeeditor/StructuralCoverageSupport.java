@@ -249,6 +249,72 @@ final class StructuralCoverageSupport {
         return List.copyOf(rows);
     }
 
+    /** Per-parameter bin counts using the same bins as the coverage estimate (analyze). */
+    static List<BinMapRow> analyzeBinCoverageMaps(CoverageContext context, List<ParameterSelectionRow> selectionRows) {
+        List<ScenarioSnapshot> scenarios = loadScenarioSnapshots(
+                context.projectDirectory(), context.projectName(), context.scenarioReferences());
+        Map<String, ParameterSelectionRow> selectionsById = new LinkedHashMap<>();
+        for (ParameterSelectionRow row : selectionRows) {
+            selectionsById.put(row.parameterId(), row);
+        }
+        List<BinMapRow> rows = new ArrayList<>();
+        for (ParameterDefinition definition : context.parameterDefinitions()) {
+            List<CoverageBin> bins = buildBins(definition, selectionsById.get(definition.id()));
+            List<Double> values = new ArrayList<>();
+            for (ScenarioSnapshot scenario : scenarios) {
+                for (ScenarioVariableValue value : scenario.variableValues()) {
+                    if (definition.variableName().equals(value.variableName())
+                            && intersects(definition.coveragePathVariants(), value.pathVariants())) {
+                        values.add(value.numericValue());
+                    }
+                }
+            }
+            int[] counts = new int[bins.size()];
+            List<List<Double>> binValues = new ArrayList<>();
+            for (int i = 0; i < bins.size(); i++) {
+                binValues.add(new ArrayList<>());
+            }
+            for (Double value : values) {
+                for (int i = 0; i < bins.size(); i++) {
+                    if (bins.get(i).matchesAny(List.of(value))) {
+                        counts[i]++;
+                        binValues.get(i).add(value);
+                        break;
+                    }
+                }
+            }
+            rows.add(new BinMapRow(definition, List.copyOf(bins), counts, List.copyOf(binValues), values.size()));
+        }
+        return List.copyOf(rows);
+    }
+
+    record BinMapRow(ParameterDefinition definition, List<CoverageBin> bins, int[] counts,
+                     List<List<Double>> binValues, int sampleCount) {
+        int coveredBins() {
+            int covered = 0;
+            for (int count : counts) {
+                if (count > 0) {
+                    covered++;
+                }
+            }
+            return covered;
+        }
+
+        double coveredFraction() {
+            return bins.isEmpty() ? 1.0 : (double) coveredBins() / bins.size();
+        }
+
+        String emptyBinLabels() {
+            List<String> labels = new ArrayList<>();
+            for (int i = 0; i < bins.size(); i++) {
+                if (counts[i] == 0) {
+                    labels.add(bins.get(i).label());
+                }
+            }
+            return String.join("; ", labels);
+        }
+    }
+
     static List<Double> parseRegionEdges(String rawEdges, ParameterDefinition definition) {
         if (rawEdges == null || rawEdges.isBlank()) {
             return defaultRegionEdges(definition);
