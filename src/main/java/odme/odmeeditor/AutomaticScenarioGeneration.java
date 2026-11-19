@@ -41,7 +41,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -88,15 +87,7 @@ public final class AutomaticScenarioGeneration {
         collectSpecializations(projectModel.root, new ArrayList<>(), specializations);
 
         int multiAspectCount = countNodesWithSuffix(projectModel.root, "MAsp");
-        long totalCombinations = 1L;
-        for (SpecializationDescriptor descriptor : specializations) {
-            int optionCount = Math.max(1, descriptor.optionLabels.size());
-            if (totalCombinations > MAX_AUTO_SCENARIOS / optionCount) {
-                totalCombinations = (long) MAX_AUTO_SCENARIOS + 1;
-                break;
-            }
-            totalCombinations *= optionCount;
-        }
+        long totalCombinations = countCombinations(projectModel.root);
 
         return new GenerationPreview(
                 projectModel.projectName,
@@ -142,7 +133,7 @@ public final class AutomaticScenarioGeneration {
         List<String> createdScenarioNames = new ArrayList<>();
         int[] createdCounter = {0};
 
-        forEachCombination(preview.specializations(), 0, new LinkedHashMap<>(), selectedChildren -> {
+        forEachCombination(projectModel.root, new ArrayList<>(), new LinkedHashMap<>(), selectedChildren -> {
             GenerationContext generationContext = new GenerationContext(
                     projectModel.metadataBundle,
                     selectedChildren
@@ -235,7 +226,7 @@ public final class AutomaticScenarioGeneration {
         List<String> createdScenarioNames = new ArrayList<>();
         int[] createdCounter = {0};
 
-        forEachCombination(preview.specializations(), 0, new LinkedHashMap<>(), selectedChildren -> {
+        forEachCombination(projectModel.root, new ArrayList<>(), new LinkedHashMap<>(), selectedChildren -> {
             GenerationContext generationContext = new GenerationContext(
                     projectModel.metadataBundle,
                     selectedChildren
@@ -381,34 +372,50 @@ public final class AutomaticScenarioGeneration {
         void accept(Map<String, String> selectedChildren) throws Exception;
     }
 
-    private static void forEachCombination(List<SpecializationDescriptor> descriptors,
-                                           int index,
+    private static long countCombinations(DefaultMutableTreeNode node) {
+        boolean specialization = node.toString().endsWith("Spec");
+        long count = specialization && node.getChildCount() > 0 ? 0 : 1;
+        for (int index = 0; index < node.getChildCount(); index++) {
+            long childCount = countCombinations((DefaultMutableTreeNode) node.getChildAt(index));
+            count = specialization ? safeAdd(count, childCount) : safeMultiply(count, (int) childCount);
+            count = Math.min(count, (long) MAX_AUTO_SCENARIOS + 1);
+        }
+        return count;
+    }
+
+    private static void forEachCombination(DefaultMutableTreeNode node,
+                                           List<String> parentPath,
                                            LinkedHashMap<String, String> currentSelection,
                                            CombinationConsumer consumer)
             throws Exception {
-        if (descriptors.isEmpty()) {
-            consumer.accept(Collections.emptyMap());
+        List<String> currentPath = appendPath(parentPath, node.toString());
+        if (!node.toString().endsWith("Spec")) {
+            forEachChildCombination(node, 0, currentPath, currentSelection, consumer);
             return;
         }
 
-        if (index >= descriptors.size()) {
+        if (node.getChildCount() == 0) {
+            throw new IllegalStateException("Specialization node has no options: " + node);
+        }
+        String key = pathKey(currentPath);
+        for (int index = 0; index < node.getChildCount(); index++) {
+            DefaultMutableTreeNode option = (DefaultMutableTreeNode) node.getChildAt(index);
+            currentSelection.put(key, option.toString());
+            forEachCombination(option, currentPath, currentSelection, consumer);
+        }
+        currentSelection.remove(key);
+    }
+
+    private static void forEachChildCombination(DefaultMutableTreeNode node, int index,
+                                                List<String> currentPath,
+                                                LinkedHashMap<String, String> currentSelection,
+                                                CombinationConsumer consumer) throws Exception {
+        if (index == node.getChildCount()) {
             consumer.accept(new LinkedHashMap<>(currentSelection));
             return;
         }
-
-        SpecializationDescriptor descriptor = descriptors.get(index);
-        if (descriptor.optionLabels.isEmpty()) {
-            currentSelection.put(descriptor.pathKey, "");
-            forEachCombination(descriptors, index + 1, currentSelection, consumer);
-            currentSelection.remove(descriptor.pathKey);
-            return;
-        }
-
-        for (String optionLabel : descriptor.optionLabels) {
-            currentSelection.put(descriptor.pathKey, optionLabel);
-            forEachCombination(descriptors, index + 1, currentSelection, consumer);
-        }
-        currentSelection.remove(descriptor.pathKey);
+        forEachCombination((DefaultMutableTreeNode) node.getChildAt(index), currentPath, currentSelection,
+                ignored -> forEachChildCombination(node, index + 1, currentPath, currentSelection, consumer));
     }
 
     private static DefaultMutableTreeNode pruneTree(DefaultMutableTreeNode original,
@@ -1310,7 +1317,7 @@ public final class AutomaticScenarioGeneration {
         int[] minExpandedVariables = {Integer.MAX_VALUE};
         int[] maxExpandedVariables = {0};
 
-        forEachCombination(preview.specializations(), 0, new LinkedHashMap<>(), selectedChildren -> {
+        forEachCombination(projectModel.root, new ArrayList<>(), new LinkedHashMap<>(), selectedChildren -> {
             GenerationContext generationContext = new GenerationContext(
                     projectModel.metadataBundle,
                     selectedChildren
