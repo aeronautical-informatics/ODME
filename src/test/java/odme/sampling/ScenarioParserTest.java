@@ -4,6 +4,8 @@ import odme.sampling.model.Parameter;
 import odme.sampling.model.Scenario;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -32,6 +34,56 @@ class ScenarioParserTest {
         Path file = tempDir.resolve("scenario_" + System.nanoTime() + ".yaml");
         Files.writeString(file, content);
         return file;
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"a weather annotation", "42", "true"})
+    void parse_scalarNodeCommentsPreserveCategoricalOptions(String comment) throws Exception {
+        Path annotated = writeYaml("""
+                Scenario:
+                  Weather:
+                    comment: %s
+                    Rain:
+                      comment: %s
+                    Snow:
+                """.formatted(comment, comment));
+        Path plain = writeYaml("""
+                Scenario:
+                  Weather:
+                    Rain:
+                    Snow:
+                """);
+
+        List<Parameter> parameters = parser.parse(annotated.toString()).getParameters();
+        List<Parameter> withoutComments = parser.parse(plain.toString()).getParameters();
+
+        assertEquals(1, parameters.size());
+        assertEquals("Weather", parameters.get(0).getName());
+        assertEquals("categorical", parameters.get(0).getType());
+        assertEquals(List.of("Rain", "Snow"), parameters.get(0).getOptions());
+        assertEquals(withoutComments.get(0).getName(), parameters.get(0).getName());
+        assertEquals(withoutComments.get(0).getType(), parameters.get(0).getType());
+        assertEquals(withoutComments.get(0).getOptions(), parameters.get(0).getOptions());
+    }
+
+    @Test
+    void parse_variableNamedCommentRemainsAParameter() throws Exception {
+        Path yaml = writeYaml("""
+                Scenario:
+                  Sensor:
+                    comment:
+                      type: int
+                      min: 1
+                      max: 9
+                """);
+
+        List<Parameter> parameters = parser.parse(yaml.toString()).getParameters();
+
+        assertEquals(1, parameters.size());
+        assertEquals("Sensor_comment", parameters.get(0).getName());
+        assertEquals("int", parameters.get(0).getType());
+        assertEquals(1.0, parameters.get(0).getMin());
+        assertEquals(9.0, parameters.get(0).getMax());
     }
 
     // ────────────────────────────────────────────────────────────────────────

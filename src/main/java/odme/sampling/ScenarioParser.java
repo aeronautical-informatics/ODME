@@ -81,16 +81,14 @@ public class ScenarioParser {
         }
 
         if (entityValue instanceof Map) {
-            Map<String, Object> map = (Map<String, Object>) entityValue;
+            Map<String, Object> map = nodeContents((Map<String, Object>) entityValue);
 
             // Check if all values are null/empty-map → treat as a categorical parameter
             boolean allNullOrEmpty = true;
             for (Object v : map.values()) {
-                if (v != null) {
-                    if (!(v instanceof Map) || !((Map<?, ?>) v).isEmpty()) {
-                        allNullOrEmpty = false;
-                        break;
-                    }
+                if (!isEmptyOption(v)) {
+                    allNullOrEmpty = false;
+                    break;
                 }
             }
             if (allNullOrEmpty && !map.isEmpty()) {
@@ -108,17 +106,15 @@ public class ScenarioParser {
                 if (subVal == null) continue;
 
                 if (subVal instanceof Map) {
-                    Map<String, Object> subMap = (Map<String, Object>) subVal;
+                    Map<String, Object> subMap = nodeContents((Map<String, Object>) subVal);
                     if (isParameterDetailMap(subMap)) {
                         parseParameter(entityName, subKey, subMap, scenario);
                     } else {
                         boolean subAllNullOrEmpty = true;
                         for (Object vv : subMap.values()) {
-                            if (vv != null) {
-                                if (!(vv instanceof Map) || !((Map<?, ?>) vv).isEmpty()) {
-                                    subAllNullOrEmpty = false;
-                                    break;
-                                }
+                            if (!isEmptyOption(vv)) {
+                                subAllNullOrEmpty = false;
+                                break;
                             }
                         }
                         if (subAllNullOrEmpty && !subMap.isEmpty()) {
@@ -136,6 +132,22 @@ public class ScenarioParser {
                 }
             }
         }
+    }
+
+    private Map<String, Object> nodeContents(Map<String, Object> source) {
+        Map<String, Object> contents = new LinkedHashMap<>(source);
+        contents.entrySet().removeIf(entry -> isScalarComment(entry.getKey(), entry.getValue()));
+        return contents;
+    }
+
+    private boolean isScalarComment(String key, Object value) {
+        return "comment".equals(key)
+                && (value instanceof String || value instanceof Number || value instanceof Boolean);
+    }
+
+    private boolean isEmptyOption(Object value) {
+        return value == null || value instanceof Map<?, ?> map && map.entrySet().stream()
+                .allMatch(entry -> isScalarComment(String.valueOf(entry.getKey()), entry.getValue()));
     }
 
     private boolean isParameterDetailMap(Map<String, Object> map) {
