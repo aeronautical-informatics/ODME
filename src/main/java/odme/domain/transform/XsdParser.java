@@ -144,9 +144,13 @@ public class XsdParser {
      * @return a 5-element array: [indented name, "Node", null, null, null]
      */
     String[] getNodeHeaders(Element e, int indent) {
-        String[] r = new String[5];
+        String comment = documentation(e);
+        String[] r = new String[comment.isEmpty() ? 5 : 6];
         r[0] = indentStr(e.getAttribute("name"), indent, "  ");
         r[1] = "Node";
+        if (!comment.isEmpty()) {
+            r[5] = comment;
+        }
         return r;
     }
 
@@ -179,7 +183,27 @@ public class XsdParser {
                     break;
             }
         }
+        if ((r[2] == null || r[2].isEmpty()) && e.hasAttribute("type")) {
+            // string and boolean variables carry their type on the attribute itself, not in a restriction
+            r[2] = e.getAttribute("type").replace("xs:", "");
+        }
+        r[5] = documentation(e);
         return r;
+    }
+
+    private String documentation(Element element) {
+        List<String> comments = new ArrayList<>();
+        NodeList children = element.getChildNodes();
+        for (int i = 0; i < children.getLength(); i++) {
+            Node child = children.item(i);
+            if ("xs:annotation".equals(child.getNodeName())) {
+                NodeList documentation = ((Element) child).getElementsByTagName("xs:documentation");
+                for (int j = 0; j < documentation.getLength(); j++) {
+                    comments.add(documentation.item(j).getTextContent().trim());
+                }
+            }
+        }
+        return String.join("\n", comments);
     }
 
     /**
