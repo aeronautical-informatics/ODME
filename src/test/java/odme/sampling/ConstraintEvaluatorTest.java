@@ -2,6 +2,9 @@ package odme.sampling;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.Map;
 import java.util.Set;
@@ -19,6 +22,56 @@ class ConstraintEvaluatorTest {
     @BeforeEach
     void setUp() {
         evaluator = new ConstraintEvaluator();
+    }
+
+    @ParameterizedTest
+    @CsvSource(delimiter = ';', value = {
+            "@a > 5 and @b <= 3;6;3;true",
+            "@a > 5 and @b <= 3;4;3;false",
+            "@a = 2 or not(@b != 4);2;5;true",
+            "@a = 2 or not(@b != 4);1;5;false",
+            "@a div 2 >= 1;4;0;true",
+            "@a div 2 >= 1;0;0;false",
+            "@a mod 3 = 1;4;0;true",
+            "@a mod 3 = 1;5;0;false",
+            "@a + @b * 2 - 1 = 7;2;3;true",
+            "@a + @b * 2 - 1 = 7;1;1;false",
+            "if (@sun > @max_sun) then false() else true();1;2;true",
+            "if (@sun > @max_sun) then false() else true();3;2;false",
+            "if (@a > 0) then (if (@b > 0) then true() else false()) else true();1;1;true",
+            "if (@a > 0) then (if (@b > 0) then true() else false()) else true();1;0;false",
+            "if (@a > 0) then if (@b > 0) then true() else false() else true();1;1;true",
+            "if (@a > 0) then if (@b > 0) then true() else false() else true();1;0;false",
+            "if (@a > 0) then false() else if (@b > 0) then true() else false();0;1;true",
+            "if (@a > 0) then false() else if (@b > 0) then true() else false();0;0;false",
+            "if(@x > 5) then (false) else true;1;0;true",
+            "if(@x > 5) then (false) else true;6;0;false",
+            "@x > 5 && @y < 10;6;8;true",
+            "@x > 5 && @y < 10;4;8;false",
+            "@x == 3 || @y == 4;3;0;true",
+            "@x == 3 || @y == 4;2;0;false",
+            "@a / 2 >= 1;4;0;true",
+            "@a / 2 >= 1;0;0;false",
+            "@Ordnance > 1 and @divider < 2;2;1;true",
+            "@Ordnance > 1 and @divider < 2;0;1;false",
+            "@android_mode > 1 and @true > 1;2;0;true",
+            "@android_mode > 1 and @true > 1;0;0;false"
+    })
+    void xpathSubsetAndLegacyFormsValidateAndEvaluate(String constraint, double a, double b, boolean expected) {
+        Map<String, Double> values = Map.of(
+                "a", a, "b", b, "x", a, "y", b, "sun", a, "max_sun", b,
+                "Ordnance", a, "divider", b, "android_mode", a, "true", a);
+
+        assertDoesNotThrow(() -> evaluator.validate(constraint, values.keySet()));
+        assertEquals(expected, evaluator.evaluate(constraint, values), constraint);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"@x > 5 and", "if (@x > 5) then true()", "x > 5"})
+    void xpathInvalidExpressionsNameOriginalConstraint(String constraint) {
+        IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
+                () -> evaluator.validate(constraint, Set.of("x")));
+        assertTrue(error.getMessage().contains(constraint));
     }
 
     // ────────────────────────────────────────────────────────────────────────

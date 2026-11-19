@@ -21,6 +21,10 @@ import java.util.regex.Pattern;
 public class ConstraintEvaluator {
 
     private static final Pattern TOKEN_PATTERN = Pattern.compile("@([A-Za-z0-9_@\\-]+)");
+    private static final Pattern LANGUAGE_TOKEN_PATTERN = Pattern.compile(
+            "@[A-Za-z0-9_@\\-]+|\\b(?:true|false)\\s*\\(\\s*\\)"
+                    + "|\\b(?:true|false|and|or|not|div|mod)\\b",
+            Pattern.CASE_INSENSITIVE);
 
     public void validate(String constraint, Set<String> variableNames) {
         validate(constraint, variableNames, constraint);
@@ -172,6 +176,7 @@ public class ConstraintEvaluator {
 
     private int indexOfKeywordOutsideParentheses(String expression, String keyword, int startIndex) {
         int depth = 0;
+        int nestedConditionals = 0;
         String lower = expression.toLowerCase(Locale.ROOT);
         String target = keyword.toLowerCase(Locale.ROOT);
 
@@ -185,18 +190,28 @@ public class ConstraintEvaluator {
                 depth = Math.max(0, depth - 1);
                 continue;
             }
-            if (depth == 0 && lower.startsWith(target, i)) {
-                boolean leftBoundary = i == 0 || Character.isWhitespace(lower.charAt(i - 1)) || lower.charAt(i - 1) == ')';
-                int rightIndex = i + target.length();
-                boolean rightBoundary = rightIndex >= lower.length()
-                        || Character.isWhitespace(lower.charAt(rightIndex))
-                        || lower.charAt(rightIndex) == '(';
-                if (leftBoundary && rightBoundary) {
-                    return i;
+            if (depth == 0 && "else".equals(target) && lower.startsWith("if", i)
+                    && keywordBoundary(lower, i, 2)) {
+                nestedConditionals++;
+            }
+            if (depth == 0 && lower.startsWith(target, i) && keywordBoundary(lower, i, target.length())) {
+                if ("else".equals(target) && nestedConditionals > 0) {
+                    nestedConditionals--;
+                    continue;
                 }
+                return i;
             }
         }
         return -1;
+    }
+
+    private boolean keywordBoundary(String expression, int index, int length) {
+        boolean leftBoundary = index == 0 || Character.isWhitespace(expression.charAt(index - 1))
+                || expression.charAt(index - 1) == ')';
+        int rightIndex = index + length;
+        return leftBoundary && (rightIndex >= expression.length()
+                || Character.isWhitespace(expression.charAt(rightIndex))
+                || expression.charAt(rightIndex) == '(');
     }
 
     private int findMatchingParenthesis(String expression, int openingIndex) {
@@ -228,9 +243,27 @@ public class ConstraintEvaluator {
     }
 
     private String normalizeLiteralBooleans(String expression) {
-        return expression
-                .replaceAll("(?i)\\btrue\\b", "1")
-                .replaceAll("(?i)\\bfalse\\b", "0");
+        Matcher matcher = LANGUAGE_TOKEN_PATTERN.matcher(expression);
+        StringBuffer normalized = new StringBuffer();
+        while (matcher.find()) {
+            String token = matcher.group();
+            String replacement = token;
+            if (!token.startsWith("@")) {
+                String keyword = token.replaceAll("\\s|[()]", "").toLowerCase(Locale.ROOT);
+                replacement = switch (keyword) {
+                    case "true" -> "1";
+                    case "false" -> "0";
+                    case "and" -> "&&";
+                    case "or" -> "||";
+                    case "div" -> "/";
+                    case "mod" -> "#";
+                    default -> keyword;
+                };
+            }
+            matcher.appendReplacement(normalized, Matcher.quoteReplacement(replacement));
+        }
+        matcher.appendTail(normalized);
+        return normalized.toString();
     }
 
     private String normalize(String value) {
