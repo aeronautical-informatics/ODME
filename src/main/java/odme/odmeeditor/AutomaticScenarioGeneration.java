@@ -2,6 +2,7 @@ package odme.odmeeditor;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
+import com.google.common.collect.LinkedListMultimap;
 import com.mxgraph.io.mxCodec;
 import com.mxgraph.util.mxXmlUtils;
 import com.mxgraph.view.mxGraph;
@@ -113,6 +114,11 @@ public final class AutomaticScenarioGeneration {
 
     public static GenerationResult generateAll(String requestedPrefix, int samplesPerCombination)
             throws Exception {
+        return generateAll(requestedPrefix, samplesPerCombination, null);
+    }
+
+    public static GenerationResult generateAll(String requestedPrefix, int samplesPerCombination, Long seed)
+            throws Exception {
         ProjectModel projectModel = loadProjectModel();
         GenerationPreview preview = inspectProject(projectModel);
 
@@ -136,7 +142,7 @@ public final class AutomaticScenarioGeneration {
         JSONArray scenarioCatalog = loadScenarioCatalog(projectModel.projectDirectory);
         Set<String> existingScenarioNames = loadScenarioNames(scenarioCatalog);
         int nextIndex = nextScenarioIndex(existingScenarioNames, prefix);
-        SamplingManager samplingManager = new SamplingManager();
+        SamplingManager samplingManager = seed == null ? new SamplingManager() : new SamplingManager(seed);
         CurrentModelScenarioBuilder samplingBuilder = new CurrentModelScenarioBuilder();
 
         List<String> createdScenarioNames = new ArrayList<>();
@@ -188,7 +194,8 @@ public final class AutomaticScenarioGeneration {
                 projectModel.projectName,
                 preview.totalCombinations(),
                 samplesPerCombination,
-                createdScenarioNames
+                createdScenarioNames,
+                samplingManager.getSeed()
         );
     }
 
@@ -736,7 +743,7 @@ public final class AutomaticScenarioGeneration {
             Multimap<TreePath, String> generatedVariables,
             CurrentModelScenarioBuilder.SamplingModel samplingModel,
             Map<String, String> sampleValues) {
-        Multimap<TreePath, String> sampledVariables = ArrayListMultimap.create();
+        Multimap<TreePath, String> sampledVariables = LinkedListMultimap.create();
         Map<String, CurrentModelScenarioBuilder.VariableBinding> bindingsByParameterName =
                 samplingModel.bindingByParameterName();
         Map<String, String> sampledValuesByBindingKey = new LinkedHashMap<>();
@@ -1262,7 +1269,13 @@ public final class AutomaticScenarioGeneration {
     public record GenerationResult(String projectName,
                                    long structuralCombinationCount,
                                    int samplesPerCombination,
-                                   List<String> createdScenarioNames) {
+                                   List<String> createdScenarioNames,
+                                   Long seed) {
+        public GenerationResult(String projectName, long structuralCombinationCount,
+                                int samplesPerCombination, List<String> createdScenarioNames) {
+            this(projectName, structuralCombinationCount, samplesPerCombination, createdScenarioNames, null);
+        }
+
         public int createdCount() {
             return createdScenarioNames.size();
         }
@@ -1286,9 +1299,9 @@ public final class AutomaticScenarioGeneration {
     private static final class GenerationContext {
         private final MetadataBundle metadataBundle;
         private final Map<String, String> selectedChildrenBySpecPath;
-        private final Multimap<TreePath, String> generatedVariables = ArrayListMultimap.create();
-        private final Multimap<TreePath, String> generatedConstraints = ArrayListMultimap.create();
-        private final Multimap<TreePath, String> generatedBehaviours = ArrayListMultimap.create();
+        private final Multimap<TreePath, String> generatedVariables = LinkedListMultimap.create();
+        private final Multimap<TreePath, String> generatedConstraints = LinkedListMultimap.create();
+        private final Multimap<TreePath, String> generatedBehaviours = LinkedListMultimap.create();
 
         private GenerationContext(MetadataBundle metadataBundle,
                                   Map<String, String> selectedChildrenBySpecPath) {

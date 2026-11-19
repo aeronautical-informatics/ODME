@@ -17,6 +17,7 @@ import java.io.File;
 public class GenerateSamplesPanel extends JPanel {
 
     private final JTextField numSamplesField;
+    private final JTextField seedField;
     private final JTextField filePathField;
     private final JTextField filePathFieldYaml;
     private final JComboBox<String> sourceSelector;
@@ -77,19 +78,26 @@ public class GenerateSamplesPanel extends JPanel {
         gbc.gridwidth = 2;
         add(numSamplesField, gbc);
 
+        JLabel seedLabel = new JLabel("Seed (optional):");
+        gbc.gridx = 0; gbc.gridy = 4; gbc.weightx = 0; gbc.gridwidth = 1;
+        add(seedLabel, gbc);
+        seedField = new JTextField();
+        gbc.gridx = 1; gbc.gridy = 4; gbc.weightx = 1; gbc.gridwidth = 2;
+        add(seedField, gbc);
+
         // --- Output CSV path ---
         JLabel filePathLabel = new JLabel("Save As:");
-        gbc.gridx = 0; gbc.gridy = 4; gbc.weightx = 0;
+        gbc.gridx = 0; gbc.gridy = 5; gbc.weightx = 0;
         gbc.gridwidth = 1;
         add(filePathLabel, gbc);
 
         filePathField = new JTextField();
         filePathField.setEditable(false);
-        gbc.gridx = 1; gbc.gridy = 4; gbc.weightx = 1;
+        gbc.gridx = 1; gbc.gridy = 5; gbc.weightx = 1;
         add(filePathField, gbc);
 
         browseButton = new JButton("Browse...");
-        gbc.gridx = 2; gbc.gridy = 4; gbc.weightx = 0;
+        gbc.gridx = 2; gbc.gridy = 5; gbc.weightx = 0;
         add(browseButton, gbc);
 
         // --- Buttons ---
@@ -99,7 +107,7 @@ public class GenerateSamplesPanel extends JPanel {
         buttonPanel.add(generateButton);
         buttonPanel.add(cancelButton);
 
-        gbc.gridx = 0; gbc.gridy = 5; gbc.gridwidth = 3;
+        gbc.gridx = 0; gbc.gridy = 6; gbc.gridwidth = 3;
         gbc.fill = GridBagConstraints.NONE; gbc.anchor = GridBagConstraints.EAST;
         add(buttonPanel, gbc);
 
@@ -152,6 +160,15 @@ public class GenerateSamplesPanel extends JPanel {
             }
 
             boolean useCurrentModel = sourceSelector.getSelectedIndex() == 0;
+            Long seed;
+            try {
+                seed = seedField.getText().isBlank() ? null : Long.valueOf(seedField.getText().trim());
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(GenerateSamplesPanel.this,
+                        "Seed must be a whole number in the signed 64-bit range.", "Invalid Seed",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
             String yamlFilePath = filePathFieldYaml.getText().trim();
             if (!useCurrentModel && yamlFilePath.isEmpty()) {
                 JOptionPane.showMessageDialog(GenerateSamplesPanel.this,
@@ -168,18 +185,18 @@ public class GenerateSamplesPanel extends JPanel {
                     "Generate Samples",
                     "Generating valid samples...",
                     () -> {
-                        SamplingManager samplingManager = new SamplingManager();
+                        SamplingManager samplingManager = seed == null ? new SamplingManager() : new SamplingManager(seed);
                         if (finalUseCurrentModel) {
                             samplingManager.generateSamplesForCurrentModel(finalSamples, outputCsvPath);
                         } else {
                             samplingManager.generateSamples(yamlFilePath, finalSamples, outputCsvPath);
                         }
-                        return finalSamples;
+                        return samplingManager.getSeed();
                     },
-                    generatedCount -> {
+                    usedSeed -> {
                         setControlsEnabled(true);
                         JOptionPane.showMessageDialog(GenerateSamplesPanel.this,
-                                "Successfully generated " + generatedCount + " valid samples!",
+                                "Generated " + finalSamples + " samples (seed " + usedSeed + ").",
                                 "Success", JOptionPane.INFORMATION_MESSAGE);
                         SwingUtilities.getWindowAncestor(GenerateSamplesPanel.this).dispose();
                     },
@@ -197,6 +214,7 @@ public class GenerateSamplesPanel extends JPanel {
 
     private void setControlsEnabled(boolean enabled) {
         numSamplesField.setEnabled(enabled);
+        seedField.setEnabled(enabled);
         browseButton.setEnabled(enabled);
         sourceSelector.setEnabled(enabled);
         browseButtonYaml.setEnabled(enabled && sourceSelector.getSelectedIndex() == 1);

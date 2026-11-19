@@ -3,6 +3,7 @@ package odme.sampling;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.security.SecureRandom;
 
 /**
  * Simple Latin Hypercube Sampler for the sampling package.
@@ -12,7 +13,22 @@ import java.util.Random;
  */
 public class LatinHypercubeSampler {
 
-    private final Random random = new Random();
+    private static final SecureRandom SEED_SOURCE = new SecureRandom();
+    private final long seed;
+    private final Random random;
+
+    public LatinHypercubeSampler() {
+        this(SEED_SOURCE.nextLong());
+    }
+
+    public LatinHypercubeSampler(long seed) {
+        this.seed = seed;
+        this.random = new Random(seed);
+    }
+
+    public long getSeed() {
+        return seed;
+    }
 
     /**
      * Generates normalized LHS samples in [0,1]^dimensions.

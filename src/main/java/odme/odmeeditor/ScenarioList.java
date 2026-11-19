@@ -271,7 +271,8 @@ public class ScenarioList extends JPanel {
                 this,
                 "Automatic Scenario Generation",
                 "Generating pruned scenario models with constrained Latin Hypercube sampling...",
-                () -> AutomaticScenarioGeneration.generateAll(options.prefix(), options.samplesPerCombination()),
+                () -> AutomaticScenarioGeneration.generateAll(
+                        options.prefix(), options.samplesPerCombination(), options.seed()),
                 result -> {
                     reloadTableData();
                     focusScenarioListWindow();
@@ -341,6 +342,7 @@ public class ScenarioList extends JPanel {
     private AutomaticGenerationOptions showAutomaticScenarioGenerationDialog(
             AutomaticScenarioGeneration.GenerationPreview preview) {
         JTextField prefixField = new JTextField("AutoScenario");
+        JTextField seedField = new JTextField();
         JSpinner samplesSpinner = new JSpinner(new SpinnerNumberModel(1, 1, 1000, 1));
         JLabel totalLabel = new JLabel();
         JLabel limitLabel = new JLabel(" ");
@@ -372,6 +374,8 @@ public class ScenarioList extends JPanel {
         inputPanel.add(prefixField);
         inputPanel.add(new JLabel("Variable samples per pruned combination"));
         inputPanel.add(samplesSpinner);
+        inputPanel.add(new JLabel("Seed (optional)"));
+        inputPanel.add(seedField);
 
         JPanel container = new JPanel(new BorderLayout(0, 12));
         container.add(summaryPanel, BorderLayout.NORTH);
@@ -391,7 +395,15 @@ public class ScenarioList extends JPanel {
 
             int samples = ((Number) samplesSpinner.getValue()).intValue();
             if (!preview.exceedsScenarioLimit(samples)) {
-                return new AutomaticGenerationOptions(prefixField.getText(), samples);
+                try {
+                    Long seed = seedField.getText().isBlank() ? null : Long.valueOf(seedField.getText().trim());
+                    return new AutomaticGenerationOptions(prefixField.getText(), samples, seed);
+                } catch (NumberFormatException error) {
+                    JOptionPane.showMessageDialog(frame != null ? frame : Main.frame,
+                            "Seed must be a whole number in the signed 64-bit range.", "Invalid Seed",
+                            JOptionPane.ERROR_MESSAGE);
+                    continue;
+                }
             }
 
             JOptionPane.showMessageDialog(
@@ -422,6 +434,9 @@ public class ScenarioList extends JPanel {
         message.append('\n').append('\n')
                 .append("Structural combinations: ").append(result.structuralCombinationCount()).append('\n')
                 .append(settingLabel).append(": ").append(result.samplesPerCombination());
+        if (result.seed() != null) {
+            message.append('\n').append("Seed: ").append(result.seed());
+        }
 
         if (!result.createdScenarioNames().isEmpty()) {
             message.append('\n').append('\n').append("First generated scenarios:\n");
@@ -437,7 +452,7 @@ public class ScenarioList extends JPanel {
         return message.toString();
     }
 
-    private record AutomaticGenerationOptions(String prefix, int samplesPerCombination) {
+    private record AutomaticGenerationOptions(String prefix, int samplesPerCombination, Long seed) {
     }
 
     private CartesianGenerationOptions showCartesianScenarioGenerationDialog(

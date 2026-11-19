@@ -33,6 +33,67 @@ class SamplingManagerTest {
 
     private final SamplingManager manager = new SamplingManager();
 
+    @Test
+    void seededYamlSamplingReproducesMixedConstrainedCsv() throws Exception {
+        Path yaml = writeYaml("""
+                Scenario:
+                  Sensor:
+                    Count: {type: int, min: 0, max: 3}
+                    Range: {type: double, min: 0, max: 1}
+                    Mode: {options: [A, B, C]}
+                    Flag: {type: boolean}
+                    HasConstraint:
+                      IntraConstraint: '@Flag == 1 && @Count > 0'
+                """);
+        Path first = tempDir.resolve("first.csv");
+        Path replay = tempDir.resolve("replay.csv");
+        Path different = tempDir.resolve("different.csv");
+        SamplingManager seeded = new SamplingManager(123L);
+        seeded.generateSamples(yaml.toString(), 32, first.toString());
+        new SamplingManager(123L).generateSamples(yaml.toString(), 32, replay.toString());
+        new SamplingManager(456L).generateSamples(yaml.toString(), 32, different.toString());
+
+        assertEquals(123L, seeded.getSeed());
+        assertArrayEquals(Files.readAllBytes(first), Files.readAllBytes(replay));
+        assertNotEquals(Files.readString(first), Files.readString(different));
+    }
+
+    @Test
+    void oneSeededManagerReplaysConsecutivePesBatches() throws Exception {
+        Path yaml = writeYaml("""
+                Scenario:
+                  Sensor:
+                    Range: {type: double, min: 0, max: 1}
+                    Flag: {type: boolean}
+                """);
+        Scenario scenario = new ScenarioParser().parse(yaml.toString());
+        SamplingManager first = new SamplingManager(123L);
+        SamplingManager replay = new SamplingManager(123L);
+        List<Map<String, String>> previous = List.of();
+        for (int pes = 0; pes < 3; pes++) {
+            List<Map<String, String>> rows = first.generateSampleRows(scenario, 10, false);
+            assertEquals(rows, replay.generateSampleRows(scenario, 10, false));
+            assertNotEquals(previous, rows);
+            previous = rows;
+        }
+    }
+
+    @Test
+    void seededCurrentModelSamplingIsStableAcrossMetadataReloads() throws Exception {
+        Multimap<TreePath, String> variables = ArrayListMultimap.create();
+        variables.put(new TreePath(new String[]{"Scenario", "B"}), "Altitude,double,0,0,100");
+        variables.put(new TreePath(new String[]{"Scenario", "A"}), "Speed,double,0,0,100");
+        writeSerializedMultimap(tempDir.resolve("Model.ssdvar"), variables);
+        Path first = tempDir.resolve("current-first.csv");
+        Path replay = tempDir.resolve("current-replay.csv");
+
+        new SamplingManager(123L).generateSamplesForCurrentModel(tempDir, "Model", 20, first.toString());
+        new SamplingManager(123L).generateSamplesForCurrentModel(tempDir, "Model", 20, replay.toString());
+
+        assertArrayEquals(Files.readAllBytes(first), Files.readAllBytes(replay));
+        assertEquals("A_Speed,B_Altitude", Files.readAllLines(first).get(0));
+    }
+
     // ────────────────────────────────────────────────────────────────────────
     // Helpers
     // ────────────────────────────────────────────────────────────────────────
