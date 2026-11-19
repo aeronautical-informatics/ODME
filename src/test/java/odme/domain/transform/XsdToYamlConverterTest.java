@@ -362,4 +362,35 @@ class XsdToYamlConverterTest {
         assertThat(domain.get("comment")).isEqualTo(annotation);
         assertThat(((Map<?, ?>) domain.get("flag")).get("comment")).isEqualTo("null");
     }
+
+    @Test
+    void convert_annotatedSpecializationPreservesCategoricalOptions(@TempDir Path directory) throws Exception {
+        String xsd = """
+                <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+                  <xs:element name="Domain"><xs:complexType><xs:sequence>
+                    <xs:element name="Weather">
+                      <xs:annotation><xs:documentation>Weather decision</xs:documentation></xs:annotation>
+                      <xs:complexType><xs:choice>
+                        <xs:element name="Rain">
+                          <xs:annotation><xs:documentation>Rain option</xs:documentation></xs:annotation>
+                          <xs:complexType/>
+                        </xs:element>
+                        <xs:element name="Snow"><xs:complexType/></xs:element>
+                      </xs:choice></xs:complexType>
+                    </xs:element>
+                  </xs:sequence></xs:complexType></xs:element>
+                </xs:schema>
+                """;
+        List<String[]> rows = new XsdParser().readXsd(
+                new ByteArrayInputStream(xsd.getBytes(StandardCharsets.UTF_8)));
+        Path yaml = directory.resolve("weather.yaml");
+        Files.writeString(yaml, convertAndParse(rows));
+
+        List<Parameter> parameters = new ScenarioParser().parse(yaml.toString()).getParameters();
+
+        assertThat(parameters).hasSize(1);
+        assertThat(parameters.get(0).getName()).isEqualTo("Weather");
+        assertThat(parameters.get(0).getType()).isEqualTo("categorical");
+        assertThat(parameters.get(0).getOptions()).containsExactly("Rain", "Snow");
+    }
 }
