@@ -142,15 +142,8 @@ public class FileConvertion {
 
                     }
                     else if (result.endsWith("Con")) {
-                        String resultCon =
-                                backConstraints.replaceAll("[<>]", ""); // to keep the space backConstraints
-                        // is used here otherwise else and
-                        // true() will be elsetrue();
-                        String nonconresult =
-                                resultCon.replace("Con/", ""); // with Con also / added here then Con/ for
-                        // replacement. because xpath query itself
-                        // contain /, so can not all / from query
-                        f0.println("<xs:assert test=\"" + nonconresult + "\" />");
+                        String constraint = backConstraints.substring(1, backConstraints.length() - "Con/>".length());
+                        f0.println("<xs:assert test=\"" + escapeXmlAttribute(constraint) + "\" />");
                     } 
                     else if (result.endsWith("RefNode")) {
                         String noRefNoderesult = result.replace("RefNode", "");
@@ -476,8 +469,9 @@ public class FileConvertion {
                         count++;
                     }
                     if (count == len) {
-                        f0.println("<" + splited[0] + " " + splited[1] + " " + "constraint=\"" + constraint
-                                   + "\" " + ">");
+                        int closingBracket = line.lastIndexOf('>');
+                        f0.println(line.substring(0, closingBracket) + " constraint=\""
+                                + escapeXmlAttribute(constraint) + "\"" + line.substring(closingBracket));
                     } 
                     else {
                         f0.println(line);
@@ -494,6 +488,11 @@ public class FileConvertion {
         }
         in.close();
         f0.close();
+    }
+
+    private String escapeXmlAttribute(String value) {
+        return value.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+                .replace("\"", "&quot;").replace("\n", "&#10;").replace("\r", "&#13;").replace("\t", "&#9;");
     }
 
     public void placeAssertInRightPosition() {
