@@ -13,11 +13,12 @@ import java.security.SecureRandom;
  */
 public class LatinHypercubeSampler {
 
+    private static final SecureRandom SEED_SOURCE = new SecureRandom();
     private final long seed;
     private final Random random;
 
     public LatinHypercubeSampler() {
-        this(new SecureRandom().nextLong());
+        this(SEED_SOURCE.nextLong());
     }
 
     public LatinHypercubeSampler(long seed) {
